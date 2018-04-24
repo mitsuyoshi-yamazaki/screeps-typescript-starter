@@ -1,4 +1,6 @@
 import { ErrorMapper } from "utils/ErrorMapper";
+import { ActionResult, GroupActionType } from 'interfaces'
+import { Empire } from 'classes/empire'
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -21,43 +23,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const empire = new Empire('Mitsuyoshi', spawns)
 
-  empire.say('Bello')
+  empire.say('Hello')
 });
 
-enum ActionResult {
-  OK = 'ok'
-}
-
-interface GroupActionType {
-  say(message: string): ActionResult
-  expand(roomnames: string[]): ActionResult
-}
-
-class Empire implements GroupActionType {
-  constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
-    this.spawns.forEach((spawn, _) => {
-      spawn.initialize()
-    })
-  }
-
-  say(message: string): ActionResult {
-    let results: ActionResult[] = []
-
-    this.spawns.forEach((spawn, spawnID) => {
-      results.push(spawn.say(message))
-    })
-
-    return ActionResult.OK
-  }
-
-  expand(roomnames: string[]): ActionResult {
-    console.log('Empire.expand() not implemented yet')
-    return ActionResult.OK
-  }
-}
-
 declare global {
-  interface StructureSpawn extends GroupActionType {
+  export interface StructureSpawn extends GroupActionType {
     creeps: Map<string, Creep>
 
     initialize(): void
