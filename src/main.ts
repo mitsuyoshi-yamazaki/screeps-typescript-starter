@@ -11,6 +11,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
+
+  let spawns = new Map<string, StructureSpawn>()
+  for (const spawnName in Game.spawns) {
+    const spawn = Game.spawns[spawnName]
+
+    spawns.set(spawnName, spawn)
+  }
+
+  const empire = new Empire('Mitsuyoshi', spawns)
+
+  empire.say('Bello')
 });
 
 enum ActionResult {
@@ -23,7 +34,10 @@ interface GroupActionType {
 }
 
 class Empire implements GroupActionType {
-  constructor(readonly spawns: Map<string, StructureSpawn>) {
+  constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
+    this.spawns.forEach((spawn, _) => {
+      spawn.initialize()
+    })
   }
 
   say(message: string): ActionResult {
@@ -44,28 +58,26 @@ class Empire implements GroupActionType {
 
 declare global {
   interface StructureSpawn extends GroupActionType {
-    creeps: {[index: string]: Creep}
+    creeps: Map<string, Creep>
 
     initialize(): void
   }
 }
 
 StructureSpawn.prototype.initialize = function() {
-  this.creeps = {}
+  this.creeps = new Map<string, Creep>()
 
   for (const creepName in Game.creeps) {
     const creep = Game.creeps[creepName]
 
-    this.creeps[creep.id] = creep
+    this.creeps.set(creep.id, creep)
   }
 }
 
 StructureSpawn.prototype.say = function(message) {
-  for (const creepID in this.creeps) {
-    const creep = this.creeps[creepID]
-
+  this.creeps.forEach((creep, _) => {
     creep.say(message)
-  }
+  })
 
   return ActionResult.OK
 }
