@@ -18,21 +18,19 @@ enum ActionResult {
 }
 
 interface GroupActionType {
-  say(): ActionResult
+  say(message: string): ActionResult
   expand(roomnames: string[]): ActionResult
 }
-
-let a = new Map<string, StructureSpawn>()
 
 class Empire implements GroupActionType {
   constructor(readonly spawns: Map<string, StructureSpawn>) {
   }
 
-  say(): ActionResult {
+  say(message: string): ActionResult {
     let results: ActionResult[] = []
 
     this.spawns.forEach((spawn, spawnID) => {
-      results.push(spawn.say())
+      results.push(spawn.say(message))
     })
 
     return ActionResult.OK
@@ -46,18 +44,29 @@ class Empire implements GroupActionType {
 
 declare global {
   interface StructureSpawn extends GroupActionType {
-    creeps: Map<string, Creep>
+    creeps: {[index: string]: Creep}
 
     initialize(): void
   }
 }
 
 StructureSpawn.prototype.initialize = function() {
-  this.creeps = Game.creeps.values()
+  this.creeps = {}
+
+  for (const creepName in Game.creeps) {
+    const creep = Game.creeps[creepName]
+
+    this.creeps[creep.id] = creep
+  }
 }
 
-StructureSpawn.prototype.say = function() {
-  console.log('StructureSpawn.say() not implemented yet')
+StructureSpawn.prototype.say = function(message) {
+  for (const creepID in this.creeps) {
+    const creep = this.creeps[creepID]
+
+    creep.say(message)
+  }
+
   return ActionResult.OK
 }
 
