@@ -1,4 +1,4 @@
-import { ActionResult, GroupActionType } from '../interfaces'
+import { ActionResult, GroupActionType } from 'interfaces'
 
 export class Empire implements GroupActionType {
   constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
