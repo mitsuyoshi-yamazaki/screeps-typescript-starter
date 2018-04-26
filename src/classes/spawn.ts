@@ -1,5 +1,5 @@
 import { Reply } from 'interfaces'
-import { Squad } from 'squad'
+import { Squad } from 'classes/squad'
 
 declare global {
   interface StructureSpawn {
@@ -9,6 +9,8 @@ declare global {
     say(message: string): void
     expand(roomnames: string[]): void
 
+    // internal methods
+    // spawn(squad_id: string)
   }
 }
 
@@ -37,6 +39,42 @@ export function init() {
 
   StructureSpawn.prototype.expand = function(roomnames: string[]) {
 
+    // spawn
+    let availableEnergy = this.room.energyAvailable
+
+    if (availableEnergy == this.room.energyCapacityAvailable) {
+      if (this.squads.size == 0) {
+        const squad_id = Squad.generateNewID()
+        const squad = new Squad(squad_id)
+
+        this.squads.set(squad.id, squad);
+        (this.memory as any)['squad_ids'] = [squad_id]
+      }
+
+      const squad: Squad = this.squads.values().next().value
+      console.log(`Spawn and assign to ${squad}`)
+
+      let body = [] as BodyPartConstant[]
+      const bodyUnit = [CARRY, WORK, MOVE]
+      const unitCost = 200
+
+      while (availableEnergy >= unitCost) {
+        body = body.concat(bodyUnit)
+        availableEnergy -= unitCost
+      }
+
+      const name = `Creep${Game.time}`
+
+      const result = this.spawnCreep(body, name, {
+        memory: {
+          'squad_id': squad.id
+        }
+      })
+
+      console.log(`Spawn: ${result}`)
+    }
+
+    // run squads
     const sources = this.room.find(FIND_SOURCES)
     console.log(`${sources} found in room ${this.room.name}`)
 

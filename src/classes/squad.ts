@@ -7,6 +7,10 @@ enum Status {
 export class Squad {
   readonly creeps = new Map<string, Creep>()
 
+  static generateNewID(): string {
+    return `Squad${Game.time}`
+  }
+
   constructor(readonly id: string) {
     for (const creep_name in Game.creeps) {
       const creep = Game.creeps[creep_name]
@@ -20,7 +24,8 @@ export class Squad {
 
   say(message: string): void {
     this.creeps.forEach((creep, _) => {
-      creep.say(message)
+      // creep.say(message)
+      creep.say(`${this.id}!`)
     })
   }
 

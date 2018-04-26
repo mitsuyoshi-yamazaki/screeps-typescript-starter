@@ -1,4 +1,5 @@
-import * as Spawn from 'classes/spawn'
+import * as SpawnInitializer from 'classes/spawn'
+import * as CreepInitializer from 'classes/creep'
 
 const keys = [
   'game',
@@ -15,7 +16,8 @@ export function init() {
     }
   })
 
-  Spawn.init()
+  SpawnInitializer.init()
+  CreepInitializer.init()
 }
 
 /**
