@@ -1,7 +1,7 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 import { ActionResult, GroupActionType } from 'interfaces'
 import { Empire } from 'classes/empire'
-import { a } from 'classes/spawn'
+import * as Spawn from 'classes/spawn'
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -27,3 +27,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
   empire.say('Hello')
 });
 
+Spawn.init()
