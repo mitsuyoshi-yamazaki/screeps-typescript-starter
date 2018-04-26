@@ -1,24 +1,30 @@
-import { ActionResult, GroupActionType } from 'interfaces'
+import { Reply } from 'interfaces'
 
-export class Squad implements GroupActionType {
-  creeps = new Map<string, Creep>()
+enum Status {
+  HARVEST = 'harvest',
+}
 
-  constructor(readonly id: string, creeps: Creep[]) {
-    creeps.forEach(creep => {
+export class Squad {
+  readonly creeps = new Map<string, Creep>()
+
+  constructor(readonly id: string) {
+    for (const creep_name in Game.creeps) {
+      const creep = Game.creeps[creep_name]
+      if ((creep.memory as any)['squad_id'] as string != id) {
+        continue
+      }
+
       this.creeps.set(creep.id, creep)
-    })
+    }
   }
 
-  say(message: string): ActionResult {
+  say(message: string): void {
     this.creeps.forEach((creep, _) => {
       creep.say(message)
     })
-
-    return ActionResult.OK
   }
 
-  expand(roomnames: string[]): ActionResult {
-    console.log('Squad.expand() not implemented yet')
-    return ActionResult.OK
+  harvest(source: Source): void {
+    console.log(`Harvest ${source}`)
   }
 }
