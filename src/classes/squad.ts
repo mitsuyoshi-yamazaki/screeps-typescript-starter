@@ -14,7 +14,7 @@ export class Squad {
   constructor(readonly id: string) {
     for (const creep_name in Game.creeps) {
       const creep = Game.creeps[creep_name]
-      if ((creep.memory as any).squad_id as string != id) {
+      if (creep.memory.squad_id != id) {
         continue
       }
 

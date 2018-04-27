@@ -8,23 +8,24 @@ declare global {
     initialize(): void
     say(message: string): void
     expand(roomnames: string[]): void
+  }
 
-    // internal methods
-    // spawn(squad_id: string)
+  interface SpawnMemory {
+    squad_ids: string[]
   }
 }
 
 export function init() {
   StructureSpawn.prototype.initialize = function() {
-    this.squads = new Map<string, Squad>()
-    const squad_ids = (this.memory as any).squad_ids as string[]
-
-    if ((squad_ids == null) || (squad_ids.length == 0)) {
-      (this.memory as any).squad_ids = [] as string[]
-      return
+    // memory
+    if (this.memory.squad_ids == null) {
+      this.memory.squad_ids = []
     }
 
-    for (const squad_id of squad_ids) {
+    // squads
+    this.squads = new Map<string, Squad>()
+
+    for (const squad_id of this.memory.squad_ids) {
       const squad = new Squad(squad_id)
 
       this.squads.set(squad.id, squad)

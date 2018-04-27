@@ -4,6 +4,10 @@ declare global {
   interface Creep {
     initialize(): void
   }
+
+  interface CreepMemory {
+    squad_id: string
+  }
 }
 
 export function init() {
