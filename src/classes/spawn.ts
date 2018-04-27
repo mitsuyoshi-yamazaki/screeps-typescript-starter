@@ -1,4 +1,5 @@
-import { Squad } from "classes/squad"
+import { Squad, SquadType } from "classes/squad"
+import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 
 declare global {
@@ -26,7 +27,7 @@ export function init() {
     this.squads = new Map<string, Squad>()
 
     for (const squad_id of this.memory.squad_ids) {
-      const squad = new Squad(squad_id)
+      const squad = new Squad(squad_id, SquadType.CONTROLLER_KEEPER)
 
       this.squads.set(squad.id, squad)
     }
@@ -46,7 +47,7 @@ export function init() {
     if (availableEnergy == this.room.energyCapacityAvailable) {
       if (this.squads.size == 0) {
         const squad_id = Squad.generateNewID()
-        const squad = new Squad(squad_id)
+        const squad = new Squad(squad_id, SquadType.CONTROLLER_KEEPER)
 
         this.squads.set(squad.id, squad);
         (this.memory as any).squad_ids = [squad_id]
@@ -68,7 +69,8 @@ export function init() {
 
       const result = this.spawnCreep(body, name, {
         memory: {
-          squad_id: squad.id
+          squad_id: squad.id,
+          status: CreepStatus.NONE,
         }
       })
 
@@ -80,7 +82,7 @@ export function init() {
     console.log(`${sources} found in room ${this.room.name}`)
 
     this.squads.forEach((squad, _) => {
-      squad.harvest(sources[0])
+      squad.upgrade(sources, this.room.controller!)
     })
   }
 }

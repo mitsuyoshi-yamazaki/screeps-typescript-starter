@@ -25,7 +25,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const empire = new Empire("Mitsuyoshi", spawns)
 
   empire.expand(["W5N3"])
-  empire.say("Bello")
 })
 
 Initializer.init()
