@@ -1,4 +1,4 @@
-import { Reply } from 'interfaces'
+import { Reply } from "interfaces"
 
 declare global {
   interface Creep {

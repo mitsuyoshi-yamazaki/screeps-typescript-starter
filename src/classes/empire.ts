@@ -1,7 +1,7 @@
-import { Reply } from 'interfaces'
+import { Reply } from "interfaces"
 
 enum State {
-  EXPAND = 'expand',
+  EXPAND = "expand"
 }
 
 export class Empire {
@@ -11,13 +11,13 @@ export class Empire {
     })
   }
 
-  say(message: string): void {
+  public say(message: string): void {
     this.spawns.forEach((spawn, spawnID) => {
       spawn.say(message)
     })
   }
 
-  expand(roomnames: string[]): void {
+  public expand(roomnames: string[]): void {
     this.spawns.forEach((spawn, spawnID) => {
       spawn.expand(roomnames)
     })

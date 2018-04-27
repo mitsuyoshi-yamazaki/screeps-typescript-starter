@@ -1,5 +1,5 @@
-import { Reply } from 'interfaces'
-import { Squad } from 'classes/squad'
+import { Squad } from "classes/squad"
+import { Reply } from "interfaces"
 
 declare global {
   interface StructureSpawn {
@@ -17,10 +17,10 @@ declare global {
 export function init() {
   StructureSpawn.prototype.initialize = function() {
     this.squads = new Map<string, Squad>()
-    const squad_ids = (this.memory as any)['squad_ids'] as string[]
+    const squad_ids = (this.memory as any).squad_ids as string[]
 
     if ((squad_ids == null) || (squad_ids.length == 0)) {
-      (this.memory as any)['squad_ids'] = [] as string[]
+      (this.memory as any).squad_ids = [] as string[]
       return
     }
 
@@ -48,7 +48,7 @@ export function init() {
         const squad = new Squad(squad_id)
 
         this.squads.set(squad.id, squad);
-        (this.memory as any)['squad_ids'] = [squad_id]
+        (this.memory as any).squad_ids = [squad_id]
       }
 
       const squad: Squad = this.squads.values().next().value
@@ -67,7 +67,7 @@ export function init() {
 
       const result = this.spawnCreep(body, name, {
         memory: {
-          'squad_id': squad.id
+          squad_id: squad.id
         }
       })
 

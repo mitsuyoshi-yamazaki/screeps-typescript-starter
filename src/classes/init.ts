@@ -1,16 +1,16 @@
-import * as SpawnInitializer from 'classes/spawn'
-import * as CreepInitializer from 'classes/creep'
+import * as CreepInitializer from "classes/creep"
+import * as SpawnInitializer from "classes/spawn"
 
 const keys = [
-  'game',
-  'empire',
-  'spawn',
-  'squad',
-  'creep',
+  "game",
+  "empire",
+  "spawn",
+  "squad",
+  "creep"
 ]
 
 export function init() {
-  keys.forEach(key => {
+  keys.forEach((key) => {
     if (Memory[key] == null) {
       Memory[key] = new Map<string, any>()
     }

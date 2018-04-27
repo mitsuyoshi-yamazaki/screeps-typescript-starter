@@ -1,5 +1,5 @@
 
 export enum Reply {
-  OK = 'ok',
-  DENIED = 'denied',
+  OK = "ok",
+  DENIED = "denied"
 }
