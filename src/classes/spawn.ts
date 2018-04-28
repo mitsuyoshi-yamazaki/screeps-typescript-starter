@@ -1,10 +1,12 @@
-import { Squad, SquadType } from "classes/squad"
-import { CreepStatus } from "classes/creep"
+import { Squad, SquadType, SpawnPriority } from "classes/squad"
+// import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 
 declare global {
   interface StructureSpawn {
     squads: Map<string, Squad>
+
+
 
     initialize(): void
     say(message: string): void
@@ -28,8 +30,24 @@ export function init() {
 
     for (const squad_id of this.memory.squad_ids) {
       const squad = new Squad(squad_id, SquadType.CONTROLLER_KEEPER)
-
       this.squads.set(squad.id, squad)
+    }
+
+    // spawn
+    if (this.spawning == null) {
+      let highest_priority: SpawnPriority = SpawnPriority.LOW
+      let spawn_needed_squad: Squad | null = null
+
+      this.squads.forEach((squad, _) => {
+        if (squad.spawnPriority < highest_priority) {
+          spawn_needed_squad = squad
+          highest_priority = squad.spawnPriority
+        }
+      })
+
+      if (spawn_needed_squad != null) {
+        spawn_needed_squad!.addCreep(this.spawnCreep)
+      }
     }
   }
 
