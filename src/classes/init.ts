@@ -1,3 +1,4 @@
+import * as WorldInitializer from "classes/world"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
@@ -16,6 +17,7 @@ export function init() {
     }
   })
 
+  WorldInitializer.init()
   SpawnInitializer.init()
   CreepInitializer.init()
 }
