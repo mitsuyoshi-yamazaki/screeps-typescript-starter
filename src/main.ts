@@ -8,13 +8,6 @@ import { Reply } from "interfaces"
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
 
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name]
-    }
-  }
-
   const spawns = new Map<string, StructureSpawn>()
   for (const spawnName in Game.spawns) {
     const spawn = Game.spawns[spawnName]

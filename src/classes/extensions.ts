@@ -1,6 +1,9 @@
+import { ControllerKeeperSquad } from "./squad";
+
 declare global {
   interface Room {
     sources: Source[]
+    keeper?: ControllerKeeperSquad
 
     initialize(): void
   }

@@ -15,7 +15,7 @@ declare global {
   }
 
   interface CreepMemory {
-    squad_id: string
+    squad_name: string
     status: CreepStatus
   }
 }
