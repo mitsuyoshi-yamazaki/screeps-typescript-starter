@@ -98,7 +98,7 @@ export class ControllerKeeperSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 200
+    return energyAvailable >= 250
   }
 
   public addCreep(spawnFunc: SpawnFunction): void {

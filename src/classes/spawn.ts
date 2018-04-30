@@ -66,19 +66,22 @@ export function init() {
       })
 
       const highest_priority = sorted[0].spawnPriority
-      const availableEnergy = this.room.energyAvailable
-      const energyCapacity = this.room.energyCapacityAvailable
 
-      for (const squad of sorted) {
-        if (squad.spawnPriority > highest_priority) {
-          break
+      if (highest_priority != SpawnPriority.NONE) {
+        const availableEnergy = this.room.energyAvailable
+        const energyCapacity = this.room.energyCapacityAvailable
+
+        for (const squad of sorted) {
+          if (squad.spawnPriority > highest_priority) {
+            break
+          }
+          if (squad.hasEnoughEnergy(availableEnergy, this.energyCapacity) == false) {
+            continue
+          }
+          squad.addCreep((body, name, ops) => { // this closure is to keep 'this'
+            return this.spawnCreep(body, name, ops)
+          })
         }
-        if (squad.hasEnoughEnergy(availableEnergy, this.energyCapacity) == false) {
-          continue
-        }
-        squad.addCreep((body, name, ops) => { // this closure is to keep 'this'
-          return this.spawnCreep(body, name, ops)
-        })
       }
     }
   }
