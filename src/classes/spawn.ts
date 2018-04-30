@@ -28,7 +28,11 @@ export function init() {
     this.squads = new Map<string, Squad>()
 
     for (const squad_name of this.memory.squad_names) {
-      const squad = new ControllerKeeperSquad(squad_name, this.room)  // @todo: assign room
+      const room = this.room // @todo: assign room
+
+      const squad = new ControllerKeeperSquad(squad_name, room)
+      room.keeper = squad
+
       this.squads.set(squad.name, squad)
     }
 
@@ -45,6 +49,9 @@ export function init() {
 
         room.keeper = squad
         this.squads.set(squad.name, squad)
+        this.memory.squad_names.push(squad.name)
+
+        console.log(`Missing roomkeeper, assigned: ${room.keeper}`)
       }
     }
 
@@ -69,7 +76,9 @@ export function init() {
         if (squad.hasEnoughEnergy(availableEnergy, this.energyCapacity) == false) {
           continue
         }
-        squad.addCreep(this.spawnCreep)
+        squad.addCreep((body, name, ops) => { // this closure is to keep 'this'
+          return this.spawnCreep(body, name, ops)
+        })
       }
     }
   }

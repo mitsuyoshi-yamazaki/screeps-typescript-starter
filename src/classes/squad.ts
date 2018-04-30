@@ -60,8 +60,6 @@ export abstract class Squad {
   }
 
   public upgrade(sources: Source[], target: StructureController): void {
-    console.log(`Upgrade ${target}`)
-
     this.creeps.forEach((creep, _) => {
       creep.upgrade(sources[0], target)
     })
@@ -97,13 +95,6 @@ export class ControllerKeeperSquad extends Squad {
 
   constructor(readonly name: string, readonly room: Room | string) {
     super(name)
-
-    if ((room as Room).keeper != undefined) {
-      (room as Room).keeper = this
-    }
-    else {
-      console.log('(room as Room).keeper is undefined')
-    }
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {

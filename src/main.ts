@@ -7,6 +7,7 @@ import { Reply } from "interfaces"
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+  Initializer.init()
 
   const spawns = new Map<string, StructureSpawn>()
   for (const spawnName in Game.spawns) {
@@ -19,5 +20,3 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   empire.expand(["W5N3"])
 })
-
-Initializer.init()
