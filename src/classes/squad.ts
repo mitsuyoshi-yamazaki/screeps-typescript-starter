@@ -15,20 +15,26 @@ export enum SpawnPriority {
 
 export enum SquadType {
   CONTROLLER_KEEPER = "controller_keeper",
+  WORKER = "worker",
 }
 
 export interface SpawnFunction {
   (body: BodyPartConstant[], name: string, opts?: { memory?: CreepMemory, energyStructures?: Array<(StructureSpawn | StructureExtension)>, dryRun?: boolean }): ScreepsReturnCode
 }
 
+/**
+ * 1 ControllerKeeperSquad for each rooms
+ * 1 WorkerSquad for each spawn
+ */
 export abstract class Squad {
   // Abstract members
   public abstract readonly type: SquadType
   public abstract readonly spawnPriority: SpawnPriority
   public abstract hasEnoughEnergy(energyAvailable: number, capacity: number): boolean
-  public abstract addCreep(spawnFunc: SpawnFunction): void
+  public abstract addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void
   // public static abstract generateNewName(): string // this method should be implemented each subclasses
   public abstract generateNewName(): string
+  public abstract run(): void
 
   // Non-abstract members
   public readonly creeps = new Map<string, Creep>()
@@ -50,29 +56,21 @@ export abstract class Squad {
       creep.say(message)
     })
   }
-
-  public harvest(source: Source): void {
-    console.log(`Harvest ${source}`)
-
-    this.creeps.forEach((creep, _) => {
-      // creep.say(message)
-    })
-  }
-
-  public upgrade(sources: Source[], target: StructureController): void {
-    this.creeps.forEach((creep, _) => {
-      creep.upgrade(sources[0], target)
-    })
-  }
 }
 
 export class ControllerKeeperSquad extends Squad {
-  get myRoom(): boolean {
+  constructor(readonly name: string, readonly room: Room | string) {
+    super(name)
+
     if ((this.room as Room).controller) {
-      return (this.room as Room).controller!.my
+      this.myRoom = (this.room as Room).controller!.my
     }
-    return false
+    else {
+      this.myRoom = false
+    }
   }
+
+  public readonly myRoom: boolean
 
   public get type(): SquadType {
     return SquadType.CONTROLLER_KEEPER
@@ -93,15 +91,11 @@ export class ControllerKeeperSquad extends Squad {
     return ControllerKeeperSquad.generateNewName()
   }
 
-  constructor(readonly name: string, readonly room: Room | string) {
-    super(name)
-  }
-
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     return energyAvailable >= 250
   }
 
-  public addCreep(spawnFunc: SpawnFunction): void {
+  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     if (this.myRoom) {
       this.addCreepForUpgrade(spawnFunc)
     }
@@ -110,6 +104,20 @@ export class ControllerKeeperSquad extends Squad {
     }
   }
 
+  public run(): void {
+    if (this.myRoom) {
+      const source = (this.room as Room).sources[0]
+
+      this.creeps.forEach((creep, _) => {
+        creep.upgrade(source, (this.room as Room).controller!)
+      })
+    }
+    else {
+      this.reserveOrClaim()
+    }
+  }
+
+  // Private members
   private addCreepForUpgrade(spawnFunc: SpawnFunction): void {
     let body: BodyPartConstant[] = []
     let name: string
@@ -123,6 +131,7 @@ export class ControllerKeeperSquad extends Squad {
       memory = {
         squad_name: this.name,
         status: CreepStatus.NONE,
+        birth_time: Game.time,
       }
       break
     }
@@ -137,5 +146,86 @@ export class ControllerKeeperSquad extends Squad {
   private addCreepForReserve(spawnFunc: SpawnFunction): void {
     // @todo: implement
     console.log(`addCreepForReserve not implemented yet`)
+  }
+
+  private reserveOrClaim(): void {
+    // @todo: implement
+    console.log(`reserveOrClaim not implemented yet`)
+  }
+}
+
+/**
+ * WorkerSquad manages workers ([WORK, CARRY, MOVE] * n or [WORK * 2, CARRY * 2, MOVE * 3] * n)
+ * to build or upgrade.
+ */
+export class WorkerSquad extends Squad {
+  constructor(readonly name: string, readonly rooms: (Room | string)[]) {
+    super(name)
+  }
+
+  public get type(): SquadType {
+    return SquadType.WORKER
+  }
+
+  public get spawnPriority(): SpawnPriority {
+    const urgent = false  // @todo: no harvester or worker
+    const needWorker = false  // @todo: implement
+
+    if (urgent) {
+      return SpawnPriority.URGENT
+    }
+    return needWorker ? SpawnPriority.LOW : SpawnPriority.NONE
+  }
+
+  public static generateNewName(): string {
+    return `${SquadType.WORKER}${Game.time}`
+  }
+
+  public generateNewName(): string {
+    return WorkerSquad.generateNewName()
+  }
+
+  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+    let energyUnit = 450
+
+    if (capacity < energyUnit) {
+      energyUnit = 200
+    }
+
+    const energyNeeded = Math.floor(capacity / energyUnit) * energyUnit // @todo: set upper limit
+
+    return energyNeeded >= energyAvailable
+  }
+
+  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    let energyUnit = 450
+    let bodyUnit: BodyPartConstant[] = [WORK, CARRY, MOVE, WORK, CARRY, MOVE, MOVE]
+    let body: BodyPartConstant[] = []
+    const memory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+    }
+
+
+    if (energyAvailable < energyUnit) {
+      energyUnit = 200
+      bodyUnit = [WORK, CARRY, MOVE]
+    }
+
+    while (energyAvailable >= energyUnit) {
+      body = body.concat(bodyUnit)
+      energyAvailable -= energyUnit
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+
+    console.log(`Spawn and assign to ${this.type}: ${result}`)
+  }
+
+  public run(): void {
+    // @todo:
   }
 }

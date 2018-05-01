@@ -78,9 +78,10 @@ export function init() {
           if (squad.hasEnoughEnergy(availableEnergy, this.energyCapacity) == false) {
             continue
           }
-          squad.addCreep((body, name, ops) => { // this closure is to keep 'this'
+          squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
             return this.spawnCreep(body, name, ops)
           })
+          break
         }
       }
     }
@@ -96,7 +97,7 @@ export function init() {
     // run squads
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
-      squad.upgrade(sources, this.room.controller!)
+      squad.run()
     })
   }
 }
