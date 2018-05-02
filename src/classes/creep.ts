@@ -4,6 +4,7 @@ export enum CreepStatus {  // @todo: add "meta" info to status and keep it on me
   NONE    = "none",
   HARVEST = "harvest",
   CHARGE  = "charge",
+  BUILD   = "build",
   UPGRADE = "upgrade",
 }
 
@@ -56,6 +57,7 @@ export function init() {
       this.memory.status = CreepStatus.HARVEST
     }
 
+    // Harvest
     if (this.memory.status == CreepStatus.HARVEST) {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
@@ -65,6 +67,8 @@ export function init() {
         return
       }
     }
+
+    // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
       const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: structure => {
@@ -76,7 +80,7 @@ export function init() {
       })
 
       if (!target) {
-        this.memory.status = CreepStatus.UPGRADE
+        this.memory.status = CreepStatus.BUILD
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
@@ -86,6 +90,23 @@ export function init() {
         return
       }
     }
+
+    if (this.memory.status == CreepStatus.BUILD) {
+      const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+
+      if (!target) {
+        this.memory.status = CreepStatus.UPGRADE
+      }
+      else if (this.carry.energy == 0) {
+        this.memory.status = CreepStatus.HARVEST
+      }
+      else if (this.build(target) == ERR_NOT_IN_RANGE) {
+        this.moveTo(target)
+        return
+      }
+    }
+
+    // Upgrade
     if (this.memory.status == CreepStatus.UPGRADE) {
       if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
