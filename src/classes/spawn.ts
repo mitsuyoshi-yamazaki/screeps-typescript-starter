@@ -1,4 +1,4 @@
-import { Squad, SquadType, SpawnPriority, ControllerKeeperSquad } from "classes/squad"
+import { Squad, SquadType, SpawnPriority, ControllerKeeperSquad, WorkerSquad } from "classes/squad"
 // import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 

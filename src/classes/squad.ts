@@ -169,7 +169,7 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     const urgent = false  // @todo: no harvester or worker
-    const needWorker = false  // @todo: implement
+    const needWorker = Object.keys(Game.creeps).length < 6  // @todo: implement
 
     if (urgent) {
       return SpawnPriority.URGENT
@@ -207,7 +207,6 @@ export class WorkerSquad extends Squad {
       birth_time: Game.time,
     }
 
-
     if (energyAvailable < energyUnit) {
       energyUnit = 200
       bodyUnit = [WORK, CARRY, MOVE]
@@ -226,6 +225,14 @@ export class WorkerSquad extends Squad {
   }
 
   public run(): void {
-    // @todo:
+    // @todo move harvest task to harvester squad
+
+    const room = this.rooms[0] as Room  // @fixme
+    const source = room.sources[0]
+    const controller = room.controller! // @fixme
+
+    this.creeps.forEach((creep, _) => {
+      creep.upgrade(source, controller)
+    })
   }
 }
