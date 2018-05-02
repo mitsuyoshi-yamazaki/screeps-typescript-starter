@@ -11,7 +11,25 @@ const keys = [
 ]
 
 export function init() {
-  // @todo: implement memory initialization logic after respawn
+  if (_.size(Game.creeps) == 0 && _.size(Game.rooms) == 1 && !Memory.respawncomplete ) {
+    const room = _.find(Game.rooms)!
+    if ( room.controller!.level == 1 ) {
+      console.log('CLEAR ALL MEMORY')
+
+      delete Memory.spawns
+      delete Memory.creeps
+      delete Memory.squads
+
+      Memory.respawncomplete = true
+    }
+    else {
+      Memory.respawncomplete = false
+    }
+  }
+  else {
+    Memory.respawncomplete = false
+  }
+
   if (Memory.squads == null) {
     Memory.squads = []
   }
