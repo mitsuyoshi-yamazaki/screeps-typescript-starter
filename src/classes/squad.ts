@@ -113,9 +113,9 @@ export class ControllerKeeperSquad extends Squad {
 
   public run(): void {
     if (this.myRoom) {
-      const source = (this.room as Room).sources[0]
-
       this.creeps.forEach((creep, _) => {
+      // const source = (this.room as Room).sources[0]  // @todo: Cache source
+        const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
         creep.upgrade(source, (this.room as Room).controller!)
       })
     }
@@ -236,11 +236,10 @@ export class WorkerSquad extends Squad {
     // @todo move harvest task to harvester squad
 
     const room = this.rooms[0] as Room  // @fixme
-    const source = room.sources[0]
-    const controller = room.controller! // @fixme
 
     this.creeps.forEach((creep, _) => {
-      creep.charge(source, controller)
+      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+      creep.charge(source, room)
     })
   }
 }
