@@ -22,12 +22,19 @@ export interface SpawnFunction {
   (body: BodyPartConstant[], name: string, opts?: { memory?: CreepMemory, energyStructures?: Array<(StructureSpawn | StructureExtension)>, dryRun?: boolean }): ScreepsReturnCode
 }
 
+export interface SquadMemory {
+  readonly name: string
+  readonly type: SquadType
+  readonly owner_name: string  // Spawn name
+}
+
 /**
  * 1 ControllerKeeperSquad for each rooms
  * 1 WorkerSquad for each spawn
  */
 export abstract class Squad {
   // Abstract members
+  // public abstract readonly memory: SquadMemory // @todo: implement
   public abstract readonly type: SquadType
   public abstract readonly spawnPriority: SpawnPriority
   public abstract hasEnoughEnergy(energyAvailable: number, capacity: number): boolean
@@ -232,7 +239,7 @@ export class WorkerSquad extends Squad {
     const controller = room.controller! // @fixme
 
     this.creeps.forEach((creep, _) => {
-      creep.upgrade(source, controller)
+      creep.charge(source, controller)
     })
   }
 }

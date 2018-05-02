@@ -11,6 +11,11 @@ const keys = [
 ]
 
 export function init() {
+  // @todo: implement memory initialization logic after respawn
+  if (Memory.squads == null) {
+    Memory.squads = []
+  }
+
   keys.forEach((key) => {
     if (Memory[key] == null) {
       Memory[key] = new Map<string, any>()
@@ -28,8 +33,9 @@ export function init() {
  * |- game
  * |- empire
  * |- spawn(StructureSpawn.memory)
- * |  |- squad_ids
- * |- squad
+ * |  |- squad_names
+ * |- squads
+ * |  |- squad_name
  * |- creep(Creep.memory)
- *    |- squad_id
+ *    |- squad_name
  */

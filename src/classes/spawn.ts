@@ -1,10 +1,11 @@
-import { Squad, SquadType, SpawnPriority, ControllerKeeperSquad, WorkerSquad } from "classes/squad"
+import { Squad, SquadType, SquadMemory, SpawnPriority, ControllerKeeperSquad, WorkerSquad } from "classes/squad"
 // import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 
 declare global {
   interface StructureSpawn {
     squads: Map<string, Squad>
+    worker_squad: WorkerSquad
     rooms: Room[]
 
     initialize(): void
@@ -19,40 +20,83 @@ declare global {
 
 export function init() {
   StructureSpawn.prototype.initialize = function() {
-    // memory
+    // Initialize member
     if (this.memory.squad_names == null) {
       this.memory.squad_names = []
     }
 
-    // squads
     this.squads = new Map<string, Squad>()
 
-    for (const squad_name of this.memory.squad_names) {
-      const room = this.room // @todo: assign room
-
-      const squad = new ControllerKeeperSquad(squad_name, room)
-      room.keeper = squad
-
-      this.squads.set(squad.name, squad)
-    }
-
-    // room
     this.rooms = []
 
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
       this.rooms.push(room)
+    }
 
-      if (room.keeper == null) {
-        const name = ControllerKeeperSquad.generateNewName()
-        const squad = new ControllerKeeperSquad(name, room)
-
-        room.keeper = squad
-        this.squads.set(squad.name, squad)
-        this.memory.squad_names.push(squad.name)
-
-        console.log(`Missing roomkeeper, assigned: ${room.keeper}`)
+    // Memory
+    for (const squad_memory of Memory.squads) {
+      if (this.name != squad_memory.owner_name) {
+        continue
       }
+
+      switch (squad_memory.type) {
+      case SquadType.CONTROLLER_KEEPER: {
+        const squad = new ControllerKeeperSquad(squad_memory.name, this.room) // @fixme define each "room"
+        this.squads.set(squad.name, squad)
+        this.room.keeper = squad
+        break
+      }
+      case SquadType.WORKER: {
+        const squad = new WorkerSquad(squad_memory.name, this.rooms)
+
+        this.worker_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      default:
+        console.log(`Unexpected squad type ${squad_memory}`)
+        break
+      }
+    }
+
+    // Room
+    this.rooms.forEach(room => {
+      if (room.keeper != null) {
+        return
+      }
+
+      const name = ControllerKeeperSquad.generateNewName()
+      const squad = new ControllerKeeperSquad(name, room)
+
+      room.keeper = squad
+      this.squads.set(squad.name, squad)
+      this.memory.squad_names.push(squad.name)
+
+      const memory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads.push(memory)
+
+      console.log(`Missing roomkeeper, assigned: ${room.keeper}`)
+    })
+
+    // Worker
+    if (!this.worker_squad) {
+      const name = WorkerSquad.generateNewName()
+      const squad = new WorkerSquad(name, this.rooms)
+
+      this.worker_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads.push(memory)
     }
 
     // spawn

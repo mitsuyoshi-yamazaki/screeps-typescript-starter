@@ -1,6 +1,10 @@
-import { ControllerKeeperSquad } from "./squad";
+import { ControllerKeeperSquad, SquadMemory } from "./squad";
 
 declare global {
+  interface Memory {
+    squads: SquadMemory[]
+  }
+
   interface Room {
     sources: Source[]
     keeper?: ControllerKeeperSquad
