@@ -129,6 +129,19 @@ export function init() {
         }
       }
     }
+
+    // Construction site
+    for (const flag_name in Game.flags) {
+      const flag = Game.flags[flag_name]
+
+      if (this.room.createConstructionSite(flag.pos, STRUCTURE_EXTENSION) == OK) {
+        flag.remove()
+
+        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}`)
+        break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
+        // so call it one by one
+      }
+    }
   }
 
   StructureSpawn.prototype.say = function(message) {

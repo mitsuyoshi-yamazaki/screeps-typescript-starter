@@ -176,7 +176,7 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     const urgent = false  // @todo: no harvester or worker
-    const needWorker = Object.keys(Game.creeps).length < 6  // @todo: implement
+    const needWorker = Object.keys(Game.creeps).length < 7  // @todo: implement
 
     if (urgent) {
       return SpawnPriority.URGENT
