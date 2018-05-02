@@ -201,13 +201,14 @@ export class WorkerSquad extends Squad {
 
     const energyNeeded = Math.floor(capacity / energyUnit) * energyUnit // @todo: set upper limit
 
-    return energyNeeded >= energyAvailable
+    return energyNeeded <= energyAvailable
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     let energyUnit = 450
     let bodyUnit: BodyPartConstant[] = [WORK, CARRY, MOVE, WORK, CARRY, MOVE, MOVE]
     let body: BodyPartConstant[] = []
+    const name = this.generateNewName()
     const memory = {
       squad_name: this.name,
       status: CreepStatus.NONE,

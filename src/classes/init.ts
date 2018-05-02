@@ -11,7 +11,25 @@ const keys = [
 ]
 
 export function init() {
-  // @todo: implement memory initialization logic after respawn
+  const now = Game.time
+  if (Memory.last_tick != (now - 1)) {
+    if (Memory.last_tick < (now - 10)) { // Just in case
+      console.log(`RESPAWNED now: ${now}, last tick: ${Memory.last_tick}`)
+      console.log('CLEAR ALL MEMORY')
+
+      delete Memory.spawns
+      delete Memory.creeps
+      delete Memory.squads
+    }
+    else {
+      Memory.debug_last_tick = {
+        last_tick: Memory.last_tick,
+        now: now,
+      }
+    }
+  }
+  Memory.last_tick = now
+
   if (Memory.squads == null) {
     Memory.squads = []
   }
