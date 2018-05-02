@@ -142,6 +142,30 @@ export function init() {
         // so call it one by one
       }
     }
+
+    // Defend
+    // @todo: this codes should be located on somewhere like Empire
+    if (Game.time % 2 == 0) {
+      const room = this.room
+
+      const attackers = room.find(FIND_HOSTILE_CREEPS, {
+          filter: (creep) => {
+              return (creep.getActiveBodyparts(ATTACK) +  creep.getActiveBodyparts(RANGED_ATTACK)) > 0;
+          }
+      })
+
+      if (attackers.length >= 2) {
+        console.log('DETECT ', attackers.length, ' ATTACKERS!!! owner: ', attackers[0].owner.username)
+
+        if ((room.controller!.safeMode != undefined) && (room.controller!.safeMode! > 0)) {
+          console.log('Safemode active')
+        }
+        else {
+          console.log('Activate safe mode')
+          room.controller!.activateSafeMode()
+        }
+      }
+    }
   }
 
   StructureSpawn.prototype.say = function(message) {
