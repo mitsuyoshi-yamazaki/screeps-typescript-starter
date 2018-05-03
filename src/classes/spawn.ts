@@ -30,7 +30,7 @@ export function init() {
 
     this.squads = new Map<string, Squad>()
 
-    this.room_names = [this.room.name]
+    this.room_names = [this.room.name, 'W49S47']
 
     // for (const room_name in Game.rooms) {
     //   const room = Game.rooms[room_name]
@@ -48,7 +48,7 @@ export function init() {
         const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
         const room_name = controller_keeper_squad_memory.room_name
 
-        const squad = new ControllerKeeperSquad(squad_memory.name, room_name) // @fixme define each "room"
+        const squad = new ControllerKeeperSquad(squad_memory.name, room_name)
         this.squads.set(squad.name, squad)
         this.room.keeper = squad
         break
@@ -75,16 +75,21 @@ export function init() {
 
     // Room
     this.room_names.forEach(room_name => {
-      const room = Game.rooms[room_name]  // @fixme
+      let room_memory = Memory.rooms[room_name]
 
-      if (room.keeper) {
+      if (!room_memory) {
+        room_memory = {}
+        Memory.rooms[room_name] = room_memory
+      }
+
+      if (room_memory.keeper_squad_name) {
         return
       }
 
       const name = ControllerKeeperSquad.generateNewName()
       const squad = new ControllerKeeperSquad(name, room_name)
 
-      room.keeper = squad
+      Memory.rooms[room_name].keeper_squad_name = squad.name
       this.squads.set(squad.name, squad)
       this.memory.squad_names.push(squad.name)
 
@@ -96,7 +101,7 @@ export function init() {
       }
       Memory.squads.push(memory)
 
-      console.log(`Missing roomkeeper, assigned: ${room.keeper}`)
+      console.log(`Missing roomkeeper for ${room_name}, assigned: ${squad.name}`)
     })
 
     // Worker

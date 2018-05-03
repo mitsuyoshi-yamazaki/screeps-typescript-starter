@@ -43,7 +43,7 @@ export class ManualSquad extends Squad {
       memory: memory
     })
 
-    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
+    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   public run(): void {
@@ -97,7 +97,7 @@ export class ManualSquad extends Squad {
 
       if (creep.memory.manual_state == state.MOVE) {
         const pos = {x: 23, y: 16}
-        if (creep.moveToRoom(target_room_name, pos) == CreepActionResult.DONE) {
+        if (creep.moveToRoom(target_room_name) == CreepActionResult.DONE) {
           creep.memory.manual_state = state.DISMANTLE
         }
         else {

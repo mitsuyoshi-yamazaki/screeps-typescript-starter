@@ -17,12 +17,18 @@ declare global {
   interface Creep {
     initialize(): void
 
+    // General tasks
+    moveToRoom(destination_room_name: string): CreepActionResult
+
+    // Worker tasks
     harvestFrom(source: Source): CreepActionResult
     charge(source: Source, room: Room): void
     buildTo(source: Source, target: ConstructionSite): CreepActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): CreepActionResult
     upgrade(source: Source, target: StructureController): void
-    moveToRoom(destination_room_name: string, pos: {x: number, y: number}): CreepActionResult
+
+    // Controller tasks
+    claim(target_room_name: string): CreepActionResult
   }
 
   interface CreepMemory {
@@ -221,16 +227,18 @@ export function init() {
     }
   }
 
-  Creep.prototype.moveToRoom = function(destination_room_name: string, pos: {x: number, y: number}): CreepActionResult {
+  Creep.prototype.moveToRoom = function(destination_room_name: string): CreepActionResult { // pos?: {x: number, y: number}
     if (this.room.name == destination_room_name) {
-        if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
-            return CreepActionResult.DONE
-        }
+      return CreepActionResult.DONE
 
-        // @todo: make pos to optional, and default pos to room controller
-        console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
-        this.moveTo(pos.x, pos.y)
-        return CreepActionResult.IN_PROGRESS
+      // if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
+      //   return CreepActionResult.DONE
+      // }
+
+      // // @todo: make pos to optional, and default pos to room controller
+      // console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
+      // this.moveTo(pos.x, pos.y)
+      // return CreepActionResult.IN_PROGRESS
     }
 
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
@@ -242,6 +250,42 @@ export function init() {
     const closest_exit = this.pos.findClosestByPath(exit)
 
     this.moveTo(closest_exit)
+    return CreepActionResult.IN_PROGRESS
+  }
+
+  Creep.prototype.claim = function(target_room_name: string): CreepActionResult { // @fixme: DONE never returns since noway to check if
+    if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
+      console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
+      return CreepActionResult.IN_PROGRESS
+    }
+
+    const room = Game.rooms[target_room_name]
+    if (!room) {
+      this.moveToRoom(target_room_name)
+      return CreepActionResult.IN_PROGRESS
+    }
+
+    const should_claim = true  // @todo:
+    if (should_claim) {
+      const result = this.attackController(room.controller!)
+
+      switch (result) {
+        case OK:
+          return CreepActionResult.IN_PROGRESS
+
+        case ERR_NOT_IN_RANGE:
+          this.moveTo(room.controller!)
+          return CreepActionResult.IN_PROGRESS
+
+        default:
+          console.log(`Creep.claim Unexpected return code ${result}, ${this.name}`)
+          break
+      }
+    }
+    else {
+      console.log(`Creep.claim not implemented yet ${this.name}`)
+    }
+
     return CreepActionResult.IN_PROGRESS
   }
 }

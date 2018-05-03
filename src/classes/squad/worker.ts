@@ -81,7 +81,7 @@ export class WorkerSquad extends Squad {
       memory: memory
     })
 
-    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
+    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   public run(): void {

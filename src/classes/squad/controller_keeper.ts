@@ -64,12 +64,12 @@ export class ControllerKeeperSquad extends Squad {
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     switch (this.state) {
     case State.NOT_OWNED:
-      if (capacity >= 1250) {
-        return energyAvailable >= 1250
-      }
-      else {
+      // if (capacity >= 1250) {  // @todo implement here with addCreepForClaim
+      //   return energyAvailable >= 1250
+      // }
+      // else {
         return energyAvailable >= 650
-      }
+      // }
 
     case State.MINE:
       return energyAvailable >= 250
@@ -84,7 +84,7 @@ export class ControllerKeeperSquad extends Squad {
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     switch (this.state) {
       case State.NOT_OWNED:
-        this.addCreepForReserve(spawnFunc)
+        this.addCreepForClaim(spawnFunc)
         break
 
       case State.MINE:
@@ -115,53 +115,35 @@ export class ControllerKeeperSquad extends Squad {
 
   // Private members
   private addCreepForUpgrade(spawnFunc: SpawnFunction): void {
-    let body: BodyPartConstant[] = []
-    let name: string
-    let memory: CreepMemory
-
-    switch (this.type) {
-    case SquadType.CONTROLLER_KEEPER:
-    default:
-      body = [WORK, CARRY, MOVE, MOVE]
-      name = this.generateNewName()
-      memory = {
-        squad_name: this.name,
-        status: CreepStatus.NONE,
-        birth_time: Game.time,
-      }
-      break
+    const body: BodyPartConstant[] = [WORK, CARRY, MOVE, MOVE]
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
     }
 
     const result = spawnFunc(body, name, {
-      memory: memory
+      memory: memory,
     })
 
-    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
+    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
-  private addCreepForReserve(spawnFunc: SpawnFunction): void {
-    let body: BodyPartConstant[] = []
-    let name: string
-    let memory: CreepMemory
-
-    switch (this.type) {
-    case SquadType.CONTROLLER_KEEPER:
-    default:
-      body = [WORK, CARRY, MOVE, MOVE]
-      name = this.generateNewName()
-      memory = {
-        squad_name: this.name,
-        status: CreepStatus.NONE,
-        birth_time: Game.time,
-      }
-      break
+  private addCreepForClaim(spawnFunc: SpawnFunction): void {
+    const body: BodyPartConstant[] = [CLAIM, MOVE]
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
     }
 
     const result = spawnFunc(body, name, {
       memory: memory
     })
 
-    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
+    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   private upgrade(): void {
@@ -173,7 +155,8 @@ export class ControllerKeeperSquad extends Squad {
   }
 
   private claim(): void {
-    // @todo: implement
-    console.log(`reserveOrClaim not implemented yet`)
+    this.creeps.forEach((creep, _) => {
+      creep.claim(this.room_name)
+    })
   }
 }
