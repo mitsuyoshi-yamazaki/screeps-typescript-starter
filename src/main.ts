@@ -20,3 +20,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   empire.expand(["W5N3"])
 })
+
+/**
+ * @todo:
+ * random move on build / upgrade
+ * renew creeps
+ * harvest
+ */

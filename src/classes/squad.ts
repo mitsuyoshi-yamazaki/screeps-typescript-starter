@@ -147,7 +147,7 @@ export class ControllerKeeperSquad extends Squad {
       memory: memory
     })
 
-    console.log(`Spawn and assign to ${this.type}: ${result}`)
+    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
   }
 
   private addCreepForReserve(spawnFunc: SpawnFunction): void {
@@ -176,7 +176,10 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     const urgent = false  // @todo: no harvester or worker
-    const needWorker = Object.keys(Game.creeps).length < 7  // @todo: implement
+
+    const room = this.rooms[0] as Room
+    const max = room.energyCapacityAvailable >= 600 ? 7 : 10
+    const needWorker = Object.keys(Game.creeps).length < max  // @todo: implement
 
     if (urgent) {
       return SpawnPriority.URGENT
@@ -229,7 +232,7 @@ export class WorkerSquad extends Squad {
       memory: memory
     })
 
-    console.log(`Spawn and assign to ${this.type}: ${result}`)
+    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
   }
 
   public run(): void {

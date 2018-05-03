@@ -119,7 +119,7 @@ export function init() {
           if (squad.spawnPriority > highest_priority) {
             break
           }
-          if (squad.hasEnoughEnergy(availableEnergy, this.energyCapacity) == false) {
+          if (squad.hasEnoughEnergy(availableEnergy, energyCapacity) == false) {
             continue
           }
           squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
