@@ -33,7 +33,7 @@ export function init() {
     this.room_names = [this.room.name, 'W49S47']
 
     // Memory
-    for (const squad_memory of Memory.squads) { // @todo extract this spawn's squads
+    for (const squad_memory of Memory.squads) {
       if (this.name != squad_memory.owner_name) {
         continue
       }

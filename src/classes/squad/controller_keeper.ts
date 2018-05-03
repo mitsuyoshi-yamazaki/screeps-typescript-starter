@@ -188,7 +188,7 @@ export class ControllerKeeperSquad extends Squad {
         return
       }
 
-      const target = Game.getObjectById('5ae9bb4e504cda2f09e9fc0a') as StructureSpawn
+      const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
       creep.drop(RESOURCE_ENERGY)
 
       if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
