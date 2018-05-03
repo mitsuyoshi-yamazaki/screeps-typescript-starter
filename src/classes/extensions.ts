@@ -1,4 +1,5 @@
-import { ControllerKeeperSquad, SquadMemory } from "./squad/squad";
+import { SquadMemory } from "./squad/squad";
+import { ControllerKeeperSquad } from "./squad/controller_keeper";
 
 declare global {
   interface Memory {
