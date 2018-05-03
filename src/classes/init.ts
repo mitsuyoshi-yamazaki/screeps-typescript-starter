@@ -41,6 +41,10 @@ export function init() {
     Memory.squads = []
   }
 
+  if (Memory.rooms == null) {
+    Memory.rooms = {}
+  }
+
   keys.forEach((key) => {
     if (Memory[key] == null) {
       Memory[key] = new Map<string, any>()

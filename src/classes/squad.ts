@@ -68,11 +68,15 @@ export abstract class Squad {
 }
 
 export class ControllerKeeperSquad extends Squad {
-  constructor(readonly name: string, readonly room: Room | string) {
+  constructor(readonly name: string, readonly room_name: string) {
     super(name)
 
-    if ((this.room as Room).controller) {
-      this.myRoom = (this.room as Room).controller!.my
+    const room_obj = Game.rooms[this.room_name]
+    if (!room_obj) {
+      this.myRoom = false
+    }
+    else if (room_obj.controller) {
+      this.myRoom = room_obj.controller!.my
     }
     else {
       this.myRoom = false
@@ -118,7 +122,7 @@ export class ControllerKeeperSquad extends Squad {
       this.creeps.forEach((creep, _) => {
       // const source = (this.room as Room).sources[0]  // @todo: Cache source
         const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-        creep.upgrade(source, (this.room as Room).controller!)
+        creep.upgrade(source, Game.rooms[this.room_name].controller!)
       })
     }
     else {
@@ -168,7 +172,7 @@ export class ControllerKeeperSquad extends Squad {
  * to build or upgrade.
  */
 export class WorkerSquad extends Squad {
-  constructor(readonly name: string, readonly rooms: (Room | string)[]) {
+  constructor(readonly name: string, readonly room_names: string[]) {
     super(name)
 
     // if (this.creeps.size == 0) {  // @fixme:
@@ -188,9 +192,9 @@ export class WorkerSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     const urgent = false  // @todo: no harvester or worker
 
-    const room = this.rooms[0] as Room
+    const room = Game.rooms[this.room_names[0]]
     const max = 9//room.energyCapacityAvailable >= 600 ? 7 : 10
-    const needWorker = Object.keys(Game.creeps).length < max  // @todo: implement
+    const needWorker = this.creeps.size < max  // @todo: implement
 
     if (urgent) {
       return SpawnPriority.URGENT
@@ -249,7 +253,7 @@ export class WorkerSquad extends Squad {
   public run(): void {
     // @todo move harvest task to harvester squad
 
-    const room = this.rooms[0] as Room  // @fixme
+    const room = Game.rooms[this.room_names[0]]  // @fixme
 
     this.creeps.forEach((creep, _) => {
       const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
@@ -259,7 +263,7 @@ export class WorkerSquad extends Squad {
 }
 
 export class ManualSquad extends Squad {
-  constructor(readonly name: string, readonly original_room: Room) {
+  constructor(readonly name: string, readonly original_room_name: string) {
     super(name)
   }
 

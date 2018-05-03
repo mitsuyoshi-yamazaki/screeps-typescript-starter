@@ -7,6 +7,10 @@ declare global {
     debug_last_tick: any
   }
 
+  interface RoomMemory {
+    keeper_squad_name?: string
+  }
+
   interface Room {
     sources: Source[]
     keeper?: ControllerKeeperSquad

@@ -7,7 +7,7 @@ declare global {
     squads: Map<string, Squad>
     worker_squad: WorkerSquad
     manual_squad: ManualSquad
-    rooms: Room[]
+    room_names: string[]
     // towers: StructureTower[]  // @todo:
 
     initialize(): void
@@ -29,7 +29,7 @@ export function init() {
 
     this.squads = new Map<string, Squad>()
 
-    this.rooms = [this.room]
+    this.room_names = [this.room.name]
 
     // for (const room_name in Game.rooms) {
     //   const room = Game.rooms[room_name]
@@ -44,20 +44,20 @@ export function init() {
 
       switch (squad_memory.type) {
       case SquadType.CONTROLLER_KEEPER: {
-        const squad = new ControllerKeeperSquad(squad_memory.name, this.room) // @fixme define each "room"
+        const squad = new ControllerKeeperSquad(squad_memory.name, this.room.name) // @fixme define each "room"
         this.squads.set(squad.name, squad)
         this.room.keeper = squad
         break
       }
       case SquadType.WORKER: {
-        const squad = new WorkerSquad(squad_memory.name, this.rooms)
+        const squad = new WorkerSquad(squad_memory.name, this.room_names)
 
         this.worker_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
       case SquadType.MANUAL: {
-        const squad = new ManualSquad(squad_memory.name, this.room)
+        const squad = new ManualSquad(squad_memory.name, this.room.name)
 
         this.manual_squad = squad
         this.squads.set(squad.name, squad)
@@ -70,13 +70,15 @@ export function init() {
     }
 
     // Room
-    this.rooms.forEach(room => {
+    this.room_names.forEach(room_name => {
+      const room = Game.rooms[room_name]  // @fixme
+
       if (room.keeper != null) {
         return
       }
 
       const name = ControllerKeeperSquad.generateNewName()
-      const squad = new ControllerKeeperSquad(name, room)
+      const squad = new ControllerKeeperSquad(name, room_name)
 
       room.keeper = squad
       this.squads.set(squad.name, squad)
@@ -95,7 +97,7 @@ export function init() {
     // Worker
     if (!this.worker_squad) {
       const name = WorkerSquad.generateNewName()
-      const squad = new WorkerSquad(name, this.rooms)
+      const squad = new WorkerSquad(name, this.room_names)
 
       this.worker_squad = squad
       this.squads.set(squad.name, squad)
@@ -111,7 +113,7 @@ export function init() {
     // Manual
     if (!this.manual_squad) {
       const name = ManualSquad.generateNewName()
-      const squad = new ManualSquad(name, this.room)
+      const squad = new ManualSquad(name, this.room.name)
 
       this.manual_squad = squad
       this.squads.set(squad.name, squad)
