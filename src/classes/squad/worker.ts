@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult } from "classes/creep"
+import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
 
 /**
  * WorkerSquad manages workers ([WORK, CARRY, MOVE] * n or [WORK * 2, CARRY * 2, MOVE * 3] * n)
@@ -61,10 +61,11 @@ export class WorkerSquad extends Squad {
     let bodyUnit: BodyPartConstant[] = [WORK, CARRY, MOVE, WORK, CARRY, MOVE, MOVE]
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
-    const memory = {
+    const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
+      type: CreepType.WORKER,
     }
 
     if (energyAvailable < energyUnit) {
@@ -80,8 +81,6 @@ export class WorkerSquad extends Squad {
     const result = spawnFunc(body, name, {
       memory: memory
     })
-
-    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   public run(): void {

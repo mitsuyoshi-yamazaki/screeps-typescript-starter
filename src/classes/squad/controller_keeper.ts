@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult } from "classes/creep"
+import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
 
 export interface ControllerKeeperSquadMemory extends SquadMemory {
   readonly room_name: string
@@ -135,13 +135,12 @@ export class ControllerKeeperSquad extends Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
+      type: CreepType.CONTROLLER_KEEPER,
     }
 
     const result = spawnFunc(body, name, {
       memory: memory,
     })
-
-    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   private addCreepForClaim(spawnFunc: SpawnFunction): void {
@@ -151,29 +150,27 @@ export class ControllerKeeperSquad extends Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
+      type: CreepType.CLAIMER,
     }
 
     const result = spawnFunc(body, name, {
       memory: memory
     })
-
-    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   private addCreepForAttack(spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
-    const memory = {
+    const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
+      type: CreepType.SCOUT,
     }
 
     const result = spawnFunc(body, name, {
       memory: memory
     })
-
-    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   private attack(): void {

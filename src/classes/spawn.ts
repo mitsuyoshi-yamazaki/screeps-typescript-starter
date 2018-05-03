@@ -2,6 +2,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority } from "classes/squad/squa
 import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
 import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
+import { HarvesterSquadMemory, HarvesterSquad } from "./squad/harvester";
 
 declare global {
   interface StructureSpawn {
@@ -32,6 +33,13 @@ export function init() {
 
     this.room_names = [this.room.name, 'W49S47']
 
+    const harvester_destination = this.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return (structure.structureType == STRUCTURE_STORAGE) ||
+               (structure.structureType == STRUCTURE_CONTAINER)
+      }
+    })[0] as StructureStorage | StructureContainer
+
     // Memory
     for (const squad_memory of Memory.squads) {
       if (this.name != squad_memory.owner_name) {
@@ -55,6 +63,16 @@ export function init() {
         this.squads.set(squad.name, squad)
         break
       }
+      case SquadType.HARVESTER: {
+        const harvester_squad_memory = squad_memory as HarvesterSquadMemory
+        const source_info = {
+          id: harvester_squad_memory.source_id,
+          room_name: harvester_squad_memory.room_name,
+        }
+
+        const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination)
+        this.squads.set(squad.name, squad)
+      }
       case SquadType.MANUAL: {
         const squad = new ManualSquad(squad_memory.name, this.room.name)
 
@@ -73,7 +91,9 @@ export function init() {
       let room_memory = Memory.rooms[room_name]
 
       if (!room_memory) {
-        room_memory = {}
+        room_memory = {
+          harvesting_source_ids: []
+        }
         Memory.rooms[room_name] = room_memory
       }
 
@@ -115,6 +135,43 @@ export function init() {
       Memory.squads.push(memory)
     }
 
+    // Harvester
+    // @todo: for each spawns
+    const harvester_targets: {id: string, room_name: string}[] = [
+      { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
+    ]
+
+    harvester_targets.forEach(target => {
+      if (!Memory.rooms[target.room_name]) {
+        Memory.rooms[target.room_name] = {
+          harvesting_source_ids: []
+        }
+      }
+
+      if (!Memory.rooms[target.room_name].harvesting_source_ids) {
+        Memory.rooms[target.room_name].harvesting_source_ids = []
+      }
+
+      if (Memory.rooms[target.room_name].harvesting_source_ids.indexOf(target.id) >= 0) {
+        return
+      }
+
+      const name = HarvesterSquad.generateNewName()
+      const squad = new HarvesterSquad(name, target, harvester_destination)
+
+      this.squads.set(squad.name, squad)
+      this.memory.squad_names.push(squad.name)
+
+      const memory: HarvesterSquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+        source_id: target.id,
+        room_name: target.room_name,
+      }
+      Memory.squads.push(memory)
+    })
+
     // Manual
     if (!this.manual_squad) {
       const name = ManualSquad.generateNewName()
@@ -155,7 +212,9 @@ export function init() {
             continue
           }
           squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
-            return this.spawnCreep(body, name, ops)
+            const result = this.spawnCreep(body, name, ops)
+            console.log(`Spawn [${body}] and assign to ${squad.name}: ${result}`)
+            return result
           })
           break
         }

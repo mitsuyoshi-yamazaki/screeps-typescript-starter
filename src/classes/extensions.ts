@@ -10,6 +10,7 @@ declare global {
 
   interface RoomMemory {
     keeper_squad_name?: string
+    harvesting_source_ids: string[]
   }
 
   interface Room {

@@ -13,6 +13,16 @@ export enum CreepActionResult {
   DONE        = "done",
 }
 
+export enum CreepType {
+  CLAIMER           = 'claimer',
+  WORKER            = 'worker',
+  CONTROLLER_KEEPER = 'controller_keeper',
+  HARVESTER         = 'harvester',
+  CARRIER           = 'carrier',
+  ATTACKER          = 'attacker',
+  SCOUT             = 'scout',
+}
+
 declare global {
   interface Creep {
     initialize(): void
@@ -34,6 +44,7 @@ declare global {
   interface CreepMemory {
     squad_name: string
     status: CreepStatus
+    type: CreepType
     birth_time: number
     manual_state?: number  // only for ManualSquad
   }

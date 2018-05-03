@@ -30,8 +30,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     else if (tower.energy > (tower.energyCapacity / 2)) {
       const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: (structure) => {
-            return  (structure.structureType != STRUCTURE_CONTAINER) &&
-                    (structure.hits < Math.min(structure.hitsMax, 100000))
+            return (structure.hits < Math.min(structure.hitsMax, 100000))
         }
       })
       if(closestDamagedStructure) {
@@ -45,6 +44,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * @todo:
  * random move on build / upgrade
  * renew creeps
- * harvest
+ * harvester squad
  * remove controller_keeper squad
+ * army squad: 1 ranged attack creep and renew it
  */

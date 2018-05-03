@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult } from "classes/creep"
+import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
 
 export class ManualSquad extends Squad {
   constructor(readonly name: string, readonly original_room_name: string) {
@@ -33,17 +33,16 @@ export class ManualSquad extends Squad {
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE]
-    const memory = {
+    const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
+      type: CreepType.ATTACKER,
     }
 
     const result = spawnFunc(body, name, {
       memory: memory
     })
-
-    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
   public run(): void {
