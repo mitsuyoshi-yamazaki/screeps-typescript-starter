@@ -1,6 +1,7 @@
-import { Squad, SquadType, SquadMemory, SpawnPriority, ManualSquad } from "classes/squad/squad"
+import { Squad, SquadType, SquadMemory, SpawnPriority } from "classes/squad/squad"
 import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
 import { WorkerSquad } from "classes/squad/worker"
+import { ManualSquad } from "classes/squad/manual"
 
 declare global {
   interface StructureSpawn {
