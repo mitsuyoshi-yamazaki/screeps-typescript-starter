@@ -264,7 +264,9 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    // return this.creeps.size == 0 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    const r = this.creeps.size == 0 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    console.log(`MaualSquad.spawnPriority ${r}`)
+
     return SpawnPriority.NONE
   }
 
