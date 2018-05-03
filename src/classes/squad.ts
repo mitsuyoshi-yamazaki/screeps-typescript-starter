@@ -75,6 +75,10 @@ export class ControllerKeeperSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string) {
     super(name)
 
+    if (!room_name) {
+      console.log(`ControllerKeeperSquad.room_name is not provided ${room_name}, ${this.name}`)
+    }
+
     const room_obj = Game.rooms[this.room_name]
     if (!room_obj) {
       this.myRoom = false

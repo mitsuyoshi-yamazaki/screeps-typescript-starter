@@ -1,4 +1,4 @@
-import { Squad, SquadType, SquadMemory, SpawnPriority, ControllerKeeperSquad, WorkerSquad, ManualSquad } from "classes/squad"
+import { Squad, SquadType, SquadMemory, SpawnPriority, ControllerKeeperSquad, WorkerSquad, ManualSquad, ControllerKeeperSquadMemory } from "classes/squad"
 // import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 
@@ -44,7 +44,10 @@ export function init() {
 
       switch (squad_memory.type) {
       case SquadType.CONTROLLER_KEEPER: {
-        const squad = new ControllerKeeperSquad(squad_memory.name, this.room.name) // @fixme define each "room"
+        const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
+        const room_name = controller_keeper_squad_memory.room_name
+
+        const squad = new ControllerKeeperSquad(squad_memory.name, room_name) // @fixme define each "room"
         this.squads.set(squad.name, squad)
         this.room.keeper = squad
         break
@@ -84,10 +87,11 @@ export function init() {
       this.squads.set(squad.name, squad)
       this.memory.squad_names.push(squad.name)
 
-      const memory = {
+      const memory: ControllerKeeperSquadMemory = {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        room_name: room_name,
       }
       Memory.squads.push(memory)
 
