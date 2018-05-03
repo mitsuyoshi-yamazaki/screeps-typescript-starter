@@ -1,10 +1,4 @@
-import { Reply } from "interfaces"
 import { CreepStatus, CreepActionResult } from "classes/creep"
-
-enum Status {
-  HARVEST = "harvest",
-  UPGRADE = "upgrade",
-}
 
 export enum SpawnPriority {
   URGENT = 0,

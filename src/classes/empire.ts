@@ -1,4 +1,3 @@
-import { Reply } from "interfaces"
 
 enum State {
   EXPAND = "expand"

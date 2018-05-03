@@ -1,7 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, WorkerSquad, ManualSquad } from "classes/squad/squad"
 import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
-// import { CreepStatus } from "classes/creep"
-import { Reply } from "interfaces"
 
 declare global {
   interface StructureSpawn {
