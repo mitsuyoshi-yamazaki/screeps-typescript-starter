@@ -1,4 +1,4 @@
-import { Squad, SquadType, SquadMemory, SpawnPriority, ControllerKeeperSquad, WorkerSquad } from "classes/squad"
+import { Squad, SquadType, SquadMemory, SpawnPriority, ControllerKeeperSquad, WorkerSquad, ManualSquad } from "classes/squad"
 // import { CreepStatus } from "classes/creep"
 import { Reply } from "interfaces"
 
@@ -6,7 +6,9 @@ declare global {
   interface StructureSpawn {
     squads: Map<string, Squad>
     worker_squad: WorkerSquad
+    manual_squad: ManualSquad
     rooms: Room[]
+    // towers: StructureTower[]  // @todo:
 
     initialize(): void
     say(message: string): void
@@ -27,12 +29,12 @@ export function init() {
 
     this.squads = new Map<string, Squad>()
 
-    this.rooms = []
+    this.rooms = [this.room]
 
-    for (const room_name in Game.rooms) {
-      const room = Game.rooms[room_name]
-      this.rooms.push(room)
-    }
+    // for (const room_name in Game.rooms) {
+    //   const room = Game.rooms[room_name]
+    //   this.rooms.push(room)
+    // }
 
     // Memory
     for (const squad_memory of Memory.squads) {
@@ -51,6 +53,13 @@ export function init() {
         const squad = new WorkerSquad(squad_memory.name, this.rooms)
 
         this.worker_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.MANUAL: {
+        const squad = new ManualSquad(squad_memory.name)
+
+        this.manual_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -89,6 +98,22 @@ export function init() {
       const squad = new WorkerSquad(name, this.rooms)
 
       this.worker_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads.push(memory)
+    }
+
+    // Manual
+    if (!this.manual_squad) {
+      const name = ManualSquad.generateNewName()
+      const squad = new ManualSquad(name)
+
+      this.manual_squad = squad
       this.squads.set(squad.name, squad)
 
       const memory = {

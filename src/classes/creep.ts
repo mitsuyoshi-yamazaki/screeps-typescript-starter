@@ -14,6 +14,7 @@ declare global {
 
     upgrade(source: Source, target: StructureController): void
     charge(source: Source, room: Room): void
+    moveToRoom(destination_room_name: string, pos: {x: number, y: number}): void
   }
 
   interface CreepMemory {
@@ -25,6 +26,9 @@ declare global {
 
 export function init() {
   Creep.prototype.initialize = function() {
+    if ((this.memory.status == null) || (this.memory.status == undefined)) {
+      this.memory.status = CreepStatus.NONE
+    }
   }
 
   Creep.prototype.upgrade = function(source: Source, target: StructureController): void {
@@ -116,5 +120,28 @@ export function init() {
         return
       }
     }
+  }
+
+  Creep.prototype.moveToRoom = function(destination_room_name: string, pos: {x: number, y: number}): void {
+    if (this.room.name == destination_room_name) {
+        if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
+            return
+        }
+
+        // @todo: make pos to optional, and default pos to room controller
+        console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
+        this.moveTo(pos.x, pos.y)
+        return
+    }
+
+    const exit = this.room.findExitTo(destination_room_name) as FindConstant
+    if (exit < 0) {
+      console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
+      return
+    }
+
+    const closest_exit = this.pos.findClosestByPath(exit)
+
+    this.moveTo(closest_exit)
   }
 }

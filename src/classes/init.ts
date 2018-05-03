@@ -11,6 +11,13 @@ const keys = [
 ]
 
 export function init() {
+  // if (Object.keys(Memory.squads).length > 100) {
+  //   for (const key of Object.keys(Memory)) {
+  //     console.log(`CLEAR ALL MEMORY!!!`)
+  //     delete Memory[key]
+  //   }
+  // }
+
   const now = Game.time
   if (Memory.last_tick != (now - 1)) {
     if (Memory.last_tick < (now - 10)) { // Just in case

@@ -15,7 +15,8 @@ export enum SpawnPriority {
 
 export enum SquadType {
   CONTROLLER_KEEPER = "controller_keeper",
-  WORKER = "worker",
+  WORKER            = "worker",
+  MANUAL            = "manual",
 }
 
 export interface SpawnFunction {
@@ -54,6 +55,7 @@ export abstract class Squad {
         continue
       }
 
+      creep.initialize()
       this.creeps.set(creep.name, creep)
     }
   }
@@ -168,6 +170,15 @@ export class ControllerKeeperSquad extends Squad {
 export class WorkerSquad extends Squad {
   constructor(readonly name: string, readonly rooms: (Room | string)[]) {
     super(name)
+
+    // if (this.creeps.size == 0) {  // @fixme:
+    //   console.log(`TEMP assign all creeps`)
+    //   for (const creep_name in Game.creeps) {
+    //     const creep = Game.creeps[creep_name]
+    //     creep.memory.squad_name = this.name
+    //     this.creeps.set(creep.name, creep)
+    //   }
+    //   }
   }
 
   public get type(): SquadType {
@@ -178,7 +189,7 @@ export class WorkerSquad extends Squad {
     const urgent = false  // @todo: no harvester or worker
 
     const room = this.rooms[0] as Room
-    const max = room.energyCapacityAvailable >= 600 ? 7 : 10
+    const max = 7//room.energyCapacityAvailable >= 600 ? 7 : 10
     const needWorker = Object.keys(Game.creeps).length < max  // @todo: implement
 
     if (urgent) {
@@ -243,6 +254,51 @@ export class WorkerSquad extends Squad {
     this.creeps.forEach((creep, _) => {
       const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
       creep.charge(source, room)
+    })
+  }
+}
+
+export class ManualSquad extends Squad {
+  public get type(): SquadType {
+    return SquadType.MANUAL
+  }
+
+  public get spawnPriority(): SpawnPriority {
+    // return this.creeps.size == 0 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return SpawnPriority.NONE
+  }
+
+  public static generateNewName(): string {
+    return `${SquadType.MANUAL}${Game.time}`
+  }
+
+  public generateNewName(): string {
+    return ManualSquad.generateNewName()
+  }
+
+  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+    return energyAvailable >= 50
+  }
+
+  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [MOVE]
+    const memory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+
+    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
+  }
+
+  public run(): void {
+    this.creeps.forEach((creep, _) => {
+      creep.moveToRoom('W49S47', {x: 12, y: 1})
     })
   }
 }
