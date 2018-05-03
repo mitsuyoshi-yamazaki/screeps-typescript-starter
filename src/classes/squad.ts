@@ -29,6 +29,10 @@ export interface SquadMemory {
   readonly owner_name: string  // Spawn name
 }
 
+export interface ControllerKeeperSquadMemory extends SquadMemory {
+  readonly room_name: string
+}
+
 /**
  * 1 ControllerKeeperSquad for each rooms
  * 1 WorkerSquad for each spawn
@@ -175,7 +179,7 @@ export class WorkerSquad extends Squad {
   constructor(readonly name: string, readonly room_names: string[]) {
     super(name)
 
-    // if (this.creeps.size == 0) {  // @fixme:
+    // if (this.creeps.size < 5) {  // @fixme:
     //   console.log(`TEMP assign all creeps`)
     //   for (const creep_name in Game.creeps) {
     //     const creep = Game.creeps[creep_name]

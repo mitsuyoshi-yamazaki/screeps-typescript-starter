@@ -37,7 +37,7 @@ export function init() {
     // }
 
     // Memory
-    for (const squad_memory of Memory.squads) {
+    for (const squad_memory of Memory.squads) { // @todo extract MY squads
       if (this.name != squad_memory.owner_name) {
         continue
       }
