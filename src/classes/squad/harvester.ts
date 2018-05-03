@@ -62,7 +62,10 @@ export class HarvesterSquad extends Squad {
       return energyAvailable > energy_needed
     }
     else {
-      return false  // @fixme
+      return false  // @fixme:
+      // const energy_unit = 100
+      // const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
+      // return energyAvailable > energy_needed
     }
   }
 
@@ -105,20 +108,26 @@ export class HarvesterSquad extends Squad {
   }
 
   private addCarrier(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    console.log(`addCarrier not implemented yet ${this.name}`)
+    const body_unit: BodyPartConstant[] = [CARRY, MOVE]
+    const energy_unit = 100
 
-    // const name = this.generateNewName()
-    // const body: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
-    // const memory: CreepMemory = {
-    //   squad_name: this.name,
-    //   status: CreepStatus.NONE,
-    //   birth_time: Game.time,
-    //   type: CreepType.SCOUT,
-    // }
+    const name = this.generateNewName()
+    let body: BodyPartConstant[] = []
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.CARRIER,
+    }
 
-    // const result = spawnFunc(body, name, {
-    //   memory: memory
-    // })
+    while (energyAvailable >= energy_unit) {
+      body = body.concat(body_unit)
+      energyAvailable -= energy_unit
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
   }
 
   private harvest(): void {
@@ -162,6 +171,10 @@ export class HarvesterSquad extends Squad {
 
       if (!target) {
         harvester.memory.status = CreepStatus.BUILD
+      }
+      else if (target.hits < target.hitsMax) {
+        harvester.repair(target)
+        return
       }
       else {
         harvester.transfer(target, RESOURCE_ENERGY)
