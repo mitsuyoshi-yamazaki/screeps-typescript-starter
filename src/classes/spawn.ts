@@ -32,13 +32,8 @@ export function init() {
 
     this.room_names = [this.room.name, 'W49S47']
 
-    // for (const room_name in Game.rooms) {
-    //   const room = Game.rooms[room_name]
-    //   this.rooms.push(room)
-    // }
-
     // Memory
-    for (const squad_memory of Memory.squads) { // @todo extract MY squads
+    for (const squad_memory of Memory.squads) { // @todo extract this spawn's squads
       if (this.name != squad_memory.owner_name) {
         continue
       }
@@ -201,6 +196,10 @@ export function init() {
           console.log('Activate safe mode')
           room.controller!.activateSafeMode()
         }
+      }
+      else if (this.hits < this.hitsMax) {
+        console.log('Activate safe mode')
+        room.controller!.activateSafeMode()
       }
     }
   }

@@ -6,7 +6,7 @@ export interface ControllerKeeperSquadMemory extends SquadMemory {
 }
 
 enum State {
-  // OWNED     = 'owned', @fixme: how to distinguish it's owned?
+  OWNED     = 'owned',
   NOT_OWNED = 'not_owned',
   MINE      = 'mine',
 }
@@ -32,6 +32,9 @@ export class ControllerKeeperSquad extends Squad {
 
     if (this.myRoom) {
       this.state = State.MINE
+    }
+    else if (this.room_name == 'W47S48') {  // @fixme:
+      this.state = State.OWNED
     }
     else {
       this.state = State.NOT_OWNED
@@ -63,6 +66,9 @@ export class ControllerKeeperSquad extends Squad {
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     switch (this.state) {
+    case State.OWNED:
+      return energyAvailable >= 700
+
     case State.NOT_OWNED:
       // if (capacity >= 1250) {  // @todo implement here with addCreepForClaim
       //   return energyAvailable >= 1250
@@ -83,6 +89,10 @@ export class ControllerKeeperSquad extends Squad {
   // --
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     switch (this.state) {
+      case State.OWNED:
+        this.addCreepForAttack(spawnFunc)
+        break
+
       case State.NOT_OWNED:
         this.addCreepForClaim(spawnFunc)
         break
@@ -99,6 +109,10 @@ export class ControllerKeeperSquad extends Squad {
 
   public run(): void {
     switch (this.state) {
+      case State.OWNED:
+        this.attack()
+        break
+
       case State.NOT_OWNED:
         this.claim()
         break
@@ -146,6 +160,43 @@ export class ControllerKeeperSquad extends Squad {
     console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
   }
 
+  private addCreepForAttack(spawnFunc: SpawnFunction): void {
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
+    const memory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+
+    console.log(`Spawn [${body}] and assign to ${this.name}: ${result}`)
+  }
+
+  private attack(): void {
+    this.creeps.forEach((creep, _) => {
+      // creep.moveTo(42, 20)
+      // console.log(`Moving left ${creep.name}`)
+      // return
+
+      const target_room_name = 'W44S42' // @fixme: use this.room_name
+
+      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+        return
+      }
+
+      const target = Game.getObjectById('5ae9bb4e504cda2f09e9fc0a') as StructureSpawn
+      creep.drop(RESOURCE_ENERGY)
+
+      if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target)
+      }
+    })
+  }
+
   private upgrade(): void {
     this.creeps.forEach((creep, _) => {
       // const source = (this.room as Room).sources[0]  // @todo: Cache source
@@ -156,7 +207,9 @@ export class ControllerKeeperSquad extends Squad {
 
   private claim(): void {
     this.creeps.forEach((creep, _) => {
-      creep.claim(this.room_name)
+      if (creep.claim(this.room_name) == CreepActionResult.DONE) {
+        console.log(`CLAIMED ANOTHER ROOM ${this.room_name}`)
+      }
     })
   }
 }

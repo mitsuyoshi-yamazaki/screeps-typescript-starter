@@ -11,7 +11,7 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    const r = this.creeps.size < 2 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    const r = this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
     // console.log(`MaualSquad.spawnPriority ${r}`)
 
     // return r
@@ -27,12 +27,12 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 700
+    return energyAvailable >= 650
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
+    const body: BodyPartConstant[] = [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE]
     const memory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
@@ -47,62 +47,22 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    // if (this.creeps.size < 2) {
-    //   return
-    // }
-
     this.creeps.forEach((creep, _) => {
-      const state = {
-        HARVEST_ON_ORIGINAL_ROOM: 0,
-        MOVE                    : 1,
-        DISMANTLE               : 2,
-      }
-      const target_room_name = 'W48S46'
+      const target_room_name = 'W46S46'
 
-      if ((!creep.memory.manual_state) || (creep.room.name != target_room_name)) {
-        // creep.memory.manual_state = state.HARVEST_ON_ORIGINAL_ROOM
-        creep.memory.manual_state = state.MOVE
+      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+        return
       }
 
-      if (creep.memory.manual_state == state.HARVEST_ON_ORIGINAL_ROOM) {
-        const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-        if (creep.harvestFrom(source) == CreepActionResult.DONE) {
-          creep.memory.manual_state = state.MOVE
-        }
-        else {
-          return
-        }
-      }
+      const target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
 
-      if (creep.room.name == target_room_name) {
-        creep.memory.manual_state = state.DISMANTLE
-
-        if (creep.carry.energy == creep.carryCapacity) {
-          const r = creep.drop(RESOURCE_ENERGY)
-          switch (r) {
-          case OK:
-            break
-
-          default:
-            console.log(`creep.drop failed with error ${r}, ${creep.name}`)
-            break
-          }
-        }
-
-        const target = Game.getObjectById('5aea207d595de86cb894fb66') as StructureSpawn
-        if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+      if (target) {
+        if (creep.attack(target) == ERR_NOT_IN_RANGE) {
           creep.moveTo(target)
         }
       }
-
-      if (creep.memory.manual_state == state.MOVE) {
-        const pos = {x: 23, y: 16}
-        if (creep.moveToRoom(target_room_name) == CreepActionResult.DONE) {
-          creep.memory.manual_state = state.DISMANTLE
-        }
-        else {
-          return
-        }
+      else {
+        console.log(`No more targets in ${target_room_name}, ${creep.name}`)
       }
     })
   }

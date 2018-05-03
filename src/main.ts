@@ -45,4 +45,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * random move on build / upgrade
  * renew creeps
  * harvest
+ * remove controller_keeper squad
  */
