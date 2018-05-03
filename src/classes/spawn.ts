@@ -57,7 +57,7 @@ export function init() {
         break
       }
       case SquadType.MANUAL: {
-        const squad = new ManualSquad(squad_memory.name)
+        const squad = new ManualSquad(squad_memory.name, this.room)
 
         this.manual_squad = squad
         this.squads.set(squad.name, squad)
@@ -111,7 +111,7 @@ export function init() {
     // Manual
     if (!this.manual_squad) {
       const name = ManualSquad.generateNewName()
-      const squad = new ManualSquad(name)
+      const squad = new ManualSquad(name, this.room)
 
       this.manual_squad = squad
       this.squads.set(squad.name, squad)
