@@ -72,6 +72,7 @@ export function init() {
 
         const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination)
         this.squads.set(squad.name, squad)
+        break
       }
       case SquadType.MANUAL: {
         const squad = new ManualSquad(squad_memory.name, this.room.name)
@@ -138,7 +139,7 @@ export function init() {
     // Harvester
     // @todo: for each spawns
     const harvester_targets: {id: string, room_name: string}[] = [
-      { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
+      // { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
     ]
 
     harvester_targets.forEach(target => {
