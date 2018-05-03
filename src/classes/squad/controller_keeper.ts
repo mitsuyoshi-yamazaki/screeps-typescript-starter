@@ -5,6 +5,12 @@ export interface ControllerKeeperSquadMemory extends SquadMemory {
   readonly room_name: string
 }
 
+enum State {
+  // OWNED     = 'owned', @fixme: how to distinguish it's owned?
+  NOT_OWNED = 'not_owned',
+  MINE      = 'mine',
+}
+
 export class ControllerKeeperSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string) {
     super(name)
@@ -13,29 +19,30 @@ export class ControllerKeeperSquad extends Squad {
       console.log(`ControllerKeeperSquad.room_name is not provided ${room_name}, ${this.name}`)
     }
 
-    const room_obj = Game.rooms[this.room_name]
-    if (!room_obj) {
+    const room = Game.rooms[this.room_name]
+    if (!room) {
       this.myRoom = false
     }
-    else if (room_obj.controller) {
-      this.myRoom = room_obj.controller!.my
+    else if (room.controller) {
+      this.myRoom = room.controller!.my
     }
     else {
       this.myRoom = false
     }
+
+    if (this.myRoom) {
+      this.state = State.MINE
+    }
+    else {
+      this.state = State.NOT_OWNED
+    }
   }
 
   public readonly myRoom: boolean
+  private readonly state: State
 
   public get type(): SquadType {
     return SquadType.CONTROLLER_KEEPER
-  }
-
-  public get spawnPriority(): SpawnPriority {
-    if (this.creeps.size == 0) {
-      return SpawnPriority.NORMAL
-    }
-    return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -46,29 +53,63 @@ export class ControllerKeeperSquad extends Squad {
     return ControllerKeeperSquad.generateNewName()
   }
 
-  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 250
+  // --
+  public get spawnPriority(): SpawnPriority {
+    if (this.creeps.size == 0) {
+      return SpawnPriority.NORMAL
+    }
+    return SpawnPriority.NONE
   }
 
-  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    if (this.myRoom) {
-      this.addCreepForUpgrade(spawnFunc)
+  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+    switch (this.state) {
+    case State.NOT_OWNED:
+      if (capacity >= 1250) {
+        return energyAvailable >= 1250
+      }
+      else {
+        return energyAvailable >= 650
+      }
+
+    case State.MINE:
+      return energyAvailable >= 250
+
+    default:
+      console.log(`Unexpected state ${this.state}, ${this.name}`)
+      return false
     }
-    else {
-      this.addCreepForReserve(spawnFunc)
+  }
+
+  // --
+  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    switch (this.state) {
+      case State.NOT_OWNED:
+        this.addCreepForReserve(spawnFunc)
+        break
+
+      case State.MINE:
+        this.addCreepForUpgrade(spawnFunc)
+        break
+
+      default:
+        console.log(`Unexpected state ${this.state}, ${this.name}`)
+        break
     }
   }
 
   public run(): void {
-    if (this.myRoom) {
-      this.creeps.forEach((creep, _) => {
-      // const source = (this.room as Room).sources[0]  // @todo: Cache source
-        const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-        creep.upgrade(source, Game.rooms[this.room_name].controller!)
-      })
-    }
-    else {
-      this.reserveOrClaim()
+    switch (this.state) {
+      case State.NOT_OWNED:
+        this.claim()
+        break
+
+      case State.MINE:
+        this.upgrade()
+        break
+
+      default:
+        console.log(`Unexpected state ${this.state}, ${this.name}`)
+        break
     }
   }
 
@@ -99,11 +140,39 @@ export class ControllerKeeperSquad extends Squad {
   }
 
   private addCreepForReserve(spawnFunc: SpawnFunction): void {
-    // @todo: implement
-    console.log(`addCreepForReserve not implemented yet`)
+    let body: BodyPartConstant[] = []
+    let name: string
+    let memory: CreepMemory
+
+    switch (this.type) {
+    case SquadType.CONTROLLER_KEEPER:
+    default:
+      body = [WORK, CARRY, MOVE, MOVE]
+      name = this.generateNewName()
+      memory = {
+        squad_name: this.name,
+        status: CreepStatus.NONE,
+        birth_time: Game.time,
+      }
+      break
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+
+    console.log(`Spawn ${body} and assign to ${this.type}: ${result}`)
   }
 
-  private reserveOrClaim(): void {
+  private upgrade(): void {
+    this.creeps.forEach((creep, _) => {
+      // const source = (this.room as Room).sources[0]  // @todo: Cache source
+        const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+        creep.upgrade(source, Game.rooms[this.room_name].controller!)
+    })
+  }
+
+  private claim(): void {
     // @todo: implement
     console.log(`reserveOrClaim not implemented yet`)
   }

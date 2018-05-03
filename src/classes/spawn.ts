@@ -77,7 +77,7 @@ export function init() {
     this.room_names.forEach(room_name => {
       const room = Game.rooms[room_name]  // @fixme
 
-      if (room.keeper != null) {
+      if (room.keeper) {
         return
       }
 
