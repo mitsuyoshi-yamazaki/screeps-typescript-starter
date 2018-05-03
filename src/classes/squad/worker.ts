@@ -89,8 +89,7 @@ export class WorkerSquad extends Squad {
     const room = Game.rooms[this.room_names[0]]  // @fixme
 
     this.creeps.forEach((creep, _) => {
-      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-      creep.charge(source, room)
+      creep.work(room)
     })
   }
 }

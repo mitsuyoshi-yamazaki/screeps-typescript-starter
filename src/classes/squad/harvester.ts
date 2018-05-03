@@ -9,8 +9,10 @@ export interface HarvesterSquadMemory extends SquadMemory {
 export class HarvesterSquad extends Squad {
   private harvester?: Creep
   private carriers: Creep[]
+  private source?: Source
+  private container?: StructureContainer
 
-  constructor(readonly name: string, readonly source: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
     super(name)
 
     this.carriers = []
@@ -30,6 +32,29 @@ export class HarvesterSquad extends Squad {
           break
       }
     })
+
+    this.get_sources()
+  }
+
+  private get_sources(): void {
+    const source = Game.getObjectById(this.source_info.id) as Source
+    if (!source) {
+      return
+    }
+    this.source = source
+    // console.log(`Find source ${source.id} ${source.pos.x}, ${source.pos.y}`)
+
+    const container = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
+      filter: function(structure: Structure) {
+        return structure.structureType == STRUCTURE_CONTAINER
+      }
+    })[0] as StructureContainer
+
+    if (!container) {
+      return
+    }
+    this.container = container
+    // console.log(`Find container ${container.id} ${container.pos.x}, ${container.pos.y}`)
   }
 
   public get type(): SquadType {
@@ -49,7 +74,7 @@ export class HarvesterSquad extends Squad {
     if (!this.harvester) {
       return SpawnPriority.NORMAL
     }
-    if (this.carriers.length < 2) {
+    if ((this.container) && (this.carriers.length < 2)) {
       return SpawnPriority.LOW
     }
     return SpawnPriority.NONE
@@ -62,10 +87,10 @@ export class HarvesterSquad extends Squad {
       return energyAvailable > energy_needed
     }
     else {
-      return false  // @fixme:
-      // const energy_unit = 100
-      // const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
-      // return energyAvailable > energy_needed
+      // return false  // @fixme:
+      const energy_unit = 100
+      const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
+      return energyAvailable > energy_needed
     }
   }
 
@@ -146,38 +171,31 @@ export class HarvesterSquad extends Squad {
     }
 
     if (harvester.memory.status == CreepStatus.HARVEST) {
-      if (harvester.moveToRoom(this.source.room_name) != CreepActionResult.DONE) {
+      if (harvester.moveToRoom(this.source_info.room_name) != CreepActionResult.DONE) {
         return
       }
 
-      const source = Game.getObjectById(this.source.id) as Source
-      if (!source) {
-        console.log(`HarvesterSquad.harvest no target source ${this.source.id}, ${this.name}`)
+      if (!this.source) {
+        console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}`)
         return
       }
-      if (harvester.harvest(source) == ERR_NOT_IN_RANGE) {
-        harvester.moveTo(source)
+      if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
+        harvester.moveTo(this.source!)
         return
       }
     }
 
     // Charge
     if (harvester.memory.status == CreepStatus.CHARGE) {
-      const target = harvester.pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(structure: Structure) {
-          return structure.structureType == STRUCTURE_CONTAINER
-        }
-      })[0] as StructureContainer
-
-      if (!target) {
+      if (!this.container) {
         harvester.memory.status = CreepStatus.BUILD
       }
-      else if (target.hits < target.hitsMax) {
-        harvester.repair(target)
+      else if (this.container!.hits < this.container!.hitsMax) {
+        harvester.repair(this.container!)
         return
       }
       else {
-        harvester.transfer(target, RESOURCE_ENERGY)
+        harvester.transfer(this.container!, RESOURCE_ENERGY)
         harvester.memory.status = CreepStatus.HARVEST
         return
       }
@@ -195,7 +213,7 @@ export class HarvesterSquad extends Squad {
         }
       }
       else {
-        const source = Game.getObjectById(this.source.id) as Source
+        const source = Game.getObjectById(this.source_info.id) as Source
 
         if (source) {
           const x_diff = harvester.pos.x - source.pos.x
@@ -211,7 +229,7 @@ export class HarvesterSquad extends Squad {
           return
         }
         else {
-          console.log(`HarvesterSquad.harvest no target source ${this.source.id}, ${this.name}`)
+          console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}`)
           return
         }
       }
@@ -219,7 +237,33 @@ export class HarvesterSquad extends Squad {
   }
 
   private carry(): void {
-    this.carriers.forEach((creep, _) => { // @todo:
+    this.carriers.forEach((creep, _) => {
+      if ((creep.memory.status == CreepStatus.NONE) || (creep.carry.energy == 0)) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+
+      // Harvest
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (creep.carry.energy == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else if (creep.moveToRoom(this.source_info.room_name) != CreepActionResult.DONE) {
+          return
+        }
+        else if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(this.container!)
+        }
+      }
+
+      // Charge
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if (creep.carry.energy == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+        else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(this.destination)
+        }
+      }
     })
   }
 }

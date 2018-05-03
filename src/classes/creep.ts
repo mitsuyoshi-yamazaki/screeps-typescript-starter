@@ -32,7 +32,7 @@ declare global {
 
     // Worker tasks
     harvestFrom(source: Source): CreepActionResult
-    charge(source: Source, room: Room): void
+    work(room: Room): void
     buildTo(source: Source, target: ConstructionSite): CreepActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): CreepActionResult
     upgrade(source: Source, target: StructureController): void
@@ -171,7 +171,7 @@ export function init() {
     }
   }
 
-  Creep.prototype.charge = function(source: Source, room: Room): void {
+  Creep.prototype.work = function(room: Room): void {
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
@@ -181,9 +181,28 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
       }
-      else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-        this.moveTo(source)
-        return
+      else {
+        const storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return ((structure.structureType == STRUCTURE_STORAGE) && ((structure as StructureStorage).store.energy > 50)) ||
+                   ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 50))
+          }
+        })
+
+        if (storage) {
+          if (this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(storage)
+            return
+          }
+        }
+        else {
+          const source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+
+          if (this.harvest(source) == ERR_NOT_IN_RANGE) {
+            this.moveTo(source)
+            return
+          }
+        }
       }
     }
 
