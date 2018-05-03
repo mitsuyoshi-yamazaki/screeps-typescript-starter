@@ -139,7 +139,7 @@ export function init() {
     // Harvester
     // @todo: for each spawns
     const harvester_targets: {id: string, room_name: string}[] = [
-      // { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
+      { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
     ]
 
     harvester_targets.forEach(target => {
@@ -156,6 +156,7 @@ export function init() {
       if (Memory.rooms[target.room_name].harvesting_source_ids.indexOf(target.id) >= 0) {
         return
       }
+      Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
       const name = HarvesterSquad.generateNewName()
       const squad = new HarvesterSquad(name, target, harvester_destination)
