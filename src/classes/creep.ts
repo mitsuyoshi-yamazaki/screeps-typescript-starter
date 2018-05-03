@@ -253,7 +253,7 @@ export function init() {
     return CreepActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.claim = function(target_room_name: string): CreepActionResult { // @fixme: DONE never returns since noway to check if
+  Creep.prototype.claim = function(target_room_name: string): CreepActionResult {
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
       return CreepActionResult.IN_PROGRESS
@@ -265,25 +265,35 @@ export function init() {
       return CreepActionResult.IN_PROGRESS
     }
 
-    const should_claim = true  // @todo:
-    if (should_claim) {
-      const result = this.attackController(room.controller!)
+    const target = room.controller!
+    if (target.my) {
+      return CreepActionResult.DONE
+    }
 
-      switch (result) {
-        case OK:
-          return CreepActionResult.IN_PROGRESS
+    let result: number
+    let action: string
 
-        case ERR_NOT_IN_RANGE:
-          this.moveTo(room.controller!)
-          return CreepActionResult.IN_PROGRESS
-
-        default:
-          console.log(`Creep.claim Unexpected return code ${result}, ${this.name}`)
-          break
-      }
+    if (target.owner && target.owner.username) {
+      action = 'attackController'
+      result = this.attackController(target)
     }
     else {
-      console.log(`Creep.claim not implemented yet ${this.name}`)
+      action = 'claimController'
+      result = this.claimController(target)
+    }
+
+    switch (result) {
+      case OK:
+      case ERR_TIRED:
+        return CreepActionResult.IN_PROGRESS
+
+      case ERR_NOT_IN_RANGE:
+        this.moveTo(target)
+        return CreepActionResult.IN_PROGRESS
+
+      default:
+        console.log(`Creep.claim ${action} Unexpected return code ${result}, ${this.name}`)
+        break
     }
 
     return CreepActionResult.IN_PROGRESS
