@@ -324,8 +324,15 @@ export function init() {
 
     const room = Game.rooms[target_room_name]
     if (!room) {
-      this.say(target_room_name)
-      this.moveToRoom(target_room_name)
+      if ((target_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
+        const waypoint = 'W46S43'
+        this.say(waypoint)
+        this.moveToRoom(waypoint)
+      }
+      else {
+        this.say(target_room_name)
+        this.moveToRoom(target_room_name)
+      }
       return CreepActionResult.IN_PROGRESS
     }
 

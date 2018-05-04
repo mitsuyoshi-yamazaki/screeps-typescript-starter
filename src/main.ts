@@ -22,11 +22,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const creep_name in Game.creeps) {
     const creep = Game.creeps[creep_name]
 
-    if (creep.squad) {
+    if (creep.squad || creep.spawning) {
       continue
     }
 
-    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}`)
+    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}`)
   }
 })
 

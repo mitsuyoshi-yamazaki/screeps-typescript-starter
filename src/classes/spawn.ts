@@ -49,8 +49,10 @@ export function init() {
           { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
           // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
           { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+          { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
+          { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46']
+        this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46', 'W44S42', 'W47S48']
         break
 
       case 'Spawn2':
@@ -374,7 +376,7 @@ export function init() {
     let lines: string[] = [
       `${this.name} in ${this.room.name}`,
       `  Rooms: ${this.room_names}`,
-      `  Squads:`,
+      `  Squads: ${this.squads.size}`,
     ]
 
     const squad_descriptions = Array.from(this.squads.values()).sort((lhs, rhs) => {
