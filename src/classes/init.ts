@@ -37,6 +37,10 @@ export function init() {
   // }
   Memory.last_tick = now
 
+  if (!Memory.temp_squads) {
+    Memory.temp_squads = Memory.squads
+  }
+
   if (Memory.squads == null) {
     Memory.squads = []
   }

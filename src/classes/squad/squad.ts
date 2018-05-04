@@ -43,6 +43,13 @@ export abstract class Squad {
   // Non-abstract members
   public readonly creeps = new Map<string, Creep>()
 
+  // public set memory(value: SquadMemory): void {
+
+  // }
+  // public get memory(): SquadMemory {
+
+  // }
+
   // Methods
   constructor(readonly name: string) {
     for (const creep_name in Game.creeps) {

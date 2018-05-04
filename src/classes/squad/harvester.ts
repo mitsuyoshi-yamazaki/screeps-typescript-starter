@@ -87,13 +87,14 @@ export class HarvesterSquad extends Squad {
     if (!this.harvester) {
       const energy_unit = 550
       const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), energy_unit * 2)
-      return energyAvailable > energy_needed
+      return energyAvailable >= energy_needed
     }
     else {
       // return false  // @fixme:
       const energy_unit = 100
       const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
-      return energyAvailable > energy_needed
+
+      return energyAvailable >= energy_needed
     }
   }
 

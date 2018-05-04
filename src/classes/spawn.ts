@@ -3,6 +3,7 @@ import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squa
 import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquadMemory, HarvesterSquad } from "./squad/harvester";
+import { CreepStatus } from "./creep";
 
 declare global {
   interface StructureSpawn {  // @fixme: Now assuming only 1 spawn per room (but actually not) spawn -> province
@@ -40,7 +41,7 @@ export function init() {
       { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // upper right
     ]
 
-    this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48']
+    this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46']
 
     const harvester_destination = this.room.find(FIND_STRUCTURES, {
       filter: structure => {
@@ -66,8 +67,7 @@ export function init() {
         break
       }
       case SquadType.WORKER: {
-        const squad = new WorkerSquad(squad_memory.name, [this.room.name])  // @fixme: WorkerSquad currently supports tasks in the first room
-
+        const squad = new WorkerSquad(squad_memory.name, this.room.name)
         this.worker_squad = squad
         this.squads.set(squad.name, squad)
         break
@@ -97,6 +97,8 @@ export function init() {
     }
 
     // Room
+    this.room.spawn = this
+
     this.room_names.forEach(room_name => {
       let room_memory = Memory.rooms[room_name]
 
@@ -132,7 +134,7 @@ export function init() {
     // Worker
     if (!this.worker_squad) {
       const name = WorkerSquad.generateNewName()
-      const squad = new WorkerSquad(name, [this.room.name])  // @fixme: WorkerSquad currently supports tasks in the first room
+      const squad = new WorkerSquad(name, this.room.name)
 
       this.worker_squad = squad
       this.squads.set(squad.name, squad)
@@ -194,8 +196,20 @@ export function init() {
       Memory.squads.push(memory)
     }
 
-    // spawn
-    if ((this.spawning == null) && (this.room.energyAvailable >= 50) && (this.squads.size > 0)) {
+    // Renew
+    const creeps_need_renew = this.pos.findInRange(FIND_MY_CREEPS, 1, {
+      filter: (creep: Creep) => {
+        return creep.memory.status == CreepStatus.WAITING_FOR_RENEW
+      }
+    }) as Creep[]
+
+    creeps_need_renew.forEach((creep) => {
+      creep.say('RENEW')
+      this.renewCreep(creep)
+    })
+
+    // Spawn
+    if ((creeps_need_renew.length == 0) && (this.spawning == null) && (this.room.energyAvailable >= 50) && (this.squads.size > 0)) {
       const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
         const l_priority = lhs.spawnPriority
         const r_priority = rhs.spawnPriority

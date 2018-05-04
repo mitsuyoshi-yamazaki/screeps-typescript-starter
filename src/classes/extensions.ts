@@ -5,6 +5,7 @@ declare global {
   interface Memory {
     last_tick: number
     squads: SquadMemory[]
+    temp_squads: SquadMemory[]
     debug_last_tick: any
   }
 
@@ -16,6 +17,7 @@ declare global {
   interface Room {
     sources: Source[]
     keeper?: ControllerKeeperSquad
+    spawn?: StructureSpawn  // Initialized in Spawn.initialize()
 
     initialize(): void
   }

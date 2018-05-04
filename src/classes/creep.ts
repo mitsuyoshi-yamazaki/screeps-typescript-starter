@@ -6,6 +6,7 @@ export enum CreepStatus {  // @todo: add "meta" info to status and keep it on me
   BUILD   = "build",
   REPAIR  = "repair",
   UPGRADE = "upgrade",
+  WAITING_FOR_RENEW = "waiting_for_renew",
 }
 
 export enum CreepActionResult {
@@ -29,11 +30,11 @@ declare global {
 
     // General tasks
     moveToRoom(destination_room_name: string): CreepActionResult
-    // goToRenew(spawn: StructureSpawn): CreepActionResult
+    goToRenew(spawn: StructureSpawn): CreepActionResult
 
     // Worker tasks
     harvestFrom(source: Source): CreepActionResult
-    work(room: Room): void
+    work(room: Room, source?: StructureContainer | StructureStorage): void
     buildTo(source: Source, target: ConstructionSite): CreepActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): CreepActionResult
     upgrade(source: Source, target: StructureController): void
@@ -85,9 +86,17 @@ export function init() {
     return CreepActionResult.IN_PROGRESS
   }
 
-  // Creep.prototype.goToRenew(spawn: StructureSpawn): CreepActionResult {
+  Creep.prototype.goToRenew = function(spawn: StructureSpawn): CreepActionResult {
+    if ((this.ticksToLive || 0) >= 1400) {
+      this.memory.status = CreepStatus.NONE
+      return CreepActionResult.DONE
+    }
 
-  // }
+    this.memory.status = CreepStatus.WAITING_FOR_RENEW
+    this.moveTo(spawn)
+
+    return CreepActionResult.IN_PROGRESS
+  }
 
 
   // --- Worker tasks ---
@@ -205,7 +214,7 @@ export function init() {
     }
   }
 
-  Creep.prototype.work = function(room: Room): void {
+  Creep.prototype.work = function(room: Room, source?: StructureContainer | StructureStorage): void {
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
@@ -228,16 +237,9 @@ export function init() {
           }
         }
         else {
-          const storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
-            filter: (structure) => {
-              return ((structure.structureType == STRUCTURE_STORAGE) && ((structure as StructureStorage).store.energy > 50)) ||
-                     ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 50))
-            }
-          })
-
-          if (storage) {
-            if (this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              this.moveTo(storage)
+          if (source) {
+            if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(source!)
               return
             }
           }
@@ -323,10 +325,15 @@ export function init() {
 
     let result: number
     let action: string
+    const room_name_to_claim = 'W49S47'
 
-    if (target.owner && target.owner.username) {
+    if ((target.owner && target.owner.username) && (target.ticksToDowngrade > 1000)) {
       action = 'attackController'
       result = this.attackController(target)
+    }
+    else if (target_room_name == room_name_to_claim) {
+      action = 'claimController'
+      result = this.claimController(target)
     }
     else {
       action = 'reserveController'
@@ -344,7 +351,11 @@ export function init() {
         return CreepActionResult.IN_PROGRESS
 
       default:
-        console.log(`Creep.claim ${action} Unexpected return code ${result}, ${this.name}`)
+        if ((result == ERR_INVALID_TARGET) && (action == 'claimController')) {
+        }
+        else {
+          console.log(`Creep.claim ${action} Unexpected return code ${result}, ${this.name}`)
+        }
         break
     }
 

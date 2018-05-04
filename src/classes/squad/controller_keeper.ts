@@ -59,6 +59,9 @@ export class ControllerKeeperSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (this.creeps.size == 0) {
+      if (this.room_name == 'W49S47') { // @fixme: temp
+        return SpawnPriority.HIGH
+      }
       return SpawnPriority.LOW
     }
     return SpawnPriority.NONE
