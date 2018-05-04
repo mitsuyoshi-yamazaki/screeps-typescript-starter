@@ -16,6 +16,9 @@ declare global {
     initialize(): void
     say(message: string): void
     expand(roomnames: string[]): void
+
+    // Private
+    drawDebugInfo(): void
   }
 
   interface SpawnMemory {
@@ -345,6 +348,8 @@ export function init() {
         room.controller!.activateSafeMode()
       }
     }
+
+    this.drawDebugInfo()
   }
 
   StructureSpawn.prototype.say = function(message) {
@@ -358,6 +363,16 @@ export function init() {
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
       squad.run()
+    })
+  }
+
+
+  // --- Private ---
+  StructureSpawn.prototype.drawDebugInfo = function(): void {
+    const pos = {x: 1, y: 30}
+
+    this.room.visual.multipleLinedText('test\n  hoge', pos.x, pos.y, {
+      align: 'left',
     })
   }
 }

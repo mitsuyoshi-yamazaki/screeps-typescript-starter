@@ -21,10 +21,22 @@ declare global {
 
     initialize(): void
   }
+
+  interface RoomVisual {
+    multipleLinedText(text: string, x: number, y: number, style?: TextStyle): void
+  }
 }
 
 export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
+  }
+
+  RoomVisual.prototype.multipleLinedText = function(text: string, x: number, y: number, style?: TextStyle): void {
+
+    const lines = text.split('\n')
+    lines.forEach((line, index) => {
+      this.text(line, x, y + index, style)
+    })
   }
 }
