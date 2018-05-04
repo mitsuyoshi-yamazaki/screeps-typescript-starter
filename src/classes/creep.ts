@@ -29,6 +29,7 @@ declare global {
 
     // General tasks
     moveToRoom(destination_room_name: string): CreepActionResult
+    // goToRenew(spawn: StructureSpawn): CreepActionResult
 
     // Worker tasks
     harvestFrom(source: Source): CreepActionResult
@@ -57,6 +58,39 @@ export function init() {
     }
   }
 
+  // --- General tasks ---
+  Creep.prototype.moveToRoom = function(destination_room_name: string): CreepActionResult { // pos?: {x: number, y: number}
+    if (this.room.name == destination_room_name) {
+      return CreepActionResult.DONE
+
+      // if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
+      //   return CreepActionResult.DONE
+      // }
+
+      // // @todo: make pos to optional, and default pos to room controller
+      // console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
+      // this.moveTo(pos.x, pos.y)
+      // return CreepActionResult.IN_PROGRESS
+    }
+
+    const exit = this.room.findExitTo(destination_room_name) as FindConstant
+    if (exit < 0) {
+      console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
+      return CreepActionResult.IN_PROGRESS
+    }
+
+    const closest_exit = this.pos.findClosestByPath(exit)
+
+    this.moveTo(closest_exit)
+    return CreepActionResult.IN_PROGRESS
+  }
+
+  // Creep.prototype.goToRenew(spawn: StructureSpawn): CreepActionResult {
+
+  // }
+
+
+  // --- Worker tasks ---
   Creep.prototype.harvestFrom = function(source: Source): CreepActionResult {
     this.memory.status = CreepStatus.HARVEST
 
@@ -268,32 +302,6 @@ export function init() {
         return
       }
     }
-  }
-
-  Creep.prototype.moveToRoom = function(destination_room_name: string): CreepActionResult { // pos?: {x: number, y: number}
-    if (this.room.name == destination_room_name) {
-      return CreepActionResult.DONE
-
-      // if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
-      //   return CreepActionResult.DONE
-      // }
-
-      // // @todo: make pos to optional, and default pos to room controller
-      // console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
-      // this.moveTo(pos.x, pos.y)
-      // return CreepActionResult.IN_PROGRESS
-    }
-
-    const exit = this.room.findExitTo(destination_room_name) as FindConstant
-    if (exit < 0) {
-      console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
-      return CreepActionResult.IN_PROGRESS
-    }
-
-    const closest_exit = this.pos.findClosestByPath(exit)
-
-    this.moveTo(closest_exit)
-    return CreepActionResult.IN_PROGRESS
   }
 
   Creep.prototype.claim = function(target_room_name: string): CreepActionResult {

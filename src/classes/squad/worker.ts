@@ -27,7 +27,7 @@ export class WorkerSquad extends Squad {
     const really_need = this.creeps.size < 3
 
     const room = Game.rooms[this.room_names[0]]
-    const max = 7//room.energyCapacityAvailable >= 600 ? 7 : 10
+    const max = 6//room.energyCapacityAvailable >= 600 ? 7 : 10
     const needWorker = this.creeps.size < max  // @todo: implement
 
     if (really_need) {
