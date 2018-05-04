@@ -27,7 +27,7 @@ export class WorkerSquad extends Squad {
     const urgent = false  // @todo: no harvester or worker
 
     const room = Game.rooms[this.room_names[0]]
-    const max = 9//room.energyCapacityAvailable >= 600 ? 7 : 10
+    const max = 7//room.energyCapacityAvailable >= 600 ? 7 : 10
     const needWorker = this.creeps.size < max  // @todo: implement
 
     if (urgent) {

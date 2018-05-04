@@ -35,8 +35,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       })
       if(closestDamagedStructure) {
         tower.repair(closestDamagedStructure)
+      }
     }
-  }
   }
 })
 

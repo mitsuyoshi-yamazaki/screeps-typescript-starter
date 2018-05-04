@@ -141,6 +141,8 @@ export function init() {
     const harvester_targets: {id: string, room_name: string}[] = [
       { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },
       { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },
+      // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
+      { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },
     ]
 
     harvester_targets.forEach(target => {
