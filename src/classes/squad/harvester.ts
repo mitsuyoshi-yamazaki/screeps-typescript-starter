@@ -15,6 +15,10 @@ export class HarvesterSquad extends Squad {
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
     super(name)
 
+    if (!destination) {
+      console.log(`HarvesterSquad destination not specified ${this.name}`)
+    }
+
     this.carriers = []
 
     this.creeps.forEach((creep, _) => {
@@ -92,7 +96,7 @@ export class HarvesterSquad extends Squad {
     else {
       // return false  // @fixme:
       const energy_unit = 100
-      const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
+      const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), 1200)
 
       return energyAvailable >= energy_needed
     }
@@ -148,6 +152,8 @@ export class HarvesterSquad extends Squad {
       birth_time: Game.time,
       type: CreepType.CARRIER,
     }
+
+    energyAvailable = Math.min(energyAvailable, 1200)
 
     while (energyAvailable >= energy_unit) {
       body = body.concat(body_unit)
@@ -244,7 +250,7 @@ export class HarvesterSquad extends Squad {
     this.carriers.forEach((creep, _) => {
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
 
-      if (needs_renew && creep.room.spawn) {
+      if (needs_renew && creep.room.spawn && !creep.room.spawn!.spawning && (creep.room.energyAvailable > 50)) {
         creep.goToRenew(creep.room.spawn!)
         return
       }

@@ -22,7 +22,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * display status on game
  * random move on build / upgrade
- * renew creeps
  * army squad: 1 ranged attack creep and renew it
  */

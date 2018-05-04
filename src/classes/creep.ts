@@ -216,6 +216,10 @@ export function init() {
 
   // Work
   Creep.prototype.work = function(room: Room, source?: StructureContainer | StructureStorage): void {
+    if (!room) {
+      console.log(`Creep.work room not specified ${this.name}`)
+    }
+
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
@@ -238,7 +242,7 @@ export function init() {
           }
         }
         else {
-          if (source && (source.store.energy > 0)) {
+          if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
             if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
               this.moveTo(source!)
               return

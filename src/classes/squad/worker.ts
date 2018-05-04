@@ -27,7 +27,7 @@ export class WorkerSquad extends Squad {
     const really_need = this.creeps.size < 3
 
     const room = Game.rooms[this.room_name]
-    const max = 6//room.energyCapacityAvailable >= 600 ? 7 : 10
+    const max = 12//room.energyCapacityAvailable >= 600 ? 7 : 10
     const needWorker = this.creeps.size < max  // @todo: implement
 
     if (really_need) {
@@ -86,20 +86,39 @@ export class WorkerSquad extends Squad {
   public run(): void {
     // @todo move harvest task to harvester squad
 
-    const room = Game.rooms[this.room_name]
-    let source: StructureContainer
+    let room = Game.rooms[this.room_name]
+    let source: StructureStorage
     if (room.name == 'W48S47') {
-      source = Game.getObjectById('5aeb45a9e028fc11d55c247a') as StructureContainer
+      source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme:
     }
 
     this.creeps.forEach((creep, _) => {
+      const second_room_name = 'W49S47'
+      const second_room_assign = (creep.memory.birth_time % 2 == 0)
+
+      if (second_room_assign) {
+        room = Game.rooms[second_room_name]
+      }
+
+      if (second_room_assign && (creep.room.name != second_room_name)) {
+        creep.drop(RESOURCE_ENERGY)
+        if (creep.moveToRoom(second_room_name) == CreepActionResult.IN_PROGRESS) {
+          creep.say(second_room_name)
+        }
+        return
+      }
+
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
 
-      if (needs_renew && creep.room.spawn) {
+      if (needs_renew && creep.room.spawn && !creep.room.spawn!.spawning && (creep.room.energyAvailable > 50)) {
         creep.goToRenew(creep.room.spawn!)
+        if ((creep.memory.birth_time % 2 == 0)) {
+          // creep.say('RENEW')
+        }
         return
       }
       creep.work(room, source)
+      // creep.say(`${creep.memory.status}`)
     })
   }
 }

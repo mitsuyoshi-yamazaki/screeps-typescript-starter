@@ -26,27 +26,47 @@ declare global {
 export function init() {
   StructureSpawn.prototype.initialize = function() {
     // Initialize member
+
+    this.room.spawn = this
+    this.squads = new Map<string, Squad>()
+
+    // Renew
+    const creeps_need_renew = this.pos.findInRange(FIND_MY_CREEPS, 1, {
+      filter: (creep: Creep) => {
+        return creep.memory.status == CreepStatus.WAITING_FOR_RENEW
+      }
+    }) as Creep[]
+
+    creeps_need_renew.forEach((creep) => {
+      creep.say('RENEW')
+      this.renewCreep(creep)
+    })
+
+    if (this.name != 'Spawn1') {
+      // console.log(`${this.name} can't be initialized yet`)
+      return
+    }
+
     if (this.memory.squad_names == null) {
       this.memory.squad_names = []
     }
 
-    this.squads = new Map<string, Squad>()
-
     // @todo: for each spawns
     const harvester_targets: {id: string, room_name: string}[] = [
-      { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home
+      { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
+      { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
       { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
       { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
       // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
-      { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // upper right
+      { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
     ]
 
     this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46']
 
     const harvester_destination = this.room.find(FIND_STRUCTURES, {
       filter: structure => {
-        return (structure.structureType == STRUCTURE_STORAGE) ||
-               (structure.structureType == STRUCTURE_CONTAINER)
+        return (structure.structureType == STRUCTURE_STORAGE)
+              //  || (structure.structureType == STRUCTURE_CONTAINER)
       }
     })[0] as StructureStorage | StructureContainer
 
@@ -97,8 +117,6 @@ export function init() {
     }
 
     // Room
-    this.room.spawn = this
-
     this.room_names.forEach(room_name => {
       let room_memory = Memory.rooms[room_name]
 
@@ -195,18 +213,6 @@ export function init() {
       }
       Memory.squads.push(memory)
     }
-
-    // Renew
-    const creeps_need_renew = this.pos.findInRange(FIND_MY_CREEPS, 1, {
-      filter: (creep: Creep) => {
-        return creep.memory.status == CreepStatus.WAITING_FOR_RENEW
-      }
-    }) as Creep[]
-
-    creeps_need_renew.forEach((creep) => {
-      creep.say('RENEW')
-      this.renewCreep(creep)
-    })
 
     // Spawn
     if ((creeps_need_renew.length == 0) && (this.spawning == null) && (this.room.energyAvailable >= 50) && (this.squads.size > 0)) {
