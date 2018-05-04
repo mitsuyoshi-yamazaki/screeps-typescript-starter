@@ -18,26 +18,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const empire = new Empire("Mitsuyoshi", spawns)
 
   empire.expand(["W5N3"])
-
-  // @fixme:
-  const towers = [Game.getObjectById('5aea81a02e007b09769e059c') as StructureTower]
-
-  for (const tower of towers) {
-    const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-    if(closestHostile) {
-        tower.attack(closestHostile)
-    }
-    else if (tower.energy > (tower.energyCapacity / 2)) {
-      const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (structure) => {
-            return (structure.hits < Math.min(structure.hitsMax, 100000))
-        }
-      })
-      if(closestDamagedStructure) {
-        tower.repair(closestDamagedStructure)
-      }
-    }
-  }
 })
 
 /**

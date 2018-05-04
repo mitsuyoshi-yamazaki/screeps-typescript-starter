@@ -5,12 +5,12 @@ import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquadMemory, HarvesterSquad } from "./squad/harvester";
 
 declare global {
-  interface StructureSpawn {
+  interface StructureSpawn {  // @fixme: Now assuming only 1 spawn per room (but actually not) spawn -> province
     squads: Map<string, Squad>
     worker_squad: WorkerSquad
     manual_squad: ManualSquad
     room_names: string[]
-    // towers: StructureTower[]  // @todo:
+    towers: StructureTower[]
 
     initialize(): void
     say(message: string): void
@@ -240,7 +240,34 @@ export function init() {
       }
     }
 
-    // Defend
+
+    //  --- Defend ---
+    // Tower
+    this.towers = this.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_TOWER
+      }
+    })  as StructureTower[]
+
+    this.towers.forEach((tower) => {
+      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+      if(closestHostile) {
+          tower.attack(closestHostile)
+      }
+      else if (tower.energy > (tower.energyCapacity / 2)) {
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: (structure) => {
+              return (structure.hits < Math.min(structure.hitsMax, 100000))
+          }
+        })
+        if(closestDamagedStructure) {
+          tower.repair(closestDamagedStructure)
+        }
+      }
+      // @todo: heal
+    })
+
+    // Safe mode
     // @todo: this codes should be located on somewhere like Empire
     if (Game.time % 2 == 0) {
       const room = this.room
