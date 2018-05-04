@@ -66,7 +66,7 @@ export function init() {
         break
       }
       case SquadType.WORKER: {
-        const squad = new WorkerSquad(squad_memory.name, this.room_names)
+        const squad = new WorkerSquad(squad_memory.name, [this.room.name])  // @fixme: WorkerSquad currently supports tasks in the first room
 
         this.worker_squad = squad
         this.squads.set(squad.name, squad)
@@ -132,7 +132,7 @@ export function init() {
     // Worker
     if (!this.worker_squad) {
       const name = WorkerSquad.generateNewName()
-      const squad = new WorkerSquad(name, this.room_names)
+      const squad = new WorkerSquad(name, [this.room.name])  // @fixme: WorkerSquad currently supports tasks in the first room
 
       this.worker_squad = squad
       this.squads.set(squad.name, squad)
