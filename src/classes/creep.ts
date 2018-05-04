@@ -308,12 +308,13 @@ export function init() {
       result = this.attackController(target)
     }
     else {
-      action = 'claimController'
-      result = this.claimController(target)
+      action = 'reserveController'
+      result = this.reserveController(target)
     }
 
     switch (result) {
       case OK:
+      case ERR_BUSY:
       case ERR_TIRED:
         return CreepActionResult.IN_PROGRESS
 
