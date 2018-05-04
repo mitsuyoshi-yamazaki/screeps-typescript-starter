@@ -46,8 +46,41 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
+    this.dismantle()
+    // this.attack()
+  }
+
+  private dismantle(): void {
     this.creeps.forEach((creep, _) => {
-      const target_room_name = 'W46S46'
+      const target_room_name = 'W49S48'
+
+      creep.drop(RESOURCE_ENERGY)
+
+      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+        return
+      }
+
+      const target = Game.getObjectById('5aea6c149341002d688f97e8') as StructureSpawn
+
+      if (target) {
+        if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(target)
+        }
+      }
+      else {
+        // console.log(`No more targets in ${target_room_name}, ${creep.name}`)
+        const construction_site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+
+        if (construction_site) {
+          creep.moveTo(construction_site)
+        }
+      }
+    })
+  }
+
+  private attack(): void {
+    this.creeps.forEach((creep, _) => {
+      const target_room_name = 'W49S48'
 
       if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
         return

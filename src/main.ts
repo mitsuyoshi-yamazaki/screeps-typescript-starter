@@ -18,6 +18,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const empire = new Empire("Mitsuyoshi", spawns)
 
   empire.expand(["W5N3"])
+
+  for (const creep_name in Game.creeps) {
+    const creep = Game.creeps[creep_name]
+
+    if (creep.squad) {
+      continue
+    }
+
+    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}`)
+  }
 })
 
 /**

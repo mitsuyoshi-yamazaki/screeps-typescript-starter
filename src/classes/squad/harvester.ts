@@ -205,7 +205,10 @@ export class HarvesterSquad extends Squad {
         return
       }
       else {
-        harvester.transfer(this.container!, RESOURCE_ENERGY)
+        if (harvester.transfer(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          harvester.moveTo(this.container!)
+          return
+        }
         harvester.memory.status = CreepStatus.HARVEST
         return
       }

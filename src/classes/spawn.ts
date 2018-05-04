@@ -30,49 +30,56 @@ export function init() {
     this.room.spawn = this
     this.squads = new Map<string, Squad>()
 
-    // Renew
-    const creeps_need_renew = this.pos.findInRange(FIND_MY_CREEPS, 1, {
-      filter: (creep: Creep) => {
-        return creep.memory.status == CreepStatus.WAITING_FOR_RENEW
-      }
-    }) as Creep[]
-
-    creeps_need_renew.forEach((creep) => {
-      creep.say('RENEW')
-      this.renewCreep(creep)
-    })
-
-    if (this.name != 'Spawn1') {
-      // console.log(`${this.name} can't be initialized yet`)
-      return
-    }
-
+    // --- Initialize variables ---
     if (this.memory.squad_names == null) {
       this.memory.squad_names = []
     }
 
-    // @todo: for each spawns
-    const harvester_targets: {id: string, room_name: string}[] = [
-      { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
-      { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
-      { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
-      { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
-      // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
-      { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
-    ]
+    let harvester_targets: {id: string, room_name: string}[]
 
-    this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46']
+    switch (this.name) {
+      case 'Spawn1':
+        harvester_targets = [
+          { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
+          { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
+          { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
+          { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
+          // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
+          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+        ]
+        this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46']
+        break
 
-    const harvester_destination = this.room.find(FIND_STRUCTURES, {
+      case 'Spawn2':
+        harvester_targets = []
+        this.room_names = [this.room.name]
+        break
+
+      default:
+        harvester_targets = []
+        this.room_names = []
+        console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
+        break
+    }
+
+    const storage = this.room.find(FIND_STRUCTURES, {
       filter: structure => {
         return (structure.structureType == STRUCTURE_STORAGE)
-              //  || (structure.structureType == STRUCTURE_CONTAINER)
       }
-    })[0] as StructureStorage | StructureContainer
+    })[0] as StructureStorage
 
-    // Memory
+    const container = this.room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        return (structure.structureType == STRUCTURE_CONTAINER)
+      }
+    })[0] as StructureContainer
+
+    const harvester_destination: StructureStorage | StructureContainer = storage || container
+
+
+    // -- Memory --
     for (const squad_memory of Memory.squads) {
-      if (this.name != squad_memory.owner_name) {
+      if (squad_memory.owner_name != this.name) {
         continue
       }
 
@@ -116,7 +123,7 @@ export function init() {
       }
     }
 
-    // Room
+    // --- Room ---
     this.room_names.forEach(room_name => {
       let room_memory = Memory.rooms[room_name]
 
@@ -136,7 +143,7 @@ export function init() {
 
       Memory.rooms[room_name].keeper_squad_name = squad.name
       this.squads.set(squad.name, squad)
-      this.memory.squad_names.push(squad.name)
+      // this.memory.squad_names.push(squad.name) // not used
 
       const memory: ControllerKeeperSquadMemory = {
         name: squad.name,
@@ -149,7 +156,8 @@ export function init() {
       console.log(`Missing roomkeeper for ${room_name}, assigned: ${squad.name}`)
     })
 
-    // Worker
+
+    // --- Worker ---
     if (!this.worker_squad) {
       const name = WorkerSquad.generateNewName()
       const squad = new WorkerSquad(name, this.room.name)
@@ -163,9 +171,17 @@ export function init() {
         owner_name: this.name,
       }
       Memory.squads.push(memory)
+
+      // if (this.name == 'Spawn2') {  // @fixme:
+      //   console.log(`Reassign all workers ${this.name}`)
+      //   for (const creep_name in Game.creeps) {
+      //     const creep = Game.creeps[creep_name]
+      //     creep.memory.squad_name = squad.name
+      //   }
+      // }
     }
 
-    // Harvester
+    // --- Harvester ---
     harvester_targets.forEach(target => {
       if (!Memory.rooms[target.room_name]) {
         Memory.rooms[target.room_name] = {
@@ -186,7 +202,7 @@ export function init() {
       const squad = new HarvesterSquad(name, target, harvester_destination)
 
       this.squads.set(squad.name, squad)
-      this.memory.squad_names.push(squad.name)
+      // this.memory.squad_names.push(squad.name) // not used
 
       const memory: HarvesterSquadMemory = {
         name: squad.name,
@@ -199,22 +215,33 @@ export function init() {
     })
 
     // Manual
-    if (!this.manual_squad) {
-      const name = ManualSquad.generateNewName()
-      const squad = new ManualSquad(name, this.room.name)
+    // if (!this.manual_squad) {
+    //   const name = ManualSquad.generateNewName()
+    //   const squad = new ManualSquad(name, this.room.name)
 
-      this.manual_squad = squad
-      this.squads.set(squad.name, squad)
+    //   this.manual_squad = squad
+    //   this.squads.set(squad.name, squad)
 
-      const memory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
+    //   const memory = {
+    //     name: squad.name,
+    //     type: squad.type,
+    //     owner_name: this.name,
+    //   }
+    //   Memory.squads.push(memory)
+    // }
+
+    // --- Renew ---
+    const creeps_need_renew = this.pos.findInRange(FIND_MY_CREEPS, 1, {
+      filter: (creep: Creep) => {
+        return creep.memory.status == CreepStatus.WAITING_FOR_RENEW
       }
-      Memory.squads.push(memory)
-    }
+    }) as Creep[]
 
-    // Spawn
+    creeps_need_renew.forEach((creep) => {
+      this.renewCreep(creep)
+    })
+
+    // --- Spawn ---
     if ((creeps_need_renew.length == 0) && (this.spawning == null) && (this.room.energyAvailable >= 50) && (this.squads.size > 0)) {
       const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
         const l_priority = lhs.spawnPriority
@@ -247,9 +274,13 @@ export function init() {
       }
     }
 
-    // Construction site
+    // --- Construction site ---
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
+
+      if (flag.room!.name != this.room.name) {
+        continue
+      }
 
       if (this.room.createConstructionSite(flag.pos, STRUCTURE_EXTENSION) == OK) {
         flag.remove()

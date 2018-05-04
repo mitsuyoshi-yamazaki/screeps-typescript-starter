@@ -58,10 +58,6 @@ export class ControllerKeeperSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if ((this.room_name == 'W49S47') && (!Game.spawns['Spawn2']))  {
-      return SpawnPriority.NONE
-    }
-
     if (this.creeps.size == 0) {
       return SpawnPriority.LOW
     }
@@ -118,6 +114,7 @@ export class ControllerKeeperSquad extends Squad {
         break
 
       case State.NOT_OWNED:
+        // console.log(`HOGE ${this.name}, ${this.room_name}, ${this.state}, ${this.creeps.size}`)
         this.claim()
         break
 

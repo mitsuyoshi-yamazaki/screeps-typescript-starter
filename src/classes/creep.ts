@@ -1,3 +1,4 @@
+import { Squad } from "classes/squad/squad"
 
 export enum CreepStatus {  // @todo: add "meta" info to status and keep it on memory, to not change objectives between ticks
   NONE    = "none",
@@ -26,6 +27,7 @@ export enum CreepType {
 
 declare global {
   interface Creep {
+    squad: Squad
     initialize(): void
 
     // General tasks
@@ -94,6 +96,7 @@ export function init() {
 
     this.memory.status = CreepStatus.WAITING_FOR_RENEW
     this.moveTo(spawn)
+    this.transfer(spawn, RESOURCE_ENERGY)
 
     return CreepActionResult.IN_PROGRESS
   }
@@ -312,6 +315,8 @@ export function init() {
   }
 
   Creep.prototype.claim = function(target_room_name: string): CreepActionResult {
+    this.say('CLAIM')
+
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
       return CreepActionResult.IN_PROGRESS
@@ -319,12 +324,14 @@ export function init() {
 
     const room = Game.rooms[target_room_name]
     if (!room) {
+      this.say(target_room_name)
       this.moveToRoom(target_room_name)
       return CreepActionResult.IN_PROGRESS
     }
 
     const target = room.controller!
     if (target.my) {
+      this.say('MY ROOM')
       return CreepActionResult.DONE
     }
 
@@ -344,6 +351,7 @@ export function init() {
       action = 'reserveController'
       result = this.reserveController(target)
     }
+    this.say(action)
 
     switch (result) {
       case OK:

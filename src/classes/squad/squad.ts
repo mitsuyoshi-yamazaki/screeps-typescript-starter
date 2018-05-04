@@ -58,6 +58,7 @@ export abstract class Squad {
         continue
       }
 
+      creep.squad = this
       creep.initialize()
       this.creeps.set(creep.name, creep)
     }
