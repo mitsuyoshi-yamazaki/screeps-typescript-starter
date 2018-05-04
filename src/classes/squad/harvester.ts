@@ -72,13 +72,13 @@ export class HarvesterSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (!this.harvester) {
-      return SpawnPriority.NORMAL
+      return SpawnPriority.HIGH
     }
 
     const number_of_carriers = (this.destination.room.name == this.source_info.room_name) ? 1 : 2
 
     if ((this.container) && (this.carriers.length < number_of_carriers)) {
-      return SpawnPriority.LOW
+      return SpawnPriority.NORMAL
     }
     return SpawnPriority.NONE
   }

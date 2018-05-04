@@ -24,14 +24,14 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    const urgent = false  // @todo: no harvester or worker
+    const really_need = this.creeps.size < 3
 
     const room = Game.rooms[this.room_names[0]]
     const max = 7//room.energyCapacityAvailable >= 600 ? 7 : 10
     const needWorker = this.creeps.size < max  // @todo: implement
 
-    if (urgent) {
-      return SpawnPriority.URGENT
+    if (really_need) {
+      return SpawnPriority.HIGH
     }
     return needWorker ? SpawnPriority.LOW : SpawnPriority.NONE
   }

@@ -2,9 +2,10 @@ import { CreepStatus, CreepActionResult } from "classes/creep"
 
 export enum SpawnPriority {
   URGENT = 0,
-  NORMAL = 1,
-  LOW    = 2,
-  NONE   = 3, // no need to spawn creeps
+  HIGH   = 1,
+  NORMAL = 2,
+  LOW    = 3,
+  NONE   = 4, // no need to spawn creeps
 }
 
 export enum SquadType {

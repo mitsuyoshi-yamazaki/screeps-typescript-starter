@@ -59,7 +59,7 @@ export class ControllerKeeperSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (this.creeps.size == 0) {
-      return SpawnPriority.NORMAL
+      return SpawnPriority.LOW
     }
     return SpawnPriority.NONE
   }
