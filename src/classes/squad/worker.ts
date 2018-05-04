@@ -95,8 +95,9 @@ export class WorkerSquad extends Squad {
     this.creeps.forEach((creep, _) => {
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
 
-      if (needs_renew && room.spawn) {
-        creep.goToRenew(room.spawn!)
+      if (needs_renew && creep.room.spawn) {
+        creep.goToRenew(creep.room.spawn!)
+        return
       }
       creep.work(room, source)
     })

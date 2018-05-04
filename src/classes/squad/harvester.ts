@@ -242,6 +242,13 @@ export class HarvesterSquad extends Squad {
 
   private carry(): void {
     this.carriers.forEach((creep, _) => {
+      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
+
+      if (needs_renew && creep.room.spawn) {
+        creep.goToRenew(creep.room.spawn!)
+        return
+      }
+
       if ((creep.memory.status == CreepStatus.NONE) || (creep.carry.energy == 0)) {
         creep.memory.status = CreepStatus.HARVEST
       }
