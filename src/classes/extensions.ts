@@ -23,7 +23,7 @@ declare global {
   }
 
   interface RoomVisual {
-    multipleLinedText(text: string, x: number, y: number, style?: TextStyle): void
+    multipleLinedText(text: string | string[], x: number, y: number, style?: TextStyle): void
   }
 }
 
@@ -32,9 +32,9 @@ export function init() {
     this.sources = this.find(FIND_SOURCES)
   }
 
-  RoomVisual.prototype.multipleLinedText = function(text: string, x: number, y: number, style?: TextStyle): void {
+  RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
 
-    const lines = text.split('\n')
+    const lines = ((text as string).split) ? (text as string).split('\n') : text as string[]
     lines.forEach((line, index) => {
       this.text(line, x, y + index, style)
     })
