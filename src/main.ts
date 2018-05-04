@@ -44,7 +44,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * @todo:
  * random move on build / upgrade
  * renew creeps
- * harvester squad
- * remove controller_keeper squad
  * army squad: 1 ranged attack creep and renew it
  */

@@ -182,25 +182,38 @@ export function init() {
         this.memory.status = CreepStatus.CHARGE
       }
       else {
-        const storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return ((structure.structureType == STRUCTURE_STORAGE) && ((structure as StructureStorage).store.energy > 50)) ||
-                   ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 50))
+        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+          filter: function(resource: Resource) {
+            return (resource.resourceType == RESOURCE_ENERGY) && (resource.amount >= 20)
           }
-        })
-
-        if (storage) {
-          if (this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(storage)
+        }) as Resource
+        if (drop) {
+          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+            this.moveTo(drop)
             return
           }
         }
         else {
-          const source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+          const storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return ((structure.structureType == STRUCTURE_STORAGE) && ((structure as StructureStorage).store.energy > 50)) ||
+                     ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 50))
+            }
+          })
 
-          if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-            this.moveTo(source)
-            return
+          if (storage) {
+            if (this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(storage)
+              return
+            }
+          }
+          else {
+            const source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+
+            if (this.harvest(source) == ERR_NOT_IN_RANGE) {
+              this.moveTo(source)
+              return
+            }
           }
         }
       }
