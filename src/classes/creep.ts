@@ -10,7 +10,7 @@ export enum CreepStatus {  // @todo: add "meta" info to status and keep it on me
   WAITING_FOR_RENEW = "waiting_for_renew",
 }
 
-export enum CreepActionResult {
+export enum ActionResult {
   IN_PROGRESS = "in_progress",
   DONE        = "done",
 }
@@ -31,18 +31,18 @@ declare global {
     initialize(): void
 
     // General tasks
-    moveToRoom(destination_room_name: string): CreepActionResult
-    goToRenew(spawn: StructureSpawn): CreepActionResult
+    moveToRoom(destination_room_name: string): ActionResult
+    goToRenew(spawn: StructureSpawn): ActionResult
 
     // Worker tasks
-    harvestFrom(source: Source): CreepActionResult
+    harvestFrom(source: Source): ActionResult
     work(room: Room, source?: StructureContainer | StructureStorage): void
-    buildTo(source: Source, target: ConstructionSite): CreepActionResult
-    repairTo(source: Source, target: Structure, max_hits?: number): CreepActionResult
+    buildTo(source: Source, target: ConstructionSite): ActionResult
+    repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source: Source, target: StructureController): void
 
     // Controller tasks
-    claim(target_room_name: string): CreepActionResult
+    claim(target_room_name: string): ActionResult
   }
 
   interface CreepMemory {
@@ -62,65 +62,65 @@ export function init() {
   }
 
   // --- General tasks ---
-  Creep.prototype.moveToRoom = function(destination_room_name: string): CreepActionResult { // pos?: {x: number, y: number}
+  Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult { // pos?: {x: number, y: number}
     if (this.room.name == destination_room_name) {
-      return CreepActionResult.DONE
+      return ActionResult.DONE
 
       // if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
-      //   return CreepActionResult.DONE
+      //   return ActionResult.DONE
       // }
 
       // // @todo: make pos to optional, and default pos to room controller
       // console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
       // this.moveTo(pos.x, pos.y)
-      // return CreepActionResult.IN_PROGRESS
+      // return ActionResult.IN_PROGRESS
     }
 
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
       console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
-      return CreepActionResult.IN_PROGRESS
+      return ActionResult.IN_PROGRESS
     }
 
     const closest_exit = this.pos.findClosestByPath(exit)
 
     this.moveTo(closest_exit)
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.goToRenew = function(spawn: StructureSpawn): CreepActionResult {
+  Creep.prototype.goToRenew = function(spawn: StructureSpawn): ActionResult {
     if ((this.ticksToLive || 0) >= 1400) {
       this.memory.status = CreepStatus.NONE
-      return CreepActionResult.DONE
+      return ActionResult.DONE
     }
 
     this.memory.status = CreepStatus.WAITING_FOR_RENEW
     this.moveTo(spawn)
     this.transfer(spawn, RESOURCE_ENERGY)
 
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 
 
   // --- Worker tasks ---
-  Creep.prototype.harvestFrom = function(source: Source): CreepActionResult {
+  Creep.prototype.harvestFrom = function(source: Source): ActionResult {
     this.memory.status = CreepStatus.HARVEST
 
     if (this.carry.energy == this.carryCapacity) {
       this.memory.status = CreepStatus.NONE
-      return CreepActionResult.DONE
+      return ActionResult.DONE
     }
     if (this.harvest(source) == ERR_NOT_IN_RANGE) {
       this.moveTo(source)
     }
 
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.buildTo = function(source: Source, target: ConstructionSite): CreepActionResult {
+  Creep.prototype.buildTo = function(source: Source, target: ConstructionSite): ActionResult {
     if (!target) {
       console.log(`Creep.repairTo no target specified ${this.name}`)
-      return CreepActionResult.IN_PROGRESS
+      return ActionResult.IN_PROGRESS
     }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
@@ -134,7 +134,7 @@ export function init() {
       }
       else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
         this.moveTo(source)
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
       }
     }
 
@@ -142,24 +142,24 @@ export function init() {
     if (this.memory.status == CreepStatus.BUILD) {
       if (!target) {
         this.memory.status = CreepStatus.NONE
-        return CreepActionResult.DONE
+        return ActionResult.DONE
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
       }
       else if (this.build(target) == ERR_NOT_IN_RANGE) {
         this.moveTo(target)
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
       }
     }
 
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.repairTo = function(source: Source, target: Structure, max_hits?: number): CreepActionResult {
+  Creep.prototype.repairTo = function(source: Source, target: Structure, max_hits?: number): ActionResult {
     if (!target) {
       console.log(`Creep.repairTo no target specified ${this.name}`)
-      return CreepActionResult.IN_PROGRESS
+      return ActionResult.IN_PROGRESS
     }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
@@ -173,7 +173,7 @@ export function init() {
       }
       else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
         this.moveTo(source)
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
       }
     }
 
@@ -181,15 +181,15 @@ export function init() {
     if (this.memory.status == CreepStatus.REPAIR) {
       if (target.hits >= (max_hits || target.hitsMax)) {
         this.memory.status = CreepStatus.NONE
-        return CreepActionResult.DONE
+        return ActionResult.DONE
       }
       if (this.repair(target) == ERR_NOT_IN_RANGE) {
         this.moveTo(target)
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
       }
     }
 
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 
   Creep.prototype.upgrade = function(source: Source, target: StructureController): void {
@@ -314,12 +314,12 @@ export function init() {
     }
   }
 
-  Creep.prototype.claim = function(target_room_name: string): CreepActionResult {
+  Creep.prototype.claim = function(target_room_name: string): ActionResult {
     this.say('CLAIM')
 
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
-      return CreepActionResult.IN_PROGRESS
+      return ActionResult.IN_PROGRESS
     }
 
     const room = Game.rooms[target_room_name]
@@ -333,13 +333,13 @@ export function init() {
         this.say(target_room_name)
         this.moveToRoom(target_room_name)
       }
-      return CreepActionResult.IN_PROGRESS
+      return ActionResult.IN_PROGRESS
     }
 
     const target = room.controller!
     if (target.my) {
       this.say('MY ROOM')
-      return CreepActionResult.DONE
+      return ActionResult.DONE
     }
 
     let result: number
@@ -364,11 +364,11 @@ export function init() {
       case OK:
       case ERR_BUSY:
       case ERR_TIRED:
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
 
       case ERR_NOT_IN_RANGE:
         this.moveTo(target)
-        return CreepActionResult.IN_PROGRESS
+        return ActionResult.IN_PROGRESS
 
       default:
         if ((result == ERR_INVALID_TARGET) && (action == 'claimController')) {
@@ -379,6 +379,6 @@ export function init() {
         break
     }
 
-    return CreepActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 }

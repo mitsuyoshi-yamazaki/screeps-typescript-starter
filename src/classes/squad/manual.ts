@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class ManualSquad extends Squad {
   constructor(readonly name: string, readonly original_room_name: string) {
@@ -56,7 +56,7 @@ export class ManualSquad extends Squad {
 
       creep.drop(RESOURCE_ENERGY)
 
-      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+      if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         return
       }
 
@@ -82,7 +82,7 @@ export class ManualSquad extends Squad {
     this.creeps.forEach((creep, _) => {
       const target_room_name = 'W49S48'
 
-      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+      if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         return
       }
 

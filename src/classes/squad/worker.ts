@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 /**
  * WorkerSquad manages workers ([WORK, CARRY, MOVE] * n or [WORK * 2, CARRY * 2, MOVE * 3] * n)

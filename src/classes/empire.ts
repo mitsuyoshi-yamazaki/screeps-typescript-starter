@@ -10,7 +10,7 @@ export class Empire {
   constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
     const room_names = ['W48S47', 'W49S47', 'W44S42']
     this.regions = room_names.map((room_name) => {
-      return Game.rooms[room_name].controller!  // @todo: error handling
+      return Game.rooms[room_name].controller!  // @todo: error handling: when a room would be destroyed
     }).map((controller) => {
       return new Region(controller)
     })
@@ -22,9 +22,9 @@ export class Empire {
     })
   }
 
-  public expand(roomnames: string[]): void {
+  public run(): void {
     this.regions.forEach((region) => {
-      region.expand(roomnames)
+      region.run()
     })
   }
 }

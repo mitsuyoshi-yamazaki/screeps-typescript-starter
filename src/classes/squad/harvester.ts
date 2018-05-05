@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export interface HarvesterSquadMemory extends SquadMemory {
   readonly source_id: string
@@ -181,7 +181,7 @@ export class HarvesterSquad extends Squad {
     }
 
     if (harvester.memory.status == CreepStatus.HARVEST) {
-      if (harvester.moveToRoom(this.source_info.room_name) != CreepActionResult.DONE) {
+      if (harvester.moveToRoom(this.source_info.room_name) != ActionResult.DONE) {
         return
       }
 
@@ -271,7 +271,7 @@ export class HarvesterSquad extends Squad {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
-        else if (creep.moveToRoom(this.source_info.room_name) != CreepActionResult.DONE) {
+        else if (creep.moveToRoom(this.source_info.room_name) != ActionResult.DONE) {
           return
         }
         else if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

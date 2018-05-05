@@ -1,5 +1,5 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, CreepActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export interface ControllerKeeperSquadMemory extends SquadMemory {
   readonly room_name: string
@@ -181,7 +181,7 @@ export class ControllerKeeperSquad extends Squad {
 
       const target_room_name = 'W44S42' // @fixme: use this.room_name
 
-      if (creep.moveToRoom(target_room_name) != CreepActionResult.DONE) {
+      if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         return
       }
 
@@ -204,7 +204,7 @@ export class ControllerKeeperSquad extends Squad {
 
   private claim(): void {
     this.creeps.forEach((creep, _) => {
-      if (creep.claim(this.room_name) == CreepActionResult.DONE) {
+      if (creep.claim(this.room_name) == ActionResult.DONE) {
         console.log(`CLAIMED ANOTHER ROOM ${this.room_name}`)
       }
     })

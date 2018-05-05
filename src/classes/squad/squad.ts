@@ -1,4 +1,4 @@
-import { CreepStatus, CreepActionResult } from "classes/creep"
+import { CreepStatus, ActionResult } from "classes/creep"
 
 export enum SpawnPriority {
   URGENT = 0,
@@ -20,9 +20,9 @@ export interface SpawnFunction {
 }
 
 export interface SquadMemory {
-  readonly name: string
-  readonly type: SquadType
-  readonly owner_name: string  // Spawn name
+  name: string
+  type: SquadType
+  owner_name: string  // Spawn name
 }
 
 /**
