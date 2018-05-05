@@ -11,11 +11,8 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    const r = this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
-    // console.log(`MaualSquad.spawnPriority ${r}`)
-
-    // return r
-    return SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    // return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -27,12 +24,12 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 650
+    return energyAvailable >= 750
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE]
+    const body: BodyPartConstant[] = [TOUGH, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, HEAL, MOVE]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,

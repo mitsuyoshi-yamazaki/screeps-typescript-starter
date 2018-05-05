@@ -22,6 +22,7 @@ export enum CreepType {
   HARVESTER         = 'harvester',
   CARRIER           = 'carrier',
   ATTACKER          = 'attacker',
+  HEALER            = 'healer',
   SCOUT             = 'scout',
 }
 
