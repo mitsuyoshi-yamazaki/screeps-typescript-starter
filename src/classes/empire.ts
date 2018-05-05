@@ -22,6 +22,17 @@ export class Empire {
     this.regions = new Map(regions.map((region): [string, Region] => { return [region.name, region] }))
 
     this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
+
+    // // Reassign controller keeper
+    // this.regions.forEach((region) => {
+
+    //   const room_keeper = region.room.keeper
+    //   if (!room_keeper) {
+    //     return
+    //   }
+
+    //   Memory.squads[room_keeper!.name]
+    // })
   }
 
   public say(message: string): void {

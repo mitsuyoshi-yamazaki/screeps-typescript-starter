@@ -75,7 +75,7 @@ export class Region {
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W44S42', 'W47S48']
+        this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         break
 
       case 'W49S47':
@@ -156,7 +156,7 @@ export class Region {
     }
 
     // --- Room ---
-    this.room_names.forEach(room_name => {
+    for (const room_name of this.room_names) {
       let room_memory = Memory.rooms[room_name]
 
       if (!room_memory) {
@@ -167,11 +167,16 @@ export class Region {
       }
 
       if (room_memory.keeper_squad_name) {
-        return
+        continue
       }
 
       const name = ControllerKeeperSquad.generateNewName()
       const squad = new ControllerKeeperSquad(name, room_name)
+
+      const room = Game.rooms[room_name]
+      if (room) {
+        room.keeper = squad
+      }
 
       Memory.rooms[room_name].keeper_squad_name = squad.name
       this.squads.set(squad.name, squad)
@@ -185,7 +190,8 @@ export class Region {
       Memory.squads.push(memory)
 
       console.log(`Create roomkeeper for ${room_name}, assigned: ${squad.name}`)
-    })
+      break // To not create squads with the same name
+    }
 
     // --- Worker ---
     if (!worker_squad) {
