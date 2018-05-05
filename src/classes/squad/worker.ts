@@ -87,9 +87,12 @@ export class WorkerSquad extends Squad {
     // @todo move harvest task to harvester squad
 
     let room = Game.rooms[this.room_name]
-    let source: StructureStorage
+    let source: StructureStorage | StructureContainer
     if (room.name == 'W48S47') {
-      source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme:
+      source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme: temp code
+    }
+    else if (room.name == 'W49S47') {
+      source = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer // @fixme: temp code
     }
 
     this.creeps.forEach((creep, _) => {

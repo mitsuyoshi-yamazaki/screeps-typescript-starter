@@ -33,9 +33,6 @@ export class ControllerKeeperSquad extends Squad {
     if (this.myRoom) {
       this.state = State.MINE
     }
-    else if (this.room_name == 'W47S48') {  // @fixme:
-      this.state = State.OWNED
-    }
     else {
       this.state = State.NOT_OWNED
     }

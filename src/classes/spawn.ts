@@ -40,32 +40,6 @@ export function init() {
 
     let harvester_targets: {id: string, room_name: string}[]
 
-    switch (this.name) {
-      case 'Spawn1':
-        harvester_targets = [
-          { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
-          { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
-          { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
-          { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
-          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
-          { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
-          { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
-        ]
-        this.room_names = [this.room.name, 'W49S47', 'W47S47', 'W48S48', 'W47S46', 'W44S42', 'W47S48']
-        break
-
-      case 'Spawn2':
-        harvester_targets = []
-        this.room_names = [this.room.name]
-        break
-
-      default:
-        harvester_targets = []
-        this.room_names = []
-        console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
-        break
-    }
-
     const storage = this.room.find(FIND_STRUCTURES, {
       filter: structure => {
         return (structure.structureType == STRUCTURE_STORAGE)
@@ -78,8 +52,42 @@ export function init() {
       }
     })[0] as StructureContainer
 
-    const harvester_destination: StructureStorage | StructureContainer = storage || container
+    let harvester_destination: StructureStorage | StructureContainer = storage || container
 
+    switch (this.name) {
+      case 'Spawn1':
+        harvester_targets = [
+          { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
+          { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
+          { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
+          { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
+          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+          { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
+          { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
+        ]
+        this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W44S42', 'W47S48']
+        break
+
+      case 'Spawn2':
+        harvester_targets = []
+        this.room_names = [this.room.name]
+
+        if (this.room.energyCapacityAvailable >= 700) { // @fixme: temp code
+          harvester_targets.concat([
+            { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },
+            { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },
+          ])
+
+          harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
+        }
+        break
+
+      default:
+        harvester_targets = []
+        this.room_names = []
+        console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
+        break
+    }
 
     // -- Memory --
     for (const squad_memory of Memory.squads) {
@@ -270,7 +278,7 @@ export function init() {
           }
           squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
             const result = this.spawnCreep(body, name, ops)
-            console.log(`Spawn [${body}] and assign to ${squad.name}: ${result}`)
+            console.log(`${this.name} [${body}] and assign to ${squad.name}: ${result}`)
             return result
           })
           break
