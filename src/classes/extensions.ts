@@ -17,7 +17,7 @@ declare global {
   interface Room {
     sources: Source[]
     keeper?: ControllerKeeperSquad
-    spawn?: StructureSpawn  // Initialized in Spawn.initialize()
+    spawns: StructureSpawn[]  // Initialized in Spawn.initialize()
 
     initialize(): void
   }
