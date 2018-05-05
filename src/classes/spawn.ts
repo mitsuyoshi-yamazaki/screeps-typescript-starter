@@ -9,9 +9,6 @@ declare global {
 
 export function init() {
   StructureSpawn.prototype.initialize = function() {
-    if (!this.room.spawns) {
-      this.room.spawns = []
-    }
     this.room.spawns.push(this)
   }
 

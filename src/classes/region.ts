@@ -85,6 +85,11 @@ export class Region {
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
         break
 
+      case 'W44S42':
+        harvester_targets = []
+        this.room_names = [this.room.name]
+        break
+
       default:
         harvester_targets = []
         this.room_names = []
@@ -93,11 +98,10 @@ export class Region {
     }
 
     // -- Memory --
-    const squad_name = this.room.spawns[0].name  // @fixme: this is a migration code
-    let worker_squad: WorkerSquad | null = null // @fixme: wtf
+    let worker_squad: WorkerSquad | null = null
 
     for (const squad_memory of Memory.squads) {
-      if ((squad_memory.owner_name != this.name) && (squad_memory.owner_name != squad_name)) {
+      if (squad_memory.owner_name != this.name) {
         continue
       }
       squad_memory.owner_name = this.name  // @fixme: this is a migration code

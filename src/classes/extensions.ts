@@ -32,6 +32,11 @@ export function init() {
     this.sources = this.find(FIND_SOURCES)
   }
 
+  for (const room_name in Game.rooms) {
+    const room = Game.rooms[room_name]
+    room.spawns = []
+  }
+
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
 
     const lines = ((text as string).split) ? (text as string).split('\n') : text as string[]
