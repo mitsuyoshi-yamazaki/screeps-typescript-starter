@@ -32,7 +32,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @fixme:
- * If any creep or squad born on the same tick, the identifier would be same
+ * If any creep or squad born on the same tick, the identifier would be the same
+ * Spawn tries to spawn during spawning
+ * Duplicated worker squads
  */
 
 /**

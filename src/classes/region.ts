@@ -78,8 +78,9 @@ export class Region {
 
       case 'W49S47':
         harvester_targets = [
-          { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },
-          { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },
+          { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },  // home right
+          { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home top left
+          { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
         ]
         this.room_names = [this.room.name]
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
