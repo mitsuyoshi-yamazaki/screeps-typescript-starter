@@ -11,7 +11,7 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
     // return SpawnPriority.NONE
   }
 
@@ -29,7 +29,7 @@ export class ManualSquad extends Squad {
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [TOUGH, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, HEAL, MOVE]
+    const body: BodyPartConstant[] = [TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
@@ -43,8 +43,8 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.dismantle()
-    // this.attack()
+    // this.dismantle()
+    this.attack()
   }
 
   private dismantle(): void {
@@ -83,15 +83,59 @@ export class ManualSquad extends Squad {
         return
       }
 
-      const target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+      const hostile_attacker = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+        filter: (creep) => {
+          return creep.getActiveBodyparts(ATTACK) > 0
+        }
+      })
 
-      if (target) {
-        if (creep.attack(target) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(target)
+      if (hostile_attacker) {
+        if (creep.attack(hostile_attacker) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(hostile_attacker)
+          return
         }
       }
       else {
-        console.log(`No more targets in ${target_room_name}, ${creep.name}`)
+        if (creep.hits < creep.hitsMax) {
+          creep.heal(creep)
+          return
+        }
+
+        const hostile_spawn = creep.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
+        if (hostile_spawn) {
+          if (creep.attack(hostile_spawn) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(hostile_spawn)
+            return
+          }
+        }
+        else {
+          const hostile_creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+          if (hostile_creep) {
+            if (creep.attack(hostile_creep) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(hostile_creep)
+              return
+            }
+          }
+          else {
+            const hostile_structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+            if (hostile_structure) {
+              if (creep.attack(hostile_structure) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(hostile_structure)
+                return
+              }
+            }
+            else {
+              const site = creep.pos.findClosestByPath(FIND_HOSTILE_CONSTRUCTION_SITES)
+              if (site) {
+                creep.moveTo(site)
+                return
+              }
+              else {
+                console.log(`No more targets in ${target_room_name}, ${creep.name}`)
+              }
+            }
+          }
+        }
       }
     })
   }
