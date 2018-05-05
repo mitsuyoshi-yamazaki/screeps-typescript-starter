@@ -217,7 +217,7 @@ export function init() {
     }
   }
 
-  // Work
+  // --- Work ---
   Creep.prototype.work = function(room: Room, source?: StructureContainer | StructureStorage): void {
     if (!room) {
       console.log(`Creep.work room not specified ${this.name}`)
