@@ -396,7 +396,17 @@ export class Region {
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
-    const pos = {x: 1, y: 1}
+    let pos: {x: number, y: number} = {x: 1, y: 1}
+
+    switch(this.room.name) {
+      case 'W48S47':
+        break
+
+      case 'W49S47':
+      case 'W44S42':
+        pos = {x: 21, y: 32}
+        break
+    }
 
     let lines: string[] = [
       `${this.name} in ${this.room.name}`,
@@ -415,6 +425,7 @@ export class Region {
 
     this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
       align: 'left',
+      opacity: 0.8,
     })
   }
 
