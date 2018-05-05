@@ -190,7 +190,9 @@ export class HarvesterSquad extends Squad {
         return
       }
       if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-        harvester.moveTo(this.source!)
+        harvester.moveTo(this.source!, {
+          ignoreCreeps: true,
+        })
         return
       }
     }

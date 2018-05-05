@@ -33,7 +33,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 /**
  * @fixme:
  * If any creep or squad born on the same tick, the identifier would be same
- * If a creep blocks harvesters position
  */
 
 /**
@@ -42,3 +41,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * random move on build / upgrade
  * army squad: 1 ranged attack creep and renew it
  */
+
+ /**
+  * memo:
+  * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
+  */
