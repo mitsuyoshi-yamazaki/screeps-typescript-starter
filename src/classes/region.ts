@@ -82,7 +82,7 @@ export class Region {
           { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home top left
           { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
         ]
-        this.room_names = [this.room.name]
+        this.room_names = [this.room.name, 'W49S46']
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
         break
 
@@ -180,7 +180,7 @@ export class Region {
       }
       Memory.squads.push(memory)
 
-      console.log(`Missing roomkeeper for ${room_name}, assigned: ${squad.name}`)
+      console.log(`Create roomkeeper for ${room_name}, assigned: ${squad.name}`)
     })
 
     // --- Worker ---
@@ -197,12 +197,13 @@ export class Region {
         owner_name: this.name,
       }
       Memory.squads.push(memory)
+
+      console.log(`Create worker for ${this.name}, assigned: ${squad.name}`)
     }
     this.worker_squad = worker_squad as WorkerSquad
 
     // --- Harvester ---
-    harvester_targets.forEach(target => {
-
+    for (const target of harvester_targets) {
       // Initialize
       if (!Memory.rooms[target.room_name]) {
         Memory.rooms[target.room_name] = {
@@ -215,7 +216,7 @@ export class Region {
 
       // --
       if (Memory.rooms[target.room_name].harvesting_source_ids.indexOf(target.id) >= 0) {
-        return
+        continue
       }
       Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
@@ -232,7 +233,10 @@ export class Region {
         room_name: target.room_name,
       }
       Memory.squads.push(memory)
-    })
+
+      console.log(`Create harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
+      break // To not create squads with the same name
+    }
 
     // Manual
     // if (!this.manual_squad) {
