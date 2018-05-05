@@ -344,7 +344,7 @@ export function init() {
 
     let result: number
     let action: string
-    const room_name_to_claim = 'W49S47'
+    const room_name_to_claim = 'W44S42'
 
     if ((target.owner && target.owner.username) && (target.ticksToDowngrade > 1000)) {
       action = 'attackController'

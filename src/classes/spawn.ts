@@ -47,7 +47,6 @@ export function init() {
           { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
           { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
           { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
-          // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },
           { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
