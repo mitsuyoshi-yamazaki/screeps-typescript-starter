@@ -90,9 +90,16 @@ export class ManualSquad extends Squad {
       })
 
       if (hostile_attacker) {
+        if (Game.time % 5) {
+          creep.say('FOUND YOU', true)
+        }
+
         if (creep.attack(hostile_attacker) == ERR_NOT_IN_RANGE) {
           creep.moveTo(hostile_attacker)
           return
+        }
+        if (Game.time % 4) {
+          creep.say('DIE!', true)
         }
       }
       else {

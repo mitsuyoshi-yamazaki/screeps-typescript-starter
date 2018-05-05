@@ -69,12 +69,12 @@ export class ControllerKeeperSquad extends Squad {
       return energyAvailable >= 700
 
     case State.NOT_OWNED:
-      // if (capacity >= 1250) {  // @todo implement here with addCreepForClaim
-      //   return energyAvailable >= 1250
-      // }
-      // else {
+      if (capacity >= 1300) {
+        return energyAvailable >= 1300
+      }
+      else {
         return energyAvailable >= 650
-      // }
+      }
 
     case State.MINE:
       return energyAvailable >= 250
@@ -93,7 +93,7 @@ export class ControllerKeeperSquad extends Squad {
         break
 
       case State.NOT_OWNED:
-        this.addCreepForClaim(spawnFunc)
+        this.addCreepForClaim(energyAvailable, spawnFunc)
         break
 
       case State.MINE:
@@ -143,8 +143,8 @@ export class ControllerKeeperSquad extends Squad {
     })
   }
 
-  private addCreepForClaim(spawnFunc: SpawnFunction): void {
-    const body: BodyPartConstant[] = [CLAIM, MOVE]
+  private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const body: BodyPartConstant[] = energyAvailable >= 1300 ? [MOVE, MOVE, CLAIM, CLAIM] : [MOVE, CLAIM]
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,

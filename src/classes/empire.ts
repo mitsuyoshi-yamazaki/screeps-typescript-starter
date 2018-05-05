@@ -21,7 +21,7 @@ export class Empire {
 
     this.regions = new Map(regions.map((region): [string, Region] => { return [region.name, region] }))
 
-    this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
+    // this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
 
     // // Reassign controller keeper
     // this.regions.forEach((region) => {

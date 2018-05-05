@@ -19,10 +19,26 @@ export function init() {
       }
     }) as Creep[]
 
+    if (creeps_need_renew.length == 0) {
+      return ActionResult.DONE
+    }
+
+    creeps_need_renew.sort((lhs, rhs) => {
+      if (lhs.ticksToLive! > rhs.ticksToLive!) {
+        return 1
+      }
+      else if (lhs.ticksToLive! < rhs.ticksToLive!) {
+        return -1
+      }
+      else {
+        return 0
+      }
+    })
+
     creeps_need_renew.forEach((creep) => {
       this.renewCreep(creep)
     })
 
-    return creeps_need_renew.length == 0 ? ActionResult.DONE : ActionResult.IN_PROGRESS
+    return ActionResult.IN_PROGRESS
   }
 }
