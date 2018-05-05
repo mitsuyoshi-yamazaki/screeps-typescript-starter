@@ -90,7 +90,7 @@ export class WorkerSquad extends Squad {
       source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme: temp code
     }
     else if (room.name == 'W49S47') {
-      source = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer // @fixme: temp code
+      // source = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer // @fixme: temp code
     }
 
     this.creeps.forEach((creep, _) => {
@@ -108,6 +108,15 @@ export class WorkerSquad extends Squad {
           creep.goToRenew(spawn)
           return
         }
+      }
+
+      if (room.name == 'W49S47') {
+        source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER)
+                   && ((structure as StructureContainer).store.energy > 50)
+          }
+        }) as StructureContainer
       }
       creep.work(room, source)
     })
