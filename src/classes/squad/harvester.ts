@@ -82,7 +82,7 @@ export class HarvesterSquad extends Squad {
     const number_of_carriers = 1//(this.destination.room.name == this.source_info.room_name) ? 1 : 2
 
     if ((this.container) && (this.carriers.length < number_of_carriers)) {
-      if (this.source_info.id == '59f19ff082100e1594f35c84') {  // W49S47 close to spawn
+      if ((this.source_info.id == '59f19ff082100e1594f35c84') || (this.source_info.id == '59f1a03c82100e1594f36609')) {
         return SpawnPriority.NONE
       }
       return SpawnPriority.NORMAL

@@ -11,8 +11,8 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    // return SpawnPriority.NONE
+    // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
+    return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -77,7 +77,7 @@ export class ManualSquad extends Squad {
 
   private attack(): void {
     this.creeps.forEach((creep, _) => {
-      const target_room_name = 'W49S48'
+      const target_room_name = 'W45S48'
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         return

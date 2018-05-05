@@ -90,7 +90,9 @@ export class Region {
         break
 
       case 'W44S42':
-        harvester_targets = []
+        harvester_targets = [
+          { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
+        ]
         this.room_names = [this.room.name]
         break
 

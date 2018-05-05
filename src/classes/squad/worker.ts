@@ -110,7 +110,7 @@ export class WorkerSquad extends Squad {
         }
       }
 
-      if (room.name == 'W49S47') {
+      if ((room.name == 'W49S47') || (room.name == 'W44S42')) {
         source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
             return (structure.structureType == STRUCTURE_CONTAINER)
