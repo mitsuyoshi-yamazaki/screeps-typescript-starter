@@ -6,7 +6,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
  * to build or upgrade.
  */
 export class WorkerSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string) {
+  constructor(readonly name: string, readonly room_name: string, readonly delegated?: boolean) {
     super(name)
 
     // if (this.creeps.size < 5) {  // @fixme:
@@ -24,7 +24,7 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    const really_need = this.creeps.size < 3
+    const really_need = (!this.delegated) && (this.creeps.size < 3)
 
     const room = Game.rooms[this.room_name]
     const max = 6//room.energyCapacityAvailable >= 600 ? 7 : 10
@@ -84,8 +84,6 @@ export class WorkerSquad extends Squad {
   }
 
   public run(): void {
-    // @todo move harvest task to harvester squad
-
     let room = Game.rooms[this.room_name]
     let source: StructureStorage | StructureContainer
     if (room.name == 'W48S47') {
@@ -96,20 +94,10 @@ export class WorkerSquad extends Squad {
     }
 
     this.creeps.forEach((creep, _) => {
-      // const second_room_name = 'W49S47'
-      // const second_room_assign = (creep.memory.birth_time % 2 == 0)
-
-      // if (second_room_assign) {
-      //   room = Game.rooms[second_room_name]
-      // }
-
-      // if (second_room_assign && (creep.room.name != second_room_name)) {
-      //   creep.drop(RESOURCE_ENERGY)
-      //   if (creep.moveToRoom(second_room_name) == CreepActionResult.IN_PROGRESS) {
-      //     creep.say(second_room_name)
-      //   }
-      //   return
-      // }
+      if (creep.room.name != this.room_name) {
+        creep.moveToRoom(this.room_name)
+        return
+      }
 
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
 
@@ -122,7 +110,6 @@ export class WorkerSquad extends Squad {
         }
       }
       creep.work(room, source)
-      // creep.say(`${creep.memory.status}`)
     })
   }
 }

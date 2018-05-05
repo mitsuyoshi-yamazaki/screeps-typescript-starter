@@ -13,6 +13,8 @@ export class Region {
   public get name(): string {
     return this.room.name
   }
+  public delegated_squads: Squad[] = []
+  public squads_need_spawn: Squad[] = []
 
   // Private
   private squads = new Map<string, Squad>()
@@ -122,7 +124,9 @@ export class Region {
         break
       }
       case SquadType.WORKER: {
-        const squad = new WorkerSquad(squad_memory.name, this.room.name)
+        const delegated = this.room.name == 'W44S42'
+
+        const squad = new WorkerSquad(squad_memory.name, this.room.name, delegated)
         worker_squad = squad
         this.squads.set(squad.name, squad)
         break
@@ -270,7 +274,24 @@ export class Region {
       }
     }
 
-    //  --- Defend ---
+    // --- Spawn ---
+    const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
+      const l_priority = lhs.spawnPriority
+      const r_priority = rhs.spawnPriority
+      if (l_priority < r_priority) return -1
+      else if (l_priority > r_priority) return 1
+      else return 0
+    })
+
+    const highest_priority = sorted[0].spawnPriority
+    const availableEnergy = this.room.energyAvailable
+    const energyCapacity = this.room.energyCapacityAvailable
+
+    this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
+      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energyCapacity))
+    })
+
+    // --- Defend ---
     // Tower
     this.towers = this.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -331,8 +352,6 @@ export class Region {
         room.controller!.activateSafeMode()
       }
     }
-
-    this.drawDebugInfo()
   }
 
   public say(message: string): void {
@@ -348,35 +367,23 @@ export class Region {
     })
 
     this.spawnAndRenew()
+    this.drawDebugInfo()
   }
 
   // --- Private ---
   private spawnAndRenew(): void {
-    if (this.squads.size == 0) {
+    if ((this.squads.size == 0) && (this.delegated_squads.length == 0)) {
       console.log(`${this.name} doesn't have any squads`)
       return
     }
 
-    const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
-      const l_priority = lhs.spawnPriority
-      const r_priority = rhs.spawnPriority
-      if (l_priority < r_priority) return -1
-      else if (l_priority > r_priority) return 1
-      else return 0
-    })
-
-    const highest_priority = sorted[0].spawnPriority
+    let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
     const availableEnergy = this.room.energyAvailable
-    const energyCapacity = this.room.energyCapacityAvailable
-
-    const filtered: Squad[] = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
-      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energyCapacity))
-    })
 
     Array.from(this.spawns.values()).filter((spawn) => {
       return spawn.renewSurroundingCreeps() == ActionResult.DONE
     }).forEach((spawn) => {
-      const squad = filtered.pop()
+      const squad = squad_needs_spawn.pop()
 
       if (squad) {
         squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
@@ -397,7 +404,22 @@ export class Region {
       `  Squads: ${this.squads.size}`,
     ]
 
-    const squad_descriptions = Array.from(this.squads.values()).sort((lhs, rhs) => {
+    const squad_descriptions = this.squadDescriptions(Array.from(this.squads.values()))
+    lines = lines.concat(squad_descriptions)
+
+    if (this.delegated_squads.length > 0) {
+      lines.push(`  Delegated: `)
+      const delegated_descriptions = this.squadDescriptions(this.delegated_squads)
+      lines = lines.concat(delegated_descriptions)
+    }
+
+    this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
+      align: 'left',
+    })
+  }
+
+  private squadDescriptions(squads: Squad[]): string[] {
+    return squads.sort((lhs, rhs) => {
       return (lhs.name > rhs.name) ? 1 : -1
     }).map((squad) => {
       let room_name: string = ""
@@ -410,12 +432,6 @@ export class Region {
       }
 
       return `  - ${squad.name}  ${squad.creeps.size} creeps,  priority: ${squad.spawnPriority},  ${room_name}`
-    })
-
-    lines = lines.concat(squad_descriptions)
-
-    this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
-      align: 'left',
     })
   }
 }

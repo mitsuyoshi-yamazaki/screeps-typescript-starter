@@ -5,15 +5,23 @@ enum State {
 }
 
 export class Empire {
-  private regions: Region[]
+  private regions: Map<string, Region>
 
   constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
-    const room_names = ['W48S47', 'W49S47', 'W44S42']
-    this.regions = room_names.map((room_name) => {
+    const first = 'W48S47'
+    const second = 'W49S47'
+    const third = 'W44S42'
+
+    const room_names = [first, second, third]
+    const regions = room_names.map((room_name) => {
       return Game.rooms[room_name].controller!  // @todo: error handling: when a room would be destroyed
     }).map((controller) => {
       return new Region(controller)
     })
+
+    this.regions = new Map(regions.map((region): [string, Region] => { return [region.name, region] }))
+
+    this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
   }
 
   public say(message: string): void {

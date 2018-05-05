@@ -62,18 +62,13 @@ export function init() {
   }
 
   // --- General tasks ---
-  Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult { // pos?: {x: number, y: number}
+  Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
     if (this.room.name == destination_room_name) {
       return ActionResult.DONE
+    }
 
-      // if ((this.pos.x == pos.x) && (this.pos.y == pos.y)) { // If pos is a object's position, the user of this function should take care of it
-      //   return ActionResult.DONE
-      // }
-
-      // // @todo: make pos to optional, and default pos to room controller
-      // console.log('[Creep] moveToRoom same room ', destination_room_name, this.room.name)
-      // this.moveTo(pos.x, pos.y)
-      // return ActionResult.IN_PROGRESS
+    if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
+      destination_room_name = 'W46S43'  // @fixme: this is waypoint
     }
 
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
@@ -288,7 +283,9 @@ export function init() {
 
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
-      const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+      const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+        filter: (site) => site.my
+      })
 
       if (!target) {
         this.memory.status = CreepStatus.UPGRADE
@@ -324,15 +321,8 @@ export function init() {
 
     const room = Game.rooms[target_room_name]
     if (!room) {
-      if ((target_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
-        const waypoint = 'W46S43'
-        this.say(waypoint)
-        this.moveToRoom(waypoint)
-      }
-      else {
-        this.say(target_room_name)
-        this.moveToRoom(target_room_name)
-      }
+      this.say(target_room_name)
+      this.moveToRoom(target_room_name)
       return ActionResult.IN_PROGRESS
     }
 
