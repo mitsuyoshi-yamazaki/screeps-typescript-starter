@@ -1,7 +1,7 @@
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
-class AttackerSquad extends Squad {
+export class AttackerSquad extends Squad {
   private attacker: Creep | undefined
   private healer: Creep | undefined
 
@@ -23,7 +23,8 @@ class AttackerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    return SpawnPriority.NONE // @todo:
+    const needs_attacker = (!this.attacker) || (!this.healer)
+    return needs_attacker ? SpawnPriority.URGENT : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
