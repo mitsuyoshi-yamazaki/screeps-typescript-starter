@@ -9,8 +9,9 @@ export interface HarvesterSquadMemory extends SquadMemory {
 export class HarvesterSquad extends Squad {
   private harvester?: Creep
   private carriers: Creep[]
-  private source: Source | undefined
-  private container?: StructureContainer
+  private source: Source | undefined  // A source that the harvester harvests energy
+  private store: StructureContainer | undefined // A store that the harvester stores energy
+  private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
 
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
     super(name)
@@ -46,19 +47,32 @@ export class HarvesterSquad extends Squad {
       return
     }
     this.source = source
-    // console.log(`Find source ${source.id} ${source.pos.x}, ${source.pos.y}`)
 
-    const container = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
+    const store = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
       filter: function(structure: Structure) {
         return structure.structureType == STRUCTURE_CONTAINER
       }
     })[0] as StructureContainer
 
-    if (!container) {
+    if (!store) {
       return
     }
-    this.container = container
-    // console.log(`Find container ${container.id} ${container.pos.x}, ${container.pos.y}`)
+    this.store = store
+    this.container = store
+
+    if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 0))
+            || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // Link
+        }
+      }) as StructureContainer | StructureLink
+
+      if (target) {
+        // console.log(`Harvester found target ${target.structureType}, ${target.id}, ${this.name}`)
+        this.container = target
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -81,8 +95,12 @@ export class HarvesterSquad extends Squad {
 
     const number_of_carriers = 1//(this.destination.room.name == this.source_info.room_name) ? 1 : 2
 
-    if ((this.container) && (this.carriers.length < number_of_carriers)) {
-      if ((this.source_info.id == '59f19ff082100e1594f35c84') || (this.source_info.id == '59f1a03c82100e1594f36609')) {
+    if ((this.store) && (this.carriers.length < number_of_carriers)) {
+      const source_noneed_carrier =
+        (this.source_info.id == '59f19fff82100e1594f35e08')     // W48S47 center
+        || (this.source_info.id == '59f19ff082100e1594f35c84')  // W49S47 right
+        || (this.source_info.id == '59f1a03c82100e1594f36609')  // W44S42 right
+      if (source_noneed_carrier) {
         return SpawnPriority.NONE
       }
       return SpawnPriority.NORMAL
@@ -97,7 +115,6 @@ export class HarvesterSquad extends Squad {
       return energyAvailable >= energy_needed
     }
     else {
-      // return false  // @fixme:
       const energy_unit = 100
       const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), 1200)
 
@@ -202,16 +219,16 @@ export class HarvesterSquad extends Squad {
 
     // Charge
     if (harvester.memory.status == CreepStatus.CHARGE) {
-      if (!this.container) {
+      if (!this.store) {
         harvester.memory.status = CreepStatus.BUILD
       }
-      else if (this.container!.hits < this.container!.hitsMax) {
-        harvester.repair(this.container!)
+      else if (this.store!.hits < this.store!.hitsMax) {
+        harvester.repair(this.store!)
         return
       }
       else {
-        if (harvester.transfer(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          harvester.moveTo(this.container!)
+        if (harvester.transfer(this.store!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          harvester.moveTo(this.store!)
           return
         }
         harvester.memory.status = CreepStatus.HARVEST
@@ -259,8 +276,10 @@ export class HarvesterSquad extends Squad {
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
 
       if (needs_renew) {
-        creep.goToRenew(creep.room.spawns[0])
-        return
+        if (creep.room.spawns.length > 0) {
+          creep.goToRenew(creep.room.spawns[0])
+          return
+        }
       }
 
       if ((creep.memory.status == CreepStatus.NONE) || (creep.carry.energy == 0)) {
