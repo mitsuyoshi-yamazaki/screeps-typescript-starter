@@ -367,7 +367,6 @@ export function init() {
   }
 
   Creep.prototype.claim = function(target_room_name: string): ActionResult {
-    this.say('CLAIM')
 
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
@@ -383,7 +382,6 @@ export function init() {
 
     const target = room.controller!
     if (target.my) {
-      this.say('MY ROOM')
       return ActionResult.DONE
     }
 
@@ -403,7 +401,6 @@ export function init() {
       action = 'reserveController'
       result = this.reserveController(target)
     }
-    this.say(action)
 
     switch (result) {
       case OK:

@@ -46,6 +46,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * keeper dies?
  * add description: string to Squad to show it in debug info
  * add current pos & room name to creep memory
+ * dismantle wall at 47, 43
  */
 
  /**

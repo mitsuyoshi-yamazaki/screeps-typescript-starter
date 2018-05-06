@@ -352,7 +352,7 @@ export class Region {
           tower.attack(closestHostile)
       }
       else if (tower.energy > (tower.energyCapacity / 2)) {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
           filter: (structure) => {
               return (structure.hits < Math.min(structure.hitsMax, 100000))
           }
