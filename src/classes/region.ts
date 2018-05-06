@@ -80,22 +80,29 @@ export class Region {
 
       case 'W49S47':
         harvester_targets = [
-          { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },  // home right
-          { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home top left
+          { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },  // home, right
+          { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home, top left
           { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
-          { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom
+          { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
+          { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
-        this.room_names = [this.room.name, 'W49S46']
+        this.room_names = [this.room.name, 'W49S46', 'W49S48']
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
         break
 
-      case 'W44S42':
+      case 'W44S42': {
         harvester_targets = [
           { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
+          { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
+          { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
-        this.room_names = [this.room.name]
+        this.room_names = [this.room.name, 'W45S42', 'W45S43']
+        const container = Game.getObjectById('5aedf8d7e35d18395c3e5ded') as StructureContainer
+        if (container) {
+          harvester_destination = container
+        }
         break
-
+      }
       default:
         harvester_targets = []
         this.room_names = []

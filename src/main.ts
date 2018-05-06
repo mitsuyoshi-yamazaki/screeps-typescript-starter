@@ -39,9 +39,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * split worker to charger and upgrader
  * random move on build / upgrade
  * army squad: 1 ranged attack creep and renew it
  * reassign controller keeper after claiming the controller
+ * keeper dies?
  */
 
  /**
