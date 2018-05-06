@@ -35,7 +35,7 @@ export class Region {
     }
 
     // Spawns
-    (this.room.find(FIND_STRUCTURES, {
+    (this.room.find(FIND_MY_STRUCTURES, {
       filter: (structure) => {
         return structure.structureType == STRUCTURE_SPAWN
       }
@@ -50,7 +50,7 @@ export class Region {
     // --- Initialize variables ---
     let harvester_targets: {id: string, room_name: string}[]
 
-    const storage = this.room.find(FIND_STRUCTURES, {
+    const storage = this.room.find(FIND_MY_STRUCTURES, {
       filter: structure => {
         return (structure.structureType == STRUCTURE_STORAGE)
       }
@@ -309,7 +309,7 @@ export class Region {
 
     // --- Defend ---
     // Tower
-    this.towers = this.room.find(FIND_STRUCTURES, {
+    this.towers = this.room.find(FIND_MY_STRUCTURES, {
       filter: (structure) => {
         return structure.structureType == STRUCTURE_TOWER
       }
@@ -321,7 +321,7 @@ export class Region {
           tower.attack(closestHostile)
       }
       else if (tower.energy > (tower.energyCapacity / 2)) {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_MY_STRUCTURES, {
           filter: (structure) => {
               return (structure.hits < Math.min(structure.hitsMax, 100000))
           }

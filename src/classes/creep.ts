@@ -295,7 +295,7 @@ export function init() {
 
     // Charge
     if ((this.memory.status == CreepStatus.CHARGE) || (this.memory.status == CreepStatus.BUILD)) {  // To check energy needed structure every tick
-      const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: structure => {
           return (structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_SPAWN ||
