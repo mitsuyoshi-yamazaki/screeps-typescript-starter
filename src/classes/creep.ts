@@ -65,6 +65,26 @@ export function init() {
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
     if (this.room.name == destination_room_name) {
+      if (this.pos.x == 0) {
+        if (this.move(RIGHT) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.x == 49) {
+        if (this.move(LEFT) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.y == 0) {
+        if (this.move(BOTTOM) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.y == 49) {
+        if (this.move(TOP) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
       return ActionResult.DONE
     }
 

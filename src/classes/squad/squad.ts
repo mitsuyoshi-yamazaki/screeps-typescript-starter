@@ -13,6 +13,7 @@ export enum SquadType {
   WORKER            = "worker",
   HARVESTER         = "harvester",
   MANUAL            = "manual",
+  SCOUT             = 'scout',
   ATTACKER          = 'attacker',
 }
 

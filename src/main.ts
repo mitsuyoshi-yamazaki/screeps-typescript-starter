@@ -44,6 +44,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * army squad: 1 ranged attack creep and renew it
  * reassign controller keeper after claiming the controller
  * keeper dies?
+ * add description: string to Squad to show it in debug info
+ * add current pos & room name to creep memory
  */
 
  /**

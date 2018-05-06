@@ -2,7 +2,8 @@ import { Squad, SquadType, SquadMemory, SpawnPriority } from "classes/squad/squa
 import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
 import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
-import { HarvesterSquadMemory, HarvesterSquad } from "./squad/harvester";
+import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester";
+import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult } from "./creep";
 
 export class Region {
@@ -19,7 +20,8 @@ export class Region {
   // Private
   private squads = new Map<string, Squad>()
   private worker_squad: WorkerSquad
-  private manual_squad?: ManualSquad
+  private manual_squad: ManualSquad | undefined
+  private scout_squad: ScoutSquad | undefined
   private room_names: string[] = []
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
@@ -63,6 +65,7 @@ export class Region {
     })[0] as StructureContainer
 
     let harvester_destination: StructureStorage | StructureContainer = storage || container
+    let rooms_need_scout: string[] = []
 
     switch (this.room.name) {
       case 'W48S47':
@@ -76,6 +79,7 @@ export class Region {
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
+        rooms_need_scout = []
         break
 
       case 'W49S47':
@@ -88,6 +92,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48']
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
+        rooms_need_scout = []
         break
 
       case 'W44S42': {
@@ -101,6 +106,7 @@ export class Region {
         if (container) {
           harvester_destination = container
         }
+        rooms_need_scout = ['W45S43']
         break
       }
       default:
@@ -156,6 +162,13 @@ export class Region {
         const squad = new ManualSquad(squad_memory.name, this.room.name)
 
         this.manual_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.SCOUT: {
+        const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
+
+        this.scout_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -256,6 +269,24 @@ export class Region {
 
       console.log(`Create harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
       break // To not create squads with the same name
+    }
+
+    // --- Scout ---
+    if ((!this.scout_squad) && (rooms_need_scout.length > 0)) {
+      const name = ScoutSquad.generateNewName()
+      const squad = new ScoutSquad(name, rooms_need_scout)
+
+      this.scout_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads.push(memory)
+
+      console.log(`Create scout for ${rooms_need_scout}, assigned: ${squad.name}`)
     }
 
     // Manual

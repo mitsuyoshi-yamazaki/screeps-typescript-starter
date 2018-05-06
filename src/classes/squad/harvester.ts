@@ -9,7 +9,7 @@ export interface HarvesterSquadMemory extends SquadMemory {
 export class HarvesterSquad extends Squad {
   private harvester?: Creep
   private carriers: Creep[]
-  private source?: Source
+  private source: Source | undefined
   private container?: StructureContainer
 
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
@@ -184,20 +184,18 @@ export class HarvesterSquad extends Squad {
     }
 
     if (harvester.memory.status == CreepStatus.HARVEST) {
-      if (harvester.moveToRoom(this.source_info.room_name) != ActionResult.DONE) {
-        return
-      }
+      if (this.source) {
+        if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
+          const ignoreCreeps = harvester.pos.getRangeTo(this.source!) <= 2  // If the blocking creep is next to the source, ignore
 
-      if (!this.source) {
-        console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}`)
-        return
+          harvester.moveTo(this.source!, {
+            ignoreCreeps: ignoreCreeps,
+          })
+          return
+        }
       }
-      if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-        const ignoreCreeps = harvester.pos.getRangeTo(this.source!) <= 2  // If the blocking creep is next to the source, ignore
-
-        harvester.moveTo(this.source!, {
-          ignoreCreeps: ignoreCreeps,
-        })
+      else {
+        harvester.moveToRoom(this.source_info.room_name)
         return
       }
     }
