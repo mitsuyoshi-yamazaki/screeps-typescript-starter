@@ -13,8 +13,15 @@ export class HarvesterSquad extends Squad {
   private store: StructureContainer | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage | StructureLink) {
     super(name)
+
+    if (this.source_info.room_name == 'W48S48') { // @fixme: temp code
+      const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink
+      if (destination) {
+        this.destination = destination
+      }
+    }
 
     if (!destination) {
       console.log(`HarvesterSquad destination not specified ${this.name}`)
@@ -306,9 +313,27 @@ export class HarvesterSquad extends Squad {
       if (creep.memory.status == CreepStatus.CHARGE) {
         if (creep.carry.energy == 0) {
           creep.memory.status = CreepStatus.HARVEST
+          return
         }
-        else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.destination)
+
+        const result = creep.transfer(this.destination, RESOURCE_ENERGY)
+
+        switch (result) {
+          case OK:
+          case ERR_FULL:
+            if (this.destination.id == '5aeed7712e007b09769feb8f') { // @fixme: temp code
+              const transfer_to = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
+              (this.destination as StructureLink).transferEnergy(transfer_to)
+            }
+            break
+
+          case ERR_NOT_IN_RANGE:
+            creep.moveTo(this.destination)
+            break
+
+          default:
+            console.log(`Harvester carry transfer error ${result}, target: ${this.destination.structureType} ${this.destination.id}, Creep: ${creep.name}, Squad: ${this.name}`)
+            break
         }
       }
     })
