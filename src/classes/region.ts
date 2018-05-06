@@ -289,6 +289,18 @@ export class Region {
       console.log(`Create scout for ${rooms_need_scout}, assigned: ${squad.name}`)
     }
 
+    // --- Attacker ---
+    // if (Game.time % 7 == 0) {
+    //   this.room_names.filter((room_name) => {
+    //     const room = Game.rooms[room_name]
+    //     if (!room || !room.controller || !room.controller!.reservation) {
+    //       return false
+    //     }
+    //     return room.controller!.reservation!.username == 'Mitsuyoshi'
+    //   })
+    //   // @todo:
+    // }
+
     // Manual
     // if (!this.manual_squad) {
     //   const name = ManualSquad.generateNewName()
@@ -413,11 +425,36 @@ export class Region {
       squad.run()
     })
 
+    this.transferLinks()
     this.spawnAndRenew()
     this.drawDebugInfo()
   }
 
   // --- Private ---
+  private transferLinks() {
+    switch (this.room.name) {
+      case 'W48S47': {
+        const destination = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
+        if (!destination) {
+          console.log(`Region.transferLinks no destination found ${this.name}`)
+          return
+        }
+
+        (this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_LINK)
+              && (structure.id != destination.id)
+          }
+        }) as StructureLink[]).forEach((link) => {
+          link.transferEnergy(destination)
+        })
+        break
+      }
+      default:
+        break
+    }
+  }
+
   private spawnAndRenew(): void {
     if ((this.squads.size == 0) && (this.delegated_squads.length == 0)) {
       console.log(`${this.name} doesn't have any squads`)

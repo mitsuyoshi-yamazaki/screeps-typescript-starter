@@ -316,24 +316,8 @@ export class HarvesterSquad extends Squad {
           return
         }
 
-        const result = creep.transfer(this.destination, RESOURCE_ENERGY)
-
-        switch (result) {
-          case OK:
-          case ERR_FULL:
-            if (this.destination.id == '5aeed7712e007b09769feb8f') { // @fixme: temp code
-              const transfer_to = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
-              (this.destination as StructureLink).transferEnergy(transfer_to)
-            }
-            break
-
-          case ERR_NOT_IN_RANGE:
-            creep.moveTo(this.destination)
-            break
-
-          default:
-            console.log(`Harvester carry transfer error ${result}, target: ${this.destination.structureType} ${this.destination.id}, Creep: ${creep.name}, Squad: ${this.name}`)
-            break
+        if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(this.destination)
         }
       }
     })
