@@ -123,6 +123,10 @@ export function init() {
           return ActionResult.IN_PROGRESS
         }
       }
+      // this.moveTo(closest_exit, {
+      //   // swampCost: 1,
+      //   maxOps: 10000,  // @fixme: It INCREASES SPU cost
+      // } as MoveToOpts)
     }
 
     return ActionResult.IN_PROGRESS
