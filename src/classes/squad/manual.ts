@@ -77,6 +77,14 @@ export class ManualSquad extends Squad {
 
   private attack(): void {
     this.creeps.forEach((creep, _) => {
+      const waypoint = 'W44S48'
+      if ((creep.memory.status != CreepStatus.BREAK) && (creep.moveToRoom(waypoint) != ActionResult.DONE)) {
+        creep.say(waypoint)
+        creep.memory.status = CreepStatus.NONE
+        return
+      }
+      creep.memory.status = CreepStatus.BREAK
+
       const target_room_name = 'W45S48'
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
@@ -84,23 +92,41 @@ export class ManualSquad extends Squad {
         return
       }
 
-      const hostile_attacker: Creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
-        filter: (creep) => {
-          return creep.body.filter((body: BodyPartDefinition) => {
-            return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
-          }).length > 0
-        }
-      })
+      const hostile_attacker: Creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)//, {
+        // filter: (creep) => {
+        //   return creep.body.filter((body: BodyPartDefinition) => {
+        //     return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
+        //   }).length > 0
+        // }
+      // })
+
+      // const target = creep.pos.findClosestByPath(FIND_STRUCTURES)
+
+      // if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+      //   creep.moveTo(target)
+      //   return
+      // }
 
       if (hostile_attacker) {
         if (Game.time % 5) {
           creep.say('FOUND YOU', true)
         }
 
-        if (creep.attack(hostile_attacker) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(hostile_attacker)
+        const rr = creep.attack(hostile_attacker)
+        if (rr == ERR_NOT_IN_RANGE) {
+          const r = creep.moveTo(hostile_attacker)
+          if (r == ERR_NO_PATH) {
+            const target = creep.pos.findClosestByPath(FIND_STRUCTURES)
+
+            if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target)
+            }
+          }
+          console.log(`Attacker ${r}, ${creep.name}`)
           return
         }
+        console.log(`Attacker 2 ${rr}, ${creep.name}`)
+
         if (Game.time % 4) {
           creep.say('DIE!', true)
         }

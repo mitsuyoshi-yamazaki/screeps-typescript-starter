@@ -5,6 +5,7 @@ import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester";
 import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult } from "./creep";
+import { AttackerSquad } from "./squad/attacker";
 
 export class Region {
   // Public
@@ -22,9 +23,11 @@ export class Region {
   private worker_squad: WorkerSquad
   private manual_squad: ManualSquad | undefined
   private scout_squad: ScoutSquad | undefined
+  private defend_squad: AttackerSquad | undefined
   private room_names: string[] = []
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
+  private attacked_rooms: Room[] = []
 
   constructor(readonly controller: StructureController) {
     if (!controller || !controller.my) {
@@ -87,12 +90,13 @@ export class Region {
           { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },  // home, right
           { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home, top left
           { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
+          { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
           { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48']
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
-        rooms_need_scout = ['W48S46']
+        rooms_need_scout = []
         break
 
       case 'W44S42': {
@@ -114,6 +118,24 @@ export class Region {
         this.room_names = []
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
+    }
+
+    // --
+    this.attacked_rooms = this.room_names.map((room_name) => {
+      return Game.rooms[room_name]
+    }).filter((room) => {
+      if (!room || !room.controller || !room.controller!.reservation) {
+        return false
+      }
+      return room.controller!.reservation!.username == 'Mitsuyoshi'
+    }).filter((reserving_room) => {
+      return reserving_room.find(FIND_HOSTILE_CREEPS).length > 0
+    })
+
+    if (this.attacked_rooms.length > 0) {
+      const message = `Room ${this.attacked_rooms} are attacked!! ${this.name}`
+      console.log(message)
+      Game.notify(message)
     }
 
     // -- Memory --
@@ -169,6 +191,13 @@ export class Region {
         const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
 
         this.scout_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.ATTACKER: {
+        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms)
+
+        this.defend_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -290,16 +319,22 @@ export class Region {
     }
 
     // --- Attacker ---
-    // if (Game.time % 7 == 0) {
-    //   this.room_names.filter((room_name) => {
-    //     const room = Game.rooms[room_name]
-    //     if (!room || !room.controller || !room.controller!.reservation) {
-    //       return false
-    //     }
-    //     return room.controller!.reservation!.username == 'Mitsuyoshi'
-    //   })
-    //   // @todo:
-    // }
+    if (!this.defend_squad) {
+      const name = AttackerSquad.generateNewName()
+      const squad = new AttackerSquad(name, this.attacked_rooms)
+
+      this.defend_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads.push(memory)
+
+      console.log(`Create defender for ${this.attacked_rooms}, assigned: ${squad.name}`)
+    }
 
     // Manual
     // if (!this.manual_squad) {
@@ -363,17 +398,24 @@ export class Region {
       if(closestHostile) {
           tower.attack(closestHostile)
       }
-      else if (tower.energy > (tower.energyCapacity / 2)) {
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-          filter: (structure) => {
-              return (structure.hits < Math.min(structure.hitsMax, 100000))
-          }
+      else {
+        const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+          filter: (creep) => creep.hits < creep.hitsMax
         })
-        if(closestDamagedStructure) {
-          tower.repair(closestDamagedStructure)
+        if (closest_damaged_creep) {
+          tower.heal(closest_damaged_creep)
+        }
+        else if (tower.energy > (tower.energyCapacity / 2)) {
+          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
+            filter: (structure) => {
+                return (structure.hits < Math.min(structure.hitsMax, 100000))
+            }
+          })
+          if(closestDamagedStructure) {
+            tower.repair(closestDamagedStructure)
+          }
         }
       }
-      // @todo: heal
     })
 
     // Safe mode

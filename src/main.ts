@@ -39,8 +39,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
- * dismantle wall at 47, 43
- * link thing
  * place storage on 42, 23
  * split worker to charger and upgrader
  * army squad: 1 ranged attack creep and renew it
