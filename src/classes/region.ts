@@ -92,7 +92,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48']
         harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
-        rooms_need_scout = []
+        rooms_need_scout = ['W48S46']
         break
 
       case 'W44S42': {
