@@ -274,11 +274,14 @@ export class HarvesterSquad extends Squad {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
-        else if (creep.moveToRoom(this.source_info.room_name) != ActionResult.DONE) {
-          return
+        else if (this.container) {
+          if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.container!)
+          }
         }
-        else if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.container!)
+        else {
+          creep.moveToRoom(this.source_info.room_name)
+          return
         }
       }
 

@@ -80,12 +80,15 @@ export class ManualSquad extends Squad {
       const target_room_name = 'W45S48'
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
+        creep.say(target_room_name)
         return
       }
 
-      const hostile_attacker = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+      const hostile_attacker: Creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
         filter: (creep) => {
-          return creep.getActiveBodyparts(ATTACK) > 0
+          return creep.body.filter((body: BodyPartDefinition) => {
+            return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
+          }).length > 0
         }
       })
 

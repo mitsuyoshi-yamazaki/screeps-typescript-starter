@@ -39,14 +39,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * dismantle wall at 47, 43
+ * link thing
+ * place storage on 42, 23
  * split worker to charger and upgrader
- * random move on build / upgrade
  * army squad: 1 ranged attack creep and renew it
- * reassign controller keeper after claiming the controller
  * keeper dies?
  * add description: string to Squad to show it in debug info
  * add current pos & room name to creep memory
- * dismantle wall at 47, 43
+ * random move on build / upgrade
+ * creeps get away from attacker
+ * reassign controller keeper after claiming the controller
  */
 
  /**

@@ -65,6 +65,9 @@ export function init() {
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
     if (this.room.name == destination_room_name) {
+      if (this.name == 'scout5886350') {
+        console.log(`SCOUT destination ${destination_room_name}, ${this.name}`)
+      }
       if (this.pos.x == 0) {
         if (this.move(RIGHT) == OK) {
           return ActionResult.IN_PROGRESS
@@ -99,8 +102,41 @@ export function init() {
     }
 
     const closest_exit = this.pos.findClosestByPath(exit)
+    const r = this.moveTo(closest_exit)
 
-    this.moveTo(closest_exit)
+    if (this.name == 'scout5886350') {
+      console.log(`SCOUT closest exit to ${destination_room_name}: ${closest_exit}, ${r}, ${this.name} in ${this.room.name}`)
+    }
+
+    if (r == ERR_NO_PATH) {
+      if (this.pos.x <= 1) {
+        if (this.move(RIGHT) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.x >= 48) {
+        if (this.move(LEFT) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.y <= 1) {
+        if (this.move(BOTTOM) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+      if (this.pos.y >= 48) {
+        if (this.move(TOP) == OK) {
+          return ActionResult.IN_PROGRESS
+        }
+      }
+
+      // const rr = this.moveTo(closest_exit, {
+      //   swampCost: 1
+      // } as MoveToOpts)
+
+      // console.log(`MoveToRoom second try: ${rr}, ${this.name}, ${this.pos}`)
+    }
+
     return ActionResult.IN_PROGRESS
   }
 
@@ -260,7 +296,7 @@ export function init() {
           }
 
           if (number > 3) {
-            this.memory.status = CreepStatus.UPGRADE
+            this.memory.status = CreepStatus.BUILD
           }
         }
       }
@@ -314,13 +350,12 @@ export function init() {
     }
 
     // Charge
-    if ((this.memory.status == CreepStatus.CHARGE) || (this.memory.status == CreepStatus.BUILD)) {  // To check energy needed structure every tick
+    if (this.memory.status == CreepStatus.CHARGE) {
       const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: structure => {
-          return (structure.structureType == STRUCTURE_EXTENSION ||
-            structure.structureType == STRUCTURE_SPAWN ||
-            structure.structureType == STRUCTURE_TOWER
-            ) && structure.energy < structure.energyCapacity
+          return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
+                  || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
+                  || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
         }
       })
 
