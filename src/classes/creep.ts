@@ -7,6 +7,7 @@ export enum CreepStatus {  // @todo: add "meta" info to status and keep it on me
   BUILD   = "build",
   REPAIR  = "repair",
   UPGRADE = "upgrade",
+  BREAK   = "break",
   WAITING_FOR_RENEW = "waiting_for_renew",
 }
 

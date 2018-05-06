@@ -16,7 +16,7 @@ export class HarvesterSquad extends Squad {
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage | StructureLink) {
     super(name)
 
-    if (this.source_info.room_name == 'W48S48') { // @fixme: temp code
+    if ((this.source_info.room_name == 'W48S48') || (this.source_info.room_name == 'W47S48')) { // @fixme: temp code
       const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink
       if (destination) {
         this.destination = destination
