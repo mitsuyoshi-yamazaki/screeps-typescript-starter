@@ -95,7 +95,7 @@ export class Region {
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48']
-        harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
+        // harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
         rooms_need_scout = []
         break
 

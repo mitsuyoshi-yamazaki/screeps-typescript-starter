@@ -90,7 +90,7 @@ export class WorkerSquad extends Squad {
       source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme: temp code
     }
     else if (room.name == 'W49S47') {
-      // source = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer // @fixme: temp code
+      source = Game.getObjectById('5aef62f86627413133777bdf') as StructureStorage // @fixme: temp code
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
@@ -110,7 +110,7 @@ export class WorkerSquad extends Squad {
         }
       }
 
-      if ((room.name == 'W49S47') || (room.name == 'W44S42')) {
+      if ((room.name == 'W44S42')) {
         source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
             return (structure.structureType == STRUCTURE_CONTAINER)

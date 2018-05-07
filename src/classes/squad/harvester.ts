@@ -105,7 +105,7 @@ export class HarvesterSquad extends Squad {
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       const source_noneed_carrier =
         (this.source_info.id == '59f19fff82100e1594f35e08')     // W48S47 center
-        || (this.source_info.id == '59f19ff082100e1594f35c84')  // W49S47 right
+        // || (this.source_info.id == '59f19ff082100e1594f35c84')  // W49S47 right
         || (this.source_info.id == '59f1a03c82100e1594f36609')  // W44S42 right
       if (source_noneed_carrier) {
         return SpawnPriority.NONE
