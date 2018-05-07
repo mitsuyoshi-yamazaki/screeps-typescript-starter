@@ -33,7 +33,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @fixme:
- * If any creep or squad born on the same tick, the identifier would be the same
+ * migrate memory
  * Spawn tries to spawn during spawning
  * carrier blocks harvester position
  */

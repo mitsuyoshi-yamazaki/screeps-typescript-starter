@@ -1,3 +1,4 @@
+import { UID } from "classes/utils"
 import { CreepStatus, ActionResult } from "classes/creep"
 
 export enum SpawnPriority {

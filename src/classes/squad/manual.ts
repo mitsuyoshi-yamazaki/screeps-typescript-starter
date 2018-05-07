@@ -1,3 +1,4 @@
+import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
@@ -16,7 +17,7 @@ export class ManualSquad extends Squad {
   }
 
   public static generateNewName(): string {
-    return `${SquadType.MANUAL}${Game.time}`
+    return UID(SquadType.MANUAL)
   }
 
   public generateNewName(): string {
