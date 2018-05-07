@@ -75,4 +75,8 @@ export class ScoutSquad extends Squad {
       }
     })
   }
+
+  public description(): string {
+    return `${super.description()}, ${this.room_names}`
+  }
 }

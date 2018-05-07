@@ -4,6 +4,8 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export class AttackerSquad extends Squad {
   private attacker: Creep | undefined
 
+  private destination: Room | undefined
+
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly room_for_wait: Room) {
     super(name)
 
@@ -14,6 +16,7 @@ export class AttackerSquad extends Squad {
       this.attacker = creep
     })
 
+    this.destination = rooms_to_defend[0]
     console.log(`${this.name} ${this.rooms_to_defend} ${this.attacker}`)
   }
 
@@ -82,13 +85,13 @@ export class AttackerSquad extends Squad {
       const rr = attacker.rangedAttack(hostile_creep)
       if (rr == ERR_NOT_IN_RANGE) {
         const r = attacker.moveTo(hostile_creep)
-        console.log(`FUGA ${attacker}, ${r}, ${hostile_creep}, ${hostile_creep.pos}`)
+        // console.log(`FUGA ${attacker}, ${r}, ${hostile_creep}, ${hostile_creep.pos}`)
       }
-      console.log(`HOGE ${attacker}, ${rr}, ${hostile_creep}, ${hostile_creep.pos}`)
+      // console.log(`HOGE ${attacker}, ${rr}, ${hostile_creep}, ${hostile_creep.pos}`)
       return
     }
 
-    if (this.rooms_to_defend.length == 0) {
+    if (!this.destination) {
       // console.log(`Attacker wait ${attacker!.name}, ${this.name}`)
       // if (attacker!.moveToRoom(this.room_for_wait.name) == ActionResult.IN_PROGRESS) {
       //   attacker!.say(this.room_for_wait.name)
@@ -96,12 +99,17 @@ export class AttackerSquad extends Squad {
       return
     }
 
-    const room = this.rooms_to_defend[0]
+    const room = this.destination
 
     if (attacker.moveToRoom(room.name) != ActionResult.DONE) {
       attacker.say(room.name)
       return
     }
+  }
+
+  public description(): string {
+    const attacker_info = this.attacker ? `${this.attacker.name} ${this.attacker.pos}` : ''
+    return `${super.description()}, ${attacker_info}\n    - to ${this.destination} (${this.rooms_to_defend})`
   }
 
   // -- Private --

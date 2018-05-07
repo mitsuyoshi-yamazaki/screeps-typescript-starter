@@ -127,6 +127,10 @@ export class ControllerKeeperSquad extends Squad {
     }
   }
 
+  public description(): string {
+    return `${super.description()}, state: ${this.state}, ${this.room_name}`
+  }
+
   // Private members
   private addCreepForUpgrade(spawnFunc: SpawnFunction): void {
     const body: BodyPartConstant[] = [WORK, CARRY, MOVE, MOVE]

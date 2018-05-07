@@ -563,16 +563,7 @@ export class Region {
     return squads.sort((lhs, rhs) => {
       return (lhs.name > rhs.name) ? 1 : -1
     }).map((squad) => {
-      let room_name: string = ""
-
-      if ((squad as HarvesterSquad).source_info) {
-        room_name = (squad as HarvesterSquad).source_info.room_name
-      }
-      else if ((squad as ControllerKeeperSquad).room_name) {
-        room_name = (squad as ControllerKeeperSquad).room_name
-      }
-
-      return `  - ${squad.name}  ${squad.creeps.size} creeps,  priority: ${squad.spawnPriority},  ${room_name}`
-    })
+      return `  - ${squad.description()}`
+    }).join('\n').split('\n')
   }
 }

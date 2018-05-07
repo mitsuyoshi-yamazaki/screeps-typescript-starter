@@ -152,6 +152,10 @@ export class HarvesterSquad extends Squad {
     this.carry()
   }
 
+  public description(): string {
+    return `${super.description()}, ${this.source_info.room_name}`
+  }
+
   // Private
   private addHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE]

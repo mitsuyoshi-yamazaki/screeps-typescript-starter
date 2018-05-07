@@ -47,6 +47,12 @@ export class ManualSquad extends Squad {
     this.attack()
   }
 
+  public description(): string {
+    const addition = this.creeps.size > 0 ? Array.from(this.creeps.values())[0].pos : ''
+    return `${super.description()}, ${addition}`
+  }
+
+  // --- Private ---
   private dismantle(): void {
     this.creeps.forEach((creep, _) => {
       const target_room_name = 'W49S48'

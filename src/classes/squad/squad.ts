@@ -66,6 +66,10 @@ export abstract class Squad {
     }
   }
 
+  public description(): string {
+    return `${this.name}  ${this.creeps.size} creeps,  priority: ${this.spawnPriority}`
+  }
+
   public say(message: string): void {
     this.creeps.forEach((creep, _) => {
       creep.say(message)
