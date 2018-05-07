@@ -68,7 +68,7 @@ export abstract class Squad {
   }
 
   public description(): string {
-    return `${this.name}  ${this.creeps.size} creeps,  priority: ${this.spawnPriority}`
+    return `${this.name} ${this.creeps.size} crp, pri: ${this.spawnPriority}`
   }
 
   public say(message: string): void {

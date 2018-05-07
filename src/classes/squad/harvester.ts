@@ -121,10 +121,12 @@ export class HarvesterSquad extends Squad {
     if (rooms_needs_one_carriers.indexOf(this.source_info.room_name) >= 0) {
       number_of_carriers = 1
     }
+    if (this.source_info.id == '59f19ff082100e1594f35c83') {  // top left of W49S47
+      number_of_carriers = 2
+    }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
-      const source_noneed_carrier =
-        (this.source_info.id == '59f19fff82100e1594f35e08')     // W48S47 center
+      const source_noneed_carrier = (this.source_info.id == '59f19fff82100e1594f35e08')     // W48S47 center
       if (source_noneed_carrier) {
         return SpawnPriority.NONE
       }
