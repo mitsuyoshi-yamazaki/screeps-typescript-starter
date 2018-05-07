@@ -19,7 +19,11 @@ export class AttackerSquad extends Squad {
     })
 
     this.destination = rooms_to_defend[0]
-    // console.log(`${this.name} ${this.rooms_to_defend} ${this.attacker}`)
+
+    if (this.rooms_to_defend.length > 0) {
+      const attacker_description = !(!this.attacker) ? `${this.attacker!}, ${this.attacker!.pos}` : ''
+      console.log(`Room Attacked!! ${this.rooms_to_defend}, ${attacker_description}`)
+    }
   }
 
   public get type(): SquadType {

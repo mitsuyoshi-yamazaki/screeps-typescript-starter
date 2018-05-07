@@ -42,6 +42,8 @@ declare global {
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source: Source, target: StructureController): void
+    searchAndDestroy(): ActionResult
+    destroy(target: Creep | Structure): ActionResult
 
     // Controller tasks
     claim(target_room_name: string): ActionResult
@@ -371,6 +373,56 @@ export function init() {
         return
       }
     }
+  }
+
+  Creep.prototype.searchAndDestroy = function(): ActionResult {
+    if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
+      console.log('searchAndDestroy zero')
+      return ActionResult.DONE
+    }
+
+    const hostile_attacker: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+      filter: (creep) => {
+        return creep.body.filter((body: BodyPartDefinition) => {
+          return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
+        }).length > 0
+      }
+    })
+    if (hostile_attacker) {
+      return this.destroy(hostile_attacker)
+    }
+
+    const hostile_tower: StructureTower = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_TOWER
+      }
+    }) as StructureTower
+    if (hostile_tower) {
+      return this.destroy(hostile_tower)
+    }
+
+    const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+    if (hostile_creep) {
+      return this.destroy(hostile_creep)
+    }
+
+    // @todo: other structures
+
+    console.log('searchAndDestroy done')
+    return ActionResult.DONE
+  }
+
+  Creep.prototype.destroy = function(target: Creep | Structure): ActionResult {
+    const ranged_attack_result = this.rangedAttack(target) // @todo: If target only has ATTACK, run and rangedAttack
+    const move_to_result = this.moveTo(target)
+    const attack_result = this.attack(target)
+
+    if ((ranged_attack_result != OK) || (move_to_result != OK) || (attack_result != OK)) {
+      console.log(`Creep.destroy action failed ${ranged_attack_result}, ${move_to_result}, ${attack_result}, ${this.name}`)
+    }
+
+    console.log('searchAndDestroy in progress')
+    return ActionResult.IN_PROGRESS // @todo: Check if finished
   }
 
   Creep.prototype.claim = function(target_room_name: string): ActionResult {

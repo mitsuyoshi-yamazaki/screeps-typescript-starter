@@ -499,11 +499,8 @@ export class Region {
   private spawnAndRenew(): void {
     const availableEnergy = this.room.energyAvailable
     let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
-    if (squad_needs_spawn.length == 0) {
-      return
-    }
 
-    const needs_spawn = squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT
+    const needs_spawn = (squad_needs_spawn.length > 0) ? squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT : false
 
     Array.from(this.spawns.values()).filter((spawn) => {
       return needs_spawn || (spawn.renewSurroundingCreeps() == ActionResult.DONE)

@@ -44,8 +44,19 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    // this.dismantle()
-    this.attack()
+    this.dismantle()
+    // this.attack()
+
+    // const target_room_name = 'W44S43'
+
+    // this.creeps.forEach((creep, _) => {
+    //   // if (creep.searchAndDestroy() == ActionResult.DONE) {
+    //   //   return
+    //   // }
+    //   if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+    //     return
+    //   }
+    // })
   }
 
   public description(): string {
@@ -56,15 +67,16 @@ export class ManualSquad extends Squad {
   // --- Private ---
   private dismantle(): void {
     this.creeps.forEach((creep, _) => {
-      const target_room_name = 'W45S48'
+      const target_room_name = 'W44S43'
 
       creep.drop(RESOURCE_ENERGY)
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
+        creep.say(target_room_name)
         return
       }
 
-      const target = Game.getObjectById('5aea6c149341002d688f97e8') as StructureSpawn
+      const target = creep.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
 
       if (target) {
         if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
@@ -72,11 +84,22 @@ export class ManualSquad extends Squad {
         }
       }
       else {
-        // console.log(`No more targets in ${target_room_name}, ${creep.name}`)
-        const construction_site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+        const structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+        if (structure) {
+          if (creep.dismantle(structure) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(structure)
+          }
+        }
+        else {
+          const construction_site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
 
-        if (construction_site) {
-          creep.moveTo(construction_site)
+          if (construction_site) {
+            creep.moveTo(construction_site)
+          }
+          else {
+            console.log(`No more targets in ${target_room_name}, ${creep.name}`)
+            creep.memory.squad_name = 'worker5864301'
+          }
         }
       }
     })
@@ -92,20 +115,20 @@ export class ManualSquad extends Squad {
       // }
       // creep.memory.status = CreepStatus.BREAK
 
-      const target_room_name = 'W45S41'
+      const target_room_name = 'W47S45'
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         creep.say(target_room_name)
         return
       }
 
-      const hostile_attacker: Creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)//, {
-        // filter: (creep) => {
-        //   return creep.body.filter((body: BodyPartDefinition) => {
-        //     return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
-        //   }).length > 0
-        // }
-      // })
+      const hostile_attacker: Creep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+        filter: (creep) => {
+          return creep.body.filter((body: BodyPartDefinition) => {
+            return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
+          }).length > 0
+        }
+      })
 
       // const target = creep.pos.findClosestByPath(FIND_STRUCTURES)
 
