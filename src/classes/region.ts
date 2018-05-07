@@ -95,21 +95,17 @@ export class Region {
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48']
-        // harvester_destination = Game.getObjectById('5aecaab70409f23c73d4e993') as StructureContainer
         rooms_need_scout = []
         break
 
       case 'W44S42': {
         harvester_targets = [
           { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
+          { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
         this.room_names = [this.room.name, 'W45S42', 'W45S43']
-        const container = Game.getObjectById('5aedf8d7e35d18395c3e5ded') as StructureContainer
-        if (container) {
-          harvester_destination = container
-        }
         rooms_need_scout = ['W45S43']
         break
       }
@@ -199,7 +195,6 @@ export class Region {
       }
       case SquadType.ATTACKER: {
         const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
-        console.log(`Wait for room ${this.room.name}, ${this.name}, `)
 
         this.defend_squad = squad
         this.squads.set(squad.name, squad)

@@ -86,13 +86,12 @@ export class WorkerSquad extends Squad {
 
   public run(): void {
     let room = Game.rooms[this.room_name]
-    let source: StructureStorage | StructureContainer | undefined
-    if (room.name == 'W48S47') {
-      source = Game.getObjectById('5aec04e52a35133912c2cb1b') as StructureStorage // @fixme: temp code
-    }
-    else if (room.name == 'W49S47') {
-      source = Game.getObjectById('5aef62f86627413133777bdf') as StructureStorage // @fixme: temp code
-    }
+    let source = room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType == STRUCTURE_STORAGE)
+          && ((structure as StructureStorage).store.energy > 300)
+      }
+    })[0] as StructureStorage | undefined
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
@@ -109,15 +108,6 @@ export class WorkerSquad extends Squad {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }
-      }
-
-      if ((room.name == 'W44S42')) {
-        source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER)
-                   && ((structure as StructureContainer).store.energy > 50)
-          }
-        }) as StructureContainer
       }
       creep.work(room, source)
     }

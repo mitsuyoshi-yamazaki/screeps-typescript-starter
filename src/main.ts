@@ -41,6 +41,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 /**
  * @todo:
  * make assertion
+ * refactor harvester to room:source = 1:n
  * split worker to charger and upgrader
  * army squad: 1 ranged attack creep and renew it
  * keeper dies?

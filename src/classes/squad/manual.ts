@@ -56,7 +56,7 @@ export class ManualSquad extends Squad {
   // --- Private ---
   private dismantle(): void {
     this.creeps.forEach((creep, _) => {
-      const target_room_name = 'W49S48'
+      const target_room_name = 'W45S48'
 
       creep.drop(RESOURCE_ENERGY)
 
@@ -84,15 +84,15 @@ export class ManualSquad extends Squad {
 
   private attack(): void {
     this.creeps.forEach((creep, _) => {
-      const waypoint = 'W44S48'
-      if ((creep.memory.status != CreepStatus.BREAK) && (creep.moveToRoom(waypoint) != ActionResult.DONE)) {
-        creep.say(waypoint)
-        creep.memory.status = CreepStatus.NONE
-        return
-      }
-      creep.memory.status = CreepStatus.BREAK
+      // const waypoint = 'W44S48'
+      // if ((creep.memory.status != CreepStatus.BREAK) && (creep.moveToRoom(waypoint) != ActionResult.DONE)) {
+      //   creep.say(waypoint)
+      //   creep.memory.status = CreepStatus.NONE
+      //   return
+      // }
+      // creep.memory.status = CreepStatus.BREAK
 
-      const target_room_name = 'W45S48'
+      const target_room_name = 'W45S41'
 
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         creep.say(target_room_name)

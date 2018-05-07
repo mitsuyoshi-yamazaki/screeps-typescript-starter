@@ -18,7 +18,7 @@ export class AttackerSquad extends Squad {
     })
 
     this.destination = rooms_to_defend[0]
-    console.log(`${this.name} ${this.rooms_to_defend} ${this.attacker}`)
+    // console.log(`${this.name} ${this.rooms_to_defend} ${this.attacker}`)
   }
 
   public get type(): SquadType {

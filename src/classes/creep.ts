@@ -304,38 +304,18 @@ export function init() {
             return
           }
         }
-        else {
-          if (this.room.name == 'W44S42') { // @fixme: temp code
-            const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-
-            if (target) {
-              if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-                this.moveTo(target)
-                return
-              }
-            }
-            else if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
-              if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(source!)
-                return
-              }
-            }
+        else if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
+          if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(source!)
+            return
           }
-          else {
-            if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
-              if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(source!)
-                return
-              }
-            }
-            else {
-              const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+        }
+        else {
+          const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
-              if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-                this.moveTo(target)
-                return
-              }
-            }
+          if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+            this.moveTo(target)
+            return
           }
         }
       }
