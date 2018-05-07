@@ -278,13 +278,15 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
-        if (this.room.name == 'W48S47') { // @fixme: temp code
+        const should_split_charger_and_upgrader = true // this.room.name == 'W48S47'
+
+        if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
 
           for (const creep_name in Game.creeps) {
             const creep = Game.creeps[creep_name]
 
-            if ((creep.room.name == 'W48S47') && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
+            if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
               number = number + 1
             }
           }
