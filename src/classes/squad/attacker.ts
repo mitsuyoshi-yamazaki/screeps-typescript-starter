@@ -83,34 +83,35 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     const attacker = this.attacker
-    if (!attacker) {
+    if (!attacker || !this.destination) {
       return
     }
-    const hostile_creep: Creep = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-    if (hostile_creep) {
-      if (Game.time % 5) {
-        attacker.say('FOUND YOU', true)
-      }
+    // const hostile_creep: Creep = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+    // if (hostile_creep) {
+    //   if (Game.time % 5) {
+    //     attacker.say('FOUND YOU', true)
+    //   }
 
-      const rr = attacker.rangedAttack(hostile_creep)
-      if (rr == ERR_NOT_IN_RANGE) {
-        const r = attacker.moveTo(hostile_creep)
-        // console.log(`FUGA ${attacker}, ${r}, ${hostile_creep}, ${hostile_creep.pos}`)
-      }
-      // console.log(`HOGE ${attacker}, ${rr}, ${hostile_creep}, ${hostile_creep.pos}`)
-      return
-    }
+    //   const rr = attacker.rangedAttack(hostile_creep)
+    //   if (rr == ERR_NOT_IN_RANGE) {
+    //     const r = attacker.moveTo(hostile_creep)
+    //     // console.log(`FUGA ${attacker}, ${r}, ${hostile_creep}, ${hostile_creep.pos}`)
+    //   }
+    //   // console.log(`HOGE ${attacker}, ${rr}, ${hostile_creep}, ${hostile_creep.pos}`)
+    //   return
+    // }
 
-    if (!this.destination) {
-      // console.log(`Attacker wait ${attacker!.name}, ${this.name}`)
-      // if (attacker!.moveToRoom(this.room_for_wait.name) == ActionResult.IN_PROGRESS) {
-      //   attacker!.say(this.room_for_wait.name)
-      // }
-      return
-    }
+    // if (!this.destination) {
+    //   // console.log(`Attacker wait ${attacker!.name}, ${this.name}`)
+    //   // if (attacker!.moveToRoom(this.room_for_wait.name) == ActionResult.IN_PROGRESS) {
+    //   //   attacker!.say(this.room_for_wait.name)
+    //   // }
+    //   return
+    // }
+
+    attacker.searchAndDestroy()
 
     const room = this.destination
-
     if (attacker.moveToRoom(room.name) != ActionResult.DONE) {
       attacker.say(room.name)
       return
