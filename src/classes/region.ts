@@ -125,6 +125,9 @@ export class Region {
       return Game.rooms[room_name]
     }).filter((room) => {
       if (!room || !room.controller || !room.controller!.reservation) {
+        if (room && room.controller && room.controller!.my) {
+          return true
+        }
         return false
       }
       return room.controller!.reservation!.username == 'Mitsuyoshi'
@@ -195,7 +198,7 @@ export class Region {
         break
       }
       case SquadType.ATTACKER: {
-        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms)
+        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
 
         this.defend_squad = squad
         this.squads.set(squad.name, squad)
@@ -321,7 +324,7 @@ export class Region {
     // --- Attacker ---
     if (!this.defend_squad) {
       const name = AttackerSquad.generateNewName()
-      const squad = new AttackerSquad(name, this.attacked_rooms)
+      const squad = new AttackerSquad(name, this.attacked_rooms, this.room)
 
       this.defend_squad = squad
       this.squads.set(squad.name, squad)

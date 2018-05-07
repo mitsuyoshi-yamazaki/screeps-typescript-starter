@@ -4,7 +4,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export class AttackerSquad extends Squad {
   private attacker: Creep | undefined
 
-  constructor(readonly name: string, readonly rooms_to_defend: Room[]) {
+  constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly room_for_wait: Room) {
     super(name)
 
     this.creeps.forEach((creep) => {
@@ -68,7 +68,11 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     const attacker = this.attacker
-    if ((this.rooms_to_defend.length == 0) || !attacker) {
+    if (!attacker) {
+      return
+    }
+    if (this.rooms_to_defend.length == 0) {
+      attacker!.moveToRoom(this.room_for_wait.name)
       return
     }
 
