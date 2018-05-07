@@ -13,6 +13,8 @@ export class AttackerSquad extends Squad {
       }
       this.attacker = creep
     })
+
+    console.log(`${this.name} ${this.rooms_to_defend} ${this.attacker}`)
   }
 
   public get type(): SquadType {
@@ -71,6 +73,21 @@ export class AttackerSquad extends Squad {
     if (!attacker) {
       return
     }
+    const hostile_creep: Creep = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+    if (hostile_creep) {
+      if (Game.time % 5) {
+        attacker.say('FOUND YOU', true)
+      }
+
+      const rr = attacker.rangedAttack(hostile_creep)
+      if (rr == ERR_NOT_IN_RANGE) {
+        const r = attacker.moveTo(hostile_creep)
+        console.log(`FUGA ${attacker}, ${r}, ${hostile_creep}, ${hostile_creep.pos}`)
+      }
+      console.log(`HOGE ${attacker}, ${rr}, ${hostile_creep}, ${hostile_creep.pos}`)
+      return
+    }
+
     if (this.rooms_to_defend.length == 0) {
       // console.log(`Attacker wait ${attacker!.name}, ${this.name}`)
       // if (attacker!.moveToRoom(this.room_for_wait.name) == ActionResult.IN_PROGRESS) {
@@ -84,18 +101,6 @@ export class AttackerSquad extends Squad {
     if (attacker.moveToRoom(room.name) != ActionResult.DONE) {
       attacker.say(room.name)
       return
-    }
-
-    const hostile_creep: Creep = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-
-    if (hostile_creep) {
-      if (Game.time % 5) {
-        attacker.say('FOUND YOU', true)
-      }
-
-      if (attacker.attack(hostile_creep) == ERR_NOT_IN_RANGE) {
-        attacker.moveTo(hostile_creep)
-      }
     }
   }
 

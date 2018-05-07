@@ -308,7 +308,9 @@ export class HarvesterSquad extends Squad {
         }
         else if (this.container) {
           if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(this.container!)
+            creep.moveTo(this.container!, {
+              // avoid: [new RoomPosition(this.source!.pos.x + 1, this.source!.pos.y + 1, this.source!.room.name)] // @fixme: temp code
+            } as MoveToOpts)
           }
         }
         else {
