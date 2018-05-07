@@ -497,16 +497,16 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
-    if ((this.squads.size == 0) && (this.delegated_squads.length == 0)) {
-      console.log(`${this.name} doesn't have any squads`)
+    const availableEnergy = this.room.energyAvailable
+    let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
+    if (squad_needs_spawn.length == 0) {
       return
     }
 
-    let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
-    const availableEnergy = this.room.energyAvailable
+    const needs_spawn = squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT
 
     Array.from(this.spawns.values()).filter((spawn) => {
-      return spawn.renewSurroundingCreeps() == ActionResult.DONE
+      return needs_spawn || (spawn.renewSurroundingCreeps() == ActionResult.DONE)
     }).forEach((spawn) => {
       const squad = squad_needs_spawn.pop()
 

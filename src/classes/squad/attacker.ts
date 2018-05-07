@@ -4,8 +4,9 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class AttackerSquad extends Squad {
   private attacker: Creep | undefined
-
   private destination: Room | undefined
+  private energy_unit = 330
+  private fix_part_energy = 120
 
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly room_for_wait: Room) {
     super(name)
@@ -40,16 +41,16 @@ export class AttackerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    const energy_unit = 200
-    const energy_needed = Math.floor(capacity / energy_unit) * energy_unit // @todo: set upper limit
+    capacity -= this.fix_part_energy
+    const energy_needed = Math.floor(capacity / this.energy_unit) * this.energy_unit // @todo: set upper limit
 
     return energyAvailable >= energy_needed
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const energy_unit = 200
-    const move: BodyPartConstant[] = [MOVE]
-    const attack: BodyPartConstant[] = [RANGED_ATTACK]
+    const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
+    const move: BodyPartConstant[] = [MOVE, MOVE]
+    const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -60,12 +61,16 @@ export class AttackerSquad extends Squad {
       type: CreepType.ATTACKER,
     }
 
-    while(energyAvailable >= energy_unit) {
+    energyAvailable -= this.fix_part_energy
+
+    while(energyAvailable >= this.energy_unit) {
       body = move.concat(body)
       body = body.concat(attack)
 
-      energyAvailable -= energy_unit
+      energyAvailable -= this.energy_unit
     }
+    body = front_part.concat(body)
+    body.push(MOVE)
 
     const result = spawnFunc(body, name, {
       memory: memory
