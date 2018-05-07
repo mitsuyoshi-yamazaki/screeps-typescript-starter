@@ -199,6 +199,7 @@ export class Region {
       }
       case SquadType.ATTACKER: {
         const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
+        console.log(`Wait for room ${this.room.name}, ${this.name}, `)
 
         this.defend_squad = squad
         this.squads.set(squad.name, squad)

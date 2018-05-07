@@ -72,7 +72,10 @@ export class AttackerSquad extends Squad {
       return
     }
     if (this.rooms_to_defend.length == 0) {
-      attacker!.moveToRoom(this.room_for_wait.name)
+      // console.log(`Attacker wait ${attacker!.name}, ${this.name}`)
+      // if (attacker!.moveToRoom(this.room_for_wait.name) == ActionResult.IN_PROGRESS) {
+      //   attacker!.say(this.room_for_wait.name)
+      // }
       return
     }
 
