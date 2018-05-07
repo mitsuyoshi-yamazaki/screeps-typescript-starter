@@ -407,6 +407,7 @@ export function init() {
     }
 
     // @todo: other structures
+    // ignore STRUCTURE_CONTROLLER
 
     console.log('searchAndDestroy done')
     return ActionResult.DONE

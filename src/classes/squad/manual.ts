@@ -84,7 +84,11 @@ export class ManualSquad extends Squad {
         }
       }
       else {
-        const structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+        const structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType != STRUCTURE_CONTROLLER
+          }
+        })
         if (structure) {
           if (creep.dismantle(structure) == ERR_NOT_IN_RANGE) {
             creep.moveTo(structure)
