@@ -70,7 +70,7 @@ export class HarvesterSquad extends Squad {
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
         filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 0))
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
             || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // Link
         }
       }) as StructureContainer | StructureLink
@@ -100,7 +100,15 @@ export class HarvesterSquad extends Squad {
       return SpawnPriority.HIGH
     }
 
-    const number_of_carriers = 1//(this.destination.room.name == this.source_info.room_name) ? 1 : 2
+    let number_of_carriers = (this.destination.room.name == this.source_info.room_name) ? 1 : 2
+    const rooms_needs_one_carriers = [ // @fixme: temp code
+      'W48S48', // Close to link
+      'W47S48', // Close to link
+    ]
+
+    if (rooms_needs_one_carriers.indexOf(this.source_info.room_name) >= 0) {
+      number_of_carriers = 1
+    }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       const source_noneed_carrier =

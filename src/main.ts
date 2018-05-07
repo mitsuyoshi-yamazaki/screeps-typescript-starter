@@ -39,7 +39,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
- * place storage on 42, 23
+ * make assertion
  * split worker to charger and upgrader
  * army squad: 1 ranged attack creep and renew it
  * keeper dies?
