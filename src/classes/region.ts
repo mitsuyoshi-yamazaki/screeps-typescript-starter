@@ -104,9 +104,11 @@ export class Region {
           { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
+          { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
+          { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
         ]
-        this.room_names = [this.room.name, 'W45S42', 'W45S43']
-        rooms_need_scout = ['W45S43', 'W44S43']
+        this.room_names = [this.room.name, 'W45S42', 'W45S43', 'W44S43']
+        rooms_need_scout = ['W45S43']
         break
       }
       default:
@@ -548,6 +550,7 @@ export class Region {
     this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
       align: 'left',
       opacity: 0.8,
+      font: '12px',
     })
   }
 
