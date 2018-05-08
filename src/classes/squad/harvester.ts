@@ -8,9 +8,10 @@ export interface HarvesterSquadMemory extends SquadMemory {
 }
 
 export class HarvesterSquad extends Squad {
+  private resource_type: ResourceConstant | undefined
   private harvester?: Creep
   private carriers: Creep[]
-  private source: Source | undefined  // A source that the harvester harvests energy
+  private source: Source | Mineral | undefined  // A source that the harvester harvests energy
   private store: StructureContainer | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
 
@@ -50,11 +51,20 @@ export class HarvesterSquad extends Squad {
   }
 
   private get_sources(): void {
-    const source = Game.getObjectById(this.source_info.id) as Source
+    const source = Game.getObjectById(this.source_info.id) as Source | Mineral
     if (!source) {
       return
     }
     this.source = source
+
+    if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // home oxgen
+      this.resource_type = RESOURCE_OXYGEN
+    // if ((this.source as Mineral).mineralType) {  // does not work (returns 0)
+      // this.resource_type = (this.source as Mineral).mineralType
+    }
+    else {
+      this.resource_type = RESOURCE_ENERGY
+    }
 
     const store = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
       filter: function(structure: Structure) {
@@ -222,16 +232,16 @@ export class HarvesterSquad extends Squad {
     if (!harvester) {
       return
     }
-    if ((harvester.memory.status == CreepStatus.NONE) || (harvester.carry.energy == 0)) {
+    if ((harvester.memory.status == CreepStatus.NONE) || (harvester.carry[this.resource_type!] == 0)) {
       harvester.memory.status = CreepStatus.HARVEST
     }
 
     // Harvest
-    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry.energy == 0) && this.store && (this.store.store.energy < this.store.storeCapacity)) {
+    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry[this.resource_type!] == 0) && this.store && ((this.store!.store![this.resource_type!] || 0) < this.store.storeCapacity) && this.resource_type) {
       const objects = harvester.room.lookAt(harvester)
       const dropped_object = objects.filter((obj) => {
         return (obj.type == 'resource')
-          && ((obj.resource!.resourceType == RESOURCE_ENERGY))
+          && ((obj.resource!.resourceType == this.resource_type))
       })[0]
 
       if (dropped_object) {
@@ -243,7 +253,7 @@ export class HarvesterSquad extends Squad {
       }
     }
 
-    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry.energy == harvester.carryCapacity)) {
+    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry[this.resource_type!] == harvester.carryCapacity)) {
       harvester.memory.status = CreepStatus.CHARGE
     }
 
@@ -269,26 +279,26 @@ export class HarvesterSquad extends Squad {
       if (!this.store) {
         harvester.memory.status = CreepStatus.BUILD
       }
-      else if (this.store!.hits < this.store!.hitsMax) {
+      else if ((this.resource_type == RESOURCE_ENERGY) && (this.store!.hits < this.store!.hitsMax)) {
         harvester.repair(this.store!)
         return
       }
       else {
-        const transfer_result = harvester.transfer(this.store!, RESOURCE_ENERGY)
+        const transfer_result = harvester.transfer(this.store!, this.resource_type!)
         switch (transfer_result) {
           case ERR_NOT_IN_RANGE:
             harvester.moveTo(this.store!)
             return
 
           case ERR_FULL:
-            harvester.drop(RESOURCE_ENERGY)
+            harvester.drop(this.resource_type!)
             break
 
           case OK:
             break
 
           default:
-            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${harvester.name}, ${this.name}`)
+            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}`)
             break
         }
         harvester.memory.status = CreepStatus.HARVEST
@@ -308,11 +318,9 @@ export class HarvesterSquad extends Squad {
         }
       }
       else {
-        const source = Game.getObjectById(this.source_info.id) as Source
-
-        if (source) {
-          const x_diff = harvester.pos.x - source.pos.x
-          const y_diff = harvester.pos.y - source.pos.y
+        if (this.source) {
+          const x_diff = harvester.pos.x - this.source.pos.x
+          const y_diff = harvester.pos.y - this.source.pos.y
           const pos = {
             x: harvester.pos.x + x_diff,
             y: harvester.pos.y + y_diff,
@@ -342,17 +350,17 @@ export class HarvesterSquad extends Squad {
         }
       }
 
-      if ((creep.memory.status == CreepStatus.NONE) || (creep.carry.energy == 0)) {
+      if ((creep.memory.status == CreepStatus.NONE) || (creep.carry[this.resource_type!] == 0)) { // If the resource is not energy, it should be in the controlled room so resource_type should also be provided
         creep.memory.status = CreepStatus.HARVEST
       }
 
       // Harvest
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy == creep.carryCapacity) {
+        if (creep.carry[this.resource_type!] == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else if (this.container) {
-          if (creep.withdraw(this.container!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          if (creep.withdraw(this.container!, this.resource_type!) == ERR_NOT_IN_RANGE) {
             creep.moveTo(this.container!, {
               // avoid: [new RoomPosition(this.source!.pos.x + 1, this.source!.pos.y + 1, this.source!.room.name)] // @fixme: temp code
             } as MoveToOpts)
@@ -366,19 +374,19 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry.energy == 0) {
+        if (creep.carry[this.resource_type!] == 0) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }
 
-        const transfer_result = creep.transfer(this.destination, RESOURCE_ENERGY)
+        const transfer_result = creep.transfer(this.destination, this.resource_type!)
         switch (transfer_result) {
           case ERR_NOT_IN_RANGE:
             creep.moveTo(this.destination)
             break
 
           case ERR_FULL:
-            if (creep.carry.energy <= 100) {
+            if ((creep.carry[this.resource_type!] || 0) <= 100) {
               creep.memory.status = CreepStatus.HARVEST
             }
             break
@@ -387,7 +395,7 @@ export class HarvesterSquad extends Squad {
             break
 
           default:
-            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${creep.name}, ${this.name}`)
+            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${creep.name}, ${this.name}`)
             break
         }
       }

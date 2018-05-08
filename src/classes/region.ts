@@ -75,6 +75,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
           { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
+          { id: '59f1c0ce7d0b3d79de5f024d', room_name: 'W48S47' },  // home oxygen
           { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
           { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
           { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
