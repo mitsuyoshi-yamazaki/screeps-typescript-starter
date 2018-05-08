@@ -44,7 +44,14 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.dismantle()
+    const target = Game.getObjectById('5af16cf880c5b34b39dd47f6') as StructureTerminal
+    this.creeps.forEach((creep, _) => {
+      if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target)
+      }
+    })
+
+    // this.dismantle()
     // this.attack()
 
     // const target_room_name = 'W44S43'

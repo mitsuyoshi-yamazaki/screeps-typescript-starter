@@ -232,12 +232,12 @@ export class HarvesterSquad extends Squad {
     if (!harvester) {
       return
     }
-    if ((harvester.memory.status == CreepStatus.NONE) || (harvester.carry[this.resource_type!] == 0)) {
+    if ((harvester.memory.status == CreepStatus.NONE) || ((harvester.carry[this.resource_type!] || 0) == 0)) {
       harvester.memory.status = CreepStatus.HARVEST
     }
 
     // Harvest
-    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry[this.resource_type!] == 0) && this.store && ((this.store!.store![this.resource_type!] || 0) < this.store.storeCapacity) && this.resource_type) {
+    if ((harvester.memory.status == CreepStatus.HARVEST) && ((harvester.carry[this.resource_type!] || 0) == 0) && this.store && ((this.store!.store![this.resource_type!] || 0) < this.store.storeCapacity) && this.resource_type) {
       const objects = harvester.room.lookAt(harvester)
       const dropped_object = objects.filter((obj) => {
         return (obj.type == 'resource')
@@ -253,7 +253,7 @@ export class HarvesterSquad extends Squad {
       }
     }
 
-    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry[this.resource_type!] == harvester.carryCapacity)) {
+    if ((harvester.memory.status == CreepStatus.HARVEST) && (((harvester.carry[this.resource_type!] || 0) == harvester.carryCapacity) || ((harvester.ticksToLive || 0) < 5))) {
       harvester.memory.status = CreepStatus.CHARGE
     }
 
@@ -295,10 +295,11 @@ export class HarvesterSquad extends Squad {
             break
 
           case OK:
+          case ERR_BUSY:  // @fixme: The creep is still being spawned.
             break
 
           default:
-            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}`)
+            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}, ${this.source_info.room_name}`)
             break
         }
         harvester.memory.status = CreepStatus.HARVEST
@@ -350,7 +351,7 @@ export class HarvesterSquad extends Squad {
         }
       }
 
-      if ((creep.memory.status == CreepStatus.NONE) || (creep.carry[this.resource_type!] == 0)) { // If the resource is not energy, it should be in the controlled room so resource_type should also be provided
+      if ((creep.memory.status == CreepStatus.NONE) || ((creep.carry[this.resource_type!] || 0) == 0)) { // If the resource is not energy, it should be in the controlled room so resource_type should also be provided
         creep.memory.status = CreepStatus.HARVEST
       }
 
@@ -374,7 +375,7 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry[this.resource_type!] == 0) {
+        if ((creep.carry[this.resource_type!] || 0) == 0) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }
@@ -395,7 +396,7 @@ export class HarvesterSquad extends Squad {
             break
 
           default:
-            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${creep.name}, ${this.name}`)
+            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${creep.name}, ${this.name}, ${this.source_info.room_name}`)
             break
         }
       }
