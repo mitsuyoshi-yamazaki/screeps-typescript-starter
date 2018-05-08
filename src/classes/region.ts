@@ -489,7 +489,18 @@ export class Region {
             return (structure.structureType == STRUCTURE_LINK)
               && (structure.id != destination.id)
           }
-        }) as StructureLink[]).forEach((link) => {
+        }) as StructureLink[]).filter((link) => {
+          if (link.energy == 0) {
+            return false
+          }
+          if ((link.cooldown == 0) && (link.energy > (link.energyCapacity / 2))) {
+            return true
+          }
+          if (link.energy == link.energyCapacity) {
+            return true
+          }
+          return false
+        }).forEach((link) => {
           link.transferEnergy(destination)
         })
         break
