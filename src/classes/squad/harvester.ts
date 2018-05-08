@@ -274,8 +274,8 @@ export class HarvesterSquad extends Squad {
         return
       }
       else {
-        const transfet_result = harvester.transfer(this.store!, RESOURCE_ENERGY)
-        switch (transfet_result) {
+        const transfer_result = harvester.transfer(this.store!, RESOURCE_ENERGY)
+        switch (transfer_result) {
           case ERR_NOT_IN_RANGE:
             harvester.moveTo(this.store!)
             return
@@ -288,7 +288,7 @@ export class HarvesterSquad extends Squad {
             break
 
           default:
-            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfet_result}, ${harvester.name}, ${this.name}`)
+            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${harvester.name}, ${this.name}`)
             break
         }
         harvester.memory.status = CreepStatus.HARVEST
@@ -371,8 +371,24 @@ export class HarvesterSquad extends Squad {
           return
         }
 
-        if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.destination)
+        const transfer_result = creep.transfer(this.destination, RESOURCE_ENERGY)
+        switch (transfer_result) {
+          case ERR_NOT_IN_RANGE:
+            creep.moveTo(this.destination)
+            break
+
+          case ERR_FULL:
+            if (creep.carry.energy <= 100) {
+              creep.memory.status = CreepStatus.HARVEST
+            }
+            break
+
+          case OK:
+            break
+
+          default:
+            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${creep.name}, ${this.name}`)
+            break
         }
       }
     })
