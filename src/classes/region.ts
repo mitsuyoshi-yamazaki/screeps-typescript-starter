@@ -529,7 +529,7 @@ export class Region {
 
       case 'W49S47':
       case 'W44S42':
-        pos = {x: 21, y: 32}
+        pos = {x: 21, y: 30}
         break
     }
 
