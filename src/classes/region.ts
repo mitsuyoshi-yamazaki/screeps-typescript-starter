@@ -411,7 +411,9 @@ export class Region {
         else if (tower.energy > (tower.energyCapacity / 2)) {
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
             filter: (structure) => {
-                return (structure.hits < Math.min(structure.hitsMax, 100000))
+              const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+              const max = is_wall ? 150000 : 100000
+              return (structure.hits < Math.min(structure.hitsMax, max))
             }
           })
           if(closestDamagedStructure) {
