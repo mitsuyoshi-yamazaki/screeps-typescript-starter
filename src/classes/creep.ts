@@ -297,18 +297,19 @@ export function init() {
         }
       }
       else {
-        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-          filter: function(resource: Resource) {
-            return (resource.resourceType == RESOURCE_ENERGY) && (resource.amount >= 20)
-          }
-        }) as Resource
-        if (drop) {
-          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-            this.moveTo(drop)
-            return
-          }
-        }
-        else if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
+        // To not pickup harvesters drop
+        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+        //   filter: function(resource: Resource) {
+        //     return (resource.resourceType == RESOURCE_ENERGY) && (resource.amount >= 20)
+        //   }
+        // }) as Resource
+        // if (drop) {
+        //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+        //     this.moveTo(drop)
+        //     return
+        //   }
+        // }
+        if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             this.moveTo(source!)
             return

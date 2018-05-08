@@ -477,38 +477,50 @@ export class Region {
 
   // --- Private ---
   private transferLinks() {
-    switch (this.room.name) {
-      case 'W48S47': {
-        const destination = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
-        if (!destination) {
-          console.log(`Region.transferLinks no destination found ${this.name}`)
-          return
-        }
+    let destination_id: string
 
-        (this.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.structureType == STRUCTURE_LINK)
-              && (structure.id != destination.id)
-          }
-        }) as StructureLink[]).filter((link) => {
-          if (link.energy == 0) {
-            return false
-          }
-          if ((link.cooldown == 0) && (link.energy > (link.energyCapacity / 2))) {
-            return true
-          }
-          if (link.energy == link.energyCapacity) {
-            return true
-          }
-          return false
-        }).forEach((link) => {
-          link.transferEnergy(destination)
-        })
+    switch (this.room.name) {
+      case 'W48S47':
+        destination_id = '5aee959afd02f942b0a03361'
         break
-      }
+
+      case 'W49S47':
+        destination_id = '5af1900395fe4569eddba9da'
+        break
+
+      case 'W44S42':
+        destination_id = '5af19011f859db1e994a8d6d'
+        break
+
       default:
-        break
+        return
     }
+
+    let destination: StructureLink = Game.getObjectById(destination_id) as StructureLink
+    if (!destination) {
+      console.log(`Region.transferLinks no destination found ${this.name}`)
+      return
+    }
+
+    (this.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType == STRUCTURE_LINK)
+          && (structure.id != destination.id)
+      }
+    }) as StructureLink[]).filter((link) => {
+      if (link.energy == 0) {
+        return false
+      }
+      if ((link.cooldown == 0) && (link.energy > (link.energyCapacity / 2))) {
+        return true
+      }
+      if (link.energy == link.energyCapacity) {
+        return true
+      }
+      return false
+    }).forEach((link) => {
+      link.transferEnergy(destination)
+    })
   }
 
   private spawnAndRenew(): void {

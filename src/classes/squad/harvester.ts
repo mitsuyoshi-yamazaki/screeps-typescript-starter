@@ -19,7 +19,13 @@ export class HarvesterSquad extends Squad {
     super(name)
 
     if ((this.source_info.room_name == 'W48S48') || (this.source_info.room_name == 'W47S48')) { // @fixme: temp code
-      const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink
+      const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47
+      if (destination) {
+        this.destination = destination
+      }
+    }
+    else if ((this.source_info.room_name == 'W49S46') || (this.source_info.room_name == 'W48S46')) {
+      const destination = Game.getObjectById('5af1b738f859db1e994a9e02') as StructureLink // Link in W49S47
       if (destination) {
         this.destination = destination
       }
@@ -95,6 +101,18 @@ export class HarvesterSquad extends Squad {
         filter: (structure) => {
           return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
             // || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // No Link yet
+        }
+      }) as StructureContainer | StructureLink
+
+      if (target) {
+        this.container = target
+      }
+    }
+    else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) {  // W49S47 right
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+            || ((structure.id == '5af1900395fe4569eddba9da') && ((structure as StructureLink).energy > 0)) // No Link yet
         }
       }) as StructureContainer | StructureLink
 
@@ -361,10 +379,16 @@ export class HarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.CHARGE
         }
         else if (this.container) {
-          if (creep.withdraw(this.container!, this.resource_type!) == ERR_NOT_IN_RANGE) {
+          const withdraw_result = creep.withdraw(this.container!, this.resource_type!)
+          if (withdraw_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(this.container!, {
               // avoid: [new RoomPosition(this.source!.pos.x + 1, this.source!.pos.y + 1, this.source!.room.name)] // @fixme: temp code
             } as MoveToOpts)
+          }
+          else if ((withdraw_result == OK) && (this.container) && (this.container.structureType == STRUCTURE_LINK)) {
+            // When the carrier withdrow from link, it should be located next to storage
+            creep.memory.status = CreepStatus.CHARGE
+            return // It needed to make this line work
           }
         }
         else {
