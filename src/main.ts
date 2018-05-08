@@ -42,12 +42,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * @todo:
  * make assertion
  * refactor harvester to room:source = 1:n
- * split worker to charger and upgrader
- * army squad: 1 ranged attack creep and renew it
- * keeper dies?
  * add current pos & room name to creep memory
  * random move on build / upgrade
- * creeps get away from attacker
+ * creeps run away from attacker
  * reassign controller keeper after claiming the controller
  */
 

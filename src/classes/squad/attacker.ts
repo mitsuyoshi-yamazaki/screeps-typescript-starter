@@ -7,6 +7,7 @@ export class AttackerSquad extends Squad {
   private destination: Room | undefined
   private energy_unit = 330
   private fix_part_energy = 120
+  private max_energy = 1600
 
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly room_for_wait: Room) {
     super(name)
@@ -48,10 +49,12 @@ export class AttackerSquad extends Squad {
     capacity -= this.fix_part_energy
     const energy_needed = Math.floor(capacity / this.energy_unit) * this.energy_unit // @todo: set upper limit
 
-    return energyAvailable >= energy_needed
+    return energyAvailable >= Math.min(energy_needed, this.max_energy)
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    energyAvailable = Math.min(energyAvailable, this.max_energy)
+
     const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
     const move: BodyPartConstant[] = [MOVE, MOVE]
     const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
