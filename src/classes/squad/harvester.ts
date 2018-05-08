@@ -115,7 +115,7 @@ export class HarvesterSquad extends Squad {
     let number_of_carriers = (this.destination.room.name == this.source_info.room_name) ? 1 : 2
     const rooms_needs_one_carriers = [ // @fixme: temp code
       'W48S48', // Close to link
-      'W47S48', // Close to link
+      // 'W47S48', // Close to link
     ]
 
     if (rooms_needs_one_carriers.indexOf(this.source_info.room_name) >= 0) {
@@ -227,6 +227,22 @@ export class HarvesterSquad extends Squad {
     }
 
     // Harvest
+    if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry.energy == 0) && this.store && (this.store.store.energy < this.store.storeCapacity)) {
+      const objects = harvester.room.lookAt(harvester)
+      const dropped_object = objects.filter((obj) => {
+        return (obj.type == 'resource')
+          && ((obj.resource!.resourceType == RESOURCE_ENERGY))
+      })[0]
+
+      if (dropped_object) {
+        const energy = dropped_object.resource!
+        const pickup_result = harvester.pickup(energy)
+        if (pickup_result != OK) {
+          console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${harvester.name}, ${this.name}`)
+        }
+      }
+    }
+
     if ((harvester.memory.status == CreepStatus.HARVEST) && (harvester.carry.energy == harvester.carryCapacity)) {
       harvester.memory.status = CreepStatus.CHARGE
     }
@@ -258,9 +274,22 @@ export class HarvesterSquad extends Squad {
         return
       }
       else {
-        if (harvester.transfer(this.store!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          harvester.moveTo(this.store!)
-          return
+        const transfet_result = harvester.transfer(this.store!, RESOURCE_ENERGY)
+        switch (transfet_result) {
+          case ERR_NOT_IN_RANGE:
+            harvester.moveTo(this.store!)
+            return
+
+          case ERR_FULL:
+            harvester.drop(RESOURCE_ENERGY)
+            break
+
+          case OK:
+            break
+
+          default:
+            console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfet_result}, ${harvester.name}, ${this.name}`)
+            break
         }
         harvester.memory.status = CreepStatus.HARVEST
         return
