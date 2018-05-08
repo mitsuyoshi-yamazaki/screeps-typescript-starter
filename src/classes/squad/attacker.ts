@@ -83,9 +83,27 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     const attacker = this.attacker
-    if (!attacker || !this.destination) {
+    if (!attacker) {
       return
     }
+    if (!this.destination) {
+      if (attacker.moveToRoom(this.room_for_wait.name) == ActionResult.DONE) {
+        if (attacker.pos.x <= 1) {
+          attacker.move(RIGHT)
+        }
+        if (attacker.pos.x >= 48) {
+          attacker.move(LEFT)
+        }
+        if (attacker.pos.y <= 1) {
+          attacker.move(BOTTOM)
+        }
+        if (attacker.pos.y >= 48) {
+          attacker.move(TOP)
+        }
+      }
+      return
+    }
+
     // const hostile_creep: Creep = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
     // if (hostile_creep) {
     //   if (Game.time % 5) {
