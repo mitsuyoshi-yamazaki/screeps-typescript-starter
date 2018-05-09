@@ -285,7 +285,8 @@ export class HarvesterSquad extends Squad {
       }
     }
 
-    if ((harvester.memory.status == CreepStatus.HARVEST) && (((harvester.carry[this.resource_type!] || 0) == harvester.carryCapacity) || ((harvester.ticksToLive || 0) < 5))) {
+    const carrying_energy = harvester.carry[this.resource_type!] || 0
+    if ((harvester.memory.status == CreepStatus.HARVEST) && (carrying_energy > 0) && ((carrying_energy == harvester.carryCapacity) || ((harvester.ticksToLive || 0) < 5))) {
       harvester.memory.status = CreepStatus.CHARGE
     }
 
