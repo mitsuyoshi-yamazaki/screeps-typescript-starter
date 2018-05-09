@@ -124,15 +124,10 @@ export class Region {
     this.attacked_rooms = this.room_names.map((room_name) => {
       return Game.rooms[room_name]
     }).filter((room) => {
-      if (!room || !room.controller || !room.controller!.reservation) {
-        if (room && room.controller && room.controller!.my) {
-          return true
-        }
-        return false
-      }
-      return room.controller!.reservation!.username == 'Mitsuyoshi'
-    }).filter((reserving_room) => {
-      return reserving_room.find(FIND_HOSTILE_CREEPS).length > 0
+      return !(!room)
+    }).filter((room) => {
+      room.attacked = room.find(FIND_HOSTILE_CREEPS).length > 0
+      return room.attacked
     })
 
     if (this.attacked_rooms.length > 0) {

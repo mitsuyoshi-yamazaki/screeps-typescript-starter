@@ -18,6 +18,7 @@ declare global {
     sources: Source[]
     keeper?: ControllerKeeperSquad
     spawns: StructureSpawn[]  // Initialized in Spawn.initialize()
+    attacked: boolean
 
     initialize(): void
   }
@@ -30,6 +31,7 @@ declare global {
 export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
+    this.attacked = false
   }
 
   for (const room_name in Game.rooms) {

@@ -35,6 +35,7 @@ declare global {
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn): ActionResult
+    makeShell(): ActionResult
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -147,6 +148,54 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
+  /**
+   * returns IN_PROGRESS if the creep should work as usual
+   * returns DONE if the creep does something in this method
+   */
+  Creep.prototype.makeShell = function(): ActionResult {
+    return ActionResult.IN_PROGRESS // This method DOES NOT WORK since RCL is insufficient to build rampart
+
+    // if (this.room.controller && this.room.controller.my) {  // It should be this.room.towers.length > 0 but for computing resource
+    //   return ActionResult.IN_PROGRESS
+    // }
+    // if ((this.getActiveBodyparts(WORK) == 0) || (this.carry.energy == 0)) {
+    //   return ActionResult.IN_PROGRESS
+    // }
+
+    // const construction_site_obj = this.room.lookAt(this).filter((obj) => {
+    //   return (obj.type == LOOK_CONSTRUCTION_SITES)
+    // })[0]
+
+    // if (construction_site_obj) {
+    //   const build_result = this.build(construction_site_obj.constructionSite!)
+    //   if (build_result != OK) {
+    //     console.log(`Creep.makeShell() unexpected build result ${build_result}, ${this.name} at ${this.pos}`)
+    //     return ActionResult.IN_PROGRESS
+    //   }
+    //   return ActionResult.DONE
+    // }
+
+    // const rampart_obj = this.room.lookAt(this).filter((obj) => {
+    //   return (obj.type == LOOK_STRUCTURES) && (obj.structure!.structureType == STRUCTURE_RAMPART)
+    // })[0]
+
+    // if (rampart_obj && (rampart_obj.structure!.hits < 40000)) {
+    //   const repair_result = this.repair(rampart_obj.structure!)
+    //   if (repair_result != OK) {
+    //     console.log(`Creep.makeShell() unexpected repair result ${repair_result}, ${this.name} at ${this.pos}`)
+    //     return ActionResult.IN_PROGRESS
+    //   }
+    //   return ActionResult.DONE
+    // }
+    // else {
+    //   const construction_result = this.room.createConstructionSite(this.pos.x, this.pos.y, STRUCTURE_RAMPART)
+    //   if (construction_result != OK) {
+    //     console.log(`Creep.makeShell() unexpected createConstructionSite result ${construction_result}, ${this.name} at ${this.pos}`)
+    //     return ActionResult.IN_PROGRESS
+    //   }
+    //   return ActionResult.IN_PROGRESS
+    // }
+  }
 
   // --- Worker tasks ---
   Creep.prototype.harvestFrom = function(source: Source): ActionResult {

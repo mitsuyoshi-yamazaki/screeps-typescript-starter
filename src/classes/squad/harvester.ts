@@ -258,6 +258,12 @@ export class HarvesterSquad extends Squad {
     if (!harvester) {
       return
     }
+    if (harvester.room.attacked) {
+      if (harvester.makeShell() == ActionResult.DONE) {
+        return
+      }
+    }
+
     if ((harvester.memory.status == CreepStatus.NONE) || ((harvester.carry[this.resource_type!] || 0) == 0)) {
       harvester.memory.status = CreepStatus.HARVEST
     }
@@ -366,7 +372,7 @@ export class HarvesterSquad extends Squad {
           return
         }
         else {
-          console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}`)
+          console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}, ${harvester.name} at ${harvester.pos}`)
           return
         }
       }
