@@ -530,10 +530,16 @@ export class Region {
     const availableEnergy = this.room.energyAvailable
     let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
 
-    const needs_spawn = (squad_needs_spawn.length > 0) ? squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT : false
+    const urgent = (squad_needs_spawn.length > 0) ? squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT : false
 
     Array.from(this.spawns.values()).filter((spawn) => {
-      return needs_spawn || (spawn.renewSurroundingCreeps() == ActionResult.DONE)
+      if (spawn.spawning) {
+        return false
+      }
+      if (urgent) {
+        return true
+      }
+      return spawn.renewSurroundingCreeps() == ActionResult.DONE
     }).forEach((spawn) => {
       const squad = squad_needs_spawn.pop()
 

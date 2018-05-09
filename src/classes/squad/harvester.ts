@@ -265,8 +265,14 @@ export class HarvesterSquad extends Squad {
       if (dropped_object) {
         const energy = dropped_object.resource!
         const pickup_result = harvester.pickup(energy)
-        if (pickup_result != OK) {
-          console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${harvester.name}, ${this.name}`)
+        switch (pickup_result) {
+          case OK:
+          case ERR_FULL:
+            break
+
+          default:
+            console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${harvester.name}, ${this.name}`)
+            break
         }
       }
     }
