@@ -43,6 +43,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * make assertion
  * if no healer, dont activate safe mode
  * refactor harvester to room:source = 1:n
+ * construct walls to hard to pass throuough to rooms
  * add current pos & room name to creep memory
  * random move on build / upgrade
  * creeps run away from attacker
