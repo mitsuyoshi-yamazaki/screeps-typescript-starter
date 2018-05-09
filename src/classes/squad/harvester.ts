@@ -85,15 +85,21 @@ export class HarvesterSquad extends Squad {
     this.container = store
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
-      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
-        filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
-            || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // Link
-        }
-      }) as StructureContainer | StructureLink
+      const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
+      if ((oxygen_container.store[this.resource_type] || 0) > 400) {
+        this.container = oxygen_container
+      }
+      else {
+        const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+          filter: (structure) => {
+            return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+              || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // Link
+          }
+        }) as StructureContainer | StructureLink
 
-      if (target) {
-        this.container = target
+        if (target) {
+          this.container = target
+        }
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) {  // W44S42 right
@@ -149,15 +155,17 @@ export class HarvesterSquad extends Squad {
     if (rooms_needs_one_carriers.indexOf(this.source_info.room_name) >= 0) {
       number_of_carriers = 1
     }
-    if (this.source_info.id == '59f19ff082100e1594f35c83') {  // top left of W49S47
+    else if (this.source_info.id == '59f19ff082100e1594f35c83') {  // top left of W49S47
       number_of_carriers = 2
+    }
+    else if (this.source_info.id == '59f19fff82100e1594f35e08') {  // W48S47 center
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // W48S47 oxygen
+      number_of_carriers = 0
     }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
-      const source_noneed_carrier = (this.source_info.id == '59f19fff82100e1594f35e08')     // W48S47 center
-      if (source_noneed_carrier) {
-        return SpawnPriority.NONE
-      }
       return SpawnPriority.NORMAL
     }
     return SpawnPriority.NONE
