@@ -48,6 +48,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * random move on build / upgrade
  * creeps run away from attacker
  * reassign controller keeper after claiming the controller
+ * make assertion
+ */
+
+ /**
+ * tactics
+ * an attacker(or a harvester) creep holds a CARRY and construct rampart, then the other creeps continuously repair it
  */
 
  /**
