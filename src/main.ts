@@ -33,7 +33,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @fixme:
- * migrate memory
  * Spawn tries to spawn during spawning
  * carrier blocks harvester position
  */
