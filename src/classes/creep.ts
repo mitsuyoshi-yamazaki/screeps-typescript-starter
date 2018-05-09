@@ -476,6 +476,10 @@ export function init() {
   }
 
   Creep.prototype.destroy = function(target: Creep | Structure): ActionResult {
+    if (this.spawning) {
+      return ActionResult.IN_PROGRESS
+    }
+
     const ranged_attack_result = this.rangedAttack(target) // @todo: If target only has ATTACK, run and rangedAttack
     const move_to_result = this.moveTo(target)
     const attack_result = this.attack(target)
