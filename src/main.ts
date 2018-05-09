@@ -41,6 +41,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 /**
  * @todo:
  * make assertion
+ * if no healer, dont activate safe mode
  * refactor harvester to room:source = 1:n
  * add current pos & room name to creep memory
  * random move on build / upgrade
@@ -51,6 +52,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  /**
   * memo:
   * Game.market.deal('xxx', 100, 'W48S47')
+  * Game.market.calcTransactionCost(40000, 'E16S42', 'W48S47')
   * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
   * Game.rooms['W48S47'].terminal.send(RESOURCE_ENERGY, 100, 'W48S45', "Hi neighbour, it's test")
   */
