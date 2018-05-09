@@ -38,10 +38,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * add current pos & room name to creep memory
  * make assertion
  * refactor harvester to room:source = 1:n
  * construct walls to hard to pass throuough to rooms
- * add current pos & room name to creep memory
  * random move on build / upgrade
  * creeps run away from attacker
  * reassign controller keeper after claiming the controller
