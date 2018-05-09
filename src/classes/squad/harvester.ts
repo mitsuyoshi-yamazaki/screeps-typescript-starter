@@ -86,7 +86,8 @@ export class HarvesterSquad extends Squad {
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
-      if ((oxygen_container.store[this.resource_type] || 0) > 400) {
+      if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((oxygen_container.store[RESOURCE_OXYGEN] || 0) > 400)) {
+        this.resource_type = RESOURCE_OXYGEN
         this.container = oxygen_container
       }
       else {
@@ -258,11 +259,6 @@ export class HarvesterSquad extends Squad {
     if (!harvester) {
       return
     }
-    if (harvester.room.attacked) {
-      if (harvester.makeShell() == ActionResult.DONE) {
-        return
-      }
-    }
 
     if ((harvester.memory.status == CreepStatus.NONE) || ((harvester.carry[this.resource_type!] || 0) == 0)) {
       harvester.memory.status = CreepStatus.HARVEST
@@ -420,7 +416,21 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if ((creep.carry[this.resource_type!] || 0) == 0) {
+        if (this.source_info.id == '59f19fff82100e1594f35e06') {
+          if (((creep.carry[RESOURCE_OXYGEN] || 0) == 0) && (creep.carry.energy == 0)) {
+            creep.memory.status = CreepStatus.HARVEST
+            return
+          }
+          const r = creep.transfer(this.destination, RESOURCE_OXYGEN)
+          if (r == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.destination)
+          }
+          else if (r == ERR_NOT_ENOUGH_RESOURCES) {
+            creep.transfer(this.destination, RESOURCE_ENERGY)
+          }
+          return
+        }
+        else if ((creep.carry[this.resource_type!] || 0) == 0) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }
