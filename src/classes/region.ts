@@ -436,7 +436,7 @@ export class Region {
 
       let should_turn_safemode_on = false
 
-      if (attackers.length >= 2) {
+      if (attackers.length >= 3) {
         console.log('DETECT ', attackers.length, ' ATTACKERS!!! owner: ', attackers[0].owner.username)
 
         if ((room.controller!.safeMode != undefined) && (room.controller!.safeMode! > 0)) {

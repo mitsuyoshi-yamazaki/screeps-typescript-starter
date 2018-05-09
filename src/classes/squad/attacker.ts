@@ -103,6 +103,9 @@ export class AttackerSquad extends Squad {
         if (attacker.pos.y >= 48) {
           attacker.move(TOP)
         }
+        if ((attacker.room.name == 'W48S47') && (attacker.pos.x >= 41) && (attacker.pos.y >= 33)) {
+          attacker.moveTo(40, 32)
+        }
       }
       return
     }
