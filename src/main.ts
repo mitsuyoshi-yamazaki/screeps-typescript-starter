@@ -33,21 +33,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @fixme:
- * Spawn tries to spawn during spawning
  * carrier blocks harvester position
  */
 
 /**
  * @todo:
  * make assertion
- * if no healer, dont activate safe mode
  * refactor harvester to room:source = 1:n
  * construct walls to hard to pass throuough to rooms
  * add current pos & room name to creep memory
  * random move on build / upgrade
  * creeps run away from attacker
  * reassign controller keeper after claiming the controller
- * make assertion
  */
 
  /**

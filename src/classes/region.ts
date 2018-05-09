@@ -429,16 +429,17 @@ export class Region {
     if (Game.time % 2 == 0) {
       const room = this.room
 
-      const attackers = room.find(FIND_HOSTILE_CREEPS, {
+      // If there's no healer, towers and attackers can deal with it
+      const healers = room.find(FIND_HOSTILE_CREEPS, {
           filter: (creep) => {
-              return (creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK) + creep.getActiveBodyparts(MOVE)) > 0;
+              return creep.getActiveBodyparts(HEAL) > 0
           }
       })
 
       let should_turn_safemode_on = false
 
-      if (attackers.length >= 3) {
-        console.log('DETECT ', attackers.length, ' ATTACKERS!!! owner: ', attackers[0].owner.username)
+      if (healers.length > 0) {
+        console.log('DETECT ', healers.length, ' HEALERs!!! owner: ', healers[0].owner.username)
 
         if ((room.controller!.safeMode != undefined) && (room.controller!.safeMode! > 0)) {
           console.log('Safemode active')
