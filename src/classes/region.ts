@@ -144,7 +144,8 @@ export class Region {
     // -- Memory --
     let worker_squad: WorkerSquad | null = null
 
-    for (const squad_memory of Memory.squads) {
+    for (const squad_name in Memory.squads) {
+      const squad_memory = Memory.squads[squad_name]
       if (squad_memory.owner_name != this.name) {
         continue
       }
@@ -242,7 +243,7 @@ export class Region {
         owner_name: this.name,
         room_name: room_name,
       }
-      Memory.squads.push(memory)
+      Memory.squads[squad.name] = memory
 
       console.log(`Create roomkeeper for ${room_name}, assigned: ${squad.name}`)
       break // To not create squads with the same name
@@ -261,7 +262,7 @@ export class Region {
         type: squad.type,
         owner_name: this.name,
       }
-      Memory.squads.push(memory)
+      Memory.squads[squad.name] = memory
 
       console.log(`Create worker for ${this.name}, assigned: ${squad.name}`)
     }
@@ -297,7 +298,7 @@ export class Region {
         source_id: target.id,
         room_name: target.room_name,
       }
-      Memory.squads.push(memory)
+      Memory.squads[squad.name] = memory
 
       console.log(`Create harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
       break // To not create squads with the same name
@@ -316,7 +317,7 @@ export class Region {
         type: squad.type,
         owner_name: this.name,
       }
-      Memory.squads.push(memory)
+      Memory.squads[squad.name] = memory
 
       console.log(`Create scout for ${rooms_need_scout}, assigned: ${squad.name}`)
     }
@@ -334,7 +335,7 @@ export class Region {
         type: squad.type,
         owner_name: this.name,
       }
-      Memory.squads.push(memory)
+      Memory.squads[squad.name] = memory
 
       console.log(`Create defender for ${this.attacked_rooms}, assigned: ${squad.name}`)
     }

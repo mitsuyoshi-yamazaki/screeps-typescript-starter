@@ -4,9 +4,10 @@ import { ControllerKeeperSquad } from "./squad/controller_keeper";
 declare global {
   interface Memory {
     last_tick: number
-    squads: SquadMemory[]
+    squads: {[index: string]: SquadMemory}
     temp_squads: SquadMemory[]
     debug_last_tick: any
+    migrated_memory: boolean
   }
 
   interface RoomMemory {

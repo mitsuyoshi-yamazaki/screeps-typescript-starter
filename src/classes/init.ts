@@ -30,12 +30,10 @@ export function init() {
   // }
   Memory.last_tick = now
 
-  if (!Memory.temp_squads) {
-    Memory.temp_squads = Memory.squads
-  }
+  migrateSquadMemory()
 
   if (Memory.squads == null) {
-    Memory.squads = []
+    Memory.squads = {}
   }
 
   if (Memory.rooms == null) {
@@ -51,6 +49,24 @@ export function init() {
   WorldInitializer.init()
   SpawnInitializer.init()
   CreepInitializer.init()
+}
+
+function migrateSquadMemory() {
+  // Memory.temp_squads = Memory.squads
+
+  if (Memory.migrated_memory == true) {
+    return
+  }
+  Memory.migrated_memory = true
+  console.log(`STARTS MEMORY MIGRATION `)
+
+  Memory.squads = {}
+
+  for (const squad_memory of Memory.temp_squads) {
+    Memory.squads[squad_memory.name] = squad_memory
+  }
+
+  console.log(`FINISHES MEMORY MIGRATION `)
 }
 
 /**
