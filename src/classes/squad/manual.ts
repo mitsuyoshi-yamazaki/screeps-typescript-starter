@@ -48,7 +48,7 @@ export class ManualSquad extends Squad {
   public run(): void {
     this.creeps.forEach((creep, _) => {
       if (creep.moveToRoom('W44S42') == ActionResult.DONE) {
-        console.log(`Arrived!!! ${creep.ticksToLive}`)
+        // console.log(`Arrived!!! ${creep.ticksToLive}`)
       }
       creep.say(`${creep.ticksToLive}`)
     })
