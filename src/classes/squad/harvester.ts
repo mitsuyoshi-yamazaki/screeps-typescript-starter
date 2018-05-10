@@ -144,6 +144,9 @@ export class HarvesterSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (!this.harvester) {
+      if ((this.source_info.id == '59f1c0ce7d0b3d79de5f024d') && ((Game.getObjectById('59f1c0ce7d0b3d79de5f024d') as Mineral).ticksToRegeneration > 100)) {
+        return SpawnPriority.NONE
+      }
       return SpawnPriority.HIGH
     }
 
