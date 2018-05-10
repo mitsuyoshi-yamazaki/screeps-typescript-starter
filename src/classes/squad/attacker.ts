@@ -91,20 +91,22 @@ export class AttackerSquad extends Squad {
     }
     if (!this.destination) {
       if (attacker.moveToRoom(this.room_for_wait.name) == ActionResult.DONE) {
-        if (attacker.pos.x <= 1) {
-          attacker.move(RIGHT)
-        }
-        if (attacker.pos.x >= 48) {
-          attacker.move(LEFT)
-        }
-        if (attacker.pos.y <= 1) {
-          attacker.move(BOTTOM)
-        }
-        if (attacker.pos.y >= 48) {
-          attacker.move(TOP)
-        }
-        if ((attacker.room.name == 'W48S47') && (attacker.pos.x >= 41) && (attacker.pos.y >= 33)) {
-          attacker.moveTo(40, 32)
+        switch (attacker.room.name) {
+          case 'W48S47':
+            attacker.moveTo(39, 27)
+            break
+
+          case 'W49S47':
+            attacker.moveTo(17, 26)
+            break
+
+          case 'W44S42':
+            attacker.moveTo(11, 28)
+            break
+
+          default:
+            console.log(`Attacker unexpected waiting room ${attacker.room}, ${attacker.name}, ${this.name}`)
+            break
         }
       }
       return

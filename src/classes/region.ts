@@ -433,7 +433,7 @@ export class Region {
 
       let should_turn_safemode_on = false
 
-      if (healers.length > 0) {
+      if ((healers.length > 0) && (healers[0].hits > 3000)) {
         console.log('DETECT ', healers.length, ' HEALERs!!! owner: ', healers[0].owner.username)
 
         if ((room.controller!.safeMode != undefined) && (room.controller!.safeMode! > 0)) {

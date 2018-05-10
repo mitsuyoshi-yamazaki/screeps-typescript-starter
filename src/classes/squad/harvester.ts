@@ -30,6 +30,12 @@ export class HarvesterSquad extends Squad {
         this.destination = destination
       }
     }
+    else if ((this.source_info.room_name == 'W45S43') || (this.source_info.room_name == 'W46S43') || (this.source_info.room_name == 'W44S43')) {
+      const destination = Game.getObjectById('5af1cc45b2b1a554170136d1') as StructureLink // Link in W44S42
+      if (destination) {
+        this.destination = destination
+      }
+    }
 
     if (!destination) {
       console.log(`HarvesterSquad destination not specified ${this.name}`)
@@ -103,11 +109,11 @@ export class HarvesterSquad extends Squad {
         }
       }
     }
-    else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) {  // W44S42 right
+    else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
       const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
         filter: (structure) => {
           return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
-            // || ((structure.id == '5aee959afd02f942b0a03361') && ((structure as StructureLink).energy > 0)) // No Link yet
+            || ((structure.id == '5af19011f859db1e994a8d6d') && ((structure as StructureLink).energy > 0)) // No Link yet
         }
       }) as StructureContainer | StructureLink
 

@@ -318,7 +318,7 @@ export function init() {
       console.log(`Creep.work room not specified ${this.name}`)
     }
 
-    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
+    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0) || (this.room.attacked == true)) {
       this.memory.status = CreepStatus.HARVEST
     }
 
@@ -327,7 +327,7 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
-        const should_split_charger_and_upgrader = true // this.room.name == 'W48S47'
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
@@ -400,6 +400,11 @@ export function init() {
 
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
+      if (this.room.attacked) {
+        this.memory.status = CreepStatus.CHARGE
+        return
+      }
+
       const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
         filter: (site) => site.my
       })
@@ -420,6 +425,10 @@ export function init() {
     if (this.memory.status == CreepStatus.UPGRADE) {
       if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
+      }
+      else if (this.room.attacked) {
+        this.memory.status = CreepStatus.CHARGE
+        return
       }
       else if (this.upgradeController(room.controller!) == ERR_NOT_IN_RANGE) {
         this.moveTo(room.controller!)
@@ -467,6 +476,10 @@ export function init() {
   }
 
   Creep.prototype.destroy = function(target: Creep | Structure): ActionResult {
+    if (this.spawning) {
+      return ActionResult.IN_PROGRESS
+    }
+
     const ranged_attack_result = this.rangedAttack(target) // @todo: If target only has ATTACK, run and rangedAttack
     const move_to_result = this.moveTo(target)
     const attack_result = this.attack(target)
