@@ -500,6 +500,9 @@ export class Region {
       console.log(`Region.transferLinks no destination found ${this.name}`)
       return
     }
+    if (destination.energyCapacity - destination.energy > (destination.energyCapacity / 2)) {
+      return
+    }
 
     (this.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
