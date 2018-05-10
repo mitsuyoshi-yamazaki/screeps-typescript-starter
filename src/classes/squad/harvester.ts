@@ -414,7 +414,7 @@ export class HarvesterSquad extends Squad {
           if (resource_type) {
             if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
-              creep.say(`${target.pos}`)
+              creep.say(`${target.pos.x}, ${target.pos.y}`)
             }
             return
           }
@@ -424,13 +424,14 @@ export class HarvesterSquad extends Squad {
         }
       }
 
-      if ((creep.memory.status == CreepStatus.NONE) || ((creep.carry[this.resource_type!] || 0) == 0)) { // If the resource is not energy, it should be in the controlled room so resource_type should also be provided
+      // if ((creep.memory.status == CreepStatus.NONE) || ((creep.carry[this.resource_type!] || 0) == 0)) { // If the resource is not energy, it should be in the controlled room so resource_type should also be provided
+      if (creep.memory.status == CreepStatus.NONE) {
         creep.memory.status = CreepStatus.HARVEST
       }
 
       // Harvest
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry[this.resource_type!] == creep.carryCapacity) {
+        if (_.sum(creep.carry) == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else if (this.container) {
@@ -457,43 +458,40 @@ export class HarvesterSquad extends Squad {
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
         const destination = has_mineral ? this.destination_storage : this.destination
 
-        if (this.source_info.id == '59f19fff82100e1594f35e06') {
-          if (((creep.carry[RESOURCE_OXYGEN] || 0) == 0) && (creep.carry.energy == 0)) {
-            creep.memory.status = CreepStatus.HARVEST
-            return
+        let resource_type: ResourceConstant | undefined
+        for (const type of Object.keys(creep.carry)) {
+          if ((creep.carry[type as ResourceConstant] || 0) == 0) {
+            continue
           }
-          const r = creep.transfer(destination, RESOURCE_OXYGEN)
-          if (r == ERR_NOT_IN_RANGE) {
-            creep.moveTo(destination)
-          }
-          else if (r == ERR_NOT_ENOUGH_RESOURCES) {
-            creep.transfer(destination, RESOURCE_ENERGY)
-          }
-          return
+          resource_type = type as ResourceConstant
         }
-        else if ((creep.carry[this.resource_type!] || 0) == 0) {
+
+        if (resource_type) {
+          const transfer_result = creep.transfer(destination, resource_type)
+          switch (transfer_result) {
+            case ERR_NOT_IN_RANGE:
+              creep.moveTo(destination)
+              if (has_mineral) {
+                creep.say(`💎`)
+              }
+              break
+
+            case ERR_FULL:
+              if ((creep.carry[resource_type] || 0) <= 100) {
+                creep.memory.status = CreepStatus.HARVEST
+              }
+              break
+
+            case OK:
+              break
+
+            default:
+              console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${resource_type}, ${creep.name}, ${this.name}, ${this.source_info.room_name}`)
+              break
+          }
+        }
+        else {
           creep.memory.status = CreepStatus.HARVEST
-          return
-        }
-
-        const transfer_result = creep.transfer(destination, this.resource_type!)
-        switch (transfer_result) {
-          case ERR_NOT_IN_RANGE:
-            creep.moveTo(destination)
-            break
-
-          case ERR_FULL:
-            if ((creep.carry[this.resource_type!] || 0) <= 100) {
-              creep.memory.status = CreepStatus.HARVEST
-            }
-            break
-
-          case OK:
-            break
-
-          default:
-            console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${creep.name}, ${this.name}, ${this.source_info.room_name}`)
-            break
         }
       }
     })

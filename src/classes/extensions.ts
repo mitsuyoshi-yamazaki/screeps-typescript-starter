@@ -35,7 +35,9 @@ export function init() {
     this.attacked = false
     this.resourceful_tombstones = this.find(FIND_TOMBSTONES, {
       filter: (tombstone: Tombstone) => {
-        return _.sum(tombstone.store) > 0
+        const sum = _.sum(tombstone.store)
+        const mineral_amount = sum - tombstone.store.energy
+        return mineral_amount > 0
       }
     })
 
