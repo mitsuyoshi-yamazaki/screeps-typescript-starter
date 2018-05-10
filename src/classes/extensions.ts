@@ -18,7 +18,8 @@ declare global {
     sources: Source[]
     keeper?: ControllerKeeperSquad
     spawns: StructureSpawn[]  // Initialized in Spawn.initialize()
-    attacked: boolean
+    attacked: boolean // @todo: change it to Creep[]
+    resourceful_tombstones: Tombstone[]
 
     initialize(): void
   }
@@ -32,6 +33,15 @@ export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
     this.attacked = false
+    this.resourceful_tombstones = this.find(FIND_TOMBSTONES, {
+      filter: (tombstone: Tombstone) => {
+        return _.sum(tombstone.store) > 0
+      }
+    })
+
+    if (!this.resourceful_tombstones) {
+      this.resourceful_tombstones = []
+    }
   }
 
   for (const room_name in Game.rooms) {

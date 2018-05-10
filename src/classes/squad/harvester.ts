@@ -14,9 +14,12 @@ export class HarvesterSquad extends Squad {
   private source: Source | Mineral | undefined  // A source that the harvester harvests energy
   private store: StructureContainer | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
+  private destination_storage: StructureStorage
 
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage | StructureLink) {
     super(name)
+
+    this.destination_storage = this.destination as StructureStorage // @fixme:
 
     if ((this.source_info.room_name == 'W48S48') || (this.source_info.room_name == 'W47S48')) { // @fixme: temp code
       const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47
@@ -385,13 +388,39 @@ export class HarvesterSquad extends Squad {
   }
 
   private carry(): void {
-    this.carriers.forEach((creep, _) => {
+    this.carriers.forEach((creep) => {
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
 
       if (needs_renew) {
         if (creep.room.spawns.length > 0) {
           creep.goToRenew(creep.room.spawns[0])
           return
+        }
+      }
+
+      if (creep.room.resourceful_tombstones.length > 0) {
+        const target = creep.room.resourceful_tombstones[0]
+        const resource_amount = _.sum(target.store)
+        if (resource_amount > 0) {
+          const vacancy = creep.carryCapacity - _.sum(creep.carry)
+          if (vacancy < resource_amount) {
+            creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
+          }
+
+          let resource_type: ResourceConstant | undefined
+          for (const type of Object.keys(target.store)) {
+            resource_type = type as ResourceConstant
+          }
+          if (resource_type) {
+            if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target)
+              creep.say(`${target.pos}`)
+            }
+            return
+          }
+        }
+        else if ((creep.ticksToLive || 0) < 300) {
+          creep.memory.status = CreepStatus.CHARGE
         }
       }
 
@@ -425,17 +454,20 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
+        const has_mineral = creep.carry.energy != _.sum(creep.carry)
+        const destination = has_mineral ? this.destination_storage : this.destination
+
         if (this.source_info.id == '59f19fff82100e1594f35e06') {
           if (((creep.carry[RESOURCE_OXYGEN] || 0) == 0) && (creep.carry.energy == 0)) {
             creep.memory.status = CreepStatus.HARVEST
             return
           }
-          const r = creep.transfer(this.destination, RESOURCE_OXYGEN)
+          const r = creep.transfer(destination, RESOURCE_OXYGEN)
           if (r == ERR_NOT_IN_RANGE) {
-            creep.moveTo(this.destination)
+            creep.moveTo(destination)
           }
           else if (r == ERR_NOT_ENOUGH_RESOURCES) {
-            creep.transfer(this.destination, RESOURCE_ENERGY)
+            creep.transfer(destination, RESOURCE_ENERGY)
           }
           return
         }
@@ -444,10 +476,10 @@ export class HarvesterSquad extends Squad {
           return
         }
 
-        const transfer_result = creep.transfer(this.destination, this.resource_type!)
+        const transfer_result = creep.transfer(destination, this.resource_type!)
         switch (transfer_result) {
           case ERR_NOT_IN_RANGE:
-            creep.moveTo(this.destination)
+            creep.moveTo(destination)
             break
 
           case ERR_FULL:

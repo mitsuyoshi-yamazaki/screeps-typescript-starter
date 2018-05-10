@@ -61,13 +61,13 @@ export class Region {
       }
     })[0] as StructureStorage
 
-    const container = this.room.find(FIND_STRUCTURES, {
-      filter: structure => {
-        return (structure.structureType == STRUCTURE_CONTAINER)
-      }
-    })[0] as StructureContainer
+    // const container = this.room.find(FIND_STRUCTURES, {
+    //   filter: structure => {
+    //     return (structure.structureType == STRUCTURE_CONTAINER)
+    //   }
+    // })[0] as StructureContainer
 
-    let harvester_destination: StructureStorage | StructureContainer = storage || container
+    let harvester_destination: StructureStorage | StructureContainer = storage// || container
     let rooms_need_scout: string[] = []
 
     switch (this.room.name) {

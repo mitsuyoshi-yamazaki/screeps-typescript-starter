@@ -33,6 +33,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @fixme:
+ * renewing creeps blocks attacker spawn
  * carrier blocks harvester position
  */
 
