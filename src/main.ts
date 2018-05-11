@@ -40,6 +40,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 /**
  * @todo:
  * add current pos & room name to creep memory
+ * notify when eliminate invaders and loot resources
  * make assertion
  * refactor harvester to room:source = 1:n
  * construct walls to hard to pass throuough to rooms
@@ -48,8 +49,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * reassign controller keeper after claiming the controller
  */
 
+/**
+ * Storategy
+ * Enforce upgraders using mineral
+ * Harvest from wild mineral in npc rooms
+ */
+
  /**
- * tactics
+ * Tactics
  * an attacker(or a harvester) creep holds a CARRY and construct rampart, then the other creeps continuously repair it
  */
 
