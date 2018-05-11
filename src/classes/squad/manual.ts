@@ -46,11 +46,40 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.creeps.forEach((creep, _) => {
-      if (creep.moveToRoom('W44S42') == ActionResult.DONE) {
-        // console.log(`Arrived!!! ${creep.ticksToLive}`)
+
+    const resource = RESOURCE_CATALYZED_GHODIUM_ACID
+    const source = // terminal
+    const lab = // lab
+
+    this.creeps.forEach((creep) => {
+      if (creep.memory.status == CreepStatus.NONE) {
+        // waiting...
+        return
       }
-      creep.say(`${creep.ticksToLive}`)
+
+      let resource_type: ResourceConstant = RESOURCE_ENERGY
+
+      if ((creep.carry.energy > 0) && ((creep.carry[resource] || 0) > 0)) {
+        if (creep.carry.energy == 0) {
+          resource_type = resource
+        }
+
+        if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(lab)
+        }
+      }
+      else {
+        let amount = 1000
+
+        if (creep.carry.energy > 0) {
+          resource_type = resource
+          amount = 30
+        }
+
+        if (creep.withdraw(source, amount) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(source)
+        }
+      }
     })
 
 
@@ -59,7 +88,7 @@ export class ManualSquad extends Squad {
 
     // const target_room_name = 'W44S43'
 
-    // this.creeps.forEach((creep, _) => {
+    // this.creeps.forEach((creep) => {
     //   // if (creep.searchAndDestroy() == ActionResult.DONE) {
     //   //   return
     //   // }
