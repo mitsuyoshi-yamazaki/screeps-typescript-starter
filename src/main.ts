@@ -41,6 +41,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * @todo:
  * add current pos & room name to creep memory
  * notify when eliminate invaders and loot resources
+ * add heal body part to attacker and heal others
  * make assertion
  * refactor harvester to room:source = 1:n
  * construct walls to hard to pass throuough to rooms
