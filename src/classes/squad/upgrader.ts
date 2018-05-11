@@ -3,7 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class UpgraderSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string) {
+  constructor(readonly name: string, readonly room_name: string, readonly source_ids: string[]) {
     super(name)
   }
 
@@ -66,26 +66,17 @@ export class UpgraderSquad extends Squad {
   }
 
   public run(): void {
-    // @todo: if source is storage and it contains less energy, wait for charge
-
     this.creeps.forEach((creep) => {
       if (creep.boosted == false) {
         // @todo: boost
         return
       }
 
-      if (creep.memory.status == CreepStatus.NONE) {
-        creep.memory.status = CreepStatus.HARVEST
-      }
-
-      if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy == creep.carryCapacity) {
-          creep.memory.status = CreepStatus.CHARGE
-        }
-        else {
-
-        }
-      }
+      creep.upgrade((structure) => {
+        return (this.source_ids.indexOf(structure.id) >= 0)
+          && ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy < 10000))
+          // If source is storage and it contains less energy, wait for charge
+      })
     })
   }
 }

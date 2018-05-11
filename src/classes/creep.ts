@@ -298,34 +298,48 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
+  /**
+   * source_filter: Filter structure that creep can withdrow from it
+   */
   Creep.prototype.upgrade = function(source_filter: StructureFilter | undefined): ActionResult {
-    // if (!this.room.controller || !this.room.controller.my) {
-    //   console.log(`Creep.upgrade the room is not owned ${this.room.controller}, ${this.name}`)
+    if (!this.room.controller || !this.room.controller.my) {
+      console.log(`Creep.upgrade the room is not owned ${this.room.controller}, ${this.name}`)
       return ActionResult.DONE
-    // }
+    }
 
-    // if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
-    //   this.memory.status = CreepStatus.HARVEST
-    // }
+    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
+      this.memory.status = CreepStatus.HARVEST
+    }
 
-    // if (this.memory.status == CreepStatus.HARVEST) {
-    //   if (this.carry.energy == this.carryCapacity) {
-    //     this.memory.status = CreepStatus.UPGRADE
-    //   }
-    //   else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-    //     this.moveTo(source)
-    //     return
-    //   }
-    // }
-    // if (this.memory.status == CreepStatus.UPGRADE) {
-    //   if (this.carry.energy == 0) {
-    //     this.memory.status = CreepStatus.HARVEST
-    //   }
-    //   else if (this.upgradeController(target) == ERR_NOT_IN_RANGE) {
-    //     this.moveTo(target)
-    //     return
-    //   }
-    // }
+    // Withdraw
+    if (this.memory.status == CreepStatus.HARVEST) {
+      const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: source_filter
+      })
+
+      if (!target) {
+        return ActionResult.DONE
+      }
+      else if (this.carry.energy == this.carryCapacity) {
+        this.memory.status = CreepStatus.UPGRADE
+      }
+      else if (this.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        this.moveTo(target)
+        return ActionResult.IN_PROGRESS
+      }
+    }
+
+    // Upgrade
+    if (this.memory.status == CreepStatus.UPGRADE) {
+      if (this.carry.energy == 0) {
+        this.memory.status = CreepStatus.HARVEST
+      }
+      else if (this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+        this.moveTo(this.room.controller)
+        return ActionResult.IN_PROGRESS
+      }
+    }
+    return ActionResult.IN_PROGRESS
   }
 
   // --- Work ---
@@ -343,23 +357,23 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
+        // const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
 
-        if (should_split_charger_and_upgrader) { // @fixme: temp code
-          let number = 0
+        // if (should_split_charger_and_upgrader) { // @fixme: temp code
+        //   let number = 0
 
-          for (const creep_name in Game.creeps) {
-            const creep = Game.creeps[creep_name]
+        //   for (const creep_name in Game.creeps) {
+        //     const creep = Game.creeps[creep_name]
 
-            if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
-              number = number + 1
-            }
-          }
+        //     if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
+        //       number = number + 1
+        //     }
+        //   }
 
-          if (number > 3) {
-            this.memory.status = CreepStatus.BUILD
-          }
-        }
+        //   if (number > 3) {
+        //     this.memory.status = CreepStatus.BUILD
+        //   }
+        // }
       }
       else {
         // To not pickup harvesters drop

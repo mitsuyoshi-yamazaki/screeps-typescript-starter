@@ -19,7 +19,7 @@ export class WorkerSquad extends Squad {
     const really_need = (!this.delegated) && (this.creeps.size < 3)
 
     const room = Game.rooms[this.room_name]
-    const max = this.room_name == 'W48S47' ? 4 : 6
+    const max = this.room_name == 'W48S47' ? 3 : 3
     const needWorker = this.creeps.size < max  // @todo: implement
 
     if (really_need) {
@@ -36,20 +36,20 @@ export class WorkerSquad extends Squad {
     return WorkerSquad.generateNewName()
   }
 
-  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    let energyUnit = 400
+  public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
+    let energy_unit = 350
 
-    if (capacity < energyUnit) {
-      energyUnit = 200
+    if (capacity < energy_unit) {
+      energy_unit = 200
     }
 
-    const energyNeeded = Math.floor(capacity / energyUnit) * energyUnit // @todo: set upper limit
-    return energyAvailable >= energyNeeded
+    const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
+    return energy_available >= energy_needed
   }
 
-  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    let energyUnit = 400
-    let bodyUnit: BodyPartConstant[] = [WORK, CARRY, MOVE, WORK, CARRY, MOVE]
+  public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
+    let energy_unit = 350
+    let body_unit: BodyPartConstant[] = [WORK, CARRY, CARRY, CARRY, MOVE, MOVE]
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = {
@@ -59,17 +59,18 @@ export class WorkerSquad extends Squad {
       type: CreepType.WORKER,
     }
 
-    if (energyAvailable < energyUnit) {
-      energyUnit = 200
-      bodyUnit = [WORK, CARRY, MOVE]
+    energy_available = Math.min(energy_available, 1400)
+    if (energy_available < energy_unit) {
+      energy_unit = 200
+      body_unit = [WORK, CARRY, MOVE]
     }
 
-    while (energyAvailable >= energyUnit) {
-      body = body.concat(bodyUnit)
-      energyAvailable -= energyUnit
+    while (energy_available >= energy_unit) {
+      body = body.concat(body_unit)
+      energy_available -= energy_unit
     }
 
-    const result = spawnFunc(body, name, {
+    const result = spawn_func(body, name, {
       memory: memory
     })
   }

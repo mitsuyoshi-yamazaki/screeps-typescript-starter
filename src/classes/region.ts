@@ -6,6 +6,7 @@ import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester"
 import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
+import { UpgraderSquad } from "./squad/upgrader";
 
 export class Region {
   // Public
@@ -21,6 +22,7 @@ export class Region {
   // Private
   private squads = new Map<string, Squad>()
   private worker_squad: WorkerSquad
+  private upgrader_squad: UpgraderSquad
   private manual_squad: ManualSquad | undefined
   private scout_squad: ScoutSquad | undefined
   private defend_squad: AttackerSquad | undefined
@@ -35,7 +37,9 @@ export class Region {
       console.log(message)
       Game.notify(message)
 
-      this.worker_squad = new WorkerSquad('', '') // dummy
+      // dummy
+      this.worker_squad = new WorkerSquad('', '')
+      this.upgrader_squad = new UpgraderSquad('', this.room.name, [])
       return
     }
 
@@ -69,6 +73,7 @@ export class Region {
 
     let harvester_destination: StructureStorage | StructureContainer = storage// || container
     let rooms_need_scout: string[] = []
+    let upgrader_source_ids: string[] = []
 
     switch (this.room.name) {
       case 'W48S47':
@@ -84,6 +89,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = []
+        upgrader_source_ids =  // @todo:
         break
 
       case 'W49S47':
@@ -97,6 +103,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48', 'W48S46']
         rooms_need_scout = []
+        upgrader_source_ids =  // @todo:
         break
 
       case 'W44S42': {
@@ -111,6 +118,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W45S42', 'W45S43', 'W44S43']
         rooms_need_scout = ['W45S43']
+        upgrader_source_ids =  // @todo:
         break
       }
       default:
@@ -138,6 +146,7 @@ export class Region {
 
     // -- Memory --
     let worker_squad: WorkerSquad | null = null
+    let upgrader_squad: UpgraderSquad | null = null
 
     for (const squad_name in Memory.squads) {
       const squad_memory = Memory.squads[squad_name]
@@ -161,10 +170,16 @@ export class Region {
         break
       }
       case SquadType.WORKER: {
-        const delegated = this.room.name == 'W44S42'
+        const delegated = false //this.room.name == 'W44S42'
 
         const squad = new WorkerSquad(squad_memory.name, this.room.name, delegated)
         worker_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.UPGRADER: {
+        const squad = new UpgraderSquad(squad_memory.name, this.room.name, upgrader_source_ids)
+        upgrader_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -221,10 +236,15 @@ export class Region {
         continue
       }
 
+      const room = Game.rooms[room_name]
+
+      if (room.name == this.room.name) {
+        continue  // Since there's upgrader squad, controller keeper no longer needed
+      }
+
       const name = ControllerKeeperSquad.generateNewName()
       const squad = new ControllerKeeperSquad(name, room_name)
 
-      const room = Game.rooms[room_name]
       if (room) {
         room.keeper = squad
       }
@@ -262,6 +282,30 @@ export class Region {
       console.log(`Create worker for ${this.name}, assigned: ${squad.name}`)
     }
     this.worker_squad = worker_squad as WorkerSquad
+
+    // --- Upgrader ---
+    if (!upgrader_squad) {
+      const name = UpgraderSquad.generateNewName()
+      const squad = new UpgraderSquad(name, this.room.name, upgrader_source_ids)
+
+      upgrader_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create upgrader for ${this.name}, assigned: ${squad.name}`)
+    }
+    this.upgrader_squad = upgrader_squad!
+
+    if (this.room.keeper) {
+      console.log(`Region ${this.name} no longer need controller keeper ${this.room.keeper.name}`)
+      // delete Memory.squads[this.room.keeper.name]
+    }
 
     // --- Harvester ---
     for (const target of harvester_targets) {
