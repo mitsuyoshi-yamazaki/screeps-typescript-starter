@@ -1,3 +1,4 @@
+import { StructureFilter } from "./utils"
 import { Squad } from "classes/squad/squad"
 
 export enum CreepStatus {  // @todo: add "meta" info to status and keep it on memory, to not change objectives between ticks
@@ -42,7 +43,7 @@ declare global {
     work(room: Room, source?: StructureContainer | StructureStorage): void
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
-    upgrade(source: Source, target: StructureController): void
+    upgrade(source_filter: StructureFilter | undefined): ActionResult
     searchAndDestroy(): ActionResult
     destroy(target: Creep | Structure): ActionResult
 
@@ -287,29 +288,34 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.upgrade = function(source: Source, target: StructureController): void {
-    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
-      this.memory.status = CreepStatus.HARVEST
-    }
+  Creep.prototype.upgrade = function(source_filter: StructureFilter | undefined): ActionResult {
+    // if (!this.room.controller || !this.room.controller.my) {
+    //   console.log(`Creep.upgrade the room is not owned ${this.room.controller}, ${this.name}`)
+      return ActionResult.DONE
+    // }
 
-    if (this.memory.status == CreepStatus.HARVEST) {
-      if (this.carry.energy == this.carryCapacity) {
-        this.memory.status = CreepStatus.UPGRADE
-      }
-      else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-        this.moveTo(source)
-        return
-      }
-    }
-    if (this.memory.status == CreepStatus.UPGRADE) {
-      if (this.carry.energy == 0) {
-        this.memory.status = CreepStatus.HARVEST
-      }
-      else if (this.upgradeController(target) == ERR_NOT_IN_RANGE) {
-        this.moveTo(target)
-        return
-      }
-    }
+    // if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
+    //   this.memory.status = CreepStatus.HARVEST
+    // }
+
+    // if (this.memory.status == CreepStatus.HARVEST) {
+    //   if (this.carry.energy == this.carryCapacity) {
+    //     this.memory.status = CreepStatus.UPGRADE
+    //   }
+    //   else if (this.harvest(source) == ERR_NOT_IN_RANGE) {
+    //     this.moveTo(source)
+    //     return
+    //   }
+    // }
+    // if (this.memory.status == CreepStatus.UPGRADE) {
+    //   if (this.carry.energy == 0) {
+    //     this.memory.status = CreepStatus.HARVEST
+    //   }
+    //   else if (this.upgradeController(target) == ERR_NOT_IN_RANGE) {
+    //     this.moveTo(target)
+    //     return
+    //   }
+    // }
   }
 
   // --- Work ---

@@ -21,7 +21,7 @@ export class HarvesterSquad extends Squad {
 
     this.destination_storage = this.destination as StructureStorage // @fixme:
 
-    if ((this.source_info.room_name == 'W48S48') || (this.source_info.room_name == 'W47S48')) { // @fixme: temp code
+    if ((this.source_info.room_name == 'W47S48')) { // @fixme: temp code
       const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47
       if (destination) {
         this.destination = destination
@@ -33,7 +33,7 @@ export class HarvesterSquad extends Squad {
         this.destination = destination
       }
     }
-    else if ((this.source_info.room_name == 'W45S43') || (this.source_info.room_name == 'W46S43') || (this.source_info.room_name == 'W44S43')) {
+    else if ((this.source_info.room_name == 'W44S43')) {
       const destination = Game.getObjectById('5af1cc45b2b1a554170136d1') as StructureLink // Link in W44S42
       if (destination) {
         this.destination = destination

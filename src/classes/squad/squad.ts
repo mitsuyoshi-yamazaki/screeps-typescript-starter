@@ -12,6 +12,7 @@ export enum SpawnPriority {
 export enum SquadType {
   CONTROLLER_KEEPER = "controller_keeper",
   WORKER            = "worker",
+  UPGRADER          = "upgrader",
   HARVESTER         = "harvester",
   MANUAL            = "manual",
   SCOUT             = 'scout',

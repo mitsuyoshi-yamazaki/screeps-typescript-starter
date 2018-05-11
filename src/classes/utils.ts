@@ -4,3 +4,7 @@ export function UID(seed: string): string {
   index += 1
   return `${seed}${Game.time}${index}`
 }
+
+export interface StructureFilter {
+  (structure: AnyStructure): boolean
+}
