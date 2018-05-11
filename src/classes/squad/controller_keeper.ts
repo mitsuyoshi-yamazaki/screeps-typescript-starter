@@ -201,9 +201,35 @@ export class ControllerKeeperSquad extends Squad {
 
   private upgrade(): void {
     this.creeps.forEach((creep, _) => {
+        if (creep.room.name != this.room_name) {
+          creep.moveToRoom(this.room_name)
+        }
+
       // const source = (this.room as Room).sources[0]  // @todo: Cache source
         const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-        creep.upgrade(source, Game.rooms[this.room_name].controller!)
+
+        if (creep.memory.status == CreepStatus.NONE) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+
+        if (creep.memory.status == CreepStatus.HARVEST) {
+          if (creep.carry.energy == creep.carryCapacity) {
+            creep.memory.status = CreepStatus.UPGRADE
+          }
+          else if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(source)
+            return
+          }
+        }
+        if (creep.memory.status == CreepStatus.UPGRADE) {
+          if (creep.carry.energy == 0) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else if (creep.upgradeController(creep.room.controller!) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.controller!)
+            return
+          }
+        }
     })
   }
 
