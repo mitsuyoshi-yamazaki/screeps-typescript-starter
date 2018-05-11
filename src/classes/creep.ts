@@ -32,6 +32,8 @@ declare global {
   interface Creep {
     squad: Squad
     initialize(): void
+    _boosted: boolean
+    readonly boosted: boolean
 
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
@@ -64,6 +66,14 @@ export function init() {
   Creep.prototype.initialize = function() {
     if ((this.memory.status == null) || (this.memory.status == undefined)) {
       this.memory.status = CreepStatus.NONE
+    }
+
+    this._boosted = false
+    for (const body of this.body) {
+      if (body.boost) {
+        this._boosted = true
+        break
+      }
     }
   }
 

@@ -66,8 +66,26 @@ export class UpgraderSquad extends Squad {
   }
 
   public run(): void {
-    this.creeps.forEach((creep) => {
+    // @todo: if source is storage and it contains less energy, wait for charge
 
+    this.creeps.forEach((creep) => {
+      if (creep.boosted == false) {
+        // @todo: boost
+        return
+      }
+
+      if (creep.memory.status == CreepStatus.NONE) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (creep.carry.energy == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else {
+
+        }
+      }
     })
   }
 }
