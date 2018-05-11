@@ -89,7 +89,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = []
-        upgrader_source_ids =  // @todo:
+        upgrader_source_ids = ['5aec04e52a35133912c2cb1b']
         break
 
       case 'W49S47':
@@ -103,7 +103,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W49S46', 'W49S48', 'W48S46']
         rooms_need_scout = []
-        upgrader_source_ids =  // @todo:
+        upgrader_source_ids = ['5aef62f86627413133777bdf']
         break
 
       case 'W44S42': {
@@ -118,7 +118,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W45S42', 'W45S43', 'W44S43']
         rooms_need_scout = ['W45S43']
-        upgrader_source_ids =  // @todo:
+        upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         break
       }
       default:
@@ -304,7 +304,7 @@ export class Region {
 
     if (this.room.keeper) {
       console.log(`Region ${this.name} no longer need controller keeper ${this.room.keeper.name}`)
-      // delete Memory.squads[this.room.keeper.name]
+      delete Memory.squads[this.room.keeper.name]
     }
 
     // --- Harvester ---

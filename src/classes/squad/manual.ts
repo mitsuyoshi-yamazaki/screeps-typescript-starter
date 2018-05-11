@@ -48,8 +48,8 @@ export class ManualSquad extends Squad {
   public run(): void {
 
     const resource = RESOURCE_CATALYZED_GHODIUM_ACID
-    const source = // terminal
-    const lab = // lab
+    const source = Game.getObjectById('5af16cf880c5b34b39dd47f6') as StructureTerminal
+    const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
 
     this.creeps.forEach((creep) => {
       if (creep.memory.status == CreepStatus.NONE) {
@@ -59,25 +59,31 @@ export class ManualSquad extends Squad {
 
       let resource_type: ResourceConstant = RESOURCE_ENERGY
 
-      if ((creep.carry.energy > 0) && ((creep.carry[resource] || 0) > 0)) {
+      if ((creep.carry.energy > 0) || ((creep.carry[resource] || 0) > 0)) {
         if (creep.carry.energy == 0) {
           resource_type = resource
         }
 
         if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
           creep.moveTo(lab)
+          creep.say('💊')
         }
       }
       else {
-        let amount = 1000
+        let amount = 300
 
         if (creep.carry.energy > 0) {
           resource_type = resource
           amount = 30
         }
 
-        if (creep.withdraw(source, amount) == ERR_NOT_IN_RANGE) {
+        const r = creep.withdraw(source, resource_type, amount)
+        if (r == ERR_NOT_IN_RANGE) {
           creep.moveTo(source)
+          creep.say('🏦')
+        }
+        else if (r != OK) {
+          creep.say(`w${r}`)
         }
       }
     })

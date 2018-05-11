@@ -107,6 +107,11 @@ export function init() {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
     }
 
+    if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
+      this.moveTo(25, 49)
+      return ActionResult.IN_PROGRESS
+    }
+
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
       console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)

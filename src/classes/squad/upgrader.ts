@@ -24,12 +24,12 @@ export class UpgraderSquad extends Squad {
     if (this.room_name != 'W48S47') { // W48S47's upgrader will manually reassign to other rooms
       return SpawnPriority.NONE
     }
-    return (this.creeps.size > 2) ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return (this.creeps.size < 2) ? SpawnPriority.NORMAL : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     const energy_unit = 250
-    const energyNeeded = (Math.floor(capacity / energy_unit) * energy_unit) + 150
+    const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
     return energyAvailable >= energyNeeded
   }
 

@@ -16,16 +16,17 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    const really_need = (!this.delegated) && (this.creeps.size < 3)
+    return SpawnPriority.NONE // @fixme: for debugging upgrader
+    // const really_need = (!this.delegated) && (this.creeps.size < 3)
 
-    const room = Game.rooms[this.room_name]
-    const max = this.room_name == 'W48S47' ? 3 : 3
-    const needWorker = this.creeps.size < max  // @todo: implement
+    // const room = Game.rooms[this.room_name]
+    // const max = this.room_name == 'W48S47' ? 3 : 3
+    // const needWorker = this.creeps.size < max  // @todo: implement
 
-    if (really_need) {
-      return SpawnPriority.HIGH
-    }
-    return needWorker ? SpawnPriority.LOW : SpawnPriority.NONE
+    // if (really_need) {
+    //   return SpawnPriority.HIGH
+    // }
+    // return needWorker ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
