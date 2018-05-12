@@ -67,7 +67,7 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
+      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
 
       if (needs_renew) {
         if (creep.room.spawns.length > 0) {
@@ -77,15 +77,14 @@ export class UpgraderSquad extends Squad {
       }
 
       if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
-        // @fixme: temp code
-        if (creep.id == '5af626926d39345fb09d9bfc') {
-          creep.say('🔥')
           const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
-          if (lab.boostCreep(creep, 1) == ERR_NOT_IN_RANGE) {
+        if ((lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount > 500)) {
+          creep.say('🔥')
+          if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
             creep.moveTo(lab)
           }
+          return
         }
-        return
       }
 
       creep.upgrade((structure) => {
