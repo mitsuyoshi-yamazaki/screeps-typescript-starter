@@ -514,18 +514,12 @@ export class Region {
       squad.run()
     })
 
-    this.transferLinks()
-    this.spawnAndRenew()
-    this.drawDebugInfo()
-  }
-
-  // --- Private ---
-  private transferLinks() {
     let destination_id: string
 
     switch (this.room.name) {
       case 'W48S47':
-        destination_id = '5aee959afd02f942b0a03361'
+        destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
+        // The link next to the storage is not currently used
         break
 
       case 'W49S47':
@@ -539,6 +533,14 @@ export class Region {
       default:
         return
     }
+
+    this.transferLinks(destination_id)
+    this.spawnAndRenew()
+    this.drawDebugInfo()
+  }
+
+  // --- Private ---
+  private transferLinks(destination_id: string) {
 
     let destination: StructureLink = Game.getObjectById(destination_id) as StructureLink
     if (!destination) {

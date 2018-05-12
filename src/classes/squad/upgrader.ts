@@ -82,9 +82,11 @@ export class UpgraderSquad extends Squad {
       }
 
       creep.upgrade((structure) => {
-        return (this.source_ids.indexOf(structure.id) >= 0)
-          && ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy > 10000))
+        if ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy < 10000)) {
           // If source is storage and it contains less energy, wait for charge
+          return false
+        }
+        return (this.source_ids.indexOf(structure.id) >= 0)
       })
     })
   }
