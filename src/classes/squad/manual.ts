@@ -81,7 +81,7 @@ export class ManualSquad extends Squad {
 
     this.creeps.forEach((creep) => {
       if (creep.memory.status == CreepStatus.NONE) {
-        // waiting...
+        creep.say('DONE!')
         return
       }
 
@@ -116,15 +116,22 @@ export class ManualSquad extends Squad {
         if ((creep.carry.energy == 0) && ((creep.carry[resource] || 0) == 0)) {
           creep.memory.status = CreepStatus.CHARGE
         }
-      }
-      else {
-        if (creep.carry.energy == 0) {
-          resource_type = resource
-        }
+        else {
+          if ((creep.carry.energy == 0) || (lab.energy == lab.energyCapacity)) {
+            resource_type = resource
 
-        if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(lab)
-          creep.say('💊')
+            if ((creep.carry[resource_type] || 0) == 0) {
+              creep.memory.status = CreepStatus.HARVEST
+            }
+            else if (lab.mineralAmount == lab.mineralCapacity) {
+              creep.memory.status = CreepStatus.NONE
+            }
+          }
+
+          if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(lab)
+            creep.say('💊')
+          }
         }
       }
     })
