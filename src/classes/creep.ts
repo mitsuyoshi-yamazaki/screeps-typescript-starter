@@ -465,6 +465,10 @@ export function init() {
         this.memory.status = CreepStatus.CHARGE
         return
       }
+      else if (this.room.storage && (this.room.storage.store.energy < 5000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
+        this.memory.status = CreepStatus.CHARGE
+        return
+      }
       else if (this.upgradeController(room.controller!) == ERR_NOT_IN_RANGE) {
         this.moveTo(room.controller!)
         return
