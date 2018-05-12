@@ -16,7 +16,9 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    return SpawnPriority.NONE // @fixme: for debugging upgrader
+    // return SpawnPriority.NONE // @fixme: for debugging upgrader
+    return this.creeps.size < 2 ? SpawnPriority.HIGH : SpawnPriority.NONE
+
     // const really_need = (!this.delegated) && (this.creeps.size < 3)
 
     // const room = Game.rooms[this.room_name]

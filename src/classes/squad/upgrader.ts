@@ -76,16 +76,16 @@ export class UpgraderSquad extends Squad {
         }
       }
 
-      if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
-          const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
-        if ((lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount > 500)) {
-          creep.say('🔥')
-          if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(lab)
-          }
-          return
-        }
-      }
+      // if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
+      //   const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
+      //   if ((lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount > 500)) {
+      //     creep.say('🔥')
+      //     if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+      //       creep.moveTo(lab)
+      //     }
+      //     return
+      //   }
+      // }
 
       creep.upgrade((structure) => {
         // If source is storage and it contains less energy, wait for charge
