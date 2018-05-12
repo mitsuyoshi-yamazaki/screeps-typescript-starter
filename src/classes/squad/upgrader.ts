@@ -67,6 +67,15 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
+      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
+
+      if (needs_renew) {
+        if (creep.room.spawns.length > 0) {
+          creep.goToRenew(creep.room.spawns[0])
+          return
+        }
+      }
+
       if (creep.boosted == false) {
         // @todo: boost
         return
@@ -74,7 +83,7 @@ export class UpgraderSquad extends Squad {
 
       creep.upgrade((structure) => {
         return (this.source_ids.indexOf(structure.id) >= 0)
-          && ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy < 10000))
+          && ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy > 10000))
           // If source is storage and it contains less energy, wait for charge
       })
     })

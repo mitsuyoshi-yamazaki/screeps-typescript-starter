@@ -89,7 +89,7 @@ export class Region {
         ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = []
-        upgrader_source_ids = ['5aec04e52a35133912c2cb1b']
+        upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         break
 
       case 'W49S47':
