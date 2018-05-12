@@ -417,7 +417,7 @@ export function init() {
           return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
                   || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
                   || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
-                  || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 50000))
+                  || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 50000) && !(!structure.room.storage) && ((structure.room.storage as StructureStorage).store.energy > 20000))
         }
       })
 
