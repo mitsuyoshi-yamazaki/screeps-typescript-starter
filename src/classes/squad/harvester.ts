@@ -77,6 +77,9 @@ export class HarvesterSquad extends Squad {
     // if ((this.source as Mineral).mineralType) {  // does not work (returns 0)
       // this.resource_type = (this.source as Mineral).mineralType
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // home2 utrium
+      this.resource_type = RESOURCE_UTRIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -110,6 +113,13 @@ export class HarvesterSquad extends Squad {
         if (target) {
           this.container = target
         }
+      }
+    }
+    else if ((this.source_info.id == '59f19ff082100e1594f35c83') && (this.carriers.length > 0)) { // W49S47 top left
+      const utrium_container = Game.getObjectById('5af6018e4ce5d64c9cc2b0f3') as StructureContainer
+      if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((utrium_container.store[RESOURCE_UTRIUM] || 0) > 400)) {
+        this.resource_type = RESOURCE_UTRIUM
+        this.container = utrium_container
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
@@ -175,6 +185,9 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 0
     }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // W48S47 oxygen
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // W49S47 utrium
       number_of_carriers = 0
     }
 
