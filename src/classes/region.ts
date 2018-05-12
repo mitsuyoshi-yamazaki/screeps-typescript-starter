@@ -7,6 +7,7 @@ import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
+import { RaiderSquad } from "./squad/raider";
 
 export class Region {
   // Public
@@ -149,6 +150,8 @@ export class Region {
     // -- Memory --
     let worker_squad: WorkerSquad | null = null
     let upgrader_squad: UpgraderSquad | null = null
+    let raider_squad: RaiderSquad | null = null
+    const raid_target = {id: '59f1c265a5165f24b259a48a', room_name: 'W46S46'}
 
     for (const squad_name in Memory.squads) {
       const squad_memory = Memory.squads[squad_name]
@@ -214,6 +217,13 @@ export class Region {
         const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
 
         this.defend_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.RAIDER: {
+        const squad = new RaiderSquad(squad_memory.name, raid_target)
+
+        raider_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -379,6 +389,23 @@ export class Region {
       Memory.squads[squad.name] = memory
 
       console.log(`Create defender for ${this.attacked_rooms}, assigned: ${squad.name}`)
+    }
+
+    // --- Raider ---
+    if (!raider_squad && (this.room.name == 'W48S47')) {
+      const name = RaiderSquad.generateNewName()
+      const squad = new RaiderSquad(name, raid_target)
+
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
     }
 
     // Manual

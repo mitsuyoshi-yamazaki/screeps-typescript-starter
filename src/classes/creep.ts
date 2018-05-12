@@ -478,7 +478,7 @@ export function init() {
 
   Creep.prototype.searchAndDestroy = function(): ActionResult {
     if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
-      console.log('searchAndDestroy zero')
+      console.log(`searchAndDestroy no attacker body parts ${this.name}`)
       return ActionResult.DONE
     }
 

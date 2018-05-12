@@ -29,10 +29,18 @@ export class RaiderSquad extends Squad {
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-
+    console.log(`RaiderSquad.addCreep not implemented yet ${this.name}`)
   }
 
   public run(): void {
+    this.creeps.forEach((creep) => {
+      if (creep.moveToRoom(this.source_info.room_name) == ActionResult.IN_PROGRESS) {
+        creep.say(this.source_info.room_name)
+        return
+      }
 
+      creep.searchAndDestroy()
+      creep.say('ATTACK')
+    })
   }
 }

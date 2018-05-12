@@ -74,6 +74,26 @@ export class ScoutSquad extends Squad {
       if (creep.moveToRoom(room_name) == ActionResult.IN_PROGRESS) {
         return
       }
+      if (creep.pos.x == 1) {
+        if (creep.move(RIGHT) == OK) {
+          return
+        }
+      }
+      if (creep.pos.x == 48) {
+        if (creep.move(LEFT) == OK) {
+          return
+        }
+      }
+      if (creep.pos.y == 1) {
+        if (creep.move(BOTTOM) == OK) {
+          return
+        }
+      }
+      if (creep.pos.y == 48) {
+        if (creep.move(TOP) == OK) {
+          return
+        }
+      }
     })
   }
 
