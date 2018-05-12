@@ -111,6 +111,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
           { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
+          { id: '59f1c0cf7d0b3d79de5f0392', room_name: 'W44S42' },  // home hydrogen
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
           // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top     // For now W44S42 can't manage too many rooms

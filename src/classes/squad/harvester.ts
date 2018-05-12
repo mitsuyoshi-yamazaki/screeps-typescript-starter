@@ -86,6 +86,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // home2 utrium
       this.resource_type = RESOURCE_UTRIUM
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // home3 hydrogen
+      this.resource_type = RESOURCE_HYDROGEN
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -126,6 +129,13 @@ export class HarvesterSquad extends Squad {
       if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((utrium_container.store[RESOURCE_UTRIUM] || 0) > 400)) {
         this.resource_type = RESOURCE_UTRIUM
         this.container = utrium_container
+      }
+    }
+    else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) { // W44S42 top
+      const hydrogen_container = Game.getObjectById('5af6b7068f59813217266b29') as StructureContainer
+      if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
+        this.resource_type = RESOURCE_HYDROGEN
+        this.container = hydrogen_container
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
@@ -169,7 +179,8 @@ export class HarvesterSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (!this.harvester) {
-      if ((this.source_info.id == '59f1c0ce7d0b3d79de5f024d') && ((Game.getObjectById('59f1c0ce7d0b3d79de5f024d') as Mineral).ticksToRegeneration > 100)) {
+      const source = Game.getObjectById(this.source_info.id) as Source | Mineral
+      if ((source.ticksToRegeneration || 0) > 100) {
         return SpawnPriority.NONE
       }
       return SpawnPriority.HIGH
@@ -200,6 +211,9 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 0
     }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // W49S47 utrium
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // W44S42 hydrogen
       number_of_carriers = 0
     }
 
