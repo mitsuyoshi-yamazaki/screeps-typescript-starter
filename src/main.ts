@@ -26,7 +26,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       continue
     }
 
-    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}`)
+    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
     // creep.suicide()
   }
 })

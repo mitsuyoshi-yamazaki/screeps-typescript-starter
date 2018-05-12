@@ -323,6 +323,7 @@ export function init() {
       })
 
       if (!target) {
+        this.say('NO Src')
         return ActionResult.DONE
       }
       else if (this.carry.energy == this.carryCapacity) {
