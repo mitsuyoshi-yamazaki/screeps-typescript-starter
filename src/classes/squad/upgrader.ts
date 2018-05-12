@@ -76,7 +76,7 @@ export class UpgraderSquad extends Squad {
         }
       }
 
-      if (creep.boosted == false) {
+      if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
         // @todo: boost
         return
       }
@@ -86,7 +86,7 @@ export class UpgraderSquad extends Squad {
           // If source is storage and it contains less energy, wait for charge
           return false
         }
-        return (this.source_ids.indexOf(structure.id) >= 0)
+        return ((structure.structureType == STRUCTURE_LINK) && (this.source_ids.indexOf(structure.id) >= 0) && (structure.energy > 0))
       })
     })
   }
