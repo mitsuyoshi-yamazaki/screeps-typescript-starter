@@ -77,7 +77,14 @@ export class UpgraderSquad extends Squad {
       }
 
       if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
-        // @todo: boost
+        // @fixme: temp code
+        if (creep.id == '5af626926d39345fb09d9bfc') {
+          creep.say('🔥')
+          const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
+          if (lab.boostCreep(creep, 1) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(lab)
+          }
+        }
         return
       }
 
