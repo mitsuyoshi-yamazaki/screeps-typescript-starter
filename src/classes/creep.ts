@@ -540,7 +540,6 @@ export function init() {
       console.log(`Creep.destroy action failed ${ranged_attack_result}, ${move_to_result}, ${attack_result}, ${this.name}`)
     }
 
-    console.log('searchAndDestroy in progress')
     return ActionResult.IN_PROGRESS // @todo: Check if finished
   }
 

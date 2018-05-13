@@ -371,7 +371,7 @@ export class ResearcherSquad extends Squad {
 
         let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 100)
         if (this.room_name == 'W48S47') {
-          has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 1000)
+          has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 2500)
         }
 
         const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)

@@ -25,14 +25,12 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    // return energyAvailable >= 750
-    return energyAvailable >= 200
+    return energyAvailable >= 750
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [WORK, CARRY, MOVE]
-    // const body: BodyPartConstant[] = [TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
+    const body: BodyPartConstant[] = [TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
@@ -64,8 +62,8 @@ export class ManualSquad extends Squad {
   }
 
   public description(): string {
-    const addition = this.creeps.size > 0 ? Array.from(this.creeps.values())[0].pos : ''
-    return `${super.description()}, ${addition}`
+    const addition = this.creeps.size > 0 ? `, ${Array.from(this.creeps.values())[0].pos}` : ''
+    return `${super.description()} ${addition}`
   }
 
   // --- Private ---
