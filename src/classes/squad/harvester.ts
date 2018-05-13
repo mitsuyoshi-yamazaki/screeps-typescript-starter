@@ -200,7 +200,7 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 1
     }
     else if (this.source_info.id == '59f1a00e82100e1594f35f82') { // W47S47
-      number_of_carriers = 1
+      number_of_carriers = 2
     }
     else if (this.source_info.id == '59f19ff082100e1594f35c83') {  // top left of W49S47
       number_of_carriers = 2

@@ -21,7 +21,7 @@ export class RaiderSquad extends Squad {
     const lab = Game.getObjectById('5af483456449d07df7f76acc') as StructureLab
     const can_boost = !(!lab) && (lab.mineralType == RESOURCE_UTRIUM_ACID) && (lab.mineralAmount >= 300)
 
-    if (!this.attacker || ((this.attacker.ticksToLive || 0) < 100)) {
+    if (!this.attacker) {
       if (can_boost) {
         return CreepType.ATTACKER
       }
@@ -47,7 +47,7 @@ export class RaiderSquad extends Squad {
     }
 
     this.creeps.forEach((creep) => {
-      switch (this.needed_creep_type) {
+      switch (creep.memory.type) {
         case CreepType.ATTACKER:
           this.attacker = creep
           break
@@ -249,17 +249,24 @@ export class RaiderSquad extends Squad {
 
     if (!this.source_keeper) {
       const damaged_creep = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
-        filter: c => c.hits < c.hitsMax
+        filter: c => {
+          return (c.hits < c.hitsMax)
+            && (c.id != creep.id)
+        }
       })
       if (damaged_creep) {
         if (creep.heal(damaged_creep) == ERR_NOT_IN_RANGE) {
-          if ((this.lair.ticksToSpawn || 0) > 20) {
+          if ((this.lair.ticksToSpawn || 1000) > 20) {
             creep.moveTo(damaged_creep)
           }
           creep.rangedHeal(damaged_creep)
         }
+        else if (damaged_creep.name == creep.name) {
+          creep.moveTo(this.lair)
+        }
       }
       else {
+        creep.heal(creep)
         creep.moveTo(this.lair)
       }
       return
@@ -288,7 +295,7 @@ export class RaiderSquad extends Squad {
       }
 
       const has_enough_resource = !(!this.carrier) && (_.sum(creep.carry) > 0)
-      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 0) < 12)
+      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 1000) < 12)
 
       if (has_enough_resource) {
         creep.transfer(this.carrier!, RESOURCE_ZYNTHIUM) // @fixme: specify in init argument
@@ -323,11 +330,20 @@ export class RaiderSquad extends Squad {
     if (creep.memory.status == CreepStatus.NONE) {
       creep.memory.status = CreepStatus.HARVEST
     }
+    if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      if (((creep.ticksToLive || 0) > 1450) || (!this.attacker)) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+      else {
+        creep.goToRenew(Game.spawns['Spawn1'])  // @fixme: specify in init argument
+        return
+        }
+    }
 
     if (creep.memory.status == CreepStatus.HARVEST) {
-      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 0) < 10)
+      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 1000) < 10)
 
-      if ((_.sum(creep.carry) == creep.carryCapacity) || !this.attacker || !this.harvester) {
+      if ((_.sum(creep.carry) == creep.carryCapacity) || !this.harvester) {
         creep.memory.status = CreepStatus.CHARGE
       }
       else if (should_run) {
@@ -346,6 +362,10 @@ export class RaiderSquad extends Squad {
     if (creep.memory.status == CreepStatus.CHARGE) {
       if (_.sum(creep.carry) == 0) {
         creep.memory.status = CreepStatus.HARVEST
+        if ((creep.ticksToLive || 0) < 100) {
+          creep.goToRenew(Game.spawns['Spawn1'])  // @fixme: specify in init argument
+          return
+        }
       }
       else {
         const terminal = Game.rooms['W48S47'].terminal!  // @fixme: specify in init argument

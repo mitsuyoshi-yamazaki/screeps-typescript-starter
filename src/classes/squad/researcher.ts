@@ -122,7 +122,7 @@ export class ResearcherSquad extends Squad {
         else {
           const room = Game.rooms[this.room_name]!
           const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
-          const storage_has_resource = (room.storage!.store[room_resource] || 0) > creep.carryCapacity
+          const storage_has_resource = (room.storage!.store[room_resource] || 0) > 5000
 
           if (terminal_needs_resource && storage_has_resource) {
             this.transferRoomResource(creep, room_resource)
