@@ -9,6 +9,20 @@ export interface ResearchTarget {
 
 // @todo: merge to worker
 export class ResearcherSquad extends Squad {
+  private get needs_research(): boolean {
+    let needs = true
+    this.input_targets.map(
+      t=>t.resource_type
+    ).forEach((resource_type) => {
+      const room = Game.rooms[this.room_name]
+      if ((room.terminal!.store[resource_type] || 0) == 0) {
+        needs = false
+      }
+    })
+
+    return needs
+  }
+
   constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
     super(name)
   }
@@ -27,7 +41,13 @@ export class ResearcherSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
+    if (this.creeps.size > 0) {
+      return SpawnPriority.NONE
+    }
+    if (this.needs_research) {
+      return SpawnPriority.LOW
+    }
+    return SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
@@ -68,7 +88,7 @@ export class ResearcherSquad extends Squad {
         return
       }
 
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
+      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300) && this.needs_research
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {

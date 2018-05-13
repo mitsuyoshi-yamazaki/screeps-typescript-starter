@@ -30,6 +30,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
     // creep.suicide()
   }
 
+  const w48s47 = Game.rooms['W48S47']
+  const o_amount = (w48s47.terminal!.store[RESOURCE_OXYGEN] || 0)
+  if (o_amount > 4900) {
+    console.log(`Send HYDROGEN ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
+  }
+
   const w49s47 = Game.rooms['W49S47']
   const uh_amount = (w49s47.terminal!.store[RESOURCE_UTRIUM_HYDRIDE] || 0)
   if (uh_amount > 100) {
@@ -40,6 +46,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const ho_amount = (w44s42.terminal!.store[RESOURCE_HYDROXIDE] || 0)
   if (ho_amount > 100) {
     console.log(`Send HYDROXIDE ${w44s42.terminal!.send(RESOURCE_HYDROXIDE, ho_amount, 'W48S47')}`)
+  }
+  const h_amount = (w44s42.terminal!.store[RESOURCE_HYDROGEN] || 0)
+  if (h_amount > 4900) {
+    console.log(`Send HYDROGEN ${w44s42.terminal!.send(RESOURCE_HYDROGEN, 2000, 'W49S47')}`)
   }
 })
 
