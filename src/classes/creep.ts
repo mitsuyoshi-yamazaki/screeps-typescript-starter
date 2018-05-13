@@ -3,6 +3,7 @@ import { Squad } from "classes/squad/squad"
 
 export enum CreepStatus {  // @todo: add "meta" info to status and keep it on memory, to not change objectives between ticks
   NONE    = "none",
+  INIT    = "init",
   HARVEST = "harvest",
   CHARGE  = "charge",
   BUILD   = "build",
