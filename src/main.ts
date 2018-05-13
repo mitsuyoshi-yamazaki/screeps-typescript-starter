@@ -29,6 +29,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
     console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
     // creep.suicide()
   }
+
+  const w49s47 = Game.rooms['W49S47']
+  const uh_amount = (w49s47.terminal!.store[RESOURCE_UTRIUM_HYDRIDE] || 0)
+  if (uh_amount > 100) {
+    console.log(`Send UTRIUM_HYDRIDE ${w49s47.terminal!.send(RESOURCE_UTRIUM_HYDRIDE, uh_amount, 'W48S47')}`)
+  }
+
+  const w44s42 = Game.rooms['W44S42']
+  const ho_amount = (w44s42.terminal!.store[RESOURCE_HYDROXIDE] || 0)
+  if (ho_amount > 100) {
+    console.log(`Send HYDROXIDE ${w44s42.terminal!.send(RESOURCE_HYDROXIDE, ho_amount, 'W48S47')}`)
+  }
 })
 
 /**

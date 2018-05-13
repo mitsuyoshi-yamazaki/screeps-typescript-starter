@@ -97,17 +97,17 @@ export class Region {
         research_input_targets = [
           {
             id: '5af48c6802a75a3c68294d43', // 40, 13
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_HYDROXIDE,
           },
           {
             id: '5af458a11ad10d5415bba8f2', // 40, 12
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
           },
         ]
         research_output_targets = [
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_UTRIUM_ACID,
           }
         ]
         break
@@ -610,6 +610,26 @@ export class Region {
         room.controller!.activateSafeMode()
       }
     }
+
+    const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
+    const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
+    const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
+
+    if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
+      const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
+
+      switch(reaction_result) {
+        case OK:
+        case ERR_NOT_ENOUGH_RESOURCES:
+        case ERR_FULL:
+        case ERR_TIRED:
+          break
+
+        default:
+          console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+          break
+      }
+    }
   }
 
   public say(message: string): void {
@@ -651,26 +671,6 @@ export class Region {
     this.transferLinks(destination_id)
     this.spawnAndRenew()
     this.drawDebugInfo()
-
-    if (this.room.name == 'W48S47') {
-      const input_lab1 = Game.getObjectById('5af48c6802a75a3c68294d43') as StructureLab // 40, 13
-      const input_lab2 = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab // 40, 12
-      const output_lab = Game.getObjectById('5af483456449d07df7f76acc') as StructureLab // 41, 12 Hydroxyde
-
-      const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
-
-      switch(reaction_result) {
-        case OK:
-        case ERR_NOT_ENOUGH_RESOURCES:
-        case ERR_FULL:
-        case ERR_TIRED:
-          break
-
-        default:
-          console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
-          break
-      }
-    }
   }
 
   // --- Private ---
