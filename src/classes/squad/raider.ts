@@ -93,9 +93,9 @@ export class RaiderSquad extends Squad {
       case CreepType.ATTACKER:
         return energy_available >= 1900
       case CreepType.HARVESTER:
-        return energy_available >= 1600
+        return energy_available >= 1660
       case CreepType.CARRIER:
-        return energy_available >= 1000
+        return energy_available >= 1060
       default:
         console.log(`RaiderSquad.hasEnoughEnergy unexpected creep type ${this.needed_creep_type}, ${this.name}`)
         return false
@@ -174,6 +174,7 @@ export class RaiderSquad extends Squad {
   private addHarvester(spawn_func: SpawnFunction): void {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
+      TOUGH, MOVE,
       WORK, CARRY, MOVE,
       WORK, CARRY, MOVE,
       WORK, CARRY, MOVE,
@@ -198,6 +199,7 @@ export class RaiderSquad extends Squad {
   private addCarrier(spawn_func: SpawnFunction): void {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
+      TOUGH, MOVE,
       CARRY, MOVE,
       CARRY, MOVE,
       CARRY, MOVE,
@@ -270,33 +272,65 @@ export class RaiderSquad extends Squad {
   }
 
   private runHarvester(creep: Creep): void {
-    if (creep.moveToRoom(this.source_info.room_name) == ActionResult.IN_PROGRESS) {
-      creep.say(this.source_info.room_name)
-      return
-    }
-
-    if (!this.source) {
-      console.log(`RaiderSquad.runHarvester cannot find source: ${this.source}, ${this.name}, ${this.source_info.id}, ${this.source_info.room_name}`)
-      return
-    }
-
-    if (this.carrier && (_.sum(creep.carry) >= 250)) {
-      creep.transfer(this.carrier, RESOURCE_ZYNTHIUM) // @fixme: specify in init argument
-    }
-    if (creep.harvest(this.source) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(this.source)
-    }
-  }
-
-  private runCarrier(creep: Creep): void {
-    console.log(`carrier ${creep.pos}, ${creep.memory.status}`)
-
     if (creep.memory.status == CreepStatus.NONE) {
       creep.memory.status = CreepStatus.HARVEST
     }
 
     if (creep.memory.status == CreepStatus.HARVEST) {
+      if (creep.moveToRoom(this.source_info.room_name) == ActionResult.IN_PROGRESS) {
+        creep.say(this.source_info.room_name)
+        return
+      }
+
+      if (!this.source) {
+        console.log(`RaiderSquad.runHarvester cannot find source: ${this.source}, ${this.name}, ${this.source_info.id}, ${this.source_info.room_name}`)
+        return
+      }
+
+      const has_enough_resource = !(!this.carrier) && (_.sum(creep.carry) > 0)
+      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 0) < 12)
+
+      if (has_enough_resource) {
+        creep.transfer(this.carrier!, RESOURCE_ZYNTHIUM) // @fixme: specify in init argument
+      }
+
+      if (should_run) {
+        creep.transfer(this.carrier!, RESOURCE_ZYNTHIUM) // @fixme: specify in init argument
+        creep.memory.status = CreepStatus.CHARGE
+        return
+      }
+
+      if (creep.harvest(this.source) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(this.source)
+      }
+    }
+
+    if (creep.memory.status == CreepStatus.CHARGE) {
+      if (_.sum(creep.carry) == 0) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+      else {
+        const terminal = Game.rooms['W48S47'].terminal!  // @fixme: specify in init argument
+
+        if (creep.transfer(terminal, RESOURCE_ZYNTHIUM)) {  // @fixme: specify in init argument
+          creep.moveTo(terminal)
+        }
+      }
+    }
+  }
+
+  private runCarrier(creep: Creep): void {
+    if (creep.memory.status == CreepStatus.NONE) {
+      creep.memory.status = CreepStatus.HARVEST
+    }
+
+    if (creep.memory.status == CreepStatus.HARVEST) {
+      const should_run = !this.attacker && this.lair && ((this.lair.ticksToSpawn || 0) < 10)
+
       if ((_.sum(creep.carry) == creep.carryCapacity) || !this.attacker || !this.harvester) {
+        creep.memory.status = CreepStatus.CHARGE
+      }
+      else if (should_run) {
         creep.memory.status = CreepStatus.CHARGE
       }
       else {
