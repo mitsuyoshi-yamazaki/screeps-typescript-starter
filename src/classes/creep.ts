@@ -77,7 +77,7 @@ export function init() {
     }
 
     this.carrying_resources = []
-    for (const resource_type in Object.keys(this.carry)) {
+    for (const resource_type of Object.keys(this.carry)) {
       if ((this.carry[resource_type as ResourceConstant] || 0) == 0) {
         continue
       }
