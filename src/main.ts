@@ -40,6 +40,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * implement lab
+ * in worker squad, assign each tasks for worker, carrier and upgrader
+ * add creep.memory.no_renewal flag
  * add current pos & room name to creep memory
  * notify when eliminate invaders and loot resources
  * add heal body part to attacker and heal others

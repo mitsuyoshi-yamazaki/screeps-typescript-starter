@@ -362,23 +362,23 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
-        // const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
 
-        // if (should_split_charger_and_upgrader) { // @fixme: temp code
-        //   let number = 0
+        if (should_split_charger_and_upgrader) { // @fixme: temp code
+          let number = 0
 
-        //   for (const creep_name in Game.creeps) {
-        //     const creep = Game.creeps[creep_name]
+          for (const creep_name in Game.creeps) {
+            const creep = Game.creeps[creep_name]
 
-        //     if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
-        //       number = number + 1
-        //     }
-        //   }
+            if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
+              number = number + 1
+            }
+          }
 
-        //   if (number > 3) {
-        //     this.memory.status = CreepStatus.BUILD
-        //   }
-        // }
+          if (number > 3) {
+            this.memory.status = CreepStatus.BUILD
+          }
+        }
       }
       else {
         // To not pickup harvesters drop
