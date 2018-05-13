@@ -27,10 +27,6 @@ export class ResearcherSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (['W49S47', 'W44S42'].indexOf(this.room_name) >= 0) {
-      return SpawnPriority.NONE
-    }
-
     return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
   }
 
@@ -157,23 +153,14 @@ export class ResearcherSquad extends Squad {
       creep.memory.status = CreepStatus.HARVEST
     }
 
-      // @fixme: temp code
-      if (creep.memory.squad_name == 'researcher60614232') {  // W49S47
-        creep.memory.squad_name = 'worker5831558'
-        console.log(`Researcher ${creep.name} reassign to ${creep.memory.squad_name}`)
-        return
-      }
-      else if (creep.memory.squad_name == 'researcher60614231') {  // W44S42
-        creep.memory.squad_name = 'worker5864301'
-        console.log(`Researcher ${creep.name} reassign to ${creep.memory.squad_name}`)
-        return
-      }
-
       if (creep.memory.status == CreepStatus.HARVEST) {
         // if creep has output, transfer to terminal
         const input_resource_types = this.input_targets.map(t=>t.resource_type)
         for (const resource_type of creep.carrying_resources) {
           if (input_resource_types.indexOf(resource_type) >= 0) {
+            continue
+          }
+          if (resource_type == RESOURCE_ENERGY) {
             continue
           }
 
@@ -311,7 +298,7 @@ export class ResearcherSquad extends Squad {
             console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
             continue
           }
-          if (lab.mineralType == target.resource_type) {
+          if ((lab.mineralType == target.resource_type) || (lab.mineralAmount == 0)) {
             continue
           }
 
@@ -325,7 +312,7 @@ export class ResearcherSquad extends Squad {
               break
 
             default:
-              console.log(`ResearcherSquad.chargeLabs transfer to output energy failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+              console.log(`ResearcherSquad.chargeLabs withdraw misc resource failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
               break
           }
           creep.memory.status = CreepStatus.HARVEST
@@ -339,7 +326,7 @@ export class ResearcherSquad extends Squad {
             continue
           }
 
-          if (lab.energy < lab.energyCapacity) {
+          if ((creep.carry.energy > 0) && (lab.energy < lab.energyCapacity)) {
             const transfer_result = creep.transfer(lab, RESOURCE_ENERGY)
             switch (transfer_result) {
               case OK:
@@ -350,7 +337,7 @@ export class ResearcherSquad extends Squad {
                 break
 
               default:
-                console.log(`ResearcherSquad.chargeLabs withdraw output failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+                console.log(`ResearcherSquad.chargeLabs transfer energy to output lab failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
                 break
             }
             return
@@ -360,7 +347,9 @@ export class ResearcherSquad extends Squad {
             creep.memory.status = CreepStatus.HARVEST
           }
 
-          if ((lab.mineralAmount > 100) || (lab.mineralType != target.resource_type)) {
+          const has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 100)
+          const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)
+          if (has_output || has_micellaous) {
             const withdraw_result = creep.withdraw(lab, lab.mineralType as ResourceConstant)
             switch (withdraw_result) {
               case OK:

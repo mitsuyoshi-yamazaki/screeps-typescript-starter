@@ -125,6 +125,22 @@ export class Region {
         this.room_names = [this.room.name, 'W49S46', 'W49S48', 'W48S46']
         rooms_need_scout = []
         upgrader_source_ids = ['5aef62f86627413133777bdf']
+        research_input_targets = [
+          {
+            id: '5af7a48ae0c61608e7636bfe', // 33, 22
+            resource_type: RESOURCE_UTRIUM,
+          },
+          {
+            id: '5af7c1dcd9566308c315f47f', // 32, 22
+            resource_type: RESOURCE_HYDROGEN,
+          },
+        ]
+        research_output_targets = [
+          {
+            id: '5af7c69c2d04d70cc3c4775a', // 32, 23
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+          }
+        ]
         break
 
       case 'W44S42': {
@@ -141,6 +157,22 @@ export class Region {
         this.room_names = [this.room.name, 'W45S42', 'W45S43']//, 'W44S43']
         rooms_need_scout = ['W45S43']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
+        research_input_targets = [
+          {
+            id: '5af7c5180ce89a3235fd46d8', // 17, 25
+            resource_type: RESOURCE_OXYGEN,
+          },
+          {
+            id: '5af7db5db44f464c8ea3a7f5', // 16, 25
+            resource_type: RESOURCE_HYDROGEN,
+          },
+        ]
+        research_output_targets = [
+          {
+            id: '5af804e78f5981321726fefa', // 16, 26
+            resource_type: RESOURCE_HYDROXIDE,
+          }
+        ]
         break
       }
       default:
