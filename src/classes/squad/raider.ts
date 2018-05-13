@@ -80,12 +80,14 @@ export class RaiderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    const source = Game.getObjectById(this.source_info.id) as Mineral
-    if (!source || (source.ticksToRegeneration > 100)) {
-      return SpawnPriority.NONE
-    }
+    return SpawnPriority.NONE
 
-    return this.needed_creep_type ? SpawnPriority.URGENT : SpawnPriority.NONE
+    // const source = Game.getObjectById(this.source_info.id) as Mineral
+    // if (!source || (source.ticksToRegeneration > 100)) {
+    //   return SpawnPriority.NONE
+    // }
+
+    // return this.needed_creep_type ? SpawnPriority.URGENT : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
