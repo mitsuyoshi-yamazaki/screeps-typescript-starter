@@ -159,6 +159,18 @@ export class ResearcherSquad extends Squad {
 
   private chargeLabs() {
     this.creeps.forEach((creep) => {
+
+      // @fixme: temp code
+      if (creep.memory.squad_name == 'researcher60614232') {  // W49S47
+        creep.memory.squad_name = 'worker5831558'
+        console.log(`Researcher ${creep.name} reassign to ${creep.memory.squad_name}`)
+        return
+      }
+      else if (creep.memory.squad_name == 'researcher60614231') {  // W44S42
+        creep.memory.squad_name = 'worker5864301'
+        console.log(`Researcher ${creep.name} reassign to ${creep.memory.squad_name}`)
+        return
+      }
       creep.say(`😴`)
 
     //   if (creep.memory.status == CreepStatus.HARVEST) {
