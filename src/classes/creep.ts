@@ -366,6 +366,10 @@ export function init() {
       this.memory.status = CreepStatus.HARVEST
     }
 
+    if ((this.memory.type == CreepType.CARRIER) && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.UPGRADE))) {
+      this.memory.status = CreepStatus.CHARGE
+    }
+
     // Harvest
     if (this.memory.status == CreepStatus.HARVEST) {
       if (this.carry.energy == this.carryCapacity) {
