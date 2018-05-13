@@ -35,6 +35,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * @fixme:
  * renewing creeps blocks attacker spawn
  * carrier blocks harvester position
+ * if creeps start dying or script crashes, notify them
  */
 
 /**

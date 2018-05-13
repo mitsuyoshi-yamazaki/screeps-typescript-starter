@@ -25,6 +25,7 @@ export class UpgraderSquad extends Squad {
       return SpawnPriority.NONE
     }
     return (this.creeps.size < 2) ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    // return SpawnPriority.NONE // @fixme:
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {

@@ -2,8 +2,16 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+export interface RaiderTarget {
+  readonly id: string
+  readonly lair_id: string
+  readonly room_name: string
+}
+
 export class RaiderSquad extends Squad {
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}) {
+  private max_energy = 2200
+
+  constructor(readonly name: string, readonly source_info: RaiderTarget) {
     super(name)
   }
 
@@ -29,7 +37,35 @@ export class RaiderSquad extends Squad {
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    console.log(`RaiderSquad.addCreep not implemented yet ${this.name}`)
+    // energyAvailable = Math.min(energyAvailable, this.max_energy)
+
+    // const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
+    // const move: BodyPartConstant[] = [MOVE, MOVE]
+    // const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
+
+    // const name = this.generateNewName()
+    // let body: BodyPartConstant[] = []
+    // const memory: CreepMemory = {
+    //   squad_name: this.name,
+    //   status: CreepStatus.NONE,
+    //   birth_time: Game.time,
+    //   type: CreepType.ATTACKER,
+    // }
+
+    // energyAvailable -= this.fix_part_energy
+
+    // while(energyAvailable >= this.energy_unit) {
+    //   body = move.concat(body)
+    //   body = body.concat(attack)
+
+    //   energyAvailable -= this.energy_unit
+    // }
+    // body = front_part.concat(body)
+    // body.push(MOVE)
+
+    // const result = spawnFunc(body, name, {
+    //   memory: memory
+    // })
   }
 
   public run(): void {

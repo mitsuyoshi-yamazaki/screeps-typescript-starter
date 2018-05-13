@@ -179,8 +179,9 @@ export class HarvesterSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (!this.harvester) {
+      const room = Game.rooms[this.source_info.room_name]
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
-      if ((source.ticksToRegeneration || 0) > 100) {
+      if (room && ((source.ticksToRegeneration || 0) > 100)) {
         return SpawnPriority.NONE
       }
       return SpawnPriority.HIGH

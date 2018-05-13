@@ -7,7 +7,7 @@ import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
-import { RaiderSquad } from "./squad/raider";
+import { RaiderSquad, RaiderTarget } from "./squad/raider";
 
 export class Region {
   // Public
@@ -151,7 +151,11 @@ export class Region {
     let worker_squad: WorkerSquad | null = null
     let upgrader_squad: UpgraderSquad | null = null
     let raider_squad: RaiderSquad | null = null
-    const raid_target = {id: '59f1c265a5165f24b259a48a', room_name: 'W46S46'}
+    const raid_target: RaiderTarget = {
+      id: '59f1c265a5165f24b259a48a',
+      lair_id: '59f1a02082100e1594f361b8',
+      room_name: 'W46S46',
+    }
 
     for (const squad_name in Memory.squads) {
       const squad_memory = Memory.squads[squad_name]
@@ -545,11 +549,15 @@ export class Region {
     let destination_id: string
 
     switch (this.room.name) {
-      case 'W48S47':
+      case 'W48S47': {
         destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
+        const link = Game.getObjectById(destination_id) as StructureLink
+        if (link.energy > (link.energyCapacity / 2)) {
+          destination_id = '5aee959afd02f942b0a03361'
+        }
         // The link next to the storage is not currently used
         break
-
+      }
       case 'W49S47':
         destination_id = '5af1900395fe4569eddba9da'
         break
@@ -583,6 +591,7 @@ export class Region {
       filter: (structure) => {
         return (structure.structureType == STRUCTURE_LINK)
           && (structure.id != destination.id)
+          && (structure.id != '5af5c771dea4db08d5fb7c84') // W48S43 link next to storage
       }
     }) as StructureLink[]).filter((link) => {
       if (link.energy == 0) {
