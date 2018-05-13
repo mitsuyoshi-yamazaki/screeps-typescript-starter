@@ -334,7 +334,7 @@ export class Region {
     }
 
     // --- Researcher ---
-    if (!researcher_squad && (this.room.name == 'W48S47')) {
+    if (!researcher_squad) {
       const name = ResearcherSquad.generateNewName()
       const squad = new ResearcherSquad(name, this.room.name, [], []) // @fixme: arguments
 
