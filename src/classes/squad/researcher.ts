@@ -9,7 +9,7 @@ export interface ResearchTarget {
 
 // @todo: merge to worker
 export class ResearcherSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], output_targets: ResearchTarget[]) {
+  constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
     super(name)
   }
 
@@ -85,80 +85,77 @@ export class ResearcherSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.NONE) {
+        let room_resource: ResourceConstant | undefined // @fixme: temp code
+        switch (this.room_name) {
+          case 'W48S47':
+            room_resource = RESOURCE_OXYGEN
+            break
+
+          case 'W49S47':
+            room_resource = RESOURCE_UTRIUM
+            break
+
+          case 'W44S42':
+            room_resource = RESOURCE_HYDROGEN
+            break
+        }
+
+        if (!room_resource) {
+          console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
+        }
+        else {
+          const room = Game.rooms[this.room_name]!
+          const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
+          const storage_has_resource = (room.storage!.store[room_resource] || 0) > creep.carryCapacity
+
+          if (terminal_needs_resource && storage_has_resource) {
+            this.transferRoomResource(creep, room_resource)
+            return
+          }
+        }
+
         creep.memory.status = CreepStatus.HARVEST
       }
+
+      this.chargeLabs(creep)
     })
-
-    let room_resource: ResourceConstant | undefined // @fixme: temp code
-    switch (this.room_name) {
-      case 'W48S47':
-        room_resource = RESOURCE_OXYGEN
-        break
-
-      case 'W49S47':
-        room_resource = RESOURCE_UTRIUM
-        break
-
-      case 'W44S42':
-        room_resource = RESOURCE_HYDROGEN
-        break
-    }
-
-    if (!room_resource) {
-      console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
-    }
-    else {
-      const room = Game.rooms[this.room_name]!
-      const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
-      const storage_has_resource = (room.storage!.store[room_resource] || 0) > 0
-
-      if (terminal_needs_resource && storage_has_resource) {
-        this.transferRoomResource(room_resource)
-        return
-      }
-    }
-
-    this.chargeLabs()
   }
 
   // --- Private ---
-  private transferRoomResource(resource_type: ResourceConstant): void {
-    this.creeps.forEach((creep) => {
-      if (creep.memory.status == CreepStatus.HARVEST) {
-        if (_.sum(creep.carry) == creep.carryCapacity) {
-          creep.memory.status = CreepStatus.CHARGE
-        }
-        else if (creep.withdraw(creep.room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(creep.room.storage!)
-        }
+  private transferRoomResource(creep: Creep, resource_type: ResourceConstant): void {
+    // creep.memory.status supporse to be NONE
+
+    if (creep.carrying_resources.length == 0) {
+      // Harvest
+      if (creep.withdraw(creep.room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.storage!)
+        return
       }
-      if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carrying_resources.length == 0) {
-          creep.memory.status = CreepStatus.HARVEST
-        }
-        else {
-          const carrying_resource_type = creep.carrying_resources[0]
-          const transfer_result = creep.transfer(creep.room.terminal!, carrying_resource_type)
+    }
+    else {
+      // Charge
+      const carrying_resource_type = creep.carrying_resources[0]
+      const transfer_result = creep.transfer(creep.room.terminal!, carrying_resource_type)
 
-          switch (transfer_result) {
-            case OK:
-              break
+      switch (transfer_result) {
+        case OK:
+          break
 
-            case ERR_NOT_IN_RANGE:
-              creep.moveTo(creep.room.terminal!)
-              break
+        case ERR_NOT_IN_RANGE:
+          creep.moveTo(creep.room.terminal!)
+          break
 
-            default:
-              console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${this.room_name}`)
-              break
-          }
-        }
+        default:
+          console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${this.room_name}`)
+          break
       }
-    })
+    }
   }
 
-  private chargeLabs() {
-    this.creeps.forEach((creep) => {
+  private chargeLabs(creep: Creep) {
+    if (creep.memory.status == CreepStatus.NONE) {
+      creep.memory.status = CreepStatus.HARVEST
+    }
 
       // @fixme: temp code
       if (creep.memory.squad_name == 'researcher60614232') {  // W49S47
@@ -171,36 +168,221 @@ export class ResearcherSquad extends Squad {
         console.log(`Researcher ${creep.name} reassign to ${creep.memory.squad_name}`)
         return
       }
-      creep.say(`😴`)
 
-    //   if (creep.memory.status == CreepStatus.HARVEST) {
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        // if creep has output, transfer to terminal
+        const input_resource_types = this.input_targets.map(t=>t.resource_type)
+        for (const resource_type of creep.carrying_resources) {
+          if (input_resource_types.indexOf(resource_type) >= 0) {
+            continue
+          }
 
-    //     // if input target needs resource
-    //     // or no input target, charge
+          const transfer_result = creep.transfer(creep.room.terminal!, resource_type)
 
-    //     let resource_amounts = new Map<ResourceConstant, number>()
+          if (transfer_result == OK) {
+          }
+          else if (transfer_result == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.terminal!)
+          }
+          else {
+            console.log(`ResearcherSquad.chargeLabs transfer micelleous resource failed with ${transfer_result}, resource: ${resource_type}, ${this.name}, ${creep.name}`)
+          }
+          return
+      }
 
-    //     this.input_targets.forEach((target) => {
-    //       const lab = Game.getObjectById(target.id) as StructureLab
-    //       if (!lab) {
-    //         console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
-    //         return
-    //       }
+        for (const target of this.output_targets) {
+          if ((creep.carry[target.resource_type] || 0) > 0) {
+            const transfer_result = creep.transfer(creep.room.terminal!, target.resource_type)
 
-    //       const energy_shortage = lab.energyCapacity - lab.energy
-    //       resource_amounts.set(RESOURCE_ENERGY, (resource_amounts.get(RESOURCE_ENERGY) || 0) + energy_shortage)
+            if (transfer_result == OK) {
+            }
+            else if (transfer_result == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.terminal!)
+            }
+            else {
+              console.log(`ResearcherSquad.chargeLabs transfer failed with ${transfer_result}, resource: ${target.resource_type}, ${this.name}, ${creep.name}`)
+            }
+            return
+          }
+        }
 
-    //       if (lab.mineralType == target.resource_type) {
-    //         const mineral_shortage = lab.mineralCapacity - lab.mineralAmount
-    //         resource_amounts.set(target.resource_type, (resource_amounts.get(target.resource_type) || 0) + mineral_shortage)
-    //       }
-    //     })
+        let resource_amounts = new Map<ResourceConstant, number>()
 
-    //     const harvest_result = creep.harvest()
-    //   }
-    //   if (creep.memory.status == CreepStatus.CHARGE) {
-    //     // if resource_type unmatch, withdraw them
-    //   }
-    })
+        this.input_targets.forEach((target) => {
+          const lab = Game.getObjectById(target.id) as StructureLab
+          if (!lab) {
+            console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
+            return
+          }
+
+          const energy_shortage = lab.energyCapacity - lab.energy
+          resource_amounts.set(RESOURCE_ENERGY, (resource_amounts.get(RESOURCE_ENERGY) || 0) + energy_shortage)
+
+          if (lab.mineralType == target.resource_type) {
+            const mineral_shortage = Math.max((lab.mineralCapacity - 1000) - lab.mineralAmount, 0)
+            resource_amounts.set(target.resource_type, (resource_amounts.get(target.resource_type) || 0) + mineral_shortage)
+          }
+          else if (lab.mineralAmount == 0) {  // lab has no mineral or different mineral
+            resource_amounts.set(target.resource_type, lab.mineralCapacity)
+          }
+        })
+
+        let done = false  // may not be used
+
+        for (const resource_type of Array.from(resource_amounts.keys())) {
+          if (resource_amounts.get(resource_type) == 0) {
+            continue
+          }
+
+          const harvest_result = creep.withdraw(creep.room.terminal!, resource_type)
+
+          if ((harvest_result == OK) || (harvest_result == ERR_FULL)) {
+            done = true
+            break
+          }
+          else if (harvest_result == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.terminal!)
+            return
+          }
+          else if (harvest_result == ERR_NOT_ENOUGH_RESOURCES) {
+            continue
+          }
+          else {
+            console.log(`ResearcherSquad.chargeLabs withdraw failed with ${harvest_result}, resource: ${resource_type}, ${this.name}, ${creep.name}`)
+            continue
+          }
+        }
+
+        creep.memory.status = CreepStatus.CHARGE
+      }
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        // if resource_type unmatch, withdraw them
+
+        let resource_amounts = new Map<ResourceConstant, number>()
+
+        for (const target of this.input_targets) {
+          const lab = Game.getObjectById(target.id) as StructureLab
+          if (!lab) {
+            console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
+            continue
+          }
+
+          if ((lab.energy < lab.energyCapacity) && (creep.carry.energy > 0)) {
+            const transfer_result = creep.transfer(lab, RESOURCE_ENERGY)
+            switch (transfer_result) {
+              case OK:
+                break
+
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(lab)
+                break
+
+              default:
+                console.log(`ResearcherSquad.chargeLabs transfer energy to input lab failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+                break
+            }
+            return
+          }
+
+          if ((creep.carry[target.resource_type] || 0) == 0) {
+            continue
+          }
+          if (lab.mineralAmount < lab.mineralCapacity) {
+            const transfer_result = creep.transfer(lab, target.resource_type)
+            switch (transfer_result) {
+              case OK:
+                break
+
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(lab)
+                break
+
+              default:
+                console.log(`ResearcherSquad.chargeLabs transfer ${target.resource_type} failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+                break
+            }
+            return
+          }
+        }
+
+        for (const target of this.input_targets) {
+          const lab = Game.getObjectById(target.id) as StructureLab
+          if (!lab) {
+            console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
+            continue
+          }
+          if (lab.mineralType == target.resource_type) {
+            continue
+          }
+
+          const withdraw_result = creep.withdraw(lab, lab.mineralType as ResourceConstant)
+          switch (withdraw_result) {
+            case OK:
+              break
+
+            case ERR_NOT_IN_RANGE:
+              creep.moveTo(lab)
+              break
+
+            default:
+              console.log(`ResearcherSquad.chargeLabs transfer to output energy failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+              break
+          }
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        for (const target of this.output_targets) {
+          const lab = Game.getObjectById(target.id) as StructureLab
+          if (!lab) {
+            console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
+            continue
+          }
+
+          if (lab.energy < lab.energyCapacity) {
+            const transfer_result = creep.transfer(lab, RESOURCE_ENERGY)
+            switch (transfer_result) {
+              case OK:
+                break
+
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(lab)
+                break
+
+              default:
+                console.log(`ResearcherSquad.chargeLabs withdraw output failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+                break
+            }
+            return
+          }
+
+          if (_.sum(creep.carry) == creep.carryCapacity) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+
+          if ((lab.mineralAmount > 100) || (lab.mineralType != target.resource_type)) {
+            const withdraw_result = creep.withdraw(lab, lab.mineralType as ResourceConstant)
+            switch (withdraw_result) {
+              case OK:
+                break
+
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(lab)
+                break
+
+              default:
+                console.log(`ResearcherSquad.chargeLabs withdraw ${lab.mineralType} failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}, ${lab.pos}`)
+                break
+            }
+            return
+          }
+
+          creep.memory.status = CreepStatus.NONE
+          return
+        }
+
+        console.log(`ResearchSquad.chargeLabs nothing to do ${this.name}, inputs: ${this.input_targets.map(t=>t.resource_type)}, outputs: ${this.output_targets.map(t=>t.resource_type)}`)
+        creep.say(`😴`)
+      }
   }
 }

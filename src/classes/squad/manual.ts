@@ -74,7 +74,7 @@ export class ManualSquad extends Squad {
     const source = Game.getObjectById('5af16cf880c5b34b39dd47f6') as StructureTerminal
     const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
 
-    if ((lab.mineralAmount > 0) && (lab.mineralType != resource)) {
+    if ((this.creeps.size > 0) && (lab.mineralAmount > 0) && (lab.mineralType != resource)) {
       console.log(`Manual.run lab mineral type is different from specified one ${resource}, ${lab.mineralType}, ${lab.id}`)
       return
     }

@@ -76,7 +76,8 @@ export class Region {
     let harvester_destination: StructureStorage | StructureContainer = storage// || container
     let rooms_need_scout: string[] = []
     let upgrader_source_ids: string[] = []
-    let research_targets: ResearchTarget[] = []
+    let research_input_targets: ResearchTarget[] = []
+    let research_output_targets: ResearchTarget[] = []
 
     switch (this.room.name) {
       case 'W48S47':
@@ -93,6 +94,22 @@ export class Region {
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = ['W46S46']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
+        research_input_targets = [
+          {
+            id: '5af48c6802a75a3c68294d43', // 40, 13
+            resource_type: RESOURCE_OXYGEN,
+          },
+          {
+            id: '5af458a11ad10d5415bba8f2', // 40, 12
+            resource_type: RESOURCE_HYDROGEN,
+          },
+        ]
+        research_output_targets = [
+          {
+            id: '5af483456449d07df7f76acc', // 41, 12
+            resource_type: RESOURCE_HYDROXIDE,
+          }
+        ]
         break
 
       case 'W49S47':
@@ -196,7 +213,7 @@ export class Region {
         break
       }
       case SquadType.RESEARCHER: {
-        const squad = new ResearcherSquad(squad_memory.name, this.room.name, [], []) // @fixme: arguments
+        const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
 
         researcher_squad = squad
         this.squads.set(squad.name, squad)
@@ -336,7 +353,7 @@ export class Region {
     // --- Researcher ---
     if (!researcher_squad) {
       const name = ResearcherSquad.generateNewName()
-      const squad = new ResearcherSquad(name, this.room.name, [], []) // @fixme: arguments
+      const squad = new ResearcherSquad(name, this.room.name, research_input_targets, research_output_targets)
 
       researcher_squad = squad
       this.squads.set(squad.name, squad)
@@ -602,6 +619,26 @@ export class Region {
     this.transferLinks(destination_id)
     this.spawnAndRenew()
     this.drawDebugInfo()
+
+    if (this.room.name == 'W48S47') {
+      const input_lab1 = Game.getObjectById('5af48c6802a75a3c68294d43') as StructureLab // 40, 13
+      const input_lab2 = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab // 40, 12
+      const output_lab = Game.getObjectById('5af483456449d07df7f76acc') as StructureLab // 41, 12 Hydroxyde
+
+      const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
+
+      switch(reaction_result) {
+        case OK:
+        case ERR_NOT_ENOUGH_RESOURCES:
+        case ERR_FULL:
+        case ERR_TIRED:
+          break
+
+        default:
+          console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+          break
+      }
+    }
   }
 
   // --- Private ---
