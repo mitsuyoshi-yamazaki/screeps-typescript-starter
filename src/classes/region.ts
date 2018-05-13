@@ -8,6 +8,7 @@ import { CreepStatus, ActionResult } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
 import { RaiderSquad, RaiderTarget } from "./squad/raider";
+import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 
 export class Region {
   // Public
@@ -75,6 +76,7 @@ export class Region {
     let harvester_destination: StructureStorage | StructureContainer = storage// || container
     let rooms_need_scout: string[] = []
     let upgrader_source_ids: string[] = []
+    let research_targets: ResearchTarget[] = []
 
     switch (this.room.name) {
       case 'W48S47':
@@ -150,6 +152,7 @@ export class Region {
     // -- Memory --
     let worker_squad: WorkerSquad | null = null
     let upgrader_squad: UpgraderSquad | null = null
+    let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
@@ -189,6 +192,13 @@ export class Region {
       case SquadType.UPGRADER: {
         const squad = new UpgraderSquad(squad_memory.name, this.room.name, upgrader_source_ids)
         upgrader_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.RESEARCHER: {
+        const squad = new ResearcherSquad(squad_memory.name, this.room.name, [], []) // @fixme: arguments
+
+        researcher_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -323,6 +333,24 @@ export class Region {
       delete Memory.squads[this.room.keeper.name]
     }
 
+    // --- Researcher ---
+    if (!researcher_squad && (this.room.name == 'W48S47')) {
+      const name = ResearcherSquad.generateNewName()
+      const squad = new ResearcherSquad(name, this.room.name, [], []) // @fixme: arguments
+
+      researcher_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create researcher for ${raid_target}, assigned: ${squad.name}`)
+    }
+
     // --- Harvester ---
     for (const target of harvester_targets) {
       // Initialize
@@ -400,6 +428,7 @@ export class Region {
       const name = RaiderSquad.generateNewName()
       const squad = new RaiderSquad(name, raid_target)
 
+      raider_squad = squad
       this.squads.set(squad.name, squad)
 
       const memory: SquadMemory = {
