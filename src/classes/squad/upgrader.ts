@@ -71,9 +71,12 @@ export class UpgraderSquad extends Squad {
       const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
 
       if (needs_renew) {
-        if (creep.room.spawns.length > 0) {
+        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
           creep.goToRenew(creep.room.spawns[0])
           return
+        }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.HARVEST
         }
       }
 

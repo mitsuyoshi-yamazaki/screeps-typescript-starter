@@ -138,7 +138,7 @@ export class WorkerSquad extends Squad {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }
-        else {
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
           creep.memory.status = CreepStatus.HARVEST
         }
       }

@@ -3,7 +3,6 @@ import { Squad } from "classes/squad/squad"
 
 export enum CreepStatus {  // @todo: add "meta" info to status and keep it on memory, to not change objectives between ticks
   NONE    = "none",
-  INIT    = "init",
   HARVEST = "harvest",
   CHARGE  = "charge",
   BUILD   = "build",
@@ -34,6 +33,7 @@ declare global {
     squad: Squad
     initialize(): void
     boosted: boolean
+    carrying_resources: ResourceConstant[]
 
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
@@ -74,6 +74,14 @@ export function init() {
         this.boosted = true
         break
       }
+    }
+
+    this.carrying_resources = []
+    for (const resource_type in Object.keys(this.carry)) {
+      if ((this.carry[resource_type as ResourceConstant] || 0) == 0) {
+        continue
+      }
+      this.carrying_resources.push(resource_type as ResourceConstant)
     }
   }
 

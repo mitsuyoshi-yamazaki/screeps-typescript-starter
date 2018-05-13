@@ -62,24 +62,102 @@ export class ResearcherSquad extends Squad {
   }
 
   public run(): void {
+    this.creeps.forEach((creep) => {
+      if (creep.room.name != this.room_name) {
+        creep.moveToRoom(this.room_name)
+        return
+      }
+
+      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
+
+      if (needs_renew) {
+        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
+          creep.goToRenew(creep.room.spawns[0])
+          return
+        }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.NONE) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+    })
+
+    let room_resource: ResourceConstant | undefined // @fixme: temp code
+    switch (this.room_name) {
+      case 'W48S47':
+        room_resource = RESOURCE_OXYGEN
+        break
+
+      case 'W49S47':
+        room_resource = RESOURCE_UTRIUM
+        break
+
+      case 'W44S42':
+        room_resource = RESOURCE_HYDROGEN
+        break
+    }
+
+    if (!room_resource) {
+      console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
+    }
+    else {
+      const room = Game.rooms[this.room_name]!
+      const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
+      const storage_has_resource = (room.storage!.store[room_resource] || 0) > 0
+
+      if (terminal_needs_resource && storage_has_resource) {
+        this.transferRoomResource(room_resource)
+        return
+      }
+    }
+
+    this.chargeLabs()
+  }
+
+  // --- Private ---
+  private transferRoomResource(resource_type: ResourceConstant): void {
+    this.creeps.forEach((creep) => {
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (_.sum(creep.carry) == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else if (creep.withdraw(creep.room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(creep.room.storage!)
+        }
+      }
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if (creep.carrying_resources.length == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+        else {
+          const carrying_resource_type = creep.carrying_resources[0]
+          const transfer_result = creep.transfer(creep.room.terminal!, carrying_resource_type)
+
+          switch (transfer_result) {
+            case OK:
+              break
+
+            case ERR_NOT_IN_RANGE:
+              creep.moveTo(creep.room.terminal!)
+              break
+
+            default:
+              console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${this.room_name}`)
+              break
+          }
+        }
+      }
+    })
+  }
+
+  private chargeLabs() {
     // this.creeps.forEach((creep) => {
-    //   const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
-
-    //   if (needs_renew) {
-    //     if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
-    //       creep.goToRenew(creep.room.spawns[0])
-    //       return
-    //     }
-    //     else {
-    //       creep.memory.status = CreepStatus.HARVEST
-    //     }
-    //   }
-
-    //   if (creep.memory.status == CreepStatus.NONE) {
-    //     creep.memory.status = CreepStatus.HARVEST
-    //   }
 
     //   if (creep.memory.status == CreepStatus.HARVEST) {
+
     //     // if input target needs resource
     //     // or no input target, charge
 
@@ -108,6 +186,4 @@ export class ResearcherSquad extends Squad {
     //   }
     // })
   }
-
-  // --- Private ---
 }
