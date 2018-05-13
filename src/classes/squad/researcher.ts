@@ -27,6 +27,10 @@ export class ResearcherSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (['W49S47', 'W44S42'].indexOf(this.room_name) >= 0) {
+      return SpawnPriority.NONE
+    }
+
     return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
   }
 
@@ -154,7 +158,8 @@ export class ResearcherSquad extends Squad {
   }
 
   private chargeLabs() {
-    // this.creeps.forEach((creep) => {
+    this.creeps.forEach((creep) => {
+      creep.say(`😴`)
 
     //   if (creep.memory.status == CreepStatus.HARVEST) {
 
@@ -184,6 +189,6 @@ export class ResearcherSquad extends Squad {
     //   if (creep.memory.status == CreepStatus.CHARGE) {
     //     // if resource_type unmatch, withdraw them
     //   }
-    // })
+    })
   }
 }

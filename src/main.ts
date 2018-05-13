@@ -68,6 +68,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
  /**
   * memo:
+  * Game.rooms['W48S47'].terminal.send(RESOURCE_OXYGEN, 100, 'W49S47', '')
   * Game.market.deal('xxx', 100, 'W48S47')
   * Game.market.calcTransactionCost(40000, 'E16S42', 'W48S47')
   * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
