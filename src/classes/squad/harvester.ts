@@ -479,7 +479,7 @@ export class HarvesterSquad extends Squad {
         if (_.sum(creep.carry) == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
-        else if (creep.room.attacked) {
+        else if (creep.room.attacked && (_.sum(creep.carry) > 0)) { // If there's no creep in the room, there's no way to know the room is under attack
           creep.say('RUN')
           creep.moveTo(this.destination)
           creep.memory.status = CreepStatus.CHARGE

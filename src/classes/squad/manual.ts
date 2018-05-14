@@ -25,12 +25,16 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 750
+    return energyAvailable >= 390
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
+    const body: BodyPartConstant[] = [
+      TOUGH, TOUGH, TOUGH, TOUGH,
+      MOVE, MOVE, MOVE, MOVE,
+      WORK, MOVE
+    ]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
@@ -45,7 +49,14 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.chargeLab()
+    this.creeps.forEach((creep) => {
+      if (creep.moveToRoom('W45S41') == ActionResult.IN_PROGRESS) {
+        return
+      }
+      creep.move(TOP)
+    })
+
+    // this.chargeLab()
 
     // this.dismantle()
     // this.attack()

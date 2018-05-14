@@ -33,7 +33,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const w48s47 = Game.rooms['W48S47']
   const o_amount = (w48s47.terminal!.store[RESOURCE_OXYGEN] || 0)
   if (o_amount > 4900) {
-    console.log(`Send HYDROGEN from W48S47 to W44S42 ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
+    console.log(`Send OXYGEN from W48S47 to W44S42 ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
   }
 
   const w49s47 = Game.rooms['W49S47']
