@@ -120,6 +120,13 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
+    if ((this.room.name == 'W44S42') && (destination_room_name == 'W44S43')) { // @fixme: temp code
+      this.moveTo(0, 38, {
+        ignoreCreeps: true,
+      })
+      return ActionResult.IN_PROGRESS
+    }
+
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
       console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
