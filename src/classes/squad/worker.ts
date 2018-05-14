@@ -133,17 +133,20 @@ export class WorkerSquad extends Squad {
       }
 
       // Renewal needs almost same but slightly less time
-      const needs_renew = false//!creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
-
-      if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
-          creep.goToRenew(creep.room.spawns[0])
-          continue
-        }
-        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-          creep.memory.status = CreepStatus.HARVEST
-        }
+      // const needs_renew = false//!creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+        creep.memory.status = CreepStatus.NONE
       }
+
+      // if (needs_renew) {
+      //   if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
+      //     creep.goToRenew(creep.room.spawns[0])
+      //     continue
+      //   }
+      //   else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      //     creep.memory.status = CreepStatus.HARVEST
+      //   }
+      // }
       if ((creep.ticksToLive || 0) < 10) {
         if (creep.transfer(creep.room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.storage!)

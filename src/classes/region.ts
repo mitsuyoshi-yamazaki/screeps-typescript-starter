@@ -103,13 +103,13 @@ export class Region {
           },
           {
             id: '5af458a11ad10d5415bba8f2', // 40, 12
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_LEMERGIUM_OXIDE,
           },
         ]
         research_output_targets = [
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_UTRIUM_ACID,
+            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
           }
         ]
         break
@@ -135,13 +135,13 @@ export class Region {
           },
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_LEMERGIUM,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_LEMERGIUM_OXIDE,
           }
         ]
         break
