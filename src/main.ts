@@ -62,7 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
- * implement lab
+ * measure all minerals and compounds
  * if there're too many 'waiting for renwew's or high priority spawns, quit renew-ing
  * in worker squad, assign each tasks for worker, carrier and upgrader
  * add creep.memory.no_renewal flag

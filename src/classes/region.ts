@@ -128,7 +128,7 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_UTRIUM,
+            resource_type: RESOURCE_OXYGEN,
           },
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
@@ -138,7 +138,7 @@ export class Region {
         research_output_targets = [
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           }
         ]
         break

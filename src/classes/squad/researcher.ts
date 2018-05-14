@@ -83,6 +83,8 @@ export class ResearcherSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
+      creep.say(`${creep.memory.status}`)
+
       if (creep.room.name != this.room_name) {
         creep.moveToRoom(this.room_name)
         return
@@ -267,8 +269,6 @@ export class ResearcherSquad extends Squad {
     if (creep.memory.status == CreepStatus.CHARGE) {
       // if resource_type unmatch, withdraw them
 
-      let resource_amounts = new Map<ResourceConstant, number>()
-
       for (const target of this.input_targets) {
         const lab = Game.getObjectById(target.id) as StructureLab
         if (!lab) {
@@ -296,7 +296,9 @@ export class ResearcherSquad extends Squad {
         if ((creep.carry[target.resource_type] || 0) == 0) {
           continue
         }
-        if (lab.mineralAmount < lab.mineralCapacity) {
+
+        const is_ok = (target.resource_type == lab.mineralType) || (!lab.mineralType)
+        if (is_ok && (lab.mineralAmount < lab.mineralCapacity)) {
           const transfer_result = creep.transfer(lab, target.resource_type)
           switch (transfer_result) {
             case OK:
@@ -314,6 +316,7 @@ export class ResearcherSquad extends Squad {
         }
       }
 
+      // withdraw mismatched resource
       for (const target of this.input_targets) {
         const lab = Game.getObjectById(target.id) as StructureLab
         if (!lab) {
