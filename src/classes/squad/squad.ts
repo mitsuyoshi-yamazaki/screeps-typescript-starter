@@ -14,6 +14,7 @@ export enum SquadType {
   WORKER            = "worker",
   UPGRADER          = "upgrader",
   HARVESTER         = "harvester",
+  LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
   MANUAL            = "manual",
   SCOUT             = 'scout',
@@ -40,8 +41,8 @@ export abstract class Squad {
   // public abstract readonly memory: SquadMemory // @todo: implement
   public abstract readonly type: SquadType
   public abstract readonly spawnPriority: SpawnPriority
-  public abstract hasEnoughEnergy(energyAvailable: number, capacity: number): boolean
-  public abstract addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void
+  public abstract hasEnoughEnergy(energy_available: number, capacity: number): boolean
+  public abstract addCreep(energy_available: number, spawn_func: SpawnFunction): void
   // public static abstract generateNewName(): string // this method should be implemented each subclasses
   public abstract generateNewName(): string
   public abstract run(): void

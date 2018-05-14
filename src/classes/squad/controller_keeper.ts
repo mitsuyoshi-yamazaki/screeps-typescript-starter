@@ -64,21 +64,21 @@ export class ControllerKeeperSquad extends Squad {
     return SpawnPriority.NONE
   }
 
-  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+  public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     switch (this.state) {
     case State.OWNED:
-      return energyAvailable >= 700
+      return energy_available >= 700
 
     case State.NOT_OWNED:
       if (capacity >= 1300) {
-        return energyAvailable >= 1300
+        return energy_available >= 1300
       }
       else {
-        return energyAvailable >= 650
+        return energy_available >= 650
       }
 
     case State.MINE:
-      return energyAvailable >= 250
+      return energy_available >= 250
 
     default:
       console.log(`Unexpected state ${this.state}, ${this.name}`)
@@ -141,6 +141,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CONTROLLER_KEEPER,
+      let_thy_die: false,
     }
 
     const result = spawnFunc(body, name, {
@@ -156,6 +157,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CLAIMER,
+      let_thy_die: false,
     }
 
     const result = spawnFunc(body, name, {
@@ -171,6 +173,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.SCOUT,
+      let_thy_die: false,
     }
 
     const result = spawnFunc(body, name, {

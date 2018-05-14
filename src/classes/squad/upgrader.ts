@@ -24,7 +24,7 @@ export class UpgraderSquad extends Squad {
     if (this.room_name != 'W48S47') { // W48S47's upgrader will manually reassign to other rooms
       return SpawnPriority.NONE
     }
-    return (this.creeps.size < 2) ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return (this.creeps.size < 3) ? SpawnPriority.NORMAL : SpawnPriority.NONE
     // return SpawnPriority.NONE // @fixme:
   }
 
@@ -52,6 +52,7 @@ export class UpgraderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.WORKER,
+      let_thy_die: false,
     }
 
     while (energyAvailable >= energy_unit) {
@@ -68,7 +69,7 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {

@@ -36,6 +36,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      let_thy_die: false,
     }
 
     const result = spawnFunc(body, name, {

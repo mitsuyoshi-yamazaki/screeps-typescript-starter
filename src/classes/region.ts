@@ -9,6 +9,7 @@ import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
 import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
+import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 
 export class Region {
   // Public
@@ -59,8 +60,6 @@ export class Region {
     })
 
     // --- Initialize variables ---
-    let harvester_targets: {id: string, room_name: string}[]
-
     const storage = this.room.find(FIND_MY_STRUCTURES, {
       filter: structure => {
         return (structure.structureType == STRUCTURE_STORAGE)
@@ -73,7 +72,9 @@ export class Region {
     //   }
     // })[0] as StructureContainer
 
+    let harvester_targets: {id: string, room_name: string}[] = []
     let harvester_destination: StructureStorage | StructureContainer = storage// || container
+    let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
@@ -91,6 +92,7 @@ export class Region {
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
+        lightweight_harvester_targets = []
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = ['W46S46']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
@@ -122,6 +124,7 @@ export class Region {
           { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
+        lightweight_harvester_targets = []
         this.room_names = [this.room.name, 'W49S46', 'W49S48', 'W48S46']
         rooms_need_scout = []
         upgrader_source_ids = ['5aef62f86627413133777bdf']
@@ -150,8 +153,10 @@ export class Region {
           { id: '59f1c0cf7d0b3d79de5f0392', room_name: 'W44S42' },  // home hydrogen
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
-          // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top     // For now W44S42 can't manage too many rooms
-          // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
+        ]
+        lightweight_harvester_targets = [
+          { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
+          { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
           // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
         ]
         this.room_names = [this.room.name, 'W45S42', 'W45S43']//, 'W44S43']
@@ -259,6 +264,17 @@ export class Region {
         }
 
         const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination)
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.LIGHTWEIGHT_HARVESTER: {
+        const harvester_squad_memory = squad_memory as HarvesterSquadMemory
+        const source_info = {
+          id: harvester_squad_memory.source_id,
+          room_name: harvester_squad_memory.room_name,
+        }
+
+        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination)
         this.squads.set(squad.name, squad)
         break
       }
@@ -433,6 +449,42 @@ export class Region {
       Memory.squads[squad.name] = memory
 
       console.log(`Create harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
+      break // To not create squads with the same name
+    }
+
+    // --- Lightweight Harvester ---
+    for (const target of lightweight_harvester_targets) {
+      // Initialize
+      if (!Memory.rooms[target.room_name]) {
+        Memory.rooms[target.room_name] = {
+          harvesting_source_ids: []
+        }
+      }
+      if (!Memory.rooms[target.room_name].harvesting_source_ids) {
+        Memory.rooms[target.room_name].harvesting_source_ids = []
+      }
+
+      // --
+      if (Memory.rooms[target.room_name].harvesting_source_ids.indexOf(target.id) >= 0) {
+        continue
+      }
+      Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
+
+      const name = LightWeightHarvesterSquad.generateNewName()
+      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination)
+
+      this.squads.set(squad.name, squad)
+
+      const memory: HarvesterSquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+        source_id: target.id,
+        room_name: target.room_name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create lightweight harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
       break // To not create squads with the same name
     }
 
@@ -742,8 +794,11 @@ export class Region {
         break
 
       case 'W49S47':
-      case 'W44S42':
         pos = {x: 21, y: 30}
+        break
+
+      case 'W44S42':
+        pos = {x: 32, y: 30}
         break
     }
 

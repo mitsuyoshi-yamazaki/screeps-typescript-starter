@@ -269,6 +269,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      let_thy_die: false,
     }
 
     if (energyAvailable >= (energy_unit * 2)) {
@@ -291,6 +292,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      let_thy_die: false,
     }
 
     energyAvailable = Math.min(energyAvailable, 1200)
@@ -429,7 +431,7 @@ export class HarvesterSquad extends Squad {
 
   private carry(): void {
     this.carriers.forEach((creep) => {
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {

@@ -166,6 +166,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      let_thy_die: false,
     }
 
     const result = spawn_func(body, name, {
@@ -191,6 +192,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      let_thy_die: false,
     }
 
     const result = spawn_func(body, name, {
@@ -218,6 +220,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      let_thy_die: false,
     }
 
     const result = spawn_func(body, name, {
@@ -339,7 +342,7 @@ export class RaiderSquad extends Squad {
       else {
         creep.goToRenew(Game.spawns['Spawn1'])  // @fixme: specify in init argument
         return
-        }
+      }
     }
 
     if (creep.memory.status == CreepStatus.HARVEST) {
@@ -364,7 +367,7 @@ export class RaiderSquad extends Squad {
     if (creep.memory.status == CreepStatus.CHARGE) {
       if (_.sum(creep.carry) == 0) {
         creep.memory.status = CreepStatus.HARVEST
-        if ((creep.ticksToLive || 0) < 100) {
+        if (!creep.memory.let_thy_die && ((creep.ticksToLive || 0) < 100)) {
           creep.goToRenew(Game.spawns['Spawn1'])  // @fixme: specify in init argument
           return
         }

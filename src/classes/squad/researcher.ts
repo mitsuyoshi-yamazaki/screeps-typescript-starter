@@ -67,6 +67,7 @@ export class ResearcherSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      let_thy_die: false,
     }
 
     energy_available = Math.min(energy_available, 1000)
@@ -90,7 +91,7 @@ export class ResearcherSquad extends Squad {
         return
       }
 
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300) && this.needs_research
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)) && this.needs_research
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {

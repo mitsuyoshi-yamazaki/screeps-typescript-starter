@@ -62,6 +62,7 @@ export class ScoutSquad extends Squad {
       birth_time: Game.time,
       type: CreepType.CLAIMER,
       room_name: room_needs_scout[0],
+      let_thy_die: false,
     }
 
     const result = spawnFunc(body, name, {

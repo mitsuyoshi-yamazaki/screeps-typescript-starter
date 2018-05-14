@@ -58,7 +58,7 @@ declare global {
     status: CreepStatus
     type: CreepType
     birth_time: number
-    manual_state?: number  // only for ManualSquad
+    let_thy_die: boolean
   }
 }
 
@@ -162,6 +162,10 @@ export function init() {
   Creep.prototype.goToRenew = function(spawn: StructureSpawn): ActionResult {
     if ((this.ticksToLive || 0) >= 1400) {
       this.memory.status = CreepStatus.NONE
+      return ActionResult.DONE
+    }
+    if (this.memory.let_thy_die) {
+      console.log(`Creep.goToRenew unexpectedly found let_thy_die is true ${this.name}`)
       return ActionResult.DONE
     }
 

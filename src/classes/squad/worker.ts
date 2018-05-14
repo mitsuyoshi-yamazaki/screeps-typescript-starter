@@ -62,6 +62,7 @@ export class WorkerSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.WORKER,
+      let_thy_die: false,
     }
 
     energy_available = Math.min(energy_available, 1400)
@@ -131,7 +132,7 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      const needs_renew = (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {

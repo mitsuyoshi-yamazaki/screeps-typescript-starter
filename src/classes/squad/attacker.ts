@@ -66,6 +66,7 @@ export class AttackerSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      let_thy_die: false,
     }
 
     energyAvailable -= this.fix_part_energy
