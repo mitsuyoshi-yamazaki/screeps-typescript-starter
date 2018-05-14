@@ -83,7 +83,7 @@ export class ResearcherSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      creep.say(`${creep.memory.status}`)
+      // creep.say(`${creep.memory.status}`)
 
       if (creep.room.name != this.room_name) {
         creep.moveToRoom(this.room_name)

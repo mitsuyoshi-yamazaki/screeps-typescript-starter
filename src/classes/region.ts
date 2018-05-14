@@ -750,7 +750,7 @@ export class Region {
     let lines: string[] = [
       `${this.name} in ${this.room.name}`,
       `  Rooms: ${this.room_names}`,
-      `  Squads: ${this.squads.size}`,
+      `  Squads: ${this.squads.size}, Creeps: ${_.sum(Array.from(this.squads.values()).map(s=>s.creeps.size))}`,
     ]
 
     const squad_descriptions = this.squadDescriptions(Array.from(this.squads.values()))
