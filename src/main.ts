@@ -33,23 +33,23 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const w48s47 = Game.rooms['W48S47']
   const o_amount = (w48s47.terminal!.store[RESOURCE_OXYGEN] || 0)
   if (o_amount > 4900) {
-    console.log(`Send HYDROGEN ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
+    console.log(`Send HYDROGEN from W48S47 to W44S42 ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
   }
 
   const w49s47 = Game.rooms['W49S47']
   const uh_amount = (w49s47.terminal!.store[RESOURCE_UTRIUM_HYDRIDE] || 0)
   if (uh_amount > 100) {
-    console.log(`Send UTRIUM_HYDRIDE ${w49s47.terminal!.send(RESOURCE_UTRIUM_HYDRIDE, uh_amount, 'W48S47')}`)
+    console.log(`Send UTRIUM_HYDRIDE from W49S47 to W48S47 ${w49s47.terminal!.send(RESOURCE_UTRIUM_HYDRIDE, uh_amount, 'W48S47')}`)
   }
 
   const w44s42 = Game.rooms['W44S42']
   const ho_amount = (w44s42.terminal!.store[RESOURCE_HYDROXIDE] || 0)
   if (ho_amount > 100) {
-    console.log(`Send HYDROXIDE ${w44s42.terminal!.send(RESOURCE_HYDROXIDE, ho_amount, 'W48S47')}`)
+    console.log(`Send HYDROXIDE from W44S42 to W48S47 ${w44s42.terminal!.send(RESOURCE_HYDROXIDE, ho_amount, 'W48S47')}`)
   }
   const h_amount = (w44s42.terminal!.store[RESOURCE_HYDROGEN] || 0)
   if (h_amount > 4900) {
-    console.log(`Send HYDROGEN ${w44s42.terminal!.send(RESOURCE_HYDROGEN, 2000, 'W49S47')}`)
+    console.log(`Send HYDROGEN from W44S42 to W49S47 ${w44s42.terminal!.send(RESOURCE_HYDROGEN, 2000, 'W49S47')}`)
   }
 })
 
@@ -65,7 +65,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
  * measure all minerals and compounds
  * if there're too many 'waiting for renwew's or high priority spawns, quit renew-ing
  * in worker squad, assign each tasks for worker, carrier and upgrader
- * add creep.memory.no_renewal flag
  * add current pos & room name to creep memory
  * notify when eliminate invaders and loot resources
  * add heal body part to attacker and heal others
