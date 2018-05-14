@@ -80,6 +80,7 @@ export class LightWeightHarvesterSquad extends Squad {
         }
         else {
           if (creep.room.attacked) {
+            creep.say('RUN')
             creep.moveTo(this.destination)
             creep.memory.status = CreepStatus.CHARGE
             return

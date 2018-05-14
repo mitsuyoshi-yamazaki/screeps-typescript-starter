@@ -479,6 +479,12 @@ export class HarvesterSquad extends Squad {
         if (_.sum(creep.carry) == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
+        else if (creep.room.attacked) {
+          creep.say('RUN')
+          creep.moveTo(this.destination)
+          creep.memory.status = CreepStatus.CHARGE
+          return
+        }
         else if (this.container) {
           const withdraw_result = creep.withdraw(this.container!, this.resource_type!)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
