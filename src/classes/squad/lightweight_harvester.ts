@@ -75,6 +75,9 @@ export class LightWeightHarvesterSquad extends Squad {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
+        else if (this.source && (this.source.energy == 0) && (this.source.ticksToRegeneration > 50) && (creep.carry.energy > (creep.carryCapacity / 2))) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
         else {
           if (creep.room.attacked) {
             creep.moveTo(this.destination)

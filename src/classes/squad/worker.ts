@@ -132,7 +132,8 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      // Renewal needs almost same but slightly less time
+      const needs_renew = false//!creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
         if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
