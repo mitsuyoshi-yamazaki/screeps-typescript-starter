@@ -101,17 +101,17 @@ export class Region {
         research_input_targets = [
           {
             id: '5af48c6802a75a3c68294d43', // 40, 13
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_OXYGEN,
           },
           {
             id: '5af458a11ad10d5415bba8f2', // 40, 12
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           }
         ]
         break
@@ -137,13 +137,13 @@ export class Region {
           },
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_LEMERGIUM,
+            resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           }
         ]
         break

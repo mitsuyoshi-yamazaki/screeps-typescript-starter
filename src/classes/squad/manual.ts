@@ -116,19 +116,19 @@ export class ManualSquad extends Squad {
         break
     }
 
-    if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
-      let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
-      if (!target) {
-        this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
-          filter: (structure: Structure) => {
-            return !(!structure.my) // fixme:
-          }
-        })[0]
-      }
-      if (target) {
-        this.healer.rangedAttack(target)
-      }
-    }
+    // if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
+    //   let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
+    //   if (!target) {
+    //     this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
+    //       filter: (structure: Structure) => {
+    //         return !(!structure.my) // fixme:
+    //       }
+    //     })[0]
+    //   }
+    //   if (target) {
+    //     this.healer.rangedAttack(target)
+    //   }
+    // }
   }
 
   // --- Private ---
