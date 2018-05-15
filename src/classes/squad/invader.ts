@@ -80,12 +80,15 @@ export class InvaderSquad extends Squad {
   }
 
   public run(): void {
-    this.creeps.forEach((creep) => {
-      creep.moveTo(17, 24)
-    })
+    // if (this.attacker) {
+    //   this.attacker.moveTo(16, 24)
+    // }
+    // if (this.healer) {
+    //   this.healer.moveTo(17, 24)
+    // }
 
-    // this.runAttacker()
-    // this.runHealer()
+    this.runAttacker()
+    this.runHealer()
   }
 
   // --- Private ---
@@ -125,7 +128,7 @@ export class InvaderSquad extends Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.ATTACKER,
+      type: CreepType.HEALER,
       let_thy_die: true,
     }
 
@@ -189,7 +192,7 @@ export class InvaderSquad extends Squad {
       case ERR_NOT_IN_RANGE:
       default:
         this.healer.rangedHeal(heal_target)
-        console.log(`Manual.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
+        console.log(`InvaderSquad.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
         break
     }
 

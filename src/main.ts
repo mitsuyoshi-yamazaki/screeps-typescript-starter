@@ -98,3 +98,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
   * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
   * Game.rooms['W48S47'].terminal.send(RESOURCE_ENERGY, 100, 'W48S45', "Hi neighbour, it's test")
   */
+
+  // attacker
+//   // heal
+// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61277733'])
+
+// // attack
+// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61277733'])
+
+
+// // healer
+// // heal
+// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61278697'])
+
+// // attack
+// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61278697'])
