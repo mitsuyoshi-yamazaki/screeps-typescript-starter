@@ -46,8 +46,8 @@ declare global {
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source_filter: StructureFilter | undefined): ActionResult
-    searchAndDestroy(): ActionResult
-    destroy(target: Creep | Structure): ActionResult
+    searchAndDestroy(no_move?: boolean): ActionResult
+    destroy(target: Creep | Structure, no_move?: boolean): ActionResult
 
     // Controller tasks
     claim(target_room_name: string): ActionResult
@@ -500,7 +500,7 @@ export function init() {
     }
   }
 
-  Creep.prototype.searchAndDestroy = function(): ActionResult {
+  Creep.prototype.searchAndDestroy = function(no_move?: boolean): ActionResult {
     if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
       console.log(`searchAndDestroy no attacker body parts ${this.name}`)
       return ActionResult.DONE
@@ -538,13 +538,13 @@ export function init() {
     return ActionResult.DONE
   }
 
-  Creep.prototype.destroy = function(target: Creep | Structure): ActionResult {
+  Creep.prototype.destroy = function(target: Creep | Structure, no_move?: boolean): ActionResult {
     if (this.spawning) {
       return ActionResult.IN_PROGRESS
     }
 
     const ranged_attack_result = this.rangedAttack(target) // @todo: If target only has ATTACK, run and rangedAttack
-    const move_to_result = this.moveTo(target)
+    const move_to_result = no_move ? OK : this.moveTo(target)
     const attack_result = this.attack(target)
 
     if ((ranged_attack_result != OK) || (move_to_result != OK) || (attack_result != OK)) {

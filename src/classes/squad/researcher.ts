@@ -9,22 +9,27 @@ export interface ResearchTarget {
 
 // @todo: merge to worker
 export class ResearcherSquad extends Squad {
-  private get needs_research(): boolean {
-    let needs = true
-    this.input_targets.map(
-      t=>t.resource_type
-    ).forEach((resource_type) => {
-      const room = Game.rooms[this.room_name]
-      if ((room.terminal!.store[resource_type] || 0) == 0) {
-        needs = false
-      }
-    })
-
-    return needs
-  }
+  private needs_research: boolean
 
   constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
     super(name)
+
+    if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
+      this.needs_research = false
+    }
+    else {
+      let needs = true
+      this.input_targets.map(
+        t=>t.resource_type
+      ).forEach((resource_type) => {
+        const room = Game.rooms[this.room_name]
+        if ((room.terminal!.store[resource_type] || 0) == 0) {
+          needs = false
+        }
+      })
+
+      this.needs_research = needs
+    }
   }
 
   public get type(): SquadType {

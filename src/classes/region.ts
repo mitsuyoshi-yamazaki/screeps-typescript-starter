@@ -10,6 +10,7 @@ import { UpgraderSquad } from "./squad/upgrader";
 import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
+import { InvaderSquad } from "./squad/invader";
 
 export class Region {
   // Public
@@ -92,24 +93,26 @@ export class Region {
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        lightweight_harvester_targets = []
+        lightweight_harvester_targets = [
+          { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
+        ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = ['W46S46']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
             id: '5af48c6802a75a3c68294d43', // 40, 13
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_OXYGEN,
           },
           {
             id: '5af458a11ad10d5415bba8f2', // 40, 12
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           }
         ]
         break
@@ -163,20 +166,20 @@ export class Region {
         rooms_need_scout = ['W45S43']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
-          {
-            id: '5af7c5180ce89a3235fd46d8', // 17, 25
-            resource_type: RESOURCE_OXYGEN,
-          },
-          {
-            id: '5af7db5db44f464c8ea3a7f5', // 16, 25
-            resource_type: RESOURCE_HYDROGEN,
-          },
+          // {
+          //   id: '5af7c5180ce89a3235fd46d8', // 17, 25
+          //   resource_type: RESOURCE_OXYGEN,
+          // },
+          // {
+          //   id: '5af7db5db44f464c8ea3a7f5', // 16, 25
+          //   resource_type: RESOURCE_HYDROGEN,
+          // },
         ]
         research_output_targets = [
-          {
-            id: '5af804e78f5981321726fefa', // 16, 26
-            resource_type: RESOURCE_HYDROXIDE,
-          }
+          // {
+          //   id: '5af804e78f5981321726fefa', // 16, 26
+          //   resource_type: RESOURCE_HYDROXIDE,
+          // }
         ]
         break
       }
@@ -208,6 +211,8 @@ export class Region {
     let upgrader_squad: UpgraderSquad | null = null
     let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
+    let invader_squad: InvaderSquad | null = null
+    const invade_target = 'W45S41'
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
       lair_id: '59f1a02082100e1594f361b8',
@@ -303,6 +308,13 @@ export class Region {
         const squad = new RaiderSquad(squad_memory.name, raid_target)
 
         raider_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.INVADER: {
+        const squad = new InvaderSquad(squad_memory.name, this.room.name, invade_target)
+
+        invader_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -542,6 +554,24 @@ export class Region {
       console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
     }
 
+    // --- Invader ---
+    if (!invader_squad && (this.room.name == 'W44S42')) {
+      const name = InvaderSquad.generateNewName()
+      const squad = new InvaderSquad(name, this.room.name, invade_target)
+
+      invader_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
+    }
+
     // Manual
     // if (!this.manual_squad) {
     //   const name = ManualSquad.generateNewName()
@@ -663,24 +693,27 @@ export class Region {
       }
     }
 
-    const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
-    const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
-    const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
+    if ((research_input_targets.length == 2) && (research_output_targets.length == 1)) {
+      const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
+      const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
+      const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
 
-    if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
-      const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
+      if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
+        const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
 
-      switch(reaction_result) {
-        case OK:
-        case ERR_NOT_ENOUGH_RESOURCES:
-        case ERR_FULL:
-        case ERR_TIRED:
-          break
+        switch(reaction_result) {
+          case OK:
+          case ERR_NOT_ENOUGH_RESOURCES:
+          case ERR_FULL:
+          case ERR_TIRED:
+            break
 
-        default:
-          console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
-          break
+          default:
+            console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+            break
+        }
       }
+
     }
   }
 
