@@ -52,9 +52,9 @@ export class InvaderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (!this.attacker || !this.healer) {
-      return SpawnPriority.URGENT
-    }
+    // if (!this.attacker || !this.healer) {
+    //   return SpawnPriority.URGENT
+    // }
     return SpawnPriority.NONE
   }
 
@@ -141,6 +141,7 @@ export class InvaderSquad extends Squad {
     // if healer is not beside, stop
     // if target, attack
     // if no target, search and destroy
+
 
     if (!this.attacker) {
       return
