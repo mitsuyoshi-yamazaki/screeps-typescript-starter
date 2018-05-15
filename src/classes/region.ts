@@ -138,13 +138,13 @@ export class Region {
           },
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_LEMERGIUM,
+            resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           }
         ]
         break
@@ -166,20 +166,20 @@ export class Region {
         rooms_need_scout = ['W45S43']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
-          // {
-          //   id: '5af7c5180ce89a3235fd46d8', // 17, 25
-          //   resource_type: RESOURCE_OXYGEN,
-          // },
-          // {
-          //   id: '5af7db5db44f464c8ea3a7f5', // 16, 25
-          //   resource_type: RESOURCE_HYDROGEN,
-          // },
+          {
+            id: '5af7c5180ce89a3235fd46d8', // 17, 25
+            resource_type: RESOURCE_OXYGEN,
+          },
+          {
+            id: '5af7db5db44f464c8ea3a7f5', // 16, 25
+            resource_type: RESOURCE_HYDROGEN,
+          },
         ]
         research_output_targets = [
-          // {
-          //   id: '5af804e78f5981321726fefa', // 16, 26
-          //   resource_type: RESOURCE_HYDROXIDE,
-          // }
+          {
+            id: '5af804e78f5981321726fefa', // 16, 26
+            resource_type: RESOURCE_HYDROXIDE,
+          }
         ]
         break
       }
@@ -555,22 +555,23 @@ export class Region {
     }
 
     // --- Invader ---
-    if (!invader_squad && (this.room.name == 'W44S42')) {
-      const name = InvaderSquad.generateNewName()
-      const squad = new InvaderSquad(name, this.room.name, invade_target)
+    // To not recreate squad when changing squad owner region
+    // if (!invader_squad && (this.room.name == 'W44S42')) {
+    //   const name = InvaderSquad.generateNewName()
+    //   const squad = new InvaderSquad(name, this.room.name, invade_target)
 
-      invader_squad = squad
-      this.squads.set(squad.name, squad)
+    //   invader_squad = squad
+    //   this.squads.set(squad.name, squad)
 
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-      }
-      Memory.squads[squad.name] = memory
+    //   const memory: SquadMemory = {
+    //     name: squad.name,
+    //     type: squad.type,
+    //     owner_name: this.name,
+    //   }
+    //   Memory.squads[squad.name] = memory
 
-      console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
-    }
+    //   console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
+    // }
 
     // Manual
     // if (!this.manual_squad) {

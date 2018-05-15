@@ -47,41 +47,54 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower
-    let can_enter = false
-    const c = Array.from(this.creeps.values())[0]
-
-    if (tower && c) {
-      can_enter = !(!c.pos.findClosestByPath(FIND_HOSTILE_SPAWNS))
-    }
-
     this.creeps.forEach((creep) => {
-      // if (creep.moveToRoom('W45S42') == ActionResult.IN_PROGRESS) {
-      //   return
-      // }
-
-      // creep.moveTo(19, 13, {
-      //   reusePath: 10,
-      //   // ignoreCreeps: true,
-      // })
-
-// ---
-
-      // //
-      if (creep.moveToRoom('W45S41') == ActionResult.IN_PROGRESS) {
-        return
-      }
-
-      if (can_enter) {
-        creep.moveTo(tower!)
-      }
-      else {
-        creep.moveTo(30, 15, {
-          reusePath: 2,
-          // ignoreCreeps: true,
-        })
-      }
+      creep.moveToRoom('W44S42')
     })
+
+//     const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower
+//     let can_enter = false
+//     const c = Array.from(this.creeps.values())[0]
+
+//     if (tower && c) {
+//       can_enter = !(!c.pos.findClosestByPath(FIND_HOSTILE_SPAWNS))
+//     }
+
+//     this.creeps.forEach((creep) => {
+//       // if (creep.moveToRoom('W45S42') == ActionResult.IN_PROGRESS) {
+//       //   return
+//       // }
+
+//       // creep.moveTo(19, 13, {
+//       //   reusePath: 10,
+//       //   // ignoreCreeps: true,
+//       // })
+
+// // ---
+
+//       // //
+//       if (creep.moveToRoom('W45S41') == ActionResult.IN_PROGRESS) {
+//         return
+//       }
+
+//       const target = Game.getObjectById('5ac2d0ab0c49004bea3ce1f3') as Structure
+//       if (target) {
+//         creep.destroy(target)
+//       }
+//       else {
+//         creep.searchAndDestroy()
+//       }
+
+//       // if (can_enter) {
+//       //   creep.moveTo(tower!)
+//       // }
+//       // else {
+//         // creep.moveTo(24, 45, {
+//         //   reusePath: 2,
+//         //   // ignoreCreeps: true,
+//         // })
+
+//       // }
+//     })
 
     // this.withdrawFromLabs()
 

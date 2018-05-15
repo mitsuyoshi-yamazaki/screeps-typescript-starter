@@ -405,18 +405,26 @@ export function init() {
         }
       }
       else {
-        // To not pickup harvesters drop
-        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-        //   filter: function(resource: Resource) {
-        //     return (resource.resourceType == RESOURCE_ENERGY) && (resource.amount >= 20)
-        //   }
-        // }) as Resource
+        // if (this.room.name == 'W44S42') {
+        // // To not pickup harvesters drop
+        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
         // if (drop) {
         //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
         //     this.moveTo(drop)
         //     return
         //   }
         // }
+        // const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
+        //   filter: (t) => t.store.energy > 0
+        // })
+        // if (tomb) {
+        //   if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        //     this.moveTo(tomb)
+        //     return
+        //   }
+        // }
+        // }
+
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             this.moveTo(source!)
@@ -526,13 +534,33 @@ export function init() {
       return this.destroy(hostile_tower)
     }
 
+    const hostile_spawn: StructureSpawn = this.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
+    if (hostile_spawn) {
+      return this.destroy(hostile_spawn)
+    }
+
     const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
     if (hostile_creep) {
       return this.destroy(hostile_creep)
     }
 
-    // @todo: other structures
-    // ignore STRUCTURE_CONTROLLER
+    // @todo:
+    // const hostile_structure: AnyOwnedStructure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+    //   filter: (structure) => {
+    //     return [
+    //       STRUCTURE_CONTROLLER,
+    //       STRUCTURE_RAMPART,
+    //       STRUCTURE_CONTAINER,
+    //       STRUCTURE_LINK,
+    //       STRUCTURE_EXTRACTOR,
+    //       STRUCTURE_EXTENSION,
+    //       STRUCTURE_LAB
+    //     ].indexOf(structure.structureType) < 0
+    //   }
+    // })
+    // if (hostile_structure) {
+    //   return this.destroy(hostile_structure)
+    // }
 
     console.log('searchAndDestroy done')
     return ActionResult.DONE

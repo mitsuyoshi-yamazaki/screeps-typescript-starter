@@ -24,8 +24,8 @@ export class UpgraderSquad extends Squad {
     if (this.room_name != 'W48S47') { // W48S47's upgrader will manually reassign to other rooms
       return SpawnPriority.NONE
     }
-    // return (this.creeps.size < 3) ? SpawnPriority.NORMAL : SpawnPriority.NONE
-    return SpawnPriority.NONE // @fixme:
+    return (this.creeps.size < 3) ? SpawnPriority.LOW : SpawnPriority.NONE
+    // return SpawnPriority.NONE // @fixme:
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
@@ -69,17 +69,17 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
+      // const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
 
-      if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
-          creep.goToRenew(creep.room.spawns[0])
-          return
-        }
-        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-          creep.memory.status = CreepStatus.HARVEST
-        }
-      }
+      // if (needs_renew) {
+      //   if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
+      //     creep.goToRenew(creep.room.spawns[0])
+      //     return
+      //   }
+      //   else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      //     creep.memory.status = CreepStatus.HARVEST
+      //   }
+      // }
 
       // if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
       //   const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
