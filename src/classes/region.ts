@@ -48,11 +48,7 @@ export class Region {
     }
 
     // Spawns
-    (this.room.find(FIND_MY_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType == STRUCTURE_SPAWN
-      }
-    }) as StructureSpawn[]).forEach((spawn) => {
+    this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
       this.spawns.set(spawn.name, spawn)
     })
 

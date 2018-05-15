@@ -17,12 +17,14 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return SpawnPriority.NONE // @fixme: for debugging upgrader
-    if (this.creeps.size < 2) {
+    const size = Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
+
+    if (size < 2) {
       return SpawnPriority.URGENT
     }
 
     const max = this.room_name == 'W48S47' ? 3 : 5
-    return this.creeps.size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
     // const really_need = (!this.delegated) && (this.creeps.size < 3)
 

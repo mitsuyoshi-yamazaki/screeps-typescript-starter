@@ -62,7 +62,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
- * what is recycleCreep?
+ * remove renew codes
+ * use the new spawn
  * check cheap minerals on the market (Game.market.checkCheapest())
  * measure all minerals and compounds
  * if there're too many 'waiting for renwew's or high priority spawns, quit renew-ing
