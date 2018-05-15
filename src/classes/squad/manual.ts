@@ -30,7 +30,7 @@ export class ManualSquad extends Squad {
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
+    const body: BodyPartConstant[] = [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, HEAL]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
@@ -67,69 +67,6 @@ export class ManualSquad extends Squad {
     return `${super.description()} ${addition}`
   }
 
-  // --- Attacker ---
-  private attacker: Creep | undefined
-  private healer: Creep | undefined
-  private target: Creep | Structure | undefined
-
-  private addAttacker(spawn_func: SpawnFunction) {
-
-  }
-
-  private addHealer(spawn_func: SpawnFunction) {
-
-  }
-
-  private runAttacker() {
-
-  }
-
-  private runHealer() {
-    // follow attacker
-    // heal attacker or self
-    // ranged attack if enemy nearby
-
-    if (!this.healer) {
-      return
-    }
-    if (!this.attacker) {
-      // return to the base
-      return
-    }
-
-    this.healer.moveTo(this.attacker)
-
-    const attacker_hit_lack = this.attacker.hitsMax - this.attacker.hits
-    const healer_hit_lack = this.healer.hitsMax - this.healer.hits
-    const heal_target = attacker_hit_lack < healer_hit_lack ? this.healer : this.attacker
-
-    const heal_result = this.healer.heal(heal_target)
-
-    switch (heal_result) {
-      case OK:
-        break
-
-      case ERR_NOT_IN_RANGE:
-      default:
-        this.healer.rangedHeal(heal_target)
-        console.log(`Manual.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
-        break
-    }
-
-    // if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
-    //   let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
-    //   if (!target) {
-    //     this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
-    //       filter: (structure: Structure) => {
-    //         return !(!structure.my) // fixme:
-    //       }
-    //     })[0]
-    //   }
-    //   if (target) {
-    //     this.healer.rangedAttack(target)
-    //   }
-    // }
-  }
 
   // --- Private ---
   private chargeLab(): void {
