@@ -136,7 +136,7 @@ export function init() {
     const closest_exit = this.pos.findClosestByPath(exit)
 
     if (this.moveTo(closest_exit) == ERR_NO_PATH) {
-      // To avoid ERR_NO_PATH on room borders
+        // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 1) {
         if (this.move(RIGHT) == OK) {
           return ActionResult.IN_PROGRESS

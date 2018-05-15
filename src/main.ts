@@ -101,15 +101,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // attacker
 //   // heal
-// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61277733'])
+// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61310652'])
 
 // // attack
-// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61277733'])
+// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61310652'])
 
 
 // // healer
 // // heal
-// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61278697'])
+// Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61311752'])
 
 // // attack
-// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61278697'])
+// Game.getObjectById('5af7db5db44f464c8ea3a7f5').boostCreep(Game.creeps['invader61311752'])

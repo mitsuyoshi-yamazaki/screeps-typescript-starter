@@ -4,6 +4,8 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 interface InvaderMemory extends CreepMemory {
   target_id?: string
+  target_x?: number
+  target_y?: number
 }
 
 export class InvaderSquad extends Squad {
@@ -59,13 +61,24 @@ export class InvaderSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    if (!this.attacker) {
-      return energy_available >= 2040
+    if (capacity > 2200) {
+      if (!this.attacker) {
+        return energy_available >= 2040
+      }
+      if (!this.healer) {
+        return energy_available >= 2180
+      }
+      return false
     }
-    if (!this.healer) {
-      return energy_available >= 2180
+    else {
+      if (!this.attacker) {
+        return energy_available >= 2040
+      }
+      if (!this.healer) {
+        return energy_available >= 2180
+      }
+      return false
     }
-    return false
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
@@ -81,17 +94,36 @@ export class InvaderSquad extends Squad {
 
   public run(): void {
     // if (this.attacker) {
-    //   this.attacker.moveTo(16, 24)
+    //   // this.attacker.moveTo(16, 24)
+
+    //   if (this.attacker.moveToRoom('W45S42') == ActionResult.DONE) {
+    //     this.attacker.moveTo(32, 9)
+    //   }
     // }
     // if (this.healer) {
-    //   this.healer.moveTo(17, 24)
+    //   // this.healer.moveTo(17, 24)
+
+    //   if (this.healer.moveToRoom('W45S42') == ActionResult.DONE) {
+    //     this.healer.moveTo(32, 9)
+    //   }
     // }
 
-    this.runAttacker()
-    this.runHealer()
+
+
+    // this.runAttacker()
+    // this.runHealer()
+
+
+    this.returnToBase()
   }
 
   // --- Private ---
+  private returnToBase() {
+    this.creeps.forEach((creep) => {
+      creep.moveToRoom('W44S42')
+    })
+  }
+
   private addAttacker(spawn_func: SpawnFunction) {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
@@ -160,7 +192,13 @@ export class InvaderSquad extends Squad {
       this.attacker.destroy(this.target)
     }
     else {
-      this.attacker.searchAndDestroy()
+      const memory = this.attacker.memory as InvaderMemory
+      if (memory.target_x && memory.target_y) {
+        this.attacker.moveTo(memory.target_x, memory.target_y)
+      }
+      else {
+        this.attacker.searchAndDestroy()
+      }
     }
     this.attacker.heal(this.attacker)
   }

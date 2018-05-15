@@ -24,8 +24,8 @@ export class UpgraderSquad extends Squad {
     if (this.room_name != 'W48S47') { // W48S47's upgrader will manually reassign to other rooms
       return SpawnPriority.NONE
     }
-    return (this.creeps.size < 3) ? SpawnPriority.NORMAL : SpawnPriority.NONE
-    // return SpawnPriority.NONE // @fixme:
+    // return (this.creeps.size < 3) ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return SpawnPriority.NONE // @fixme:
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {

@@ -13,6 +13,8 @@ export class ManualSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
+    // return this.creeps.size < 120 ? SpawnPriority.URGENT : SpawnPriority.NONE
+
     return SpawnPriority.NONE
   }
 
@@ -25,21 +27,17 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 390
+    return energyAvailable >= 50
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      TOUGH, TOUGH, TOUGH, TOUGH,
-      MOVE, MOVE, MOVE, MOVE,
-      WORK, MOVE
-    ]
+    const body: BodyPartConstant[] = [MOVE]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.ATTACKER,
+      type: CreepType.SCOUT,
       let_thy_die: false,
     }
 
@@ -49,9 +47,45 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
+    const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower
+    let can_enter = false
+    const c = Array.from(this.creeps.values())[0]
+
+    if (tower && c) {
+      can_enter = !(!c.pos.findClosestByPath(FIND_HOSTILE_SPAWNS))
+    }
+
+    this.creeps.forEach((creep) => {
+      // if (creep.moveToRoom('W45S42') == ActionResult.IN_PROGRESS) {
+      //   return
+      // }
+
+      // creep.moveTo(19, 13, {
+      //   reusePath: 10,
+      //   // ignoreCreeps: true,
+      // })
+
+// ---
+
+      // //
+      if (creep.moveToRoom('W45S41') == ActionResult.IN_PROGRESS) {
+        return
+      }
+
+      if (can_enter) {
+        creep.moveTo(tower!)
+      }
+      else {
+        creep.moveTo(30, 15, {
+          reusePath: 2,
+          // ignoreCreeps: true,
+        })
+      }
+    })
+
     // this.withdrawFromLabs()
 
-    this.chargeLab()
+    // this.chargeLab()
 
     // this.dismantle()
     // this.attack()
