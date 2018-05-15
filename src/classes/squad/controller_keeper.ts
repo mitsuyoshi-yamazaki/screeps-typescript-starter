@@ -152,9 +152,10 @@ export class ControllerKeeperSquad extends Squad {
   private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body: BodyPartConstant[] = energyAvailable >= 1300 ? [MOVE, MOVE, CLAIM, CLAIM] : [MOVE, CLAIM]
     const name = this.generateNewName()
+    const status = (this.room_name == 'W45S42') || (this.room_name == 'W45S43') ? CreepStatus.ATTACK : CreepStatus.NONE
     const memory: CreepMemory = {
       squad_name: this.name,
-      status: CreepStatus.NONE,
+      status: status,
       birth_time: Game.time,
       type: CreepType.CLAIMER,
       let_thy_die: false,
@@ -237,7 +238,17 @@ export class ControllerKeeperSquad extends Squad {
   }
 
   private claim(): void {
-    this.creeps.forEach((creep, _) => {
+    this.creeps.forEach((creep) => {
+      if (creep.memory.status == CreepStatus.ATTACK) {
+        const target_room_name = 'W45S41'
+        const room_to_attack = Game.rooms[target_room_name]
+
+        if (room_to_attack && ((room_to_attack.controller!.upgradeBlocked || 0) < 60)) {
+          creep.claim(target_room_name)
+          return
+        }
+        creep.memory.status = CreepStatus.NONE
+      }
       if (creep.claim(this.room_name) == ActionResult.DONE) {
         console.log(`CLAIMED ANOTHER ROOM ${this.room_name}`)
       }

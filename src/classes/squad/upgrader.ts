@@ -29,6 +29,8 @@ export class UpgraderSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+    capacity = Math.min(capacity, 2300)
+
     const energy_unit = 250
     const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
     return energyAvailable >= energyNeeded
@@ -38,6 +40,8 @@ export class UpgraderSquad extends Squad {
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     // capacity: 2300
     // 8 units, 2C, 16W, 9M
+
+    energyAvailable = Math.min(energyAvailable, 2300)
 
     const move: BodyPartConstant[] = [MOVE]
     const work: BodyPartConstant[] = [WORK, WORK]
