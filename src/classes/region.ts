@@ -165,20 +165,20 @@ export class Region {
         rooms_need_scout = ['W45S43']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
-          {
-            id: '5af7c5180ce89a3235fd46d8', // 17, 25
-            resource_type: RESOURCE_OXYGEN,
-          },
-          {
-            id: '5af7db5db44f464c8ea3a7f5', // 16, 25
-            resource_type: RESOURCE_HYDROGEN,
-          },
+          // {
+          //   id: '5af7c5180ce89a3235fd46d8', // 17, 25
+          //   resource_type: RESOURCE_OXYGEN,
+          // },
+          // {
+          //   id: '5af7db5db44f464c8ea3a7f5', // 16, 25
+          //   resource_type: RESOURCE_HYDROGEN,
+          // },
         ]
         research_output_targets = [
-          {
-            id: '5af804e78f5981321726fefa', // 16, 26
-            resource_type: RESOURCE_HYDROXIDE,
-          }
+          // {
+          //   id: '5af804e78f5981321726fefa', // 16, 26
+          //   resource_type: RESOURCE_HYDROXIDE,
+          // }
         ]
         break
       }
@@ -665,24 +665,27 @@ export class Region {
       }
     }
 
-    const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
-    const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
-    const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
+    if ((research_input_targets.length == 2) && (research_output_targets.length == 1)) {
+      const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
+      const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
+      const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
 
-    if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
-      const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
+      if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
+        const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
 
-      switch(reaction_result) {
-        case OK:
-        case ERR_NOT_ENOUGH_RESOURCES:
-        case ERR_FULL:
-        case ERR_TIRED:
-          break
+        switch(reaction_result) {
+          case OK:
+          case ERR_NOT_ENOUGH_RESOURCES:
+          case ERR_FULL:
+          case ERR_TIRED:
+            break
 
-        default:
-          console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
-          break
+          default:
+            console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+            break
+        }
       }
+
     }
   }
 

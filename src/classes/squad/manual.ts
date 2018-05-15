@@ -45,7 +45,9 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.chargeLab()
+    this.withdrawFromLabs()
+
+    // this.chargeLab()
 
     // this.dismantle()
     // this.attack()
@@ -69,6 +71,33 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
+  private withdrawFromLabs(): void {
+    this.creeps.forEach((creep) => {
+      if (_.sum(creep.carry) > 0) {
+        const resource_type = creep.carrying_resources[0]
+        if (creep.transfer(creep.room.terminal!, resource_type) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(creep.room.terminal!)
+        }
+        return
+      }
+
+      const target = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_LAB) && (structure.mineralAmount > 0))
+        }
+      })[0] as StructureLab | undefined
+
+      if (!target) {
+        creep.say("😴")
+        return
+      }
+
+      if (creep.withdraw(target, target.mineralType as ResourceConstant) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(target)
+      }
+    })
+  }
+
   private chargeLab(): void {
     const resource = RESOURCE_CATALYZED_GHODIUM_ACID
     const source = Game.getObjectById('5af16cf880c5b34b39dd47f6') as StructureTerminal
