@@ -92,7 +92,9 @@ export class Region {
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        lightweight_harvester_targets = []
+        lightweight_harvester_targets = [
+          { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
+        ]
         this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
         rooms_need_scout = ['W46S46']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
