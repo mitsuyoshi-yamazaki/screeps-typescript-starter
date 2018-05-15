@@ -45,9 +45,9 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    this.withdrawFromLabs()
+    // this.withdrawFromLabs()
 
-    // this.chargeLab()
+    this.chargeLab()
 
     // this.dismantle()
     // this.attack()
@@ -99,9 +99,12 @@ export class ManualSquad extends Squad {
   }
 
   private chargeLab(): void {
-    const resource = RESOURCE_CATALYZED_GHODIUM_ACID
-    const source = Game.getObjectById('5af16cf880c5b34b39dd47f6') as StructureTerminal
-    const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
+    // It's in room W44S42
+    // const resource = RESOURCE_UTRIUM_ACID
+    // const lab = Game.getObjectById('5af7db5db44f464c8ea3a7f5') as StructureLab
+
+    const resource = RESOURCE_LEMERGIUM_ALKALIDE
+    const lab = Game.getObjectById('5af7c5180ce89a3235fd46d8') as StructureLab
 
     if ((this.creeps.size > 0) && (lab.mineralAmount > 0) && (lab.mineralType != resource)) {
       console.log(`Manual.run lab mineral type is different from specified one ${resource}, ${lab.mineralType}, ${lab.id}`)
@@ -110,16 +113,18 @@ export class ManualSquad extends Squad {
 
     this.creeps.forEach((creep) => {
       if (creep.memory.status == CreepStatus.NONE) {
-        creep.say('DONE!')
-        return
+        creep.memory.status = CreepStatus.HARVEST
       }
 
+      const source = creep.room.terminal!
       let resource_type: ResourceConstant = RESOURCE_ENERGY
 
       if (creep.memory.status == CreepStatus.HARVEST) {
         if ((lab.mineralCapacity - lab.mineralAmount) < 400) {
           creep.memory.status = CreepStatus.NONE
-        }
+          creep.say('😴')
+          return
+          }
         else if ((creep.carry.energy > 0) && ((creep.carry[resource] || 0) > 0)) {
           creep.memory.status = CreepStatus.CHARGE
         }

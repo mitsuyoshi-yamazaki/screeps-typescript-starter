@@ -10,6 +10,7 @@ import { UpgraderSquad } from "./squad/upgrader";
 import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
+import { InvaderSquad } from "./squad/invader";
 
 export class Region {
   // Public
@@ -210,6 +211,8 @@ export class Region {
     let upgrader_squad: UpgraderSquad | null = null
     let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
+    let invader_squad: InvaderSquad | null = null
+    const invade_target = 'W45S41'
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
       lair_id: '59f1a02082100e1594f361b8',
@@ -305,6 +308,13 @@ export class Region {
         const squad = new RaiderSquad(squad_memory.name, raid_target)
 
         raider_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.INVADER: {
+        const squad = new InvaderSquad(squad_memory.name, this.room.name, invade_target)
+
+        invader_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -542,6 +552,24 @@ export class Region {
       Memory.squads[squad.name] = memory
 
       console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
+    }
+
+    // --- Invader ---
+    if (!invader_squad && (this.room.name == 'W44S42')) {
+      const name = InvaderSquad.generateNewName()
+      const squad = new InvaderSquad(name, this.room.name, invade_target)
+
+      invader_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
     }
 
     // Manual
