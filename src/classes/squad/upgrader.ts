@@ -21,6 +21,11 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const room = Game.rooms[this.room_name]
+    if (room && room.storage && (room.storage.store.energy < 10000)) {
+      return SpawnPriority.NONE
+    }
+
     let max = 0
 
     switch (this.room_name) {
