@@ -443,6 +443,10 @@ export function init() {
       }
     }
 
+    if ((this.memory.status == CreepStatus.UPGRADE) && (((Game.time - this.memory.birth_time) % 5) == 0)) {
+      this.memory.status = CreepStatus.CHARGE
+    }
+
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
       const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
