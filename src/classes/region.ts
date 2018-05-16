@@ -665,43 +665,6 @@ export class Region {
       }
     })
 
-    // Safe mode
-    // @todo: this codes should be located on somewhere like Empire
-    if (Game.time % 2 == 0) {
-      const room = this.room
-
-      // If there's no healer, towers and attackers can deal with it
-      const healers = room.find(FIND_HOSTILE_CREEPS, {
-          filter: (creep) => {
-              return creep.getActiveBodyparts(HEAL) > 0
-          }
-      })
-
-      let should_turn_safemode_on = false
-
-      if ((healers.length > 0) && (healers[0].hits > 5000) && (healers[0].owner.username != 'Invader')) {
-        console.log('DETECT ', healers.length, ' HEALERs!!! owner: ', healers[0].owner.username)
-
-        if ((room.controller!.safeMode != undefined) && (room.controller!.safeMode! > 0)) {
-          console.log('Safemode active')
-        }
-        else {
-          should_turn_safemode_on = true
-        }
-      }
-
-      this.spawns.forEach((spawn) => {
-        if (spawn.hits < spawn.hitsMax) {
-          should_turn_safemode_on = true
-        }
-      })
-
-      if (should_turn_safemode_on) {
-        console.log('Activate safe mode')
-        room.controller!.activateSafeMode()
-      }
-    }
-
     if ((research_input_targets.length == 2) && (research_output_targets.length > 0)) {
       const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
       const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
@@ -766,9 +729,72 @@ export class Region {
     this.transferLinks(destination_id)
     this.spawnAndRenew()
     this.drawDebugInfo()
+    this.activateSafeModeIfNeeded()
   }
 
   // --- Private ---
+  private activateSafeModeIfNeeded() {
+    // Safe mode
+    // @todo: this codes should be located on somewhere like Empire
+    if (Game.time % 2 == 0) {
+      return
+    }
+
+    const room = this.room
+    if (!room.controller || !room.controller.my) {
+      console.log(`Region.activateSafeModeIfNeeded it's not my controller ${room.controller} ${this.name}`)
+      return
+    }
+
+    const is_safemode_active = (room.controller.safeMode || 0) > 0
+    if (is_safemode_active) {
+      return
+    }
+
+    // If there's no healer, towers and attackers can deal with it
+     const healers = room.find(FIND_HOSTILE_CREEPS, {
+      filter: (creep) => {
+        return creep.getActiveBodyparts(HEAL) > 0
+      }
+    })
+    if (healers.length == 0) {
+      return
+    }
+    console.log('DETECT ', healers.length, ' Healer-Attackers!!! owner: ', healers[0].owner.username)
+
+    const damaged_structures = room.find(FIND_MY_STRUCTURES, {
+      filter: (structure) => {
+        const important_structures: StructureConstant[] = [
+          STRUCTURE_SPAWN,
+          STRUCTURE_STORAGE,
+          STRUCTURE_TERMINAL,
+          STRUCTURE_LAB,
+          STRUCTURE_OBSERVER,
+          STRUCTURE_POWER_SPAWN,
+          STRUCTURE_NUKER,
+          STRUCTURE_EXTENSION,
+          STRUCTURE_TOWER,
+        ]
+        return (important_structures.indexOf(structure.structureType) >= 0)
+          && (structure.hits < structure.hitsMax)
+      }
+    })
+    if (damaged_structures.length > 0) {
+      const message = `Activate safe mode at ${room.name} : ${room.controller.activateSafeMode()}, damaged structures: ${damaged_structures}`
+      console.log(message)
+      Game.notify(message)
+      return
+    }
+
+    const number_of_creeps = room.find(FIND_MY_CREEPS).length
+    if (number_of_creeps < 5) {
+      const message = `Activate safe mode at ${room.name} : ${room.controller.activateSafeMode()}, number of creeps: ${number_of_creeps}`
+      console.log(message)
+      Game.notify(message)
+      return
+    }
+  }
+
   private transferLinks(destination_id: string) {
 
     let destination: StructureLink = Game.getObjectById(destination_id) as StructureLink
