@@ -211,7 +211,7 @@ export class Region {
     if (this.attacked_rooms.length > 0) {
       const message = `Room ${this.attacked_rooms} are attacked!! ${this.name}`
       console.log(message)
-      Game.notify(message)
+      // Game.notify(message)
     }
 
     // -- Memory --

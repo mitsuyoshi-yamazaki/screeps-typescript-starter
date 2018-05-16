@@ -360,9 +360,9 @@ export function init() {
       if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
       }
-      else if (this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+      else {
+        this.upgradeController(this.room.controller)
         this.moveTo(this.room.controller)
-        return ActionResult.IN_PROGRESS
       }
     }
     return ActionResult.IN_PROGRESS

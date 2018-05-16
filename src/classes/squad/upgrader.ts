@@ -21,11 +21,27 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.room_name != 'W48S47') { // W48S47's upgrader will manually reassign to other rooms
-      return SpawnPriority.NONE
+    let max = 0
+
+    switch (this.room_name) {
+      case 'W48S47':
+        max = 3
+        break
+
+      case 'W49S47':
+        max = 2
+        break
+
+      case 'W44S42':
+        max = 0
+        break
+
+      default:
+        console.log(`UpgraderSquad.spawnPriority unknown room name ${this.room_name}, ${this.name}`)
+        break
     }
-    return (this.creeps.size < 3) ? SpawnPriority.LOW : SpawnPriority.NONE
-    // return SpawnPriority.NONE // @fixme:
+
+    return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
