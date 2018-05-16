@@ -17,6 +17,9 @@ export class ResearcherSquad extends Squad {
     if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
       this.needs_research = false
     }
+    else if (this.output_targets.map(t=>Game.getObjectById(t.id) as StructureLab).filter(l=>l.mineralAmount > 100).length > 0) {
+      this.needs_research = true
+    }
     else {
       let needs = true
       this.input_targets.map(

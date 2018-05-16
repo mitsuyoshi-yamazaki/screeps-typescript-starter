@@ -97,19 +97,31 @@ export class Region {
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
-            id: '5af48c6802a75a3c68294d43', // 40, 13
+            id: '5afb75051c04254c89283685', // 40, 11
             resource_type: RESOURCE_OXYGEN,
           },
           {
-            id: '5af458a11ad10d5415bba8f2', // 40, 12
+            id: '5af483456449d07df7f76acc', // 41, 12
             resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
-            id: '5af483456449d07df7f76acc', // 41, 12
+            id: '5afb5a00c41b880caa6c3058', // 41, 11
             resource_type: RESOURCE_HYDROXIDE,
-          }
+          },
+          {
+            id: '5af458a11ad10d5415bba8f2', // 40, 12
+            resource_type: RESOURCE_HYDROXIDE,
+          },
+          {
+            id: '5afb586ccae66639b23225e1', // 39, 12
+            resource_type: RESOURCE_HYDROXIDE,
+          },
+          {
+            id: '5af48c6802a75a3c68294d43', // 40, 13
+            resource_type: RESOURCE_HYDROXIDE,
+          },
         ]
         break
 
@@ -642,7 +654,7 @@ export class Region {
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
             filter: (structure) => {
               const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-              const max = is_wall ? 150000 : 100000
+              const max = is_wall ? 300000 : 100000
               return (structure.hits < Math.min(structure.hitsMax, max))
             }
           })
@@ -690,27 +702,28 @@ export class Region {
       }
     }
 
-    if ((research_input_targets.length == 2) && (research_output_targets.length == 1)) {
+    if ((research_input_targets.length == 2) && (research_output_targets.length > 0)) {
       const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
       const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
-      const output_lab = Game.getObjectById(research_output_targets[0].id) as StructureLab
 
       if ((input_lab1.mineralType == research_input_targets[0].resource_type) && (input_lab2.mineralType == research_input_targets[1].resource_type)) {
-        const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
+        research_output_targets.forEach((target) => {
+          const output_lab = Game.getObjectById(target.id) as StructureLab
+          const reaction_result = output_lab.runReaction(input_lab1, input_lab2)
 
-        switch(reaction_result) {
-          case OK:
-          case ERR_NOT_ENOUGH_RESOURCES:
-          case ERR_FULL:
-          case ERR_TIRED:
-            break
+          switch(reaction_result) {
+            case OK:
+            case ERR_NOT_ENOUGH_RESOURCES:
+            case ERR_FULL:
+            case ERR_TIRED:
+              break
 
-          default:
-            console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
-            break
-        }
+            default:
+              console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+              break
+          }
+        })
       }
-
     }
   }
 
