@@ -49,7 +49,7 @@ export class WorkerSquad extends Squad {
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     let energy_unit = 350
 
-    if ((capacity < energy_unit) || (this.creeps.size < 2)) {
+    if ((capacity < energy_unit) || (this.creeps.size < 3)) {
       return energy_available >= 200
     }
 
