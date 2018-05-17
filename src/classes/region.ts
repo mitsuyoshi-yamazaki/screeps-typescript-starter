@@ -75,6 +75,9 @@ export class Region {
     let research_output_targets: ResearchTarget[] = []
 
     switch (this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
       case 'W48S47':
         harvester_targets = [
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
@@ -189,8 +192,6 @@ export class Region {
         break
       }
       default:
-        harvester_targets = []
-        this.room_names = []
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
     }
@@ -699,9 +700,12 @@ export class Region {
       squad.run()
     })
 
-    let destination_id: string
+    let destination_id: string | undefined
 
     switch (this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
       case 'W48S47': {
         destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
         const link = Game.getObjectById(destination_id) as StructureLink
@@ -720,10 +724,12 @@ export class Region {
         break
 
       default:
-        return
+        break
     }
 
-    this.transferLinks(destination_id)
+    if (destination_id) {
+      this.transferLinks(destination_id)
+    }
     this.spawnAndRenew()
     this.drawDebugInfo()
     this.activateSafeModeIfNeeded()
@@ -856,6 +862,9 @@ export class Region {
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
     switch(this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
       case 'W48S47':
         break
 
@@ -865,6 +874,9 @@ export class Region {
 
       case 'W44S42':
         pos = {x: 32, y: 26}
+        break
+
+      default:
         break
     }
 

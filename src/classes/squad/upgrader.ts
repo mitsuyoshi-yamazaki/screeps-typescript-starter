@@ -29,6 +29,10 @@ export class UpgraderSquad extends Squad {
     let max = 0
 
     switch (this.room_name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        max = 0
+        break
+
       case 'W48S47':
         max = 3
         break

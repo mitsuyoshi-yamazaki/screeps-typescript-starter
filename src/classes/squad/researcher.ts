@@ -23,6 +23,10 @@ export class ResearcherSquad extends Squad {
     else {
       let room_resource: ResourceConstant | undefined // @fixme: temp code
       switch (this.room_name) {
+        case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+          room_resource = RESOURCE_UTRIUM
+          break
+
         case 'W48S47':
           room_resource = RESOURCE_OXYGEN
           break
@@ -144,6 +148,10 @@ export class ResearcherSquad extends Squad {
       if (creep.memory.status == CreepStatus.NONE) {
         let room_resource: ResourceConstant | undefined // @fixme: temp code
         switch (this.room_name) {
+          case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+            room_resource = RESOURCE_UTRIUM
+            break
+
           case 'W48S47':
             room_resource = RESOURCE_OXYGEN
             break
