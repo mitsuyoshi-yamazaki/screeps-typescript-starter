@@ -5,7 +5,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export class LightWeightHarvesterSquad extends Squad {
   private source: Source | undefined  // A source that the harvester harvests energy
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureStorage | StructureLink) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink) {
     super(name)
 
     this.source = Game.getObjectById(this.source_info.id) as Source | undefined

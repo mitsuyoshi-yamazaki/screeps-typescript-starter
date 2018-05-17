@@ -87,13 +87,11 @@ export class WorkerSquad extends Squad {
   }
 
   public run(): void {
-    let room = Game.rooms[this.room_name]
-    let source = room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return (structure.structureType == STRUCTURE_STORAGE)
-          && ((structure as StructureStorage).store.energy > 300)
-      }
-    })[0] as StructureStorage | undefined
+    const room = Game.rooms[this.room_name]
+    const storage = (room.storage && (room.storage.store.energy > 1000)) ? room.storage : undefined
+    const terminal = (room.terminal && (room.terminal.store.energy > 1000)) ? room.terminal : undefined
+
+    const source = storage || terminal
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!

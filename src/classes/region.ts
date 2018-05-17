@@ -57,11 +57,8 @@ export class Region {
     })
 
     // --- Initialize variables ---
-    const storage = this.room.find(FIND_MY_STRUCTURES, {
-      filter: structure => {
-        return (structure.structureType == STRUCTURE_STORAGE)
-      }
-    })[0] as StructureStorage
+    const storage = this.room.storage
+    const terminal = this.room.terminal
 
     // const container = this.room.find(FIND_STRUCTURES, {
     //   filter: structure => {
@@ -70,7 +67,7 @@ export class Region {
     // })[0] as StructureContainer
 
     let harvester_targets: {id: string, room_name: string}[] = []
-    let harvester_destination: StructureStorage | StructureContainer = storage// || container
+    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as StructureStorage | StructureTerminal // @fixme: null check // || container
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let upgrader_source_ids: string[] = []
