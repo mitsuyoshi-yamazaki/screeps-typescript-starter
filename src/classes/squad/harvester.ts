@@ -111,7 +111,7 @@ export class HarvesterSquad extends Squad {
         this.resource_type = RESOURCE_OXYGEN
         this.container = oxygen_container
       }
-    else {
+      else {
         const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
           filter: (structure) => {
             return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
@@ -123,6 +123,11 @@ export class HarvesterSquad extends Squad {
           this.container = target
         }
       }
+      if (!oxygen_container) {
+        const message = `HarvesterSquad oxygen_container in ${this.source_info.room_name} not found`
+        console.log(message)
+        Game.notify(message)
+      }
     }
     else if ((this.source_info.id == '59f19ff082100e1594f35c83') && (this.carriers.length > 0)) { // W49S47 top left
       const utrium_container = Game.getObjectById('5af6018e4ce5d64c9cc2b0f3') as StructureContainer
@@ -130,12 +135,22 @@ export class HarvesterSquad extends Squad {
         this.resource_type = RESOURCE_UTRIUM
         this.container = utrium_container
       }
+      if (!utrium_container) {
+        const message = `HarvesterSquad utrium_container in ${this.source_info.room_name} not found`
+        console.log(message)
+        Game.notify(message)
+      }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) { // W44S42 top
-      const hydrogen_container = Game.getObjectById('5af6b7068f59813217266b29') as StructureContainer
+      const hydrogen_container = Game.getObjectById('5afcf491b356f4346fbaf441') as StructureContainer
       if (hydrogen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
         this.resource_type = RESOURCE_HYDROGEN
         this.container = hydrogen_container
+      }
+      if (!hydrogen_container) {
+        const message = `HarvesterSquad hydrogen_container in ${this.source_info.room_name} not found`
+        console.log(message)
+        Game.notify(message)
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
