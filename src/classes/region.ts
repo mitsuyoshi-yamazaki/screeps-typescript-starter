@@ -79,6 +79,9 @@ export class Region {
       case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
         break
 
+      case 'W1N8':  // @fixme: it's in private server
+        break
+
       case 'W48S47':
         harvester_targets = [
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right

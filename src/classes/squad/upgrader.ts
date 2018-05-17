@@ -33,6 +33,10 @@ export class UpgraderSquad extends Squad {
         max = 0
         break
 
+      case 'W1N8':  // @fixme: it's in private server
+        max = 0
+        break
+
       case 'W48S47':
         max = 3
         break
