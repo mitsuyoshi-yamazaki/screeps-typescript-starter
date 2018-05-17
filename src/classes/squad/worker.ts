@@ -23,7 +23,16 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.URGENT
     }
 
-    const max = this.room_name == 'W48S47' ? 3 : 5
+    let max = 5
+    const room = Game.rooms[this.room_name]
+
+    if (room && room.controller && (room.controller.level < 4)) {
+      max = 8
+    }
+    if (this.room_name == 'W48S47') {
+      max = 3
+    }
+
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
     // const really_need = (!this.delegated) && (this.creeps.size < 3)

@@ -62,6 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * cancel spawning attacker if the invader is eliminated within 10 ticks
  * remove renew codes
  * use the new spawn
  * check cheap minerals on the market (Game.market.checkCheapest())
