@@ -506,7 +506,8 @@ export function init() {
         this.memory.status = CreepStatus.CHARGE
         return
       }
-      else if (this.upgradeController(room.controller!) == ERR_NOT_IN_RANGE) {
+      else {
+        this.upgradeController(room.controller!)
         this.moveTo(room.controller!)
         return
       }
