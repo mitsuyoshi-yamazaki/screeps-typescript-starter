@@ -387,7 +387,7 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && true // this.room.name == 'W48S47'
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && (Game.shard.name == 'shard2')
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
