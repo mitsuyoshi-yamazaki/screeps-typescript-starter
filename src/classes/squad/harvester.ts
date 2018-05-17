@@ -107,13 +107,11 @@ export class HarvesterSquad extends Squad {
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
-      if (oxygen_container) {
-        if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((oxygen_container.store[RESOURCE_OXYGEN] || 0) > 400)) {
-          this.resource_type = RESOURCE_OXYGEN
-          this.container = oxygen_container
-        }
+      if (oxygen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((oxygen_container.store[RESOURCE_OXYGEN] || 0) > 400)) {
+        this.resource_type = RESOURCE_OXYGEN
+        this.container = oxygen_container
       }
-      else {
+    else {
         const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
           filter: (structure) => {
             return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
@@ -128,20 +126,16 @@ export class HarvesterSquad extends Squad {
     }
     else if ((this.source_info.id == '59f19ff082100e1594f35c83') && (this.carriers.length > 0)) { // W49S47 top left
       const utrium_container = Game.getObjectById('5af6018e4ce5d64c9cc2b0f3') as StructureContainer
-      if (utrium_container) {
-        if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((utrium_container.store[RESOURCE_UTRIUM] || 0) > 400)) {
-          this.resource_type = RESOURCE_UTRIUM
-          this.container = utrium_container
-        }
+      if (utrium_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((utrium_container.store[RESOURCE_UTRIUM] || 0) > 400)) {
+        this.resource_type = RESOURCE_UTRIUM
+        this.container = utrium_container
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) { // W44S42 top
       const hydrogen_container = Game.getObjectById('5af6b7068f59813217266b29') as StructureContainer
-      if (hydrogen_container) {
-        if ((this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
-          this.resource_type = RESOURCE_HYDROGEN
-          this.container = hydrogen_container
-        }
+      if (hydrogen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
+        this.resource_type = RESOURCE_HYDROGEN
+        this.container = hydrogen_container
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
