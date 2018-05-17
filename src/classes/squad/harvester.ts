@@ -395,7 +395,9 @@ export class HarvesterSquad extends Squad {
             return
 
           case ERR_FULL:
-            harvester.drop(this.resource_type!)
+            if (harvester.carry.energy > 0) {
+              harvester.drop(RESOURCE_ENERGY) // To NOT drop minerals
+            }
             break
 
           case OK:
