@@ -21,17 +21,47 @@ export class ResearcherSquad extends Squad {
       this.needs_research = true
     }
     else {
-      let needs = true
-      this.input_targets.map(
-        t=>t.resource_type
-      ).forEach((resource_type) => {
-        const room = Game.rooms[this.room_name]
-        if ((room.terminal!.store[resource_type] || 0) == 0) {
-          needs = false
-        }
-      })
+      let room_resource: ResourceConstant | undefined // @fixme: temp code
+      switch (this.room_name) {
+        case 'W48S47':
+          room_resource = RESOURCE_OXYGEN
+          break
 
-      this.needs_research = needs
+        case 'W49S47':
+          room_resource = RESOURCE_UTRIUM
+          break
+
+        case 'W44S42':
+          room_resource = RESOURCE_HYDROGEN
+          break
+      }
+
+      if (!room_resource) {
+        console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
+        this.needs_research = false
+      }
+      else {
+        const room = Game.rooms[this.room_name]!
+        const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
+        const storage_has_resource = (room.storage!.store[room_resource] || 0) > 5000
+
+        if (terminal_needs_resource && storage_has_resource) {
+          this.needs_research = true
+        }
+        else {
+          let needs = true
+          this.input_targets.map(
+            t=>t.resource_type
+          ).forEach((resource_type) => {
+            const room = Game.rooms[this.room_name]
+            if ((room.terminal!.store[resource_type] || 0) == 0) {
+              needs = false
+            }
+          })
+
+          this.needs_research = needs
+        }
+      }
     }
   }
 
