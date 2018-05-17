@@ -49,8 +49,8 @@ export class WorkerSquad extends Squad {
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     let energy_unit = 350
 
-    if (capacity < energy_unit) {
-      energy_unit = 200
+    if ((capacity < energy_unit) || (this.creeps.size < 2)) {
+      return energy_available >= 200
     }
 
     const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
