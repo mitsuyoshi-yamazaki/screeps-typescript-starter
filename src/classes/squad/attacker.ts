@@ -8,7 +8,7 @@ export class AttackerSquad extends Squad {
   private fix_part_energy = 120
   private max_energy = 1930
 
-  constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room) {
+  constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
 
     if ((this.rooms_to_defend.indexOf(this.base_room) >= 0)) {
@@ -40,6 +40,9 @@ export class AttackerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.energy_capacity < this.energy_unit) {
+      return SpawnPriority.NONE
+    }
     if (!this.destination) {
       return SpawnPriority.NONE
     }

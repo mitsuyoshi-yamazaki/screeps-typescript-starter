@@ -73,6 +73,7 @@ export class Region {
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
+    const energy_capacity = this.room.energyCapacityAvailable
 
     switch (this.room.name) {
       case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
@@ -304,7 +305,7 @@ export class Region {
         break
       }
       case SquadType.ATTACKER: {
-        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
+        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room, energy_capacity)
 
         this.defend_squad = squad
         this.squads.set(squad.name, squad)
@@ -527,7 +528,7 @@ export class Region {
     // --- Attacker ---
     if (!this.defend_squad) {
       const name = AttackerSquad.generateNewName()
-      const squad = new AttackerSquad(name, this.attacked_rooms, this.room)
+      const squad = new AttackerSquad(name, this.attacked_rooms, this.room, energy_capacity)
 
       this.defend_squad = squad
       this.squads.set(squad.name, squad)
@@ -622,10 +623,9 @@ export class Region {
 
     const highest_priority = sorted[0].spawnPriority
     const availableEnergy = this.room.energyAvailable
-    const energyCapacity = this.room.energyCapacityAvailable
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
-      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energyCapacity))
+      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
     })
 
     // --- Defend ---
