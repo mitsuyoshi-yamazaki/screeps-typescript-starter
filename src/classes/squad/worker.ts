@@ -63,8 +63,7 @@ export class WorkerSquad extends Squad {
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     let energy_unit = 200
 
-    const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
-    console.log(`HOGE ${energy_available}, ${energy_needed}`)
+    const energy_needed = Math.min(Math.floor((capacity - 50) / energy_unit) * energy_unit, 1400)
     return energy_available >= energy_needed
   }
 
