@@ -73,8 +73,15 @@ export class Region {
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
+    const energy_capacity = this.room.energyCapacityAvailable
 
     switch (this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
+      case 'W1N8':  // @fixme: it's in private server
+        break
+
       case 'W48S47':
         harvester_targets = [
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
@@ -189,8 +196,6 @@ export class Region {
         break
       }
       default:
-        harvester_targets = []
-        this.room_names = []
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
     }
@@ -236,7 +241,7 @@ export class Region {
         const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
         const room_name = controller_keeper_squad_memory.room_name
 
-        const squad = new ControllerKeeperSquad(squad_memory.name, room_name)
+        const squad = new ControllerKeeperSquad(squad_memory.name, room_name, energy_capacity)
         this.squads.set(squad.name, squad)
 
         const room = Game.rooms[room_name]
@@ -273,7 +278,7 @@ export class Region {
           room_name: harvester_squad_memory.room_name,
         }
 
-        const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination)
+        const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
         this.squads.set(squad.name, squad)
         break
       }
@@ -303,7 +308,7 @@ export class Region {
         break
       }
       case SquadType.ATTACKER: {
-        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room)
+        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room, energy_capacity)
 
         this.defend_squad = squad
         this.squads.set(squad.name, squad)
@@ -351,7 +356,7 @@ export class Region {
       }
 
       const name = ControllerKeeperSquad.generateNewName()
-      const squad = new ControllerKeeperSquad(name, room_name)
+      const squad = new ControllerKeeperSquad(name, room_name, energy_capacity)
 
       if (room) {
         room.keeper = squad
@@ -452,7 +457,7 @@ export class Region {
       Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
       const name = HarvesterSquad.generateNewName()
-      const squad = new HarvesterSquad(name, target, harvester_destination)
+      const squad = new HarvesterSquad(name, target, harvester_destination, energy_capacity)
 
       this.squads.set(squad.name, squad)
 
@@ -526,7 +531,7 @@ export class Region {
     // --- Attacker ---
     if (!this.defend_squad) {
       const name = AttackerSquad.generateNewName()
-      const squad = new AttackerSquad(name, this.attacked_rooms, this.room)
+      const squad = new AttackerSquad(name, this.attacked_rooms, this.room, energy_capacity)
 
       this.defend_squad = squad
       this.squads.set(squad.name, squad)
@@ -621,10 +626,9 @@ export class Region {
 
     const highest_priority = sorted[0].spawnPriority
     const availableEnergy = this.room.energyAvailable
-    const energyCapacity = this.room.energyCapacityAvailable
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
-      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energyCapacity))
+      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
     })
 
     // --- Defend ---
@@ -699,9 +703,12 @@ export class Region {
       squad.run()
     })
 
-    let destination_id: string
+    let destination_id: string | undefined
 
     switch (this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
       case 'W48S47': {
         destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
         const link = Game.getObjectById(destination_id) as StructureLink
@@ -720,10 +727,12 @@ export class Region {
         break
 
       default:
-        return
+        break
     }
 
-    this.transferLinks(destination_id)
+    if (destination_id) {
+      this.transferLinks(destination_id)
+    }
     this.spawnAndRenew()
     this.drawDebugInfo()
     this.activateSafeModeIfNeeded()
@@ -856,6 +865,9 @@ export class Region {
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
     switch(this.room.name) {
+      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        break
+
       case 'W48S47':
         break
 
@@ -865,6 +877,9 @@ export class Region {
 
       case 'W44S42':
         pos = {x: 32, y: 26}
+        break
+
+      default:
         break
     }
 

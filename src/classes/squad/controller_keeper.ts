@@ -13,7 +13,7 @@ enum State {
 }
 
 export class ControllerKeeperSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string) {
+  constructor(readonly name: string, readonly room_name: string, readonly energy_capacity: number) {
     super(name)
 
     if (!room_name) {
@@ -56,6 +56,28 @@ export class ControllerKeeperSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    let energy_needed: number
+
+    switch (this.state) {
+      case State.OWNED:
+        energy_needed = 700
+        break
+
+      case State.NOT_OWNED:
+        energy_needed = 650
+        break
+
+      case State.MINE:
+        energy_needed = 250
+
+      default:
+        console.log(`Unexpected state ${this.state}, ${this.name}`)
+        return SpawnPriority.NONE
+    }
+    if (energy_needed > this.energy_capacity) {
+      return SpawnPriority.NONE
+    }
+
     const max = 1
 
     if (this.creeps.size < max) {

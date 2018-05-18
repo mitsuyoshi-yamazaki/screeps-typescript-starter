@@ -23,7 +23,16 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.URGENT
     }
 
-    const max = this.room_name == 'W48S47' ? 3 : 5
+    let max = 5
+    const room = Game.rooms[this.room_name]
+
+    if (room && room.controller && (room.controller.level < 4)) {
+      max = 8
+    }
+    if (this.room_name == 'W48S47') {
+      max = 3
+    }
+
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
     // const really_need = (!this.delegated) && (this.creeps.size < 3)
@@ -47,19 +56,15 @@ export class WorkerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    let energy_unit = 350
-
-    if ((capacity < energy_unit) || (this.creeps.size < 3)) {
-      return energy_available >= 200
-    }
+    let energy_unit = 200
 
     const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
     return energy_available >= energy_needed
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    let energy_unit = 350
-    let body_unit: BodyPartConstant[] = [WORK, CARRY, CARRY, CARRY, MOVE, MOVE]
+    const energy_unit = 200
+    const body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = {
@@ -71,10 +76,6 @@ export class WorkerSquad extends Squad {
     }
 
     energy_available = Math.min(energy_available, 1400)
-    if (energy_available < energy_unit) {
-      energy_unit = 200
-      body_unit = [WORK, CARRY, MOVE]
-    }
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)

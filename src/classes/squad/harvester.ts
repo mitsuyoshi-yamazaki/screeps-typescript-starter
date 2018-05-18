@@ -16,7 +16,7 @@ export class HarvesterSquad extends Squad {
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number) {
     super(name)
 
     this.destination_storage = this.destination as StructureStorage // @fixme:
@@ -193,6 +193,10 @@ export class HarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.energy_capacity < 550) {
+      return SpawnPriority.NONE
+    }
+
     if (!this.harvester) {
       const room = Game.rooms[this.source_info.room_name]
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
