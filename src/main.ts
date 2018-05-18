@@ -7,6 +7,7 @@ import * as Initializer from "classes/init"
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   Initializer.init()
+  console.log(Game.time)
 
   const spawns = new Map<string, StructureSpawn>()
   for (const spawnName in Game.spawns) {

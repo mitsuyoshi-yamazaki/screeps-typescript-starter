@@ -38,7 +38,7 @@ export class UpgraderSquad extends Squad {
         break
 
       case 'W48S47':
-        max = 0
+        max = 1
         break
 
       case 'W49S47':

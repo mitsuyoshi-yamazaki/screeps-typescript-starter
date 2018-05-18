@@ -387,6 +387,10 @@ export function init() {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
 
+        // if ((Game.shard.name == 'swc') && this.room.controller && (this.room.controller.ticksToDowngrade < 1000)) {
+        //   this.memory.status = CreepStatus.UPGRADE
+        // }
+
         const should_split_charger_and_upgrader = (this.room.attacked == false) && (Game.shard.name == 'shard2')
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
@@ -395,8 +399,10 @@ export function init() {
           for (const creep_name in Game.creeps) {
             const creep = Game.creeps[creep_name]
 
-            if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER) && (creep.memory.status == CreepStatus.CHARGE)) {
-              number = number + 1
+            if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER)) {
+              if (creep.memory.status == CreepStatus.CHARGE) {
+                number += 1
+              }
             }
           }
 

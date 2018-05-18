@@ -26,8 +26,13 @@ export class WorkerSquad extends Squad {
     let max = 5
     const room = Game.rooms[this.room_name]
 
-    if (room && room.controller && (room.controller.level < 4)) {
-      max = 8
+    if (room && room.controller) {
+      if ((room.controller.level < 3)) {
+        max = 10
+      }
+      else if (room.controller.level < 4) {
+        max = 8
+      }
     }
     if (this.room_name == 'W48S47') {
       max = 3
@@ -59,6 +64,7 @@ export class WorkerSquad extends Squad {
     let energy_unit = 200
 
     const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
+    console.log(`HOGE ${energy_available}, ${energy_needed}`)
     return energy_available >= energy_needed
   }
 

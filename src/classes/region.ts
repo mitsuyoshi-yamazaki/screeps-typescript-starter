@@ -77,6 +77,11 @@ export class Region {
 
     switch (this.room.name) {
       case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+        lightweight_harvester_targets = [
+          { id: '5afd5faef071b00013361e1f', room_name: 'E13S18' },
+          { id: '5afd5faef071b00013361eae', room_name: 'E14S19' },
+          { id: '5afd5faef071b00013361ead', room_name: 'E14S19' }
+        ]
         break
 
       case 'W1N8':  // @fixme: it's in private server
@@ -289,7 +294,7 @@ export class Region {
           room_name: harvester_squad_memory.room_name,
         }
 
-        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination)
+        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
         this.squads.set(squad.name, squad)
         break
       }
@@ -493,7 +498,7 @@ export class Region {
       Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
       const name = LightWeightHarvesterSquad.generateNewName()
-      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination)
+      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination, energy_capacity)
 
       this.squads.set(squad.name, squad)
 

@@ -5,7 +5,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export class LightWeightHarvesterSquad extends Squad {
   private source: Source | undefined  // A source that the harvester harvests energy
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number) {
     super(name)
 
     this.source = Game.getObjectById(this.source_info.id) as Source | undefined
@@ -34,6 +34,10 @@ export class LightWeightHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.energy_capacity < 450) {
+      return SpawnPriority.NONE
+    }
+
     return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
   }
 
@@ -84,10 +88,12 @@ export class LightWeightHarvesterSquad extends Squad {
         }
         else {
           if (creep.room.attacked) {
-            creep.say('RUN')
-            creep.moveTo(this.destination)
-            creep.memory.status = CreepStatus.CHARGE
-            return
+            if (Game.shard.name != 'swc') {
+              creep.say('RUN')
+              creep.moveTo(this.destination)
+              creep.memory.status = CreepStatus.CHARGE
+              return
+            }
           }
 
           if (creep.room.resourceful_tombstones.length > 0) {
@@ -137,7 +143,12 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           creep.memory.status = CreepStatus.HARVEST
         }
-        if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        if (Game.shard.name == 'swc') {
+          const controller = Game.rooms['E13S19'].controller!
+          creep.upgradeController(controller)
+          creep.moveTo(controller)
+        }
+        else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(this.destination)
         }
       }
