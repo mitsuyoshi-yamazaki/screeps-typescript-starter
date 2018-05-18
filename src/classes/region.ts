@@ -638,26 +638,26 @@ export class Region {
     this.towers.forEach((tower) => {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
       if(closestHostile) {
-          tower.attack(closestHostile)
+        tower.attack(closestHostile)
+        return
       }
-      else {
-        const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: (creep) => creep.hits < creep.hitsMax
-        })
-        if (closest_damaged_creep) {
-          tower.heal(closest_damaged_creep)
-        }
-        else if (tower.energy > (tower.energyCapacity / 2)) {
-          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-            filter: (structure) => {
-              const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-              const max = is_wall ? 150000 : 100000
-              return (structure.hits < Math.min(structure.hitsMax, max))
-            }
-          })
-          if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure)
+
+      const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
+        filter: (creep) => creep.hits < creep.hitsMax
+      })
+      if (closest_damaged_creep) {
+        tower.heal(closest_damaged_creep)
+      }
+      else if (tower.energy > (tower.energyCapacity / 2)) {
+        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
+          filter: (structure) => {
+            const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+            const max = is_wall ? 150000 : 100000
+            return (structure.hits < Math.min(structure.hitsMax, max))
           }
+        })
+        if(closestDamagedStructure) {
+          tower.repair(closestDamagedStructure)
         }
       }
     })
