@@ -17,6 +17,7 @@ export enum SquadType {
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
   MANUAL            = "manual",
+  SWC               = "swc",  // manual squad for swc
   SCOUT             = 'scout',
   ATTACKER          = 'attacker',
   RAIDER            = 'raider',

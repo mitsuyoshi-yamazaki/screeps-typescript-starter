@@ -33,6 +33,9 @@ export class WorkerSquad extends Squad {
       else if (room.controller.level < 4) {
         max = 8
       }
+      else if (room.controller.level < 5) {
+        max = 8
+      }
     }
     if (this.room_name == 'W48S47') {
       max = 3
@@ -61,9 +64,13 @@ export class WorkerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
+    if (this.creeps.size < 4) {
+      return true
+    }
+
     let energy_unit = 200
 
-    const energy_needed = Math.min(Math.floor((capacity - 50) / energy_unit) * energy_unit, 1400)
+    const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1400)
     return energy_available >= energy_needed
   }
 
@@ -97,7 +104,15 @@ export class WorkerSquad extends Squad {
     const storage = (room.storage && (room.storage.store.energy > 1000)) ? room.storage : undefined
     const terminal = (room.terminal && (room.terminal.store.energy > 1000)) ? room.terminal : undefined
 
-    const source = storage || terminal
+    let source: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
+
+    if (!source && (Game.shard.name == 'swc')) {
+      source = room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
+        }
+      })[0] as StructureContainer | undefined
+    }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
@@ -161,7 +176,7 @@ export class WorkerSquad extends Squad {
         if (creep.transfer(creep.room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.storage!)
         }
-        return
+        continue
       }
 
       creep.work(room, source)

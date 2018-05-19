@@ -236,6 +236,13 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // W44S42 hydrogen
       number_of_carriers = 0
     }
+    else if (this.source_info.id == '5afd5faef071b00013361eae') {  // E14S19 left
+      number_of_carriers = 1
+    }
+    else if (this.source_info.id == '5afd5faef071b00013361e1f') {  // E13S18 bottom
+      number_of_carriers = 1
+    }
+
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       return SpawnPriority.NORMAL
@@ -288,7 +295,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
-      let_thy_die: false,
+      let_thy_die: true,
     }
 
     if (energyAvailable >= (energy_unit * 2)) {
@@ -303,6 +310,11 @@ export class HarvesterSquad extends Squad {
   private addCarrier(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [CARRY, MOVE]
     const energy_unit = 100
+    let let_thy_die = false
+
+    if (Game.shard.name == 'swc') {
+      let_thy_die = true
+    }
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -311,7 +323,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
-      let_thy_die: false,
+      let_thy_die: let_thy_die,
     }
 
     energyAvailable = Math.min(energyAvailable, 1200)

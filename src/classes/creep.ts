@@ -51,7 +51,7 @@ declare global {
     destroy(target: Creep | Structure, no_move?: boolean): ActionResult
 
     // Controller tasks
-    claim(target_room_name: string): ActionResult
+    claim(target_room_name: string, should_craim?: boolean): ActionResult
   }
 
   interface CreepMemory {
@@ -114,6 +114,17 @@ export function init() {
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
+    }
+    else if ((destination_room_name == 'E17S19') && (Number(this.room.name.slice(1,3)) < 15)) {
+      destination_room_name = 'E15S20'  // @fixme: this is waypoint
+    }
+    else if (destination_room_name == 'E17S17') {
+      if ((Number(this.room.name.slice(1,3)) < 15)) {
+        destination_room_name = 'E15S20'  // @fixme: this is waypoint
+      }
+      else if (Number(this.room.name.slice(4,6)) > 18) {
+        destination_room_name = 'E17S18'  // @fixme: this is waypoint
+      }
     }
 
     if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
@@ -412,25 +423,30 @@ export function init() {
         }
       }
       else {
-        // if (this.room.name == 'W44S42') {
-        // // To not pickup harvesters drop
-        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
-        // if (drop) {
-        //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(drop)
-        //     return
-        //   }
-        // }
-        // const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
-        //   filter: (t) => t.store.energy > 0
-        // })
-        // if (tomb) {
-        //   if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(tomb)
-        //     return
-        //   }
-        // }
-        // }
+        if (Game.shard.name == 'swc') {
+                  // To not pickup harvesters drop
+        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+          filter: (resource) => {
+            return (resource.resourceType == RESOURCE_ENERGY) && (resource.amount > 100)
+              && (this.pos.getRangeTo(resource) < 15)
+          }
+        }) as Resource
+        if (drop) {
+          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+            this.moveTo(drop)
+            return
+          }
+        }
+        const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
+          filter: (t) => t.store.energy > 0
+        })
+        if (tomb) {
+          if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(tomb)
+            return
+          }
+        }
+        }
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -440,10 +456,16 @@ export function init() {
         }
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+          const harvest_result = this.harvest(target)
 
-          if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+          if (harvest_result == ERR_NOT_IN_RANGE) {
             this.moveTo(target)
             return
+          }
+          else if (harvest_result == OK) {
+            if (this.room.controller && this.room.controller.my && (this.pos.getRangeTo(this.room.controller) < 3)) {
+              this.upgradeController(this.room.controller)
+            }
           }
         }
       }
@@ -594,7 +616,7 @@ export function init() {
     return ActionResult.IN_PROGRESS // @todo: Check if finished
   }
 
-  Creep.prototype.claim = function(target_room_name: string): ActionResult {
+  Creep.prototype.claim = function(target_room_name: string, should_craim?: boolean): ActionResult {
 
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
@@ -615,13 +637,12 @@ export function init() {
 
     let result: number
     let action: string
-    const room_name_to_claim = 'W44S42'
 
     if ((target.owner && target.owner.username) && (target.ticksToDowngrade > 1000)) {
       action = 'attackController'
       result = this.attackController(target)
     }
-    else if (target_room_name == room_name_to_claim) {
+    else if (should_craim) {
       action = 'claimController'
       result = this.claimController(target)
     }

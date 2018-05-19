@@ -11,6 +11,7 @@ import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
+import { SWCSquad } from "./squad/swc";
 
 export class Region {
   // Public
@@ -73,16 +74,44 @@ export class Region {
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
-    const energy_capacity = this.room.energyCapacityAvailable
+    const energy_capacity = this.room.energyCapacityAvailable - 50
 
     switch (this.room.name) {
-      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
+      case 'E13S19': {  // @fixme: it's in wc server, check Game.shard.name
+        harvester_targets = [
+          { id: '5afd5faef071b00013361f0d', room_name: 'E13S19' },
+          // { id: '5afd5faef071b00013361e1c', room_name: 'E13S18' },
+          // { id: '5afd5faef071b00013361ead', room_name: 'E14S19' }
+        ]
         lightweight_harvester_targets = [
           { id: '5afd5faef071b00013361e1f', room_name: 'E13S18' },
           { id: '5afd5faef071b00013361eae', room_name: 'E14S19' },
-          { id: '5afd5faef071b00013361ead', room_name: 'E14S19' }
         ]
-        this.room_names = [this.room.name]//, 'E12S19']
+        this.room_names = [this.room.name]//, 'E13S18', 'E14S19']//, 'E12S19']
+        rooms_need_scout = []
+
+        if (!harvester_destination) {
+          const container = Game.getObjectById('5aff77a4a0209500147c16ff') as StructureContainer
+          harvester_destination = container
+        }
+        break
+      }
+      case 'E11S19':
+        lightweight_harvester_targets = [
+          { id: '5afd5faef071b00013361fe0', room_name: 'E11S18' },
+          { id: '5afd5faef071b00013361f99', room_name: 'E12S18' }
+        ]
+        this.room_names = [this.room.name]
+        break
+
+      case 'E17S19':
+        lightweight_harvester_targets = [
+          { id: '5afd5faef071b00013361eac', room_name: 'E16S19' }
+        ]
+        this.room_names = [this.room.name]
+        break
+
+      case 'E17S17':
         break
 
       case 'W1N8':  // @fixme: it's in private server
@@ -303,6 +332,12 @@ export class Region {
         const squad = new ManualSquad(squad_memory.name, this.room.name)
 
         this.manual_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.SWC: {
+        const squad = new SWCSquad(squad_memory.name, this.room.name)
+
         this.squads.set(squad.name, squad)
         break
       }
@@ -606,9 +641,24 @@ export class Region {
     // }
 
     // --- Construction site ---
+    if (this.room.name == 'E11S19') {
+      if ((this.room.spawns.length == 0) && !this.room.attacked) {
+        this.room.createConstructionSite(14, 14, STRUCTURE_SPAWN)
+      }
+      else if (this.room.energyCapacityAvailable > 600) {
+        this.room.createConstructionSite(14, 13, STRUCTURE_TOWER)
+      }
+    }
+
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
       if (flag.room!.name != this.room.name) {
+        continue
+      }
+      if (this.room.spawns.length == 0) {
+        continue
+      }
+      if (this.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         continue
       }
 
@@ -645,11 +695,15 @@ export class Region {
       }
     }) as StructureTower[]
 
+    const is_safemode_active = this.room.controller && ((this.room.controller.safeMode || 0) > 0)
+
     this.towers.forEach((tower) => {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
       if(closestHostile) {
-        tower.attack(closestHostile)
-        return
+        if (!is_safemode_active || (tower.energy > (tower.energyCapacity / 2))) {
+          tower.attack(closestHostile)
+          return
+        }
       }
 
       const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
@@ -658,10 +712,10 @@ export class Region {
       if (closest_damaged_creep) {
         tower.heal(closest_damaged_creep)
       }
-      else if (tower.energy > (tower.energyCapacity / 2)) {
+      else if ((tower.energy > (tower.energyCapacity / 2)) && (availableEnergy > (energy_capacity / 2))) {
         let hits_max = 150000
-        if (this.room.name == 'E12S19') {
-          hits_max = 100000
+        if (this.room.name == 'E13S19') {
+          hits_max = 10000
         }
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
           filter: (structure) => {
@@ -756,6 +810,12 @@ export class Region {
       return
     }
 
+    if (Game.shard.name == 'swc') {
+      if (this.room.controller && this.room.controller.my && this.room.controller.level < 3) {
+        return
+      }
+    }
+
     const room = this.room
     if (!room.controller || !room.controller.my) {
       console.log(`Region.activateSafeModeIfNeeded it's not my controller ${room.controller} ${this.name}`)
@@ -845,8 +905,13 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
-    const availableEnergy = this.room.energyAvailable
-    let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
+    const available_energy = this.room.energyAvailable
+    const energy_capacity = this.room.energyCapacityAvailable - 50
+    const delegated = this.delegated_squads.filter((squad) => {
+      return squad.hasEnoughEnergy(available_energy, energy_capacity)
+    })
+
+    let squad_needs_spawn = delegated.concat(this.squads_need_spawn)  // To prevent calcurating in the new room's energyAvailable
 
     const urgent = (squad_needs_spawn.length > 0) ? squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT : false
 
@@ -862,7 +927,7 @@ export class Region {
       const squad = squad_needs_spawn.pop()
 
       if (squad) {
-        squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
+        squad.addCreep(available_energy, (body, name, ops) => { // this closure is to keep 'this'
           const result = spawn.spawnCreep(body, name, ops)
           console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}`)
           return result

@@ -143,10 +143,17 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           creep.memory.status = CreepStatus.HARVEST
         }
-        if (Game.shard.name == 'swc') {
-          const controller = Game.rooms['E13S19'].controller!
-          creep.upgradeController(controller)
-          creep.moveTo(controller)
+        if (!this.destination && (Game.shard.name == 'swc')) {
+          if (['E11S18', 'E12S18'].indexOf(this.source_info.room_name) >= 0) {
+            const controller = Game.rooms['E11S19'].controller!
+            creep.upgradeController(controller)
+            creep.moveTo(controller)
+          }
+          else if (['E16S19'].indexOf(this.source_info.room_name) >= 0) {
+            const controller = Game.rooms['E17S19'].controller!
+            creep.upgradeController(controller)
+            creep.moveTo(controller)
+          }
         }
         else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(this.destination)

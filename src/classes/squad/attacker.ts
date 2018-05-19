@@ -4,9 +4,9 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class AttackerSquad extends Squad {
   private destination: Room | undefined
-  private energy_unit = 330
-  private fix_part_energy = 120
-  private max_energy = 1930
+  private energy_unit = 130
+  private fix_part_energy = 320
+  private max_energy = 2110
 
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
@@ -40,6 +40,10 @@ export class AttackerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.base_room.name == 'E13S19') {
+      return SpawnPriority.NONE // @fixme:
+    }
+
     if (this.energy_capacity < this.energy_unit) {
       return SpawnPriority.NONE
     }
@@ -47,7 +51,7 @@ export class AttackerSquad extends Squad {
       return SpawnPriority.NONE
     }
     if (this.base_room.name == this.destination.name) {
-      return SpawnPriority.URGENT
+      return this.creeps.size < 2 ? SpawnPriority.URGENT : SpawnPriority.NONE
     }
     return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.URGENT
   }
@@ -62,9 +66,9 @@ export class AttackerSquad extends Squad {
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     energyAvailable = Math.min(energyAvailable, this.max_energy)
 
-    const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
-    const move: BodyPartConstant[] = [MOVE, MOVE]
-    const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
+    const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE, MOVE] // The last MOVE part is added in the last of this code
+    const move: BodyPartConstant[] = [MOVE]
+    const attack: BodyPartConstant[] = [ATTACK]
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -85,6 +89,7 @@ export class AttackerSquad extends Squad {
       energyAvailable -= this.energy_unit
     }
     body = front_part.concat(body)
+    body.push(RANGED_ATTACK)
     body.push(MOVE)
 
     const result = spawnFunc(body, name, {
@@ -99,6 +104,18 @@ export class AttackerSquad extends Squad {
           switch (attacker.room.name) {
             case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
               attacker.moveTo(15, 7)
+              break
+
+            case 'E11S19':
+              attacker.moveTo(22, 7)
+              break
+
+            case 'E17S19':
+              attacker.moveTo(17, 19)
+              break
+
+            case 'E17S17':
+              attacker.moveTo(19, 22)
               break
 
             case 'W48S47':
