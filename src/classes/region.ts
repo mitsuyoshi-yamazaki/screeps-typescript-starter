@@ -82,6 +82,7 @@ export class Region {
           { id: '5afd5faef071b00013361eae', room_name: 'E14S19' },
           { id: '5afd5faef071b00013361ead', room_name: 'E14S19' }
         ]
+        this.room_names = [this.room.name]//, 'E12S19']
         break
 
       case 'W1N8':  // @fixme: it's in private server
@@ -356,7 +357,7 @@ export class Region {
 
       const room = Game.rooms[room_name]
 
-      if (room.name == this.room.name) {
+      if (room_name == this.room.name) {
         continue  // Since there's upgrader squad, controller keeper no longer needed
       }
 
@@ -658,10 +659,14 @@ export class Region {
         tower.heal(closest_damaged_creep)
       }
       else if (tower.energy > (tower.energyCapacity / 2)) {
+        let hits_max = 150000
+        if (this.room.name == 'E12S19') {
+          hits_max = 100000
+        }
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
           filter: (structure) => {
             const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-            const max = is_wall ? 150000 : 100000
+            const max = is_wall ? hits_max : 100000
             return (structure.hits < Math.min(structure.hitsMax, max))
           }
         })

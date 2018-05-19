@@ -81,6 +81,9 @@ export class ControllerKeeperSquad extends Squad {
     const max = 1
 
     if (this.creeps.size < max) {
+      // if (this.room_name == 'E12S19') {
+      //   return SpawnPriority.NORMAL
+      // }
       return SpawnPriority.LOW
     }
     return SpawnPriority.NONE
@@ -205,12 +208,7 @@ export class ControllerKeeperSquad extends Squad {
 
   private attack(): void {
     this.creeps.forEach((creep, _) => {
-      // creep.moveTo(42, 20)
-      // console.log(`Moving left ${creep.name}`)
-      // return
-
-      const target_room_name = 'W44S42' // @fixme: use this.room_name
-
+      const target_room_name = 'E12S19' // @fixme: use this.room_name
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         return
       }

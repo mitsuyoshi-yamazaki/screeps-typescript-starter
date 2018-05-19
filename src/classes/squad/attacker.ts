@@ -98,7 +98,7 @@ export class AttackerSquad extends Squad {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {
           switch (attacker.room.name) {
             case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-              attacker.moveTo(33, 13)
+              attacker.moveTo(15, 7)
               break
 
             case 'W48S47':
