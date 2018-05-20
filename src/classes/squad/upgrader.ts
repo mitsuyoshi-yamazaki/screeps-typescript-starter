@@ -21,37 +21,15 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    const room = Game.rooms[this.room_name]
-    if (room && room.storage && (room.storage.store.energy < 10000)) {
-      return SpawnPriority.NONE
-    }
 
     let max = 0
+    const room = Game.rooms[this.room_name]
 
-    switch (this.room_name) {
-      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-        max = 0
-        break
-
-      case 'W1N8':  // @fixme: it's in private server
-        max = 0
-        break
-
-      case 'W48S47':
-        max = 1
-        break
-
-      case 'W49S47':
-        max = 2
-        break
-
-      case 'W44S42':
-        max = 0
-        break
-
-      default:
-        console.log(`UpgraderSquad.spawnPriority unknown room name ${this.room_name}, ${this.name}`)
-        break
+    if (room && room.storage) {
+      const energy = room.storage.store.energy
+      if (energy > 100000) {
+        max = Math.floor(energy / 200000)
+      }
     }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE

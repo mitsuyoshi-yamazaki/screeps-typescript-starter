@@ -46,10 +46,12 @@ export class AttackerSquad extends Squad {
     if (!this.destination) {
       return SpawnPriority.NONE
     }
+
+    let max = 1
     if (this.base_room.name == this.destination.name) {
-      return SpawnPriority.URGENT
+      max = 3
     }
-    return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.URGENT
+    return this.creeps.size < max ? SpawnPriority.URGENT : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
