@@ -48,7 +48,12 @@ export class ManualSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      creep.moveToRoom('W44S42')
+      const target_room = 'W48S39'
+
+      if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
+        return
+      }
+      creep.claim(target_room, true)
     })
 
 //     const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower

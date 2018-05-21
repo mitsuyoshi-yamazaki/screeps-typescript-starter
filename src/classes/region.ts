@@ -762,6 +762,10 @@ export class Region {
       return
     }
 
+    if (room.controller.level < 5) {
+      return
+    }
+
     const is_safemode_active = (room.controller.safeMode || 0) > 0
     if (is_safemode_active) {
       return

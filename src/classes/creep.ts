@@ -51,7 +51,7 @@ declare global {
     destroy(target: Creep | Structure, no_move?: boolean): ActionResult
 
     // Controller tasks
-    claim(target_room_name: string): ActionResult
+    claim(target_room_name: string, should_claim: boolean): ActionResult
   }
 
   interface CreepMemory {
@@ -594,7 +594,7 @@ export function init() {
     return ActionResult.IN_PROGRESS // @todo: Check if finished
   }
 
-  Creep.prototype.claim = function(target_room_name: string): ActionResult {
+  Creep.prototype.claim = function(target_room_name: string, should_claim: boolean): ActionResult {
 
     if (this.body.map(part => part.type).indexOf(CLAIM) == -1) {
       console.log(`Creep.claim doesn't have CLAIM body part ${this.body.map(part => part.type)}, ${this.name}`)
@@ -615,13 +615,12 @@ export function init() {
 
     let result: number
     let action: string
-    const room_name_to_claim = 'W44S42'
 
     if ((target.owner && target.owner.username) && (target.ticksToDowngrade > 1000)) {
       action = 'attackController'
       result = this.attackController(target)
     }
-    else if (target_room_name == room_name_to_claim) {
+    else if (should_claim) {
       action = 'claimController'
       result = this.claimController(target)
     }

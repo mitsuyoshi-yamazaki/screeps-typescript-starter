@@ -18,6 +18,13 @@ export class Empire {
       this.regions.set(region.name, region)
     }
 
+    const base_region = this.regions.get('W44S42')
+    const colony_region = this.regions.get('W48S39')
+
+    if (base_region && colony_region && (colony_region.room.spawns.length == 0)) {
+      base_region.delegated_squads = colony_region.squads_need_spawn
+    }
+
     // this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
 
     // // Reassign controller keeper
