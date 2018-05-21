@@ -172,18 +172,18 @@ export class Region {
           { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
           { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
           { id: '59f1c0cf7d0b3d79de5f0392', room_name: 'W44S42' },  // home hydrogen
-          { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
-          { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
+          // { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
+          // { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
         lightweight_harvester_targets = [
-          { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
-          { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
-          // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
-          { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
-          { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
+          // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
+          // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
+          // // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
+          // { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
+          // { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
         ]
-        this.room_names = [this.room.name, 'W45S42', 'W45S43']//, 'W44S43']
-        rooms_need_scout = ['W45S43', 'W45S41']
+        this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
+        rooms_need_scout = []//['W45S43', 'W45S41']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {
