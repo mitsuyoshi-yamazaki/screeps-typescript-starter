@@ -96,6 +96,11 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((attacker) => {
+      // if (this.base_room.name == 'W44S42') {
+      //   attacker.moveToRoom('W45S42')
+      //   return
+      // }
+
       if (!this.destination) {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {
           switch (attacker.room.name) {

@@ -183,7 +183,7 @@ export class Region {
           // { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
         ]
         this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
-        rooms_need_scout = []//['W45S43', 'W45S41']
+        rooms_need_scout = ['W45S43']//, 'W45S41']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {

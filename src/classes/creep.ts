@@ -119,6 +119,11 @@ export function init() {
       destination_room_name = 'W45S40'  // @fixme: this is waypoint
     }
 
+    if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
+      this.moveTo(0, 28)
+      return ActionResult.IN_PROGRESS
+    }
+
     if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(25, 49)
       return ActionResult.IN_PROGRESS
