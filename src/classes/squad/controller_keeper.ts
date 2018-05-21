@@ -258,15 +258,15 @@ export class ControllerKeeperSquad extends Squad {
 
   private claim(): void {
     this.creeps.forEach((creep) => {
-      if (this.room_name == 'W45S42') {
-        const target_room_name = 'W45S41'
-        const room_to_attack = Game.rooms[target_room_name]
+      // if (this.room_name == 'W45S42') {
+      //   const target_room_name = 'W45S41'
+      //   const room_to_attack = Game.rooms[target_room_name]
 
-        if (room_to_attack && ((room_to_attack.controller!.upgradeBlocked || 0) < 50)) {
-          creep.claim(target_room_name)
-          return
-        }
-      }
+      //   if (room_to_attack && ((room_to_attack.controller!.upgradeBlocked || 0) < 50)) {
+      //     creep.claim(target_room_name)
+      //     return
+      //   }
+      // }
       if (creep.claim(this.room_name) == ActionResult.DONE) {
         console.log(`CLAIMED ANOTHER ROOM ${this.room_name}`)
       }

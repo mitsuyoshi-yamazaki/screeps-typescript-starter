@@ -161,7 +161,7 @@ export class WorkerSquad extends Squad {
         if (creep.transfer(creep.room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.storage!)
         }
-        return
+        continue
       }
 
       creep.work(room, source)

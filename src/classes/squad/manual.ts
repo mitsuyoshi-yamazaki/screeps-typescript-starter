@@ -27,12 +27,12 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 50
+    return energyAvailable >= 650
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [MOVE]
+    const body: BodyPartConstant[] = [MOVE, CLAIM]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
