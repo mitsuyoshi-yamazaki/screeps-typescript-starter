@@ -115,6 +115,9 @@ export function init() {
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
     }
+    if ((destination_room_name == 'W48S39') && (Number(this.room.name.slice(4,6)) > 40)) {
+      destination_room_name = 'W45S40'  // @fixme: this is waypoint
+    }
 
     if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(25, 49)
