@@ -473,7 +473,9 @@ export function init() {
       })
 
       if (!target) {
-        this.memory.status = CreepStatus.BUILD
+        if (this.memory.type != CreepType.CARRIER) {
+          this.memory.status = CreepStatus.BUILD
+        }
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST

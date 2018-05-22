@@ -73,7 +73,9 @@ export class WorkerSquad extends Squad {
     let type = CreepType.WORKER
 
     const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
-    if ((this.creeps.size > 2) && (number_of_carriers == 0)) {
+    const room = Game.rooms[this.room_name]
+
+    if ((this.creeps.size > 2) && (number_of_carriers == 0) && room && room.controller && (room.controller.level >= 3)) {
       body_unit = [CARRY, MOVE, CARRY, MOVE]
       type = CreepType.CARRIER
     }
