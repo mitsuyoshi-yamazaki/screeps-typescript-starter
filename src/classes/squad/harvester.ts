@@ -44,12 +44,12 @@ export class HarvesterSquad extends Squad {
       if (container && (container.store.energy < container.storeCapacity)) {
         this.destination = container
       }
-      else {
-        const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
-        if (destination) {
-          this.destination = destination
-        }
-      }
+      // else {
+      //   const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
+      //   if (destination) {
+      //     this.destination = destination
+      //   }
+      // }
     }
     else if ((this.source_info.room_name == 'W45S43')) {
       const destination = Game.getObjectById('5af1cc45b2b1a554170136d1') as StructureLink // Link in W44S42
