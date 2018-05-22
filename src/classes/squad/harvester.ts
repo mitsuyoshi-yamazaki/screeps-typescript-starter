@@ -40,13 +40,15 @@ export class HarvesterSquad extends Squad {
       }
     }
     else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
-      // const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
-      // if (destination) {
-      //   this.destination = destination
-      // }
       const container = Game.getObjectById('5b03b560e98f1701494a14bb') as StructureContainer
-      if (container) {
+      if (container && (container.store.energy < container.storeCapacity)) {
         this.destination = container
+      }
+      else {
+        const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
+        if (destination) {
+          this.destination = destination
+        }
       }
     }
     else if ((this.source_info.room_name == 'W45S43')) {

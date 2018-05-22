@@ -158,7 +158,7 @@ export class Region {
           { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
         ]
         rooms_need_to_be_defended = ['W49S46', 'W48S46']
-        this.room_names = [this.room.name, 'W49S49', 'W49S49']//, 'W49S48']//, 'W49S46', 'W48S46']
+        this.room_names = [this.room.name, 'W49S49', 'W49S48']//, 'W49S48']//, 'W49S46', 'W48S46']
         rooms_need_scout = ['W49S46', 'W48S46', 'W47S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
