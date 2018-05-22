@@ -31,7 +31,7 @@ export class UpgraderSquad extends Squad {
     if (room && room.storage) {
       const energy = room.storage.store.energy
       if (energy > 100000) {
-        max = Math.floor(energy / 200000)
+        max = Math.floor(energy / 400000)
       }
     }
 

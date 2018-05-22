@@ -25,7 +25,7 @@ export class Region {
 
   // Private
   private squads = new Map<string, Squad>()
-  private worker_squad: WorkerSquad
+  worker_squad: WorkerSquad
   private upgrader_squad: UpgraderSquad
   private manual_squad: ManualSquad | undefined
   private scout_squad: ScoutSquad | undefined
@@ -102,9 +102,13 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
           { id: '59f1a00e82100e1594f35f89', room_name: 'W47S49' },  // bottom
+          { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
+          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+          { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
+          { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
         this.room_names = [this.room.name, 'W48S48']//, 'W47S47', 'W47S46', 'W47S48']
-        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W48S49']
+        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W48S49', 'W47S49', 'W47S48']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
@@ -146,7 +150,10 @@ export class Region {
           { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
-        lightweight_harvester_targets = []
+        lightweight_harvester_targets = [
+          { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
+          { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
+        ]
         this.room_names = [this.room.name]//, 'W49S48']//, 'W49S46', 'W48S46']
         rooms_need_scout = ['W49S46', 'W48S46', 'W47S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
@@ -180,11 +187,13 @@ export class Region {
           // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
           // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
           // // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
-          // { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
-          // { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
+          { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
+          { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
+          { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
+          { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
         this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
-        rooms_need_scout = ['W45S43']//, 'W45S41']
+        rooms_need_scout = ['W45S43', 'W45S42', 'W45S41', 'W44S41']//, 'W45S41']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {
@@ -305,7 +314,7 @@ export class Region {
           room_name: harvester_squad_memory.room_name,
         }
 
-        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
+        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
         this.squads.set(squad.name, squad)
         break
       }
@@ -509,7 +518,7 @@ export class Region {
       Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
       const name = LightWeightHarvesterSquad.generateNewName()
-      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination, energy_capacity)
+      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination, energy_capacity, this)
 
       this.squads.set(squad.name, squad)
 

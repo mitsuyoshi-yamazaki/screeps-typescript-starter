@@ -1,11 +1,12 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { Region } from "../region"
 
 export class LightWeightHarvesterSquad extends Squad {
   private source: Source | undefined  // A source that the harvester harvests energy
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number, readonly region: Region) {
     super(name)
 
     this.source = Game.getObjectById(this.source_info.id) as Source | undefined
@@ -35,6 +36,11 @@ export class LightWeightHarvesterSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (this.energy_capacity < 450) {
+      return SpawnPriority.NONE
+    }
+
+    const room = Game.rooms[this.source_info.room_name]
+    if (!room || room.attacked) {
       return SpawnPriority.NONE
     }
 
@@ -75,6 +81,12 @@ export class LightWeightHarvesterSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
+      const room = Game.rooms[this.source_info.room_name]
+      if (room && room.attacked && this.region.worker_squad) {
+        creep.memory.squad_name = this.region.worker_squad.name
+        return
+      }
+
       if (creep.memory.status == CreepStatus.NONE) {
         creep.memory.status = CreepStatus.HARVEST
       }
@@ -156,6 +168,16 @@ export class LightWeightHarvesterSquad extends Squad {
   }
 
   public description(): string {
-    return `${super.description()}, ${this.source_info.room_name}`
+    const room = Game.rooms[this.source_info.room_name]
+    let additions = ''
+
+    if (!room) {
+      additions = `, No visibility of ${this.source_info.room_name}`
+    }
+    else if (room.attacked) {
+      additions = `, Room ${this.source_info.room_name} is under attack`
+    }
+
+    return `${super.description()}, ${this.source_info.room_name}${additions}`
   }
 }
