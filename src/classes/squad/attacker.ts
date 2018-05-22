@@ -55,6 +55,12 @@ export class AttackerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
+    if (capacity < (this.fix_part_energy + this.energy_unit)) {
+      if (energyAvailable >= 260) {
+        return true
+      }
+    }
+
     capacity -= this.fix_part_energy
     const energy_needed = Math.floor(capacity / this.energy_unit) * this.energy_unit // @todo: set upper limit
 
@@ -62,8 +68,6 @@ export class AttackerSquad extends Squad {
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    energyAvailable = Math.min(energyAvailable, this.max_energy)
-
     const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
     const move: BodyPartConstant[] = [MOVE, MOVE]
     const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
@@ -78,16 +82,22 @@ export class AttackerSquad extends Squad {
       let_thy_die: false,
     }
 
-    energyAvailable -= this.fix_part_energy
-
-    while(energyAvailable >= this.energy_unit) {
-      body = move.concat(body)
-      body = body.concat(attack)
-
-      energyAvailable -= this.energy_unit
+    if (energyAvailable < (this.fix_part_energy + this.energy_unit)) {
+      body = [TOUGH, MOVE, MOVE, RANGED_ATTACK]
     }
-    body = front_part.concat(body)
-    body.push(MOVE)
+    else {
+      energyAvailable = Math.min(energyAvailable, this.max_energy)
+      energyAvailable -= this.fix_part_energy
+
+      while(energyAvailable >= this.energy_unit) {
+        body = move.concat(body)
+        body = body.concat(attack)
+
+        energyAvailable -= this.energy_unit
+      }
+      body = front_part.concat(body)
+      body.push(MOVE)
+    }
 
     const result = spawnFunc(body, name, {
       memory: memory

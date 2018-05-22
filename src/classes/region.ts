@@ -93,17 +93,17 @@ export class Region {
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
           { id: '59f19fff82100e1594f35e08', room_name: 'W48S47' },  // home center
           { id: '59f1c0ce7d0b3d79de5f024d', room_name: 'W48S47' },  // home oxygen
-          { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
+          // { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
           { id: '59f19fff82100e1594f35e0a', room_name: 'W48S48' },  // bottom
-          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
-          { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
-          { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
+          // { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+          // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
+          // { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
         lightweight_harvester_targets = [
           { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
         ]
-        this.room_names = [this.room.name, 'W47S47', 'W48S48', 'W47S46', 'W47S48']
-        rooms_need_scout = ['W46S46']
+        this.room_names = [this.room.name, 'W48S48']//, 'W47S47', 'W47S46', 'W47S48']
+        rooms_need_scout = []//['W46S46']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
@@ -140,13 +140,13 @@ export class Region {
           { id: '59f19ff082100e1594f35c84', room_name: 'W49S47' },  // home, right
           { id: '59f19ff082100e1594f35c83', room_name: 'W49S47' },  // home, top left
           { id: '59f1c0ce7d0b3d79de5f01e1', room_name: 'W49S47' },  // home, utrium
-          { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
-          { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
+          // { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
+          // { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
           { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
         lightweight_harvester_targets = []
-        this.room_names = [this.room.name, 'W49S46', 'W49S48', 'W48S46']
+        this.room_names = [this.room.name, 'W49S48']//, 'W49S46', 'W48S46']
         rooms_need_scout = []
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
@@ -204,6 +204,7 @@ export class Region {
         break
       }
       case 'W48S39':
+        this.room_names = [this.room.name]
         break
 
       default:

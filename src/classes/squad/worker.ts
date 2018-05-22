@@ -69,14 +69,22 @@ export class WorkerSquad extends Squad {
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     const energy_unit = 200
-    const body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
+    let body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
+    let type = CreepType.WORKER
+
+    const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
+    if ((this.creeps.size > 2) && (number_of_carriers == 0)) {
+      body_unit = [CARRY, MOVE, CARRY, MOVE]
+      type = CreepType.CARRIER
+    }
+
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.WORKER,
+      type: type,
       let_thy_die: false,
     }
 
