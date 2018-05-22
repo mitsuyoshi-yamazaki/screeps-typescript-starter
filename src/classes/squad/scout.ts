@@ -37,7 +37,7 @@ export class ScoutSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     const needs_spawn = this.creep_for_room.size < this.room_names.length
-    return needs_spawn ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return needs_spawn ? SpawnPriority.LOW : SpawnPriority.NONE
     // return SpawnPriority.NONE // @fixme: temp
   }
 

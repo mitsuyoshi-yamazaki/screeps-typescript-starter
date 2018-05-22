@@ -34,9 +34,18 @@ export class HarvesterSquad extends Squad {
       }
     }
     else if ((this.source_info.room_name == 'W49S48')) {
-      const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
-      if (destination) {
-        this.destination = destination
+      // const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
+      // if (destination) {
+      //   this.destination = destination
+      // }
+      const container = new RoomPosition(8, 10, this.source_info.room_name).findInRange(FIND_STRUCTURES, 1, {
+        filter: function(structure: AnyStructure): boolean {
+          return structure.structureType == STRUCTURE_CONTAINER
+        }
+      })[0] as StructureContainer | undefined
+
+      if (container) {
+        this.destination = container
       }
     }
     else if ((this.source_info.room_name == 'W45S43')) {

@@ -18,8 +18,8 @@ export class Empire {
       this.regions.set(region.name, region)
     }
 
-    const base_region = this.regions.get('W44S42')
-    const colony_region = this.regions.get('W48S39')
+    const base_region = this.regions.get('W49S47')//('W44S42')
+    const colony_region = this.regions.get('W49S48')//('W48S39')
 
     if (base_region && colony_region && (colony_region.room.spawns.length == 0)) {
       base_region.delegated_squads = colony_region.squads_need_spawn

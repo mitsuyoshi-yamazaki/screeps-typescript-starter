@@ -62,6 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
 /**
  * @todo:
+ * Spawn7 construction site id: 5b039954704a56771cb6345f
  * cancel spawning attacker if the invader is eliminated within 10 ticks
  * remove renew codes
  * use the new spawn

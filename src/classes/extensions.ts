@@ -32,7 +32,7 @@ declare global {
 export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
-    this.attacked = false
+    this.attacked = this.find(FIND_HOSTILE_CREEPS).length > 0
     this.resourceful_tombstones = this.find(FIND_TOMBSTONES, {
       filter: (tombstone: Tombstone) => {
         const sum = _.sum(tombstone.store)

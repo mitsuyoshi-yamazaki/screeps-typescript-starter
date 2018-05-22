@@ -85,7 +85,7 @@ export class WorkerSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: type,
-      let_thy_die: false,
+      let_thy_die: true,
     }
 
     energy_available = Math.min(energy_available, 1400)
@@ -105,10 +105,18 @@ export class WorkerSquad extends Squad {
     const storage = (room.storage && (room.storage.store.energy > 1000)) ? room.storage : undefined
     const terminal = (room.terminal && (room.terminal.store.energy > 1000)) ? room.terminal : undefined
 
-    const source = storage || terminal
+    let source: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
+
+      if ((this.room_name == 'W49S48') && source && source.structureType == STRUCTURE_CONTAINER) {
+        source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: function(structure): boolean {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
+          }
+        })) as StructureContainer || undefined
+      }
 
       // if (this.room_name == 'W44S42') {
       //   const target = Game.getObjectById('5af458f814e9d72ab64b0198') as Tombstone
@@ -150,20 +158,22 @@ export class WorkerSquad extends Squad {
       }
 
       // Renewal needs almost same but slightly less time
-      // const needs_renew = false//!creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
-      if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-        creep.memory.status = CreepStatus.NONE
-      }
+      const room = Game.rooms[this.room_name]
 
-      // if (needs_renew) {
-      //   if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
-      //     creep.goToRenew(creep.room.spawns[0])
-      //     continue
-      //   }
-      //   else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-      //     creep.memory.status = CreepStatus.HARVEST
-      //   }
+      const needs_renew = (this.room_name == 'W49S48') && room && (room.spawns.length > 0) && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      //   creep.memory.status = CreepStatus.NONE
       // }
+
+      if (needs_renew) {
+        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
+          creep.goToRenew(creep.room.spawns[0])
+          continue
+        }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+      }
 
       if ((creep.ticksToLive || 0) < 15) {
         if (creep.transfer(creep.room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

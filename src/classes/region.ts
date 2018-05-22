@@ -101,9 +101,10 @@ export class Region {
         ]
         lightweight_harvester_targets = [
           { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
+          { id: '59f1a00e82100e1594f35f89', room_name: 'W47S49' },  // bottom
         ]
         this.room_names = [this.room.name, 'W48S48']//, 'W47S47', 'W47S46', 'W47S48']
-        rooms_need_scout = []//['W46S46']
+        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W48S49']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
@@ -146,8 +147,8 @@ export class Region {
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
         ]
         lightweight_harvester_targets = []
-        this.room_names = [this.room.name, 'W49S48']//, 'W49S46', 'W48S46']
-        rooms_need_scout = []
+        this.room_names = [this.room.name]//, 'W49S48']//, 'W49S46', 'W48S46']
+        rooms_need_scout = ['W49S46', 'W48S46', 'W47S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
           {
@@ -207,6 +208,10 @@ export class Region {
         this.room_names = [this.room.name]
         break
 
+      case 'W49S48':
+        this.room_names = [this.room.name]
+        break
+
       default:
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
@@ -218,7 +223,6 @@ export class Region {
     }).filter((room) => {
       return !(!room)
     }).filter((room) => {
-      room.attacked = room.find(FIND_HOSTILE_CREEPS).length > 0
       return room.attacked
     })
 
