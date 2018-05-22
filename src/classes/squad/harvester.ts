@@ -21,8 +21,14 @@ export class HarvesterSquad extends Squad {
 
     this.destination_storage = this.destination as StructureStorage // @fixme:
 
-    if ((this.source_info.room_name == 'W47S48') || (this.source_info.id == '59f1a00e82100e1594f35f87')) { // @fixme: temp code
-      const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47
+    if ((this.source_info.room_name == 'W48S49')) { // @fixme: temp code
+      const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47 bottom right
+      if (destination) {
+        this.destination = destination
+      }
+    }
+    else if ((this.source_info.room_name == 'W48S48')) { // @fixme: temp code
+      const destination = Game.getObjectById('5afb8dffdea4db08d5fe3a1c') as StructureLink // Link in W48S47 bottom left
       if (destination) {
         this.destination = destination
       }
@@ -38,12 +44,7 @@ export class HarvesterSquad extends Squad {
       // if (destination) {
       //   this.destination = destination
       // }
-      const container = new RoomPosition(8, 10, this.source_info.room_name).findInRange(FIND_STRUCTURES, 1, {
-        filter: function(structure: AnyStructure): boolean {
-          return structure.structureType == STRUCTURE_CONTAINER
-        }
-      })[0] as StructureContainer | undefined
-
+      const container = Game.getObjectById('5b03b560e98f1701494a14bb') as StructureContainer
       if (container) {
         this.destination = container
       }

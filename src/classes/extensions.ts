@@ -19,6 +19,7 @@ declare global {
     keeper?: ControllerKeeperSquad
     spawns: StructureSpawn[]  // Initialized in Spawn.initialize()
     attacked: boolean // @todo: change it to Creep[]
+    heavyly_attacked: boolean
     resourceful_tombstones: Tombstone[]
 
     initialize(): void
@@ -32,7 +33,8 @@ declare global {
 export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
-    this.attacked = this.find(FIND_HOSTILE_CREEPS, {
+
+    const hostiles = this.find(FIND_HOSTILE_CREEPS, {
       filter: function(creep: Creep): boolean {
         if (creep.pos.x == 0) {
           return false
@@ -48,7 +50,17 @@ export function init() {
         }
         return true
       }
-    }).length > 0
+    })
+
+    this.attacked = hostiles.length > 0
+
+    let number_of_attacks = 0
+
+    hostiles.forEach((creep: Creep) => {
+      number_of_attacks += creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK) + creep.getActiveBodyparts(HEAL)
+    })
+    this.heavyly_attacked = number_of_attacks > 5
+
     this.resourceful_tombstones = this.find(FIND_TOMBSTONES, {
       filter: (tombstone: Tombstone) => {
         const sum = _.sum(tombstone.store)

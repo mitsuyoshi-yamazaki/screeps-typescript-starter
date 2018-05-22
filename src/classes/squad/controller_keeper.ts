@@ -68,7 +68,8 @@ export class ControllerKeeperSquad extends Squad {
         break
 
       case State.MINE:
-        energy_needed = 250
+        // energy_needed = 250
+        return SpawnPriority.NONE
 
       default:
         console.log(`Unexpected state ${this.state}, ${this.name}`)

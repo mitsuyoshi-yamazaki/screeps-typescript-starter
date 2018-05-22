@@ -70,6 +70,7 @@ export class Region {
     let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as StructureStorage | StructureTerminal // @fixme: null check // || container
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
+    let rooms_need_to_be_defended: string[] = []
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
@@ -98,17 +99,18 @@ export class Region {
           // { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
           // { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           // { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
-        ]
-        lightweight_harvester_targets = [
           { id: '59f19fff82100e1594f35e0e', room_name: 'W48S49' },  // bottom
           { id: '59f1a00e82100e1594f35f89', room_name: 'W47S49' },  // bottom
+        ]
+        lightweight_harvester_targets = [
           { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
           { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        this.room_names = [this.room.name, 'W48S48']//, 'W47S47', 'W47S46', 'W47S48']
-        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W48S49', 'W47S49', 'W47S48']
+        rooms_need_to_be_defended = ['W48S49', 'W47S49', 'W47S47', 'W47S46', 'W47S48']
+        this.room_names = [this.room.name, 'W48S48', 'W48S49', 'W47S49']//, 'W47S47', 'W47S46', 'W47S48']
+        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W47S48']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
         research_input_targets = [
           {
@@ -155,7 +157,8 @@ export class Region {
           { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
           { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
         ]
-        this.room_names = [this.room.name, 'W49S49']//, 'W49S48']//, 'W49S46', 'W48S46']
+        rooms_need_to_be_defended = ['W49S46', 'W48S46']
+        this.room_names = [this.room.name, 'W49S49', 'W49S49']//, 'W49S48']//, 'W49S46', 'W48S46']
         rooms_need_scout = ['W49S46', 'W48S46', 'W47S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
@@ -193,6 +196,7 @@ export class Region {
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
+        rooms_need_to_be_defended = ['W45S41', 'W45S42', 'W45S43']
         this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
         rooms_need_scout = ['W45S43', 'W45S42', 'W45S41', 'W44S41']//, 'W45S41']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
@@ -235,6 +239,16 @@ export class Region {
     }).filter((room) => {
       return room.attacked
     })
+
+    const attacked = rooms_need_to_be_defended.map((room_name) => {
+      return Game.rooms[room_name]
+    }).filter((room) => {
+      return !(!room)
+    }).filter((room) => {
+      return room.attacked && !room.heavyly_attacked
+    })
+
+    this.attacked_rooms = this.attacked_rooms.concat(attacked)
 
     if (this.attacked_rooms.length > 0) {
       const message = `Room ${this.attacked_rooms} are attacked!! ${this.name}`
@@ -935,6 +949,10 @@ export class Region {
 
       case 'W44S42':
         pos = {x: 25, y: 26}
+        break
+
+      case 'W49S48':
+        pos = {x: 23, y: 30}
         break
 
       default:
