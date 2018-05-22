@@ -246,6 +246,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // W44S42 hydrogen
       number_of_carriers = 0
     }
+    else if (this.source_info.id == '59f19fff82100e1594f35ded') { // W48S39
+      number_of_carriers = 0
+    }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       return SpawnPriority.NORMAL

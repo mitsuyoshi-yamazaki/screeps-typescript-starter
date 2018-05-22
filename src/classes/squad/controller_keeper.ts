@@ -250,7 +250,12 @@ export class ControllerKeeperSquad extends Squad {
             creep.memory.status = CreepStatus.HARVEST
           }
           else if (creep.upgradeController(creep.room.controller!) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller!)
+            if (this.room_name == 'W48S49') {
+              creep.moveTo(40, 42)
+            }
+            else {
+              creep.moveTo(creep.room.controller!)
+            }
             return
           }
         }

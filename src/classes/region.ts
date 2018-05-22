@@ -219,6 +219,9 @@ export class Region {
         break
       }
       case 'W48S39':
+        harvester_targets = [
+          { id: '59f19fff82100e1594f35ded', room_name: 'W48S39' },  // home
+        ]
         this.room_names = [this.room.name]
         break
 

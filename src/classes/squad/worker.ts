@@ -1,6 +1,7 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { isNewLine } from "../../../node_modules/@types/acorn/index";
 
 /**
  * WorkerSquad manages workers ([WORK, CARRY, MOVE] * n or [WORK * 2, CARRY * 2, MOVE * 3] * n)
@@ -115,7 +116,8 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if ((this.room_name == 'W49S48') && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
+      const is_new_room = (this.room_name == 'W49S48') || (this.room_name == 'W48S39')
+      if (is_new_room && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
         source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: function(structure): boolean {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
