@@ -203,6 +203,9 @@ export class Region {
         ]
         break
       }
+      case 'W48S39':
+        break
+
       default:
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
@@ -611,6 +614,12 @@ export class Region {
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
       if (flag.room!.name != this.room.name) {
+        continue
+      }
+      if (this.room.spawns.length == 0) {
+        continue
+      }
+      if (this.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         continue
       }
 
