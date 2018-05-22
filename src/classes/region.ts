@@ -4,7 +4,7 @@ import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester"
 import { ScoutSquad } from "classes/squad/scout"
-import { CreepStatus, ActionResult } from "./creep"
+import { CreepStatus, ActionResult, CreepType } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
 import { RaiderSquad, RaiderTarget } from "./squad/raider";
@@ -149,12 +149,13 @@ export class Region {
           // { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
           { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
+          { id: '59f19ff082100e1594f35c8b', room_name: 'W49S49' },  // bottom bottom
         ]
         lightweight_harvester_targets = [
           { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
           { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
         ]
-        this.room_names = [this.room.name]//, 'W49S48']//, 'W49S46', 'W48S46']
+        this.room_names = [this.room.name, 'W49S49']//, 'W49S48']//, 'W49S46', 'W48S46']
         rooms_need_scout = ['W49S46', 'W48S46', 'W47S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
@@ -659,6 +660,24 @@ export class Region {
     const availableEnergy = this.room.energyAvailable
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
+
+      const is_lightweight_harvester = squad.type == SquadType.LIGHTWEIGHT_HARVESTER
+      const worker_squad_name = this.worker_squad.name
+      const worker_harvester = Array.from(this.worker_squad.creeps.values()).filter((creep) => {
+        return (creep.memory.type == CreepType.HARVESTER)
+          && (creep.memory.squad_name == worker_squad_name)
+          && ((creep.ticksToLive || 0) > 300)
+      }
+      )[0]
+      const number_of_workers = this.worker_squad.creeps.size
+
+      if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4)) {
+        worker_harvester.memory.squad_name = squad.name
+        worker_harvester.memory.status = CreepStatus.CHARGE
+        console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
+        return false
+      }
+
       return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
     })
 
@@ -915,7 +934,7 @@ export class Region {
         break
 
       case 'W44S42':
-        pos = {x: 32, y: 26}
+        pos = {x: 25, y: 26}
         break
 
       default:

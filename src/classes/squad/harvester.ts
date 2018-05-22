@@ -33,7 +33,7 @@ export class HarvesterSquad extends Squad {
         this.destination = destination
       }
     }
-    else if ((this.source_info.room_name == 'W49S48')) {
+    else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
       // const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
       // if (destination) {
       //   this.destination = destination

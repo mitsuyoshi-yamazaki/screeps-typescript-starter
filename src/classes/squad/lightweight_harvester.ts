@@ -87,8 +87,8 @@ export class LightWeightHarvesterSquad extends Squad {
         return
       }
 
-      if (creep.memory.status == CreepStatus.NONE) {
-        creep.memory.status = CreepStatus.HARVEST
+      if ((creep.memory.status == CreepStatus.NONE) || (creep.memory.status == CreepStatus.BUILD) || (creep.memory.status == CreepStatus.UPGRADE)) {
+        creep.memory.status = CreepStatus.CHARGE
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {

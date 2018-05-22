@@ -110,7 +110,7 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if ((this.room_name == 'W49S48') && source && source.structureType == STRUCTURE_CONTAINER) {
+      if ((this.room_name == 'W49S48') && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
         source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: function(structure): boolean {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
@@ -160,6 +160,9 @@ export class WorkerSquad extends Squad {
       // Renewal needs almost same but slightly less time
       const room = Game.rooms[this.room_name]
 
+      if (this.room_name == 'W49S48') {
+        creep.memory.let_thy_die = false
+      }
       const needs_renew = (this.room_name == 'W49S48') && room && (room.spawns.length > 0) && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
       // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
       //   creep.memory.status = CreepStatus.NONE
