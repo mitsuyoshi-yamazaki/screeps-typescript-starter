@@ -74,12 +74,16 @@ export class ErrorMapper {
         loop()
       } catch (e) {
         if (e instanceof Error) {
+          let full_message = ""
           if ("sim" in Game.rooms) {
             const message = `Source maps don't work in the simulator - displaying original error`
-            console.log(`<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`)
+            full_message = `<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`
           } else {
-            console.log(`<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`)
+            full_message = `<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`
           }
+          console.log(full_message)
+          Game.notify(full_message)
+
         } else {
           // can't handle it
           throw e

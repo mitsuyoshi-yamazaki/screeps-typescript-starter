@@ -232,7 +232,12 @@ export class HarvesterSquad extends Squad {
       return SpawnPriority.HIGH
     }
 
-    let number_of_carriers = (this.destination.room.name == this.source_info.room_name) ? 1 : 2
+    let number_of_carriers = 1
+
+    if (this.destination && (this.destination.room.name != this.source_info.room_name)) {
+      number_of_carriers = 2
+    }
+
     const rooms_needs_one_carriers = [ // @fixme: temp code
       'W48S48', // Close to link
       // 'W47S48', // Close to link

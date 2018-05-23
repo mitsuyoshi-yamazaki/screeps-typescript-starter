@@ -1,4 +1,6 @@
-import { Region } from "./region";
+
+import { ErrorMapper } from "utils/ErrorMapper"
+import { Region } from "./region"
 
 enum State {
   EXPAND = "expand"
@@ -14,15 +16,10 @@ export class Empire {
         continue
       }
 
-      try {
+      ErrorMapper.wrapLoop(() => {
         const region = new Region(room.controller!)
         this.regions.set(region.name, region)
-      }
-      catch(error) {
-        const message = `${error}`
-        console.log(message)
-        Game.notify(message)
-      }
+      })()
     }
 
     const base_region = this.regions.get('W49S47')//('W44S42')
@@ -54,14 +51,9 @@ export class Empire {
 
   public run(): void {
     this.regions.forEach((region) => {
-      try {
+      ErrorMapper.wrapLoop(() => {
         region.run()
-      }
-      catch(error) {
-        const message = `${error}`
-        console.log(message)
-        Game.notify(message)
-      }
+      })()
     })
   }
 }

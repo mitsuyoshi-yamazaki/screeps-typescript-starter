@@ -1,3 +1,4 @@
+import { ErrorMapper } from "utils/ErrorMapper"
 import { Squad, SquadType, SquadMemory, SpawnPriority } from "classes/squad/squad"
 import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
 import { WorkerSquad } from "classes/squad/worker"
@@ -771,14 +772,9 @@ export class Region {
   public run(): void {
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
-      try {
+      ErrorMapper.wrapLoop(() => {
         squad.run()
-      }
-      catch(error) {
-        const message = `${error}`
-        console.log(message)
-        Game.notify(message)
-      }
+      })()
     })
 
     let destination_id: string | undefined
