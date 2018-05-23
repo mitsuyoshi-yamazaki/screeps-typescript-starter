@@ -16,7 +16,7 @@ export class HarvesterSquad extends Squad {
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number) {
     super(name)
 
     this.destination_storage = this.destination as StructureStorage // @fixme:

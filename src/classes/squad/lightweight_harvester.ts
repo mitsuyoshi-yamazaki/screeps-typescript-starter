@@ -6,7 +6,7 @@ import { Region } from "../region"
 export class LightWeightHarvesterSquad extends Squad {
   private source: Source | undefined  // A source that the harvester harvests energy
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink, readonly energy_capacity: number, readonly region: Region) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number, readonly region: Region) {
     super(name)
 
     this.source = Game.getObjectById(this.source_info.id) as Source | undefined
@@ -40,7 +40,12 @@ export class LightWeightHarvesterSquad extends Squad {
     }
 
     const room = Game.rooms[this.source_info.room_name]
+    const w45s42 = Game.rooms['W45S42']
+
     if (!room || room.attacked) {
+      return SpawnPriority.NONE
+    }
+    else if ((!w45s42 || w45s42.attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
       return SpawnPriority.NONE
     }
 
@@ -82,7 +87,13 @@ export class LightWeightHarvesterSquad extends Squad {
   public run(): void {
     this.creeps.forEach((creep) => {
       const room = Game.rooms[this.source_info.room_name]
+      const w45s42 = Game.rooms['W45S42']
+
       if (room && room.attacked && this.region.worker_squad) {
+        creep.memory.squad_name = this.region.worker_squad.name
+        return
+      }
+      else if ((!w45s42 || w45s42.attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
         creep.memory.squad_name = this.region.worker_squad.name
         return
       }

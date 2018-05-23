@@ -60,6 +60,7 @@ export class Region {
     // --- Initialize variables ---
     const storage = this.room.storage
     const terminal = this.room.terminal
+    const spawn = this.room.spawns[0]
 
     // const container = this.room.find(FIND_STRUCTURES, {
     //   filter: structure => {
@@ -68,7 +69,7 @@ export class Region {
     // })[0] as StructureContainer
 
     let harvester_targets: {id: string, room_name: string}[] = []
-    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as StructureStorage | StructureTerminal // @fixme: null check // || container
+    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer | StructureSpawn = storage || terminal || spawn // @fixme: null check // || container
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let rooms_need_to_be_defended: string[] = []
@@ -223,7 +224,11 @@ export class Region {
         harvester_targets = [
           { id: '59f19fff82100e1594f35ded', room_name: 'W48S39' },  // home
         ]
+        lightweight_harvester_targets = [
+          { id: '59f19fef82100e1594f35c6a', room_name: 'W49S39' },  // left
+        ]
         this.room_names = [this.room.name]
+        rooms_need_scout = ['W49S39']
         break
 
       case 'W49S48':
