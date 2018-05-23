@@ -14,8 +14,15 @@ export class Empire {
         continue
       }
 
-      const region = new Region(room.controller!)
-      this.regions.set(region.name, region)
+      try {
+        const region = new Region(room.controller!)
+        this.regions.set(region.name, region)
+      }
+      catch(error) {
+        const message = `${error}`
+        console.log(message)
+        Game.notify(message)
+      }
     }
 
     const base_region = this.regions.get('W49S47')//('W44S42')
@@ -47,7 +54,14 @@ export class Empire {
 
   public run(): void {
     this.regions.forEach((region) => {
-      region.run()
+      try {
+        region.run()
+      }
+      catch(error) {
+        const message = `${error}`
+        console.log(message)
+        Game.notify(message)
+      }
     })
   }
 }

@@ -771,7 +771,14 @@ export class Region {
   public run(): void {
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
-      squad.run()
+      try {
+        squad.run()
+      }
+      catch(error) {
+        const message = `${error}`
+        console.log(message)
+        Game.notify(message)
+      }
     })
 
     let destination_id: string | undefined
