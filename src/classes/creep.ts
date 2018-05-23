@@ -382,6 +382,10 @@ export function init() {
       console.log(`Creep.work room not specified ${this.name}`)
     }
 
+    if ((this.room.name == 'W49S48') && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.CHARGE)) && this.room.controller && this.room.controller.my && (this.room.controller.level < 3)) {
+      this.memory.status = CreepStatus.UPGRADE
+    }
+
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0) || (this.room.attacked == true)) {
       this.memory.status = CreepStatus.HARVEST
     }
