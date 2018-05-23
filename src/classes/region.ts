@@ -74,7 +74,7 @@ export class Region {
     let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
-    const energy_capacity = this.room.energyCapacityAvailable
+    const energy_capacity = this.room.energyCapacityAvailable - 50
 
     switch (this.room.name) {
       case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name

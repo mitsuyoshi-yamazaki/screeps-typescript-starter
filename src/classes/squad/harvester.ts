@@ -40,7 +40,14 @@ export class HarvesterSquad extends Squad {
       }
     }
     else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
-      const container = Game.getObjectById('5b03b560e98f1701494a14bb') as StructureContainer
+
+      const pos = new RoomPosition(8, 10, this.source_info.room_name)
+      const container = pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: function(structure: AnyStructure): boolean {
+          return structure.structureType == STRUCTURE_CONTAINER
+        }
+      })[0] as StructureContainer | undefined
+
       if (container && (container.store.energy < container.storeCapacity)) {
         this.destination = container
       }
