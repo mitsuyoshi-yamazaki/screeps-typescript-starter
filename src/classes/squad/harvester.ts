@@ -44,12 +44,12 @@ export class HarvesterSquad extends Squad {
       if (container && (container.store.energy < container.storeCapacity)) {
         this.destination = container
       }
-      // else {
-      //   const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
-      //   if (destination) {
-      //     this.destination = destination
-      //   }
-      // }
+      else {
+        const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
+        if (destination) {
+          this.destination = destination
+        }
+      }
     }
     else if ((this.source_info.room_name == 'W45S43')) {
       const destination = Game.getObjectById('5af1cc45b2b1a554170136d1') as StructureLink // Link in W44S42
@@ -154,7 +154,14 @@ export class HarvesterSquad extends Squad {
       }
     }
     else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) { // W44S42 top
-      const hydrogen_container = Game.getObjectById('5afcf491b356f4346fbaf441') as StructureContainer
+      // const hydrogen_container = Game.getObjectById('5afcf491b356f4346fbaf441') as StructureContainer
+      const pos = new RoomPosition(43, 12, this.source_info.room_name)
+      const hydrogen_container = pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: function(structure: AnyStructure): boolean {
+          return structure.structureType == STRUCTURE_CONTAINER
+        }
+      })[0] as StructureContainer | undefined
+
       if (hydrogen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
         this.resource_type = RESOURCE_HYDROGEN
         this.container = hydrogen_container
