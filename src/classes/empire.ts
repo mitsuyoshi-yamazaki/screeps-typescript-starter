@@ -25,8 +25,10 @@ export class Empire {
     const base_region = this.regions.get('W49S47')//('W44S42')
     const colony_region = this.regions.get('W49S48')//('W48S39')
 
-    if (base_region && colony_region && (colony_region.room.spawns.length == 0)) {
-      base_region.delegated_squads = colony_region.squads_need_spawn
+    if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 3)) {
+      if (colony_region.worker_squad && (colony_region.worker_squad.creeps.size < 6)) {
+        base_region.delegated_squads = [colony_region.worker_squad]
+      }
     }
 
     // this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
