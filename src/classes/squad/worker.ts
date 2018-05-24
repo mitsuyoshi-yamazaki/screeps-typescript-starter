@@ -180,7 +180,7 @@ export class WorkerSquad extends Squad {
       // }
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 50) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }

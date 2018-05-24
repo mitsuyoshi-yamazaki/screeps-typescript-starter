@@ -424,25 +424,25 @@ export function init() {
         }
       }
       else {
-        // if (this.room.name == 'W44S42') {
-        // // To not pickup harvesters drop
-        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
-        // if (drop) {
-        //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(drop)
-        //     return
-        //   }
-        // }
-        // const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
-        //   filter: (t) => t.store.energy > 0
-        // })
-        // if (tomb) {
-        //   if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(tomb)
-        //     return
-        //   }
-        // }
-        // }
+        if (this.room.name == 'W49S48') {
+        // To not pickup harvesters drop
+        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+        if (drop) {
+          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+            this.moveTo(drop)
+            return
+          }
+        }
+        const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
+          filter: (t) => t.store.energy > 0
+        })
+        if (tomb) {
+          if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(tomb)
+            return
+          }
+        }
+        }
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
