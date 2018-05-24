@@ -60,7 +60,7 @@ export class Region {
     // --- Initialize variables ---
     const storage = this.room.storage
     const terminal = this.room.terminal
-    const spawn = this.room.spawns[0]
+    // const spawn = this.room.spawns[0]
 
     // const container = this.room.find(FIND_STRUCTURES, {
     //   filter: structure => {
@@ -69,7 +69,7 @@ export class Region {
     // })[0] as StructureContainer
 
     let harvester_targets: {id: string, room_name: string}[] = []
-    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer | StructureSpawn = storage || terminal || spawn // @fixme: null check // || container
+    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer | StructureSpawn = (storage || terminal) as (StructureStorage | StructureTerminal) // @fixme: null check // || container
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let rooms_need_to_be_defended: string[] = []
@@ -197,10 +197,11 @@ export class Region {
           { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
           { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
           { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
+          { id: '59f1a04a82100e1594f367af', room_name: 'W43S42' },  // right
         ]
-        rooms_need_to_be_defended = ['W45S41', 'W45S42', 'W45S43']
+        rooms_need_to_be_defended = ['W45S41', 'W45S42', 'W45S43', 'W43S42']
         this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
-        rooms_need_scout = ['W45S43', 'W45S42', 'W45S41', 'W44S41']//, 'W45S41']
+        rooms_need_scout = ['W45S43', 'W45S42', 'W45S41', 'W44S41', 'W43S42']//, 'W45S41']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {
