@@ -274,6 +274,9 @@ export class HarvesterSquad extends Squad {
     if (this.source_info.room_name == 'W49S48') {
       number_of_carriers = 1
     }
+    else if (this.source_info.room_name == 'W47S49') {
+      number_of_carriers = 3
+    }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       return SpawnPriority.NORMAL
