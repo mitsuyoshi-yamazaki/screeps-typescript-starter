@@ -166,11 +166,6 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           creep.memory.status = CreepStatus.HARVEST
         }
-        if (Game.shard.name == 'swc') {
-          const controller = Game.rooms['E13S19'].controller!
-          creep.upgradeController(controller)
-          creep.moveTo(controller)
-        }
         else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(this.destination)
         }

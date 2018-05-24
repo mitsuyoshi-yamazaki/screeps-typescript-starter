@@ -231,6 +231,9 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = ['W49S39']
+        if (!harvester_destination) {
+          harvester_destination = Game.getObjectById('5b05392f25d4f474fcc21633') as StructureContainer
+        }
         break
 
       case 'W49S48':
