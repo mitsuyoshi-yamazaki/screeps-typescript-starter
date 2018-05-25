@@ -47,12 +47,28 @@ export class ManualSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      const target_room = 'W48S39'
+      const target_room = 'W49S49'
 
       if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
         return
       }
-      creep.claim(target_room, true)
+
+      let has_walls = false;
+
+      [
+        '5aec7ff359326e11aba8ddc7',
+        '5aec80dc663c34312168e148',
+      ].map(id=>(Game.getObjectById(id) as StructureWall | undefined)).forEach(wall => {
+        if (!wall) {
+          return
+        }
+        creep.destroy(wall)
+        has_walls = true
+      })
+
+      if (!has_walls) {
+        creep.searchAndDestroy()
+      }
     })
 
 //     const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower

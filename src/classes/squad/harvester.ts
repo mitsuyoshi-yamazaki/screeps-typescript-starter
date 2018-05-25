@@ -41,15 +41,9 @@ export class HarvesterSquad extends Squad {
     }
     else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
 
-      const pos = new RoomPosition(8, 10, this.source_info.room_name)
-      const container = pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(structure: AnyStructure): boolean {
-          return structure.structureType == STRUCTURE_CONTAINER
-        }
-      })[0] as StructureContainer | undefined
-
-      if (container && (container.store.energy < container.storeCapacity)) {
-        this.destination = container
+      const target_room = Game.rooms['W49S48']
+      if (target_room && target_room.storage) {
+        this.destination = target_room.storage
       }
       else {
         const destination = Game.getObjectById('5af5ffea42aa150cf94d8d48') as StructureLink // Link in W49S47 bottom
