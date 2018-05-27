@@ -444,23 +444,43 @@ export function init() {
         // }
         // }
 
-        if (this.room.name == 'W49S48') {
-          const link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
-          if (link && (link.energy > 0)) {
-            if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              this.moveTo(link)
-              return
-            }
-          }
+        let link: StructureLink | undefined
+
+        switch (this.room.name) {
+          case 'W48S47':
+            link = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
+            break
+
+          case 'W49S47':
+            link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
+            break
+
+          case 'W44S42':
+            link = Game.getObjectById('5af19011f859db1e994a8d6d') as StructureLink
+            break
+
+          case 'W49S48':
+            link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
+            break
+
+          case 'W48S39':
+            link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
+            break
+
+          default:
+            break
         }
-        else if (this.room.name == 'W48S39') {
-          const link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
-          if (link && (link.energy > 0)) {
-            if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              this.moveTo(link)
-              return
-            }
+
+        if (link && (link.energy > 0)) {
+          if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(link)
+            return
           }
+          else if (this.room.storage) {
+            this.transfer(this.room.storage, RESOURCE_ENERGY)
+          }
+
+          return
         }
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {

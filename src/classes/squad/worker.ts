@@ -199,10 +199,6 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if (this.room_name == 'W49S48') {
-        console.log(`HOGE source: ${source}`)
-      }
-
       creep.work(room, source)
     }
   }

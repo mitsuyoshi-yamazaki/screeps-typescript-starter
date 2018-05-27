@@ -12,7 +12,7 @@ export class HarvesterSquad extends Squad {
   private harvester?: Creep
   private carriers: Creep[]
   private source: Source | Mineral | undefined  // A source that the harvester harvests energy
-  private store: StructureContainer | undefined // A store that the harvester stores energy
+  private store: StructureContainer | StructureLink | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage
 
@@ -115,6 +115,13 @@ export class HarvesterSquad extends Squad {
     if (store) {
       this.store = store
       this.container = store
+    }
+
+    if (this.source_info.id == '59f19ff082100e1594f35c89') {
+      const link = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink | undefined
+      if (link && (link.energy < link.energyCapacity)) {
+        this.store = link
+      }
     }
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
@@ -393,7 +400,22 @@ export class HarvesterSquad extends Squad {
     }
 
     // Harvest
-    if ((harvester.memory.status == CreepStatus.HARVEST) && ((harvester.carry[this.resource_type!] || 0) == 0) && this.store && ((this.store!.store![this.resource_type!] || 0) < this.store.storeCapacity) && this.resource_type) {
+    let has_capacity = false
+    if (!this.store) {
+      // Does nothing
+    }
+    else if (this.resource_type && (this.store as StructureContainer).store) {
+      const capacity = (this.store as StructureContainer).storeCapacity
+      const energy_amount = (this.store as StructureContainer).store[this.resource_type!] || 0
+      has_capacity = (energy_amount < capacity)
+    }
+    else if ((this.store as StructureLink).energy) {
+      const capacity = (this.store as StructureLink).energyCapacity
+      const energy_amount = (this.store as StructureLink).energy
+      has_capacity = (energy_amount < capacity)
+    }
+
+    if ((harvester.memory.status == CreepStatus.HARVEST) && ((harvester.carry[this.resource_type!] || 0) == 0) && this.store && has_capacity) {
       const objects = harvester.room.lookAt(harvester)
       const dropped_object = objects.filter((obj) => {
         return (obj.type == 'resource')
@@ -439,7 +461,7 @@ export class HarvesterSquad extends Squad {
 
     // Charge
     if (harvester.memory.status == CreepStatus.CHARGE) {
-      if (!this.store) {
+      if (!this.store || ((this.source_info.id == '59f19ff082100e1594f35c83') && Game.getObjectById('5b0acdf3d3b671780a3db36b'))) {
         harvester.memory.status = CreepStatus.BUILD
       }
       else if ((this.resource_type == RESOURCE_ENERGY) && (this.store!.hits < this.store!.hitsMax)) {
@@ -448,13 +470,6 @@ export class HarvesterSquad extends Squad {
       }
       else {
         let store: StructureContainer | StructureLink | undefined = this.store
-
-        if (this.source_info.id == '59f19ff082100e1594f35c89') {
-          const link = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink | undefined
-          if (link && (link.energy < link.energyCapacity)) {
-            store = link
-          }
-        }
 
         const transfer_result = harvester.transfer(store, this.resource_type!)
         switch (transfer_result) {

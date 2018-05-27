@@ -118,56 +118,83 @@ export class LightWeightHarvesterSquad extends Squad {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
-        else if (this.source && (this.source.energy == 0) && (this.source.ticksToRegeneration > 50) && (creep.carry.energy > (creep.carryCapacity / 2))) {
-          creep.memory.status = CreepStatus.CHARGE
-        }
         else {
-          if (creep.room.heavyly_attacked) {
-            const closest_hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-              filter: (hostile_creep) => {
-                return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0
+          if (creep.room.name ==  this.region.room.name) {
+            const drop = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+            if (drop) {
+              if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(drop)
+                return
               }
+              else if (creep.carry.energy > 200) {
+                creep.memory.status = CreepStatus.CHARGE
+              }
+            }
+            const tomb = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+              filter: (t) => t.store.energy > 0
             })
-            if (closest_hostile && (creep.pos.getRangeTo(closest_hostile) < 8)) {
-              creep.say('RUN')
-              creep.moveTo(this.destination)
-              creep.memory.status = CreepStatus.CHARGE
-              return
+            if (tomb) {
+              if (creep.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(tomb)
+                return
+              }
+              else if (creep.carry.energy > 200) {
+                creep.memory.status = CreepStatus.CHARGE
+              }
             }
           }
 
-          if (creep.room.resourceful_tombstones.length > 0) {
-            const target = creep.room.resourceful_tombstones[0]
-            const resource_amount = _.sum(target.store)
-            if (resource_amount > 0) {
-              const vacancy = creep.carryCapacity - _.sum(creep.carry)
-              if (vacancy < resource_amount) {
-                creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
-              }
-
-              let resource_type: ResourceConstant | undefined
-              for (const type of Object.keys(target.store)) {
-                resource_type = type as ResourceConstant
-              }
-              if (resource_type) {
-                if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
-                  creep.moveTo(target)
-                  creep.say(`${target.pos.x}, ${target.pos.y}`)
+          if (this.source && (this.source.energy == 0) && (this.source.ticksToRegeneration > 50) && (creep.carry.energy > (creep.carryCapacity / 2))) {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+          else {
+            if (creep.room.heavyly_attacked) {
+              const closest_hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+                filter: (hostile_creep) => {
+                  return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0
                 }
+              })
+              if (closest_hostile && (creep.pos.getRangeTo(closest_hostile) < 8)) {
+                creep.say('RUN')
+                creep.moveTo(this.destination)
+                creep.memory.status = CreepStatus.CHARGE
                 return
               }
             }
-          }
 
-          if (this.source) {
-            if (creep.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(this.source)
+            if (creep.room.resourceful_tombstones.length > 0) {
+              const target = creep.room.resourceful_tombstones[0]
+              const resource_amount = _.sum(target.store)
+              if (resource_amount > 0) {
+                const vacancy = creep.carryCapacity - _.sum(creep.carry)
+                if (vacancy < resource_amount) {
+                  creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
+                }
+
+                let resource_type: ResourceConstant | undefined
+                for (const type of Object.keys(target.store)) {
+                  resource_type = type as ResourceConstant
+                }
+                if (resource_type) {
+                  if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target)
+                    creep.say(`${target.pos.x}, ${target.pos.y}`)
+                  }
+                  return
+                }
+              }
+            }
+
+            if (this.source) {
+              if (creep.harvest(this.source!) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(this.source)
+                return
+              }
+            }
+            else {
+              creep.moveToRoom(this.source_info.room_name)
               return
             }
-          }
-          else {
-            creep.moveToRoom(this.source_info.room_name)
-            return
           }
         }
       }
