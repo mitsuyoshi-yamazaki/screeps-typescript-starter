@@ -67,6 +67,16 @@ export class ResearcherSquad extends Squad {
         }
       }
     }
+
+    if (this.room_name == 'W48S47') {
+      this.needs_research = false // somehow it's true in W48S47
+    }
+
+    if (this.needs_research == false) {
+      this.creeps.forEach((creep) => {
+        creep.memory.let_thy_die = true
+      })
+    }
   }
 
   public get type(): SquadType {

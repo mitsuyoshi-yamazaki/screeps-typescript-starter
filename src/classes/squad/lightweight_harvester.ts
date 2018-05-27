@@ -23,6 +23,10 @@ export class LightWeightHarvesterSquad extends Squad {
       const link = Game.getObjectById('5af1b738f859db1e994a9e02') as StructureLink  // W49S47 upper right
       this.destination = link
     }
+    else if (['W49S39'].indexOf(this.source_info.room_name) >= 0) {
+      const link = Game.getObjectById('5b0a65a7741ae20afad04d05') as StructureLink  // W48S39 upper left
+      this.destination = link
+    }
   }
 
   public get type(): SquadType {
@@ -46,10 +50,14 @@ export class LightWeightHarvesterSquad extends Squad {
     const room = Game.rooms[this.source_info.room_name]
     const w45s42 = Game.rooms['W45S42']
 
-    if (!room || room.attacked) {
+    // if (this.source_info.room_name == 'W43S42') {
+    //   console.log(`HOGE ${this.source_info.room_name}, ${room}, ${room ? room.attacked : 'no visibility'}`)
+    // }
+
+    if (!room || room.heavyly_attacked) {
       return SpawnPriority.NONE
     }
-    else if ((!w45s42 || w45s42.attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
+    else if ((!w45s42 || w45s42.heavyly_attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
       return SpawnPriority.NONE
     }
 
@@ -93,11 +101,11 @@ export class LightWeightHarvesterSquad extends Squad {
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']
 
-      if (room && room.attacked && this.region.worker_squad) {
+      if (((room && room.heavyly_attacked) || (creep.hits < creep.hitsMax)) && this.region.worker_squad) {
         creep.memory.squad_name = this.region.worker_squad.name
         return
       }
-      else if ((!w45s42 || w45s42.attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
+      else if (((!w45s42 || w45s42.heavyly_attacked) || (creep.hits < creep.hitsMax)) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
         creep.memory.squad_name = this.region.worker_squad.name
         return
       }
@@ -114,7 +122,7 @@ export class LightWeightHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
-          if (creep.room.attacked) {
+          if (creep.room.heavyly_attacked) {
             if (Game.shard.name != 'swc') {
               creep.say('RUN')
               creep.moveTo(this.destination)
@@ -161,10 +169,9 @@ export class LightWeightHarvesterSquad extends Squad {
 
       if (creep.memory.status == CreepStatus.CHARGE) {
         if (creep.carry.energy == 0) {
-          if (((creep.ticksToLive || 0) < 200) && (creep.room.name == 'W44S42')) {
-            // @fixme: temp code
-            creep.memory.squad_name = 'worker5864301'
-            creep.memory.status = CreepStatus.NONE
+          if (((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
+            creep.memory.squad_name = this.region.worker_squad.name
+            creep.memory.status = CreepStatus.CHARGE
             creep.memory.let_thy_die = true
             return
           }
@@ -184,7 +191,7 @@ export class LightWeightHarvesterSquad extends Squad {
     if (!room) {
       additions = `, No visibility of ${this.source_info.room_name}`
     }
-    else if (room.attacked) {
+    else if (room.heavyly_attacked) {
       additions = `, Room ${this.source_info.room_name} is under attack`
     }
 

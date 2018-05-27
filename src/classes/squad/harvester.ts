@@ -21,7 +21,7 @@ export class HarvesterSquad extends Squad {
 
     this.destination_storage = this.destination as StructureStorage // @fixme:
 
-    if ((this.source_info.room_name == 'W48S49')) { // @fixme: temp code
+    if ((this.source_info.room_name == 'W48S49') || (this.source_info.room_name == 'W47S49')) { // @fixme: temp code
       const destination = Game.getObjectById('5aeed7712e007b09769feb8f') as StructureLink // Link in W48S47 bottom right
       if (destination) {
         this.destination = destination
@@ -42,7 +42,7 @@ export class HarvesterSquad extends Squad {
     else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
 
       const target_room = Game.rooms['W49S48']
-      if (target_room && target_room.storage) {
+      if ((this.source_info.id != '59f19ff082100e1594f35c88') && target_room && target_room.storage) {
         this.destination = target_room.storage
       }
       else {
@@ -112,11 +112,10 @@ export class HarvesterSquad extends Squad {
       }
     })[0] as StructureContainer
 
-    if (!store) {
-      return
+    if (store) {
+      this.store = store
+      this.container = store
     }
-    this.store = store
-    this.container = store
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
@@ -197,6 +196,17 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
+    else if ((this.source_info.id == '59f19fff82100e1594f35dec') && (this.carriers.length > 0)) {  // W48S39 left
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+        }
+      }) as StructureContainer | StructureLink
+
+      if (target) {
+        this.container = target
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -218,6 +228,10 @@ export class HarvesterSquad extends Squad {
     }
 
     if (!this.harvester) {
+      if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {
+        return SpawnPriority.NONE
+      }
+
       const room = Game.rooms[this.source_info.room_name]
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
       if (room && ((source.ticksToRegeneration || 0) > 100)) {
@@ -264,11 +278,17 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f19fff82100e1594f35ded') { // W48S39
       number_of_carriers = 0
     }
-
-    if (this.source_info.room_name == 'W49S48') {
+    else if (this.source_info.id == '59f19ff082100e1594f35c89') { // W49S48 bottom left
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f19ff082100e1594f35c88') { // W49S48 right
       number_of_carriers = 1
     }
-    else if (this.source_info.room_name == 'W47S49') {
+
+    if (this.source_info.room_name == 'W47S49') {
+      number_of_carriers = 3
+    }
+    else if (this.source_info.room_name == 'W48S49') {
       number_of_carriers = 3
     }
 
@@ -427,10 +447,19 @@ export class HarvesterSquad extends Squad {
         return
       }
       else {
-        const transfer_result = harvester.transfer(this.store!, this.resource_type!)
+        let store: StructureContainer | StructureLink | undefined = this.store
+
+        if (this.source_info.id == '59f19ff082100e1594f35c89') {
+          const link = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink | undefined
+          if (link) {
+            store = link
+          }
+        }
+
+        const transfer_result = harvester.transfer(store, this.resource_type!)
         switch (transfer_result) {
           case ERR_NOT_IN_RANGE:
-            harvester.moveTo(this.store!)
+            harvester.moveTo(store)
             return
 
           case ERR_FULL:

@@ -22,6 +22,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const creep_name in Game.creeps) {
     const creep = Game.creeps[creep_name]
 
+    if ((creep.ticksToLive || 0) >= 1499) {
+      creep.notifyWhenAttacked(false)
+    }
+
     if (creep.squad || creep.spawning) {
       continue
     }

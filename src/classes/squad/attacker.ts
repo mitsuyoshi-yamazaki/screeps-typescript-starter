@@ -110,6 +110,15 @@ export class AttackerSquad extends Squad {
       //   attacker.moveToRoom('W45S42')
       //   return
       // }
+      const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
+
+      if (attacker.room.attacked && !is_safemode_active) {
+        const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+        if (target) {
+          attacker.destroy(target)
+          return
+        }
+      }
 
       if (!this.destination) {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {
@@ -135,7 +144,7 @@ export class AttackerSquad extends Squad {
               break
 
             case 'W49S48':
-              attacker.moveTo(7, 10)
+              attacker.moveTo(1, 5)
               break
 
             default:

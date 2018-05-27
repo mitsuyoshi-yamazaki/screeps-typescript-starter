@@ -472,7 +472,7 @@ export function init() {
           return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
                   || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
                   || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
-                  || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 50000) && !(!structure.room.storage) && ((structure.room.storage as StructureStorage).store.energy > 20000))
+                  || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
         }
       })
 
@@ -501,8 +501,33 @@ export function init() {
         filter: (site) => site.my
       })
 
+
+      let should_upgrade = true
+      if (['W48S47', 'W49S47', 'W44S42'].indexOf(this.room.name) >= 0) {
+        let number = 0
+
+        for (const creep_name in Game.creeps) {
+          const creep = Game.creeps[creep_name]
+
+          if ((creep.room.name == this.room.name) && (creep.memory.type == CreepType.WORKER)) {
+            if (creep.memory.status == CreepStatus.UPGRADE) {
+              number += 1
+            }
+          }
+        }
+
+        if (number > 0) {
+          should_upgrade = false
+        }
+      }
+
       if (!target) {
-        this.memory.status = CreepStatus.UPGRADE
+        if (should_upgrade) {
+          this.memory.status = CreepStatus.UPGRADE
+        }
+        else {
+          this.memory.status = CreepStatus.CHARGE
+        }
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
@@ -522,7 +547,7 @@ export function init() {
         this.memory.status = CreepStatus.CHARGE
         return
       }
-      else if (this.room.storage && (this.room.storage.store.energy < 5000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
+      else if (this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
         this.memory.status = CreepStatus.CHARGE
         return
       }

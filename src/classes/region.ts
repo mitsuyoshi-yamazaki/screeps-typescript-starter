@@ -187,22 +187,20 @@ export class Region {
           { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
           { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
           { id: '59f1c0cf7d0b3d79de5f0392', room_name: 'W44S42' },  // home hydrogen
-          // { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
-          // { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
         ]
         lightweight_harvester_targets = [
-          // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
-          // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
-          // // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
-          { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
-          { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
-          { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
-          { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
-          { id: '59f1a04a82100e1594f367af', room_name: 'W43S42' },  // right
+          // // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
+          // // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
+          // // // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
+          // { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
+          // { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
+          // { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
+          // { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
+          // { id: '59f1a04a82100e1594f367af', room_name: 'W43S42' },  // right
         ]
-        rooms_need_to_be_defended = ['W45S41', 'W45S42', 'W45S43', 'W43S42']
-        this.room_names = [this.room.name]//, 'W45S42', 'W45S43']//, 'W44S43']
-        rooms_need_scout = ['W45S43', 'W45S42', 'W45S41', 'W44S41', 'W43S42']//, 'W45S41']
+        rooms_need_to_be_defended = []//['W45S41', 'W45S42', 'W45S43', 'W43S42']
+        this.room_names = [this.room.name]
+        rooms_need_scout = []//['W45S43', 'W45S42', 'W45S41', 'W44S41', 'W43S42']
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {
@@ -224,7 +222,8 @@ export class Region {
       }
       case 'W48S39':
         harvester_targets = [
-          { id: '59f19fff82100e1594f35ded', room_name: 'W48S39' },  // home
+          { id: '59f19fff82100e1594f35ded', room_name: 'W48S39' },  // home bottom
+          { id: '59f19fff82100e1594f35dec', room_name: 'W48S39' },  // home left
         ]
         lightweight_harvester_targets = [
           { id: '59f19fef82100e1594f35c6a', room_name: 'W49S39' },  // left
@@ -699,7 +698,7 @@ export class Region {
       )[0]
       const number_of_workers = this.worker_squad.creeps.size
 
-      if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4)) {
+      if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4) && (squad.creeps.size == 0)) {
         worker_harvester.memory.squad_name = squad.name
         worker_harvester.memory.status = CreepStatus.CHARGE
         console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
@@ -716,13 +715,29 @@ export class Region {
         return structure.structureType == STRUCTURE_TOWER
       }
     }) as StructureTower[]
+    // const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
     this.towers.forEach((tower) => {
-      const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-      if(closestHostile) {
-        tower.attack(closestHostile)
-        return
-      }
+      // if (!is_safemode_active) {
+        if ((this.room.attacker_info.heal < 10)) {
+          const closestDamagedHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => {
+              return creep.hits < creep.hitsMax
+            }
+          })
+          if(closestDamagedHostile) {
+            tower.attack(closestDamagedHostile)
+            return
+          }
+          else {
+            const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+            if(closestHostile) {
+              tower.attack(closestHostile)
+              return
+            }
+          }
+        }
+      // }
 
       const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: (creep) => creep.hits < creep.hitsMax
@@ -808,6 +823,14 @@ export class Region {
 
       case 'W44S42':
         destination_id = '5af19011f859db1e994a8d6d'
+        break
+
+      case 'W48S39':
+        destination_id = '5b0a2b654e8c62672f3191fb'
+        break
+
+      case 'W49S48':
+        destination_id = '5b0a45f2f30cc0671dc1e8e1'
         break
 
       default:

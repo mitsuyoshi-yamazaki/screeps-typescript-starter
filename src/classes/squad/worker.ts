@@ -36,10 +36,13 @@ export class WorkerSquad extends Squad {
       }
     }
     if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
-      max = 4
+      max = 3
     }
-    if (this.room_name == 'W49S48') {
-      max = 5
+    else if (this.room_name == 'W49S48') {
+      max = 3
+    }
+    else if (this.room_name == 'W44S42') {
+      max = 3
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -83,10 +86,10 @@ export class WorkerSquad extends Squad {
     const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
     const room = Game.rooms[this.room_name]
 
-    if ((this.room_name == 'W48S39') && (this.creeps.size > 2) && (number_of_carriers == 0) && room && room.controller && (room.controller.level >= 3)) {
-      body_unit = [CARRY, MOVE, CARRY, MOVE]
-      type = CreepType.CARRIER
-    }
+    // if ((this.creeps.size > 2) && (number_of_carriers == 0) && room && room.controller && (room.controller.level >= 5)) {
+    //   body_unit = [CARRY, MOVE, CARRY, MOVE]
+    //   type = CreepType.CARRIER
+    // }
 
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
@@ -174,7 +177,7 @@ export class WorkerSquad extends Squad {
       if (this.room_name == 'W49S48') {
         creep.memory.let_thy_die = false
       }
-      const needs_renew = (this.room_name == 'W49S48') && room && (room.spawns.length > 0) && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      const needs_renew = false//(this.room_name == 'W49S48') && room && (room.spawns.length > 0) && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
       // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
       //   creep.memory.status = CreepStatus.NONE
       // }

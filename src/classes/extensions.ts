@@ -1,6 +1,13 @@
 import { SquadMemory } from "./squad/squad";
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
 
+export interface AttackerInfo  {
+  attack: number
+  ranged_attack: number
+  heal: number
+  work: number
+}
+
 declare global {
   interface Memory {
     last_tick: number
@@ -21,6 +28,7 @@ declare global {
     attacked: boolean // @todo: change it to Creep[]
     heavyly_attacked: boolean
     resourceful_tombstones: Tombstone[]
+    attacker_info: AttackerInfo
 
     initialize(): void
   }
@@ -33,6 +41,21 @@ declare global {
 export function init() {
   Room.prototype.initialize = function() {
     this.sources = this.find(FIND_SOURCES)
+
+    const attacker_info: AttackerInfo = {
+      attack: 0,
+      ranged_attack: 0,
+      heal: 0,
+      work: 0,
+    }
+
+    this.find(FIND_HOSTILE_CREEPS).forEach((creep: Creep) => {
+      attacker_info.attack = creep.getActiveBodyparts(ATTACK)
+      attacker_info.ranged_attack = creep.getActiveBodyparts(RANGED_ATTACK)
+      attacker_info.heal = creep.getActiveBodyparts(HEAL)
+      attacker_info.work = creep.getActiveBodyparts(WORK)
+    })
+    this.attacker_info = attacker_info
 
     const hostiles = this.find(FIND_HOSTILE_CREEPS, {
       filter: function(creep: Creep): boolean {
@@ -48,7 +71,9 @@ export function init() {
         if (creep.pos.y == 49) {
           return false
         }
-        return true
+
+        const attack_parts = creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)
+        return attack_parts > 0
       }
     })
 
