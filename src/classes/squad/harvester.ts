@@ -154,7 +154,7 @@ export class HarvesterSquad extends Squad {
         Game.notify(message)
       }
     }
-    else if ((this.source_info.id == '59f19ff082100e1594f35c83') && (this.carriers.length > 0)) { // W49S47 top left
+    else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) { // W49S47 top right
       const utrium_container = Game.getObjectById('5af6018e4ce5d64c9cc2b0f3') as StructureContainer
       if (utrium_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((utrium_container.store[RESOURCE_UTRIUM] || 0) > 400)) {
         this.resource_type = RESOURCE_UTRIUM
@@ -274,7 +274,7 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 2
     }
     else if (this.source_info.id == '59f19ff082100e1594f35c83') {  // top left of W49S47
-      number_of_carriers = 2
+      number_of_carriers = 0
     }
     else if (this.source_info.id == '59f19fff82100e1594f35e08') {  // W48S47 center
       number_of_carriers = 0
@@ -467,7 +467,7 @@ export class HarvesterSquad extends Squad {
 
     // Charge
     if (harvester.memory.status == CreepStatus.CHARGE) {
-      if (!this.store || ((this.source_info.id == '59f19ff082100e1594f35c83') && Game.getObjectById('5b0acdf3d3b671780a3db36b'))) {
+      if (!this.store) {
         harvester.memory.status = CreepStatus.BUILD
       }
       else if ((this.resource_type == RESOURCE_ENERGY) && (this.store!.hits < this.store!.hitsMax)) {
