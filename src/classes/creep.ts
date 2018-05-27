@@ -424,24 +424,43 @@ export function init() {
         }
       }
       else {
+        // if (this.room.name == 'W49S48') {
+        // // To not pickup harvesters drop
+        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+        // if (drop) {
+        //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+        //     this.moveTo(drop)
+        //     return
+        //   }
+        // }
+        // const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
+        //   filter: (t) => t.store.energy > 0
+        // })
+        // if (tomb) {
+        //   if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        //     this.moveTo(tomb)
+        //     return
+        //   }
+        // }
+        // }
+
         if (this.room.name == 'W49S48') {
-        // To not pickup harvesters drop
-        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
-        if (drop) {
-          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-            this.moveTo(drop)
-            return
+          const link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
+          if (link && (link.energy > 0)) {
+            if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(link)
+              return
+            }
           }
         }
-        const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
-          filter: (t) => t.store.energy > 0
-        })
-        if (tomb) {
-          if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(tomb)
-            return
+        else if (this.room.name == 'W48S39') {
+          const link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
+          if (link && (link.energy > 0)) {
+            if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(link)
+              return
+            }
           }
-        }
         }
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {

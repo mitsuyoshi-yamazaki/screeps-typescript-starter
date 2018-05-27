@@ -123,14 +123,14 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      const is_new_room = (this.room_name == 'W49S48') || (this.room_name == 'W48S39')
-      if (is_new_room && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
-        source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: function(structure): boolean {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
-          }
-        })) as StructureContainer || undefined
-      }
+      // const is_new_room = (this.room_name == 'W49S48') || (this.room_name == 'W48S39')
+      // if (is_new_room && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
+      //   source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      //     filter: function(structure): boolean {
+      //       return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
+      //     }
+      //   })) as StructureContainer || undefined
+      // }
 
       // if (this.room_name == 'W44S42') {
       //   const target = Game.getObjectById('5af458f814e9d72ab64b0198') as Tombstone
@@ -197,6 +197,10 @@ export class WorkerSquad extends Squad {
           creep.moveTo(creep.room.storage!)
         }
         continue
+      }
+
+      if (this.room_name == 'W49S48') {
+        console.log(`HOGE source: ${source}`)
       }
 
       creep.work(room, source)

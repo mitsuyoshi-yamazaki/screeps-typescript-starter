@@ -451,7 +451,7 @@ export class HarvesterSquad extends Squad {
 
         if (this.source_info.id == '59f19ff082100e1594f35c89') {
           const link = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink | undefined
-          if (link) {
+          if (link && (link.energy < link.energyCapacity)) {
             store = link
           }
         }

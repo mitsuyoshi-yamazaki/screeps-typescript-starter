@@ -123,7 +123,12 @@ export class LightWeightHarvesterSquad extends Squad {
         }
         else {
           if (creep.room.heavyly_attacked) {
-            if (Game.shard.name != 'swc') {
+            const closest_hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+              filter: (hostile_creep) => {
+                return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0
+              }
+            })
+            if (closest_hostile && (creep.pos.getRangeTo(closest_hostile) < 8)) {
               creep.say('RUN')
               creep.moveTo(this.destination)
               creep.memory.status = CreepStatus.CHARGE
