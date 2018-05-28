@@ -2,6 +2,13 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface ManualMemory extends CreepMemory {
+  target_id?: string
+  target_x?: number
+  target_y?: number
+  search_and_destroy?: boolean
+}
+
 export class ManualSquad extends Squad {
   constructor(readonly name: string, readonly original_room_name: string) {
     super(name)
@@ -13,6 +20,7 @@ export class ManualSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
+    // return SpawnPriority.URGENT
 
     return SpawnPriority.NONE
   }
@@ -26,18 +34,43 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 650
+    return energyAvailable >= 1750
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    // const name = this.generateNewName()
+    // const body: BodyPartConstant[] = [
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   MOVE,
+    // ]
+    // const memory: CreepMemory = {
+    //   squad_name: this.name,
+    //   status: CreepStatus.NONE,
+    //   birth_time: Game.time,
+    //   type: CreepType.HEALER,
+    //   let_thy_die: true,
+    // }
+
+    // const result = spawnFunc(body, name, {
+    //   memory: memory
+    // })
+
     const name = this.generateNewName()
-    const body: BodyPartConstant[] = [MOVE, CLAIM]
+    const body: BodyPartConstant[] = [
+      TOUGH,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE,
+      MOVE
+    ]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.SCOUT,
-      let_thy_die: false,
+      type: CreepType.ATTACKER,
+      let_thy_die: true,
     }
 
     const result = spawnFunc(body, name, {
@@ -47,10 +80,142 @@ export class ManualSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      const target_room = 'W49S49'
+      // if (creep.moveToRoom('W50S40') == ActionResult.IN_PROGRESS) {
+      //   return
+      // }
+      // creep.moveTo(41, 13)
 
-      if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
-        return
+      const base_room = 'W48S34'
+      const target_room = 'W48S33'
+
+      // if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
+      //   return
+      // }
+      // // creep.moveTo(47, 43)
+      // creep.moveTo(24, 2)
+
+      // switch (creep.memory.type) {
+      //   case CreepType.HEALER:
+      //     const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+      //       filter: (c) => {
+      //         return c.hits < c.hitsMax
+      //       }
+      //     })
+      //     if (heal_target) {
+      //       if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
+      //         creep.moveTo(heal_target)
+      //         creep.rangedHeal(heal_target)
+      //       }
+      //     }
+      //     else {
+      //       creep.heal(creep)
+      //     }
+
+      //     // creep.moveTo(47, 43)
+      //     creep.moveTo(24, 2)
+      //     break
+
+      //   case CreepType.ATTACKER:
+      //     const memory: ManualMemory = creep.memory as ManualMemory
+
+      //     if ((creep.hits > 2000) && memory.target_id) {
+      //       const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
+      //       if (target) {
+      //         if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+      //           creep.moveTo(target)
+      //         }
+      //         return
+      //       }
+      //     }
+
+      //     const target_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+
+      //     if (target_creep) {
+      //       creep.attack(target_creep)
+      //     }
+
+      //     if (creep.hits <= 1500) {
+      //       if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
+      //         return
+      //       }
+      //       // creep.moveTo(47, 43)
+      //       creep.moveTo(24, 2)
+      //     }
+      //     else if (creep.hits > 2700) {
+      //       if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
+      //         return
+      //       }
+      //     }
+
+      //     break
+
+      //   default:
+      //     break
+      // }
+
+      switch (creep.memory.type) {
+        case CreepType.HEALER: {
+        const attacker = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.ATTACKER)[0]
+        if (attacker) {
+          creep.moveTo(attacker)
+        }
+        const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+          filter: (c) => {
+            return c.hits < c.hitsMax
+          }
+        })
+        if (heal_target) {
+          if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
+            creep.rangedHeal(heal_target)
+          }
+        }
+        else {
+          creep.heal(creep)
+        }
+          break
+      }
+
+        case CreepType.ATTACKER:
+        const memory: ManualMemory = creep.memory as ManualMemory
+
+        if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
+          return
+        }
+
+        if (memory.search_and_destroy) {
+          creep.searchAndDestroy()
+          return
+        }
+
+        const hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+        if (hostile_creep) {
+          creep.destroy(hostile_creep)
+          return
+        }
+
+        if ((creep.hits > 2000) && memory.target_id) {
+          const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
+          if (target) {
+            if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+              const healers = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
+                filter: (c: Creep) => {
+                  return c.memory.type == CreepType.HEALER
+                }
+              })
+              if (healers.length > 0) {
+                creep.moveTo(target)
+              }
+            }
+            return
+          }
+        }
+        else {
+          creep.moveToRoom(base_room)
+        }
+        break
+
+        default:
+          break
       }
 
     })
