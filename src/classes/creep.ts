@@ -382,9 +382,9 @@ export function init() {
       console.log(`Creep.work room not specified ${this.name}`)
     }
 
-    if ((this.room.name == 'W49S48') && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.CHARGE)) && this.room.controller && this.room.controller.my && (this.room.controller.level < 3)) {
-      this.memory.status = CreepStatus.UPGRADE
-    }
+    // if ((this.room.name == 'W49S48') && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.CHARGE)) && this.room.controller && this.room.controller.my && (this.room.controller.level < 3)) {
+    //   this.memory.status = CreepStatus.UPGRADE
+    // }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0) || (this.room.attacked == true)) {
       this.memory.status = CreepStatus.HARVEST
@@ -393,6 +393,8 @@ export function init() {
     if ((this.memory.type == CreepType.CARRIER) && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.UPGRADE))) {
       this.memory.status = CreepStatus.CHARGE
     }
+
+    let should_harvest_from_link = false
 
     // Harvest
     if (this.memory.status == CreepStatus.HARVEST) {
@@ -568,7 +570,10 @@ export function init() {
           this.memory.status = CreepStatus.HARVEST
 
           if (this.room.storage) {
-            this.moveTo(this.room.storage)
+            this.transfer(this.room.storage, RESOURCE_ENERGY)
+
+            console.log(`FUGA ${this.room.name}`)
+            should_harvest_from_link = true
           }
         }
       }
@@ -590,13 +595,56 @@ export function init() {
         this.memory.status = CreepStatus.CHARGE
         return
       }
-      else if (this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
+      else if ((['W49S48', 'W48S39'].indexOf(this.room.name) < 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
         this.memory.status = CreepStatus.CHARGE
         return
       }
       else {
         this.upgradeController(room.controller!)
         this.moveTo(room.controller!)
+        return
+      }
+    }
+
+    // ---
+    if (should_harvest_from_link) {
+      let link: StructureLink | undefined
+
+      switch (this.room.name) {
+        case 'W48S47':
+          link = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
+          break
+
+        case 'W49S47':
+          link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
+          break
+
+        case 'W44S42':
+          link = Game.getObjectById('5af19011f859db1e994a8d6d') as StructureLink
+          break
+
+        case 'W49S48':
+          link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
+          break
+
+        case 'W48S39':
+          link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
+          break
+
+        default:
+          break
+      }
+
+      if (link && (link.energy > 0)) {
+        if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          this.moveTo(link)
+          console.log(`HOGE ${this.room.name}`)
+          return
+        }
+        else if (this.room.storage) {
+          this.transfer(this.room.storage, RESOURCE_ENERGY)
+        }
+
         return
       }
     }
