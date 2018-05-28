@@ -204,7 +204,7 @@ export class LightWeightHarvesterSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry.energy == 0) {
+        if (_.sum(creep.carry) == 0) {
           if (((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
             creep.memory.squad_name = this.region.worker_squad.name
             creep.memory.status = CreepStatus.CHARGE
@@ -213,8 +213,16 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           creep.memory.status = CreepStatus.HARVEST
         }
-        else if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.destination)
+        else {
+          for (const resource_type of Object.keys(creep.carry)) {
+            const amount = creep.carry[resource_type as ResourceConstant]
+            if (amount == 0) {
+              continue
+            }
+            if (creep.transfer(this.destination, resource_type as ResourceConstant) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(this.destination)
+            }
+          }
         }
       }
     })

@@ -21,21 +21,21 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    // if (this.room_name == 'W44S42') {
+    if (this.room_name == 'W44S42') {
       return SpawnPriority.NONE
-    // }
+    }
 
-    // let max = 0
-    // const room = Game.rooms[this.room_name]
+    let max = 0
+    const room = Game.rooms[this.room_name]
 
-    // if (room && room.storage) {
-    //   const energy = room.storage.store.energy
-    //   if (energy > 100000) {
-    //     max = Math.floor(energy / 400000)
-    //   }
-    // }
+    if (room && room.storage) {
+      const energy = room.storage!.store.energy
+      if (energy > 600000) {
+        max = Math.floor(energy / 600000)
+      }
+    }
 
-    // return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
+    return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {

@@ -261,11 +261,12 @@ export class HarvesterSquad extends Squad {
     }
 
     if (!this.harvester) {
-      if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {
+      const room = Game.rooms[this.source_info.room_name]
+
+      if ((this.source_info.id == '59f1c0cf7d0b3d79de5f0392') && (!room || room.heavyly_attacked) && !Game.getObjectById('5b0be9976a892a3c1db395e2') && !Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
         return SpawnPriority.NONE
       }
 
-      const room = Game.rooms[this.source_info.room_name]
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
       if (room && ((source.ticksToRegeneration || 0) > 100)) {
         return SpawnPriority.NONE

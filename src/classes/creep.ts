@@ -572,7 +572,6 @@ export function init() {
           if (this.room.storage) {
             this.transfer(this.room.storage, RESOURCE_ENERGY)
 
-            console.log(`FUGA ${this.room.name}`)
             should_harvest_from_link = true
           }
         }
@@ -638,7 +637,6 @@ export function init() {
       if (link && (link.energy > 0)) {
         if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           this.moveTo(link)
-          console.log(`HOGE ${this.room.name}`)
           return
         }
         else if (this.room.storage) {
