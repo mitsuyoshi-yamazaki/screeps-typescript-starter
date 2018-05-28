@@ -749,8 +749,8 @@ export class Region {
       }
       else if (tower.energy > (tower.energyCapacity / 2)) {
         let hits_max = 150000
-        if (this.room.name == 'E12S19') {
-          hits_max = 100000
+        if (this.room.name == 'W49S48') {
+          hits_max = 200000
         }
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
           filter: (structure) => {

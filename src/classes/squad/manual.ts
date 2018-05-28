@@ -53,22 +53,6 @@ export class ManualSquad extends Squad {
         return
       }
 
-      let has_walls = false;
-
-      [
-        '5aec7ff359326e11aba8ddc7',
-        '5aec80dc663c34312168e148',
-      ].map(id=>(Game.getObjectById(id) as StructureWall | undefined)).forEach(wall => {
-        if (!wall) {
-          return
-        }
-        creep.destroy(wall)
-        has_walls = true
-      })
-
-      if (!has_walls) {
-        creep.searchAndDestroy()
-      }
     })
 
 //     const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower
