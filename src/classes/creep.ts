@@ -565,7 +565,11 @@ export function init() {
           this.memory.status = CreepStatus.UPGRADE
         }
         else {
-          this.memory.status = CreepStatus.CHARGE
+          this.memory.status = CreepStatus.HARVEST
+
+          if (this.room.storage) {
+            this.moveTo(this.room.storage)
+          }
         }
       }
       else if (this.carry.energy == 0) {

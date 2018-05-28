@@ -925,7 +925,7 @@ export class Region {
       return
     }
 
-    (this.room.find(FIND_STRUCTURES, {
+    const links: StructureLink[] = (this.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         return (structure.structureType == STRUCTURE_LINK)
           && (structure.id != destination.id)
@@ -942,9 +942,13 @@ export class Region {
         return true
       }
       return false
-    }).forEach((link) => {
-      link.transferEnergy(destination)
     })
+
+    for (const link of links) {
+      if (link.transferEnergy(destination) == OK) {
+        return  // To not consume all link's cooldown time at once
+      }
+    }
   }
 
   private spawnAndRenew(): void {

@@ -39,7 +39,13 @@ export class HarvesterSquad extends Squad {
         this.destination = destination
       }
     }
-    else if (['W49S48', 'W49S49'].indexOf(this.source_info.room_name) >= 0) {
+    else if ((this.source_info.room_name == 'W49S49')) { // @fixme: temp code
+      const destination = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink // Link in W49S48 bottom left
+      if (destination) {
+        this.destination = destination
+      }
+    }
+    else if (['W49S48'].indexOf(this.source_info.room_name) >= 0) {
 
       const target_room = Game.rooms['W49S48']
       if ((this.source_info.id != '59f19ff082100e1594f35c88') && target_room && target_room.storage) {
@@ -160,6 +166,19 @@ export class HarvesterSquad extends Squad {
         this.resource_type = RESOURCE_UTRIUM
         this.container = utrium_container
       }
+      else {
+        const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+          filter: (structure) => {
+            return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 600))
+              || ((structure.id == '5af1900395fe4569eddba9da') && ((structure as StructureLink).energy > 0)) // link
+          }
+        }) as StructureContainer | StructureLink
+
+        if (target) {
+          this.container = target
+        }
+      }
+
       if (!utrium_container) {
         const message = `HarvesterSquad utrium_container in ${this.source_info.room_name} not found`
         console.log(message)
@@ -197,18 +216,19 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
-    else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) {  // W49S47 right
-      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
-        filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
-            || ((structure.id == '5af1900395fe4569eddba9da') && ((structure as StructureLink).energy > 0)) // No Link yet
-        }
-      }) as StructureContainer | StructureLink
+    // else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) {  // W49S47 right
+    //   const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
+    //     filter: (structure) => {
+    //       return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+    //         || ((structure.id == '5af1900395fe4569eddba9da') && ((structure as StructureLink).energy > 0)) // link
+    //     }
+    //   }) as StructureContainer | StructureLink
 
-      if (target) {
-        this.container = target
-      }
-    }
+    //   if (target) {
+    //     this.container = target
+    //     console.log(`FUGA`)
+    //   }
+    // }
     else if ((this.source_info.id == '59f19fff82100e1594f35dec') && (this.carriers.length > 0)) {  // W48S39 left
       const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
         filter: (structure) => {

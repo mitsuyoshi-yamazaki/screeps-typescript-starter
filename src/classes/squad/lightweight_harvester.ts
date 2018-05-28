@@ -120,7 +120,11 @@ export class LightWeightHarvesterSquad extends Squad {
         }
         else {
           if (creep.room.name ==  this.region.room.name) {
-            const drop = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+            const drop = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+              filter: (d) => {
+                return (d.resourceType == RESOURCE_ENERGY) && (d.amount > 50)
+              }
+            }) as Resource
             if (drop) {
               if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(drop)
@@ -131,7 +135,7 @@ export class LightWeightHarvesterSquad extends Squad {
               }
             }
             const tomb = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
-              filter: (t) => t.store.energy > 0
+              filter: (t) => t.store.energy > 50
             })
             if (tomb) {
               if (creep.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

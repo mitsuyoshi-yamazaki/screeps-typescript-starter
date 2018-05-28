@@ -95,6 +95,8 @@ export class ScoutSquad extends Squad {
           return
         }
       }
+
+      creep.moveTo(25, 25)
     })
   }
 
