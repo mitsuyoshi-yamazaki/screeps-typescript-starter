@@ -13,6 +13,7 @@ export enum SquadType {
   CONTROLLER_KEEPER = "controller_keeper",
   WORKER            = "worker",
   UPGRADER          = "upgrader",
+  BOOSTED_UPGRADER  = "boosted_upgrader",
   HARVESTER         = "harvester",
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
