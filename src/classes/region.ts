@@ -657,7 +657,7 @@ export class Region {
     // --- Construction site ---
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
-      if (flag.room!.name != this.room.name) {
+      if (flag.room && (flag.room.name != this.room.name)) {
         continue
       }
       if (this.room.spawns.length == 0) {
@@ -668,9 +668,9 @@ export class Region {
       }
 
       if (this.room.createConstructionSite(flag.pos, STRUCTURE_EXTENSION) == OK) {
+        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}`)
         flag.remove()
 
-        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}`)
         break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
         // so call it one by one
       }
@@ -749,8 +749,8 @@ export class Region {
       }
       else if (tower.energy > (tower.energyCapacity / 2)) {
         let hits_max = 150000
-        if (this.room.name == 'W49S48') {
-          hits_max = 200000
+        if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+          hits_max = 300000
         }
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
           filter: (structure) => {
@@ -861,9 +861,9 @@ export class Region {
       return
     }
 
-    if (room.controller.level < 5) {
-      return
-    }
+    // if (room.controller.level < 5) {
+    //   return
+    // }
 
     const is_safemode_active = (room.controller.safeMode || 0) > 0
     if (is_safemode_active) {

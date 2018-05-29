@@ -403,7 +403,12 @@ export class HarvesterSquad extends Squad {
       let_thy_die: false,
     }
 
-    energyAvailable = Math.min(energyAvailable, 1200)
+    let max_energy = 1200
+    if (this.source_info.id == '59f19fff82100e1594f35dec') {
+      max_energy = 600
+    }
+
+    energyAvailable = Math.min(energyAvailable, max_energy)
 
     while (energyAvailable >= energy_unit) {
       body = body.concat(body_unit)

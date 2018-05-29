@@ -24,7 +24,7 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.URGENT
     }
 
-    let max = 5
+    let max = 4
     const room = Game.rooms[this.room_name]
 
     if (room && room.controller) {
@@ -39,10 +39,13 @@ export class WorkerSquad extends Squad {
       max = 3
     }
     else if (this.room_name == 'W49S48') {
-      max = 3
+      max = 2
     }
     else if (this.room_name == 'W44S42') {
       max = 3
+    }
+    else if (this.room_name == 'W48S39') {
+      max = 1
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE

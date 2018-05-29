@@ -560,6 +560,9 @@ export function init() {
         if (number > 0) {
           should_upgrade = false
         }
+        if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+          should_upgrade = true
+        }
       }
 
       if (!target) {

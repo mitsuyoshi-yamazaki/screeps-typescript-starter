@@ -205,7 +205,7 @@ export class LightWeightHarvesterSquad extends Squad {
 
       if (creep.memory.status == CreepStatus.CHARGE) {
         if (_.sum(creep.carry) == 0) {
-          if (((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
+          if ((this.region.room.name != 'W48S39') && ((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
             creep.memory.squad_name = this.region.worker_squad.name
             creep.memory.status = CreepStatus.CHARGE
             creep.memory.let_thy_die = true

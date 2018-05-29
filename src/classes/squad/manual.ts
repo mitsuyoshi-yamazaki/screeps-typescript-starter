@@ -20,9 +20,9 @@ export class ManualSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    // return SpawnPriority.URGENT
+    return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
 
-    return SpawnPriority.NONE
+    // return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -34,42 +34,24 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 1750
+    return energyAvailable >= 1700
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    // const name = this.generateNewName()
-    // const body: BodyPartConstant[] = [
-    //   MOVE, MOVE, MOVE, MOVE, MOVE,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   MOVE,
-    // ]
-    // const memory: CreepMemory = {
-    //   squad_name: this.name,
-    //   status: CreepStatus.NONE,
-    //   birth_time: Game.time,
-    //   type: CreepType.HEALER,
-    //   let_thy_die: true,
-    // }
-
-    // const result = spawnFunc(body, name, {
-    //   memory: memory
-    // })
-
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
-      TOUGH,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE,
-      MOVE
+      CARRY, MOVE, CARRY, MOVE,
+      CARRY, MOVE, CARRY, MOVE,
+      CARRY, MOVE, CARRY, MOVE,
+      CARRY, MOVE, CARRY, MOVE,
+      WORK, MOVE, WORK, MOVE, WORK, MOVE,
+      WORK, MOVE, WORK, MOVE, WORK, MOVE,
     ]
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.ATTACKER,
+      type: CreepType.WORKER,
       let_thy_die: true,
     }
 
@@ -79,209 +61,128 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
+    let flag_checked = false
+
     this.creeps.forEach((creep) => {
-      // if (creep.moveToRoom('W50S40') == ActionResult.IN_PROGRESS) {
-      //   return
-      // }
-      // creep.moveTo(41, 13)
+      const target_room_name = 'W49S34'
 
-      const base_room = 'W48S34'
-      const target_room = 'W48S33'
-
-      // if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
-      //   return
-      // }
-      // // creep.moveTo(47, 43)
-      // creep.moveTo(24, 2)
-
-      // switch (creep.memory.type) {
-      //   case CreepType.HEALER:
-      //     const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
-      //       filter: (c) => {
-      //         return c.hits < c.hitsMax
-      //       }
-      //     })
-      //     if (heal_target) {
-      //       if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
-      //         creep.moveTo(heal_target)
-      //         creep.rangedHeal(heal_target)
-      //       }
-      //     }
-      //     else {
-      //       creep.heal(creep)
-      //     }
-
-      //     // creep.moveTo(47, 43)
-      //     creep.moveTo(24, 2)
-      //     break
-
-      //   case CreepType.ATTACKER:
-      //     const memory: ManualMemory = creep.memory as ManualMemory
-
-      //     if ((creep.hits > 2000) && memory.target_id) {
-      //       const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
-      //       if (target) {
-      //         if (creep.attack(target) == ERR_NOT_IN_RANGE) {
-      //           creep.moveTo(target)
-      //         }
-      //         return
-      //       }
-      //     }
-
-      //     const target_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-
-      //     if (target_creep) {
-      //       creep.attack(target_creep)
-      //     }
-
-      //     if (creep.hits <= 1500) {
-      //       if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
-      //         return
-      //       }
-      //       // creep.moveTo(47, 43)
-      //       creep.moveTo(24, 2)
-      //     }
-      //     else if (creep.hits > 2700) {
-      //       if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
-      //         return
-      //       }
-      //     }
-
-      //     break
-
-      //   default:
-      //     break
-      // }
-
-      switch (creep.memory.type) {
-        case CreepType.HEALER: {
-        const attacker = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.ATTACKER)[0]
-        if (attacker) {
-          creep.moveTo(attacker)
-        }
-        const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
-          filter: (c) => {
-            return c.hits < c.hitsMax
-          }
-        })
-        if (heal_target) {
-          if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
-            creep.rangedHeal(heal_target)
-          }
-        }
-        else {
-          creep.heal(creep)
-        }
-          break
+      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+        return
       }
 
-        case CreepType.ATTACKER:
-        const memory: ManualMemory = creep.memory as ManualMemory
+      if (creep.room.attacked) {
+        creep.moveToRoom('W50S34')
+        Game.notify(`${target_room_name} is under attack`)
+        return
+      }
 
-        if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
-          return
+      if (!flag_checked && (Game.time % 11 == 0)) {
+        const has_construction_site = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0
+
+        if (has_construction_site == false) {
+          const flag = creep.room.find(FIND_FLAGS)[0]
+
+          if (flag && (creep.room.createConstructionSite(flag.pos, STRUCTURE_CONTAINER) == OK)) {
+            console.log(`Place container construction site on ${flag.pos.x}, ${flag.pos.y} in ${creep.room}`)
+            flag.remove()
+          }
         }
+      }
 
-        if (memory.search_and_destroy) {
-          creep.searchAndDestroy()
-          return
+      // ---
+
+      if (!creep.memory.status || (creep.memory.status == CreepStatus.NONE)) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+
+      if (creep.carry.energy == 0) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+      else if (((creep.ticksToLive || 0) < 30) && (creep.carry.energy > 10)) {
+        creep.memory.status = CreepStatus.BUILD
+      }
+
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (creep.carry.energy == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.BUILD
         }
+        else {
+          const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
-        const hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-        if (hostile_creep) {
-          creep.destroy(hostile_creep)
-          return
-        }
-
-        if ((creep.hits > 2000) && memory.target_id) {
-          const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
-          if (target) {
-            if (creep.attack(target) == ERR_NOT_IN_RANGE) {
-              const healers = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
-                filter: (c: Creep) => {
-                  return c.memory.type == CreepType.HEALER
-                }
-              })
-              if (healers.length > 0) {
-                creep.moveTo(target)
-              }
+          if (source) {
+            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(source)
             }
             return
           }
         }
-        else {
-          creep.moveToRoom(base_room)
-        }
-        break
-
-        default:
-          break
       }
 
+      if (creep.memory.status == CreepStatus.BUILD) {
+        const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.hits < (structure.hitsMax * 0.6))
+          }
+        })
+
+        if (damaged_structure) {
+          if (creep.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(damaged_structure)
+          }
+          return
+        }
+        else {
+          const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
+
+          if (construction_site) {
+            if (creep.build(construction_site) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(construction_site)
+            }
+            return
+          }
+          else {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
+          }
+        })
+
+        if (container) {
+          if (creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(container)
+          }
+          return
+        }
+        else {
+          creep.memory.status = CreepStatus.ATTACK
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.ATTACK) {
+        if (creep.carry.energy == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.BUILD
+        }
+        else {
+          const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+
+          if (target) {
+            if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target)
+            }
+            return
+          }
+          else {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+        }
+      }
     })
-
-//     const tower = Game.getObjectById('5aeb9ed3eaccbf11e1955a7c') as StructureTower
-//     let can_enter = false
-//     const c = Array.from(this.creeps.values())[0]
-
-//     if (tower && c) {
-//       can_enter = !(!c.pos.findClosestByPath(FIND_HOSTILE_SPAWNS))
-//     }
-
-//     this.creeps.forEach((creep) => {
-//       // if (creep.moveToRoom('W45S42') == ActionResult.IN_PROGRESS) {
-//       //   return
-//       // }
-
-//       // creep.moveTo(19, 13, {
-//       //   reusePath: 10,
-//       //   // ignoreCreeps: true,
-//       // })
-
-// // ---
-
-//       // //
-//       if (creep.moveToRoom('W45S41') == ActionResult.IN_PROGRESS) {
-//         return
-//       }
-
-//       const target = Game.getObjectById('5ac2d0ab0c49004bea3ce1f3') as Structure
-//       if (target) {
-//         creep.destroy(target)
-//       }
-//       else {
-//         creep.searchAndDestroy()
-//       }
-
-//       // if (can_enter) {
-//       //   creep.moveTo(tower!)
-//       // }
-//       // else {
-//         // creep.moveTo(24, 45, {
-//         //   reusePath: 2,
-//         //   // ignoreCreeps: true,
-//         // })
-
-//       // }
-//     })
-
-    // this.withdrawFromLabs()
-
-    // this.chargeLab()
-
-    // this.dismantle()
-    // this.attack()
-
-    // const target_room_name = 'W44S43'
-
-    // this.creeps.forEach((creep) => {
-    //   // if (creep.searchAndDestroy() == ActionResult.DONE) {
-    //   //   return
-    //   // }
-    //   if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-    //     return
-    //   }
-    // })
   }
 
   public description(): string {
@@ -391,9 +292,8 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private dismantle(): void {
+  private dismantle(target_room_name: string): void {
     this.creeps.forEach((creep, _) => {
-      const target_room_name = 'W44S43'
 
       creep.drop(RESOURCE_ENERGY)
 
@@ -533,6 +433,186 @@ export class ManualSquad extends Squad {
           }
         }
       }
+    })
+  }
+
+  private tempAttack() {
+    this.creeps.forEach((creep) => {
+      creep.moveTo(41, 13)
+
+      const base_room = 'W48S34'
+      const target_room = 'W48S33'
+
+      if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
+        return
+      }
+      // creep.moveTo(47, 43)
+      creep.moveTo(24, 2)
+
+      switch (creep.memory.type) {
+        case CreepType.HEALER:
+          const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+            filter: (c) => {
+              return c.hits < c.hitsMax
+            }
+          })
+          if (heal_target) {
+            if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(heal_target)
+              creep.rangedHeal(heal_target)
+            }
+          }
+          else {
+            creep.heal(creep)
+          }
+
+          // creep.moveTo(47, 43)
+          creep.moveTo(24, 2)
+          break
+
+        case CreepType.ATTACKER:
+          const memory: ManualMemory = creep.memory as ManualMemory
+
+          if ((creep.hits > 2000) && memory.target_id) {
+            const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
+            if (target) {
+              if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target)
+              }
+              return
+            }
+          }
+
+          const target_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+
+          if (target_creep) {
+            creep.attack(target_creep)
+          }
+
+          if (creep.hits <= 1500) {
+            if (creep.moveToRoom(base_room) == ActionResult.IN_PROGRESS) {
+              return
+            }
+            // creep.moveTo(47, 43)
+            creep.moveTo(24, 2)
+          }
+          else if (creep.hits > 2700) {
+            if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
+              return
+            }
+          }
+
+          break
+
+        default:
+          break
+      }
+
+      // switch (creep.memory.type) {
+      //   case CreepType.HEALER: {
+      //   const attacker = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.ATTACKER)[0]
+      //   if (attacker) {
+      //     creep.moveTo(attacker)
+      //   }
+      //   const heal_target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+      //     filter: (c) => {
+      //       return c.hits < c.hitsMax
+      //     }
+      //   })
+      //   if (heal_target) {
+      //     if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
+      //       creep.rangedHeal(heal_target)
+      //     }
+      //   }
+      //   else {
+      //     creep.heal(creep)
+      //   }
+      //     break
+      // }
+
+      //   case CreepType.ATTACKER:
+      //   const memory: ManualMemory = creep.memory as ManualMemory
+
+      //   if (creep.moveToRoom(target_room) == ActionResult.IN_PROGRESS) {
+      //     return
+      //   }
+
+      //   if (memory.search_and_destroy) {
+      //     creep.searchAndDestroy()
+      //     return
+      //   }
+
+      //   const hostile_creep = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+      //   if (hostile_creep) {
+      //     creep.destroy(hostile_creep)
+      //     return
+      //   }
+
+      //   if ((creep.hits > 2000) && memory.target_id) {
+      //     const target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
+      //     if (target) {
+      //       if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+      //         const healers = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
+      //           filter: (c: Creep) => {
+      //             return c.memory.type == CreepType.HEALER
+      //           }
+      //         })
+      //         if (healers.length > 0) {
+      //           creep.moveTo(target)
+      //         }
+      //       }
+      //       return
+      //     }
+      //   }
+      //   else {
+      //     creep.moveToRoom(base_room)
+      //   }
+      //   break
+
+      //   default:
+      //     break
+      // }
+    })
+  }
+
+  private addAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
+        // const name = this.generateNewName()
+    // const body: BodyPartConstant[] = [
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   MOVE,
+    // ]
+    // const memory: CreepMemory = {
+    //   squad_name: this.name,
+    //   status: CreepStatus.NONE,
+    //   birth_time: Game.time,
+    //   type: CreepType.HEALER,
+    //   let_thy_die: true,
+    // }
+
+    // const result = spawnFunc(body, name, {
+    //   memory: memory
+    // })
+
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      TOUGH,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE,
+      MOVE
+    ]
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.ATTACKER,
+      let_thy_die: true,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
     })
   }
 }
