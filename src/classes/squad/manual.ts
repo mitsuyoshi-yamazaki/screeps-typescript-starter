@@ -20,7 +20,7 @@ export class ManualSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
 
     // return SpawnPriority.NONE
   }
@@ -122,6 +122,7 @@ export class ManualSquad extends Squad {
         const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
             return (structure.hits < (structure.hitsMax * 0.6))
+              && (structure.id != '5b0da4219812cf66aa9c7f5a')
           }
         })
 
@@ -147,6 +148,15 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
+
+        let target = Game.getObjectById('5b0da4219812cf66aa9c7f5a') as StructureContainer | undefined
+        if (target) {
+          creep.memory.status = CreepStatus.ATTACK
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+
         const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
@@ -169,9 +179,11 @@ export class ManualSquad extends Squad {
           creep.memory.status = CreepStatus.BUILD
         }
         else {
-          const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+          // const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+          let target = Game.getObjectById('5b0da4219812cf66aa9c7f5a') as StructureContainer | undefined
 
           if (target) {
+            creep.withdraw(target, RESOURCE_ENERGY)
             if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
             }
