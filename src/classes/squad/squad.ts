@@ -22,6 +22,7 @@ export enum SquadType {
   ATTACKER          = 'attacker',
   RAIDER            = 'raider',
   INVADER           = 'invader',
+  TEMP              = "temp",
 }
 
 export interface SpawnFunction {

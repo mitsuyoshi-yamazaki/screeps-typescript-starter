@@ -126,52 +126,19 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      // const is_new_room = (this.room_name == 'W49S48') || (this.room_name == 'W48S39')
-      // if (is_new_room && (!source || (source && source.structureType == STRUCTURE_CONTAINER))) {
-      //   source = (creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      //     filter: function(structure): boolean {
-      //       return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
-      //     }
-      //   })) as StructureContainer || undefined
-      // }
-
-      // if (this.room_name == 'W44S42') {
-      //   const target = Game.getObjectById('5af458f814e9d72ab64b0198') as Tombstone
-      //   if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      //     const r = creep.moveTo(target)
-      //     console.log(`ERROR ${r}, ${creep.name}`)
-      //   }
-      //   // creep.moveTo(38, 7)
-      //   // creep.drop(RESOURCE_ENERGY)
-      //   console.log(`target: ${target}`)
-      //   continue
-      // }
-
-      // 1165
-
-      // if (creep.id == '5aede8f04390a242a4c00c44') {
-      //   let resource_type: string | undefined
-      //   for (const type of Object.keys(creep.carry)) {
-      //     if (type == 'energy') {
-      //       continue
-      //     }
-      //     resource_type = type
-      //     break
-      //   }
-      //   if (resource_type) {
-      //     const storage = Game.getObjectById('5aefe21eaade48390c7da59c') as StructureStorage
-      //     const r = creep.transfer(storage, resource_type as ResourceConstant)
-      //     if (r == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(storage)
-      //     }
-      //     console.log(`ERROR: ${r}, ${resource_type}, ${creep.name}`)
-      //   }
-      //   continue
-      // }
-
       if (creep.room.name != this.room_name) {
         creep.moveToRoom(this.room_name)
         continue
+      }
+
+      if (this.room_name == 'W49S34') {
+        source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+          }
+        }) as StructureContainer | undefined
+
+        creep.memory.let_thy_die = false
       }
 
       // Renewal needs almost same but slightly less time
@@ -180,7 +147,7 @@ export class WorkerSquad extends Squad {
       if (this.room_name == 'W49S48') {
         creep.memory.let_thy_die = false
       }
-      const needs_renew = false//(this.room_name == 'W49S48') && room && (room.spawns.length > 0) && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
       // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
       //   creep.memory.status = CreepStatus.NONE
       // }

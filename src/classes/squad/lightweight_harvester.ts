@@ -27,6 +27,12 @@ export class LightWeightHarvesterSquad extends Squad {
       const link = Game.getObjectById('5b0a65a7741ae20afad04d05') as StructureLink  // W48S39 upper left
       this.destination = link
     }
+    else if (this.source_info.room_name == 'W48S34') {
+      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined
+      if (container) {
+        this.destination = container
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -118,7 +124,7 @@ export class LightWeightHarvesterSquad extends Squad {
           return
         }
         else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-          creep.memory.status = CreepStatus.NONE
+          creep.memory.status = CreepStatus.CHARGE
         }
       }
 

@@ -426,25 +426,25 @@ export function init() {
         }
       }
       else {
-        // if (this.room.name == 'W49S48') {
-        // // To not pickup harvesters drop
-        // const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
-        // if (drop) {
-        //   if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(drop)
-        //     return
-        //   }
-        // }
-        // const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
-        //   filter: (t) => t.store.energy > 0
-        // })
-        // if (tomb) {
-        //   if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        //     this.moveTo(tomb)
-        //     return
-        //   }
-        // }
-        // }
+        if (this.room.name == 'W49S34') {
+        // To not pickup harvesters drop
+        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+        if (drop) {
+          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+            this.moveTo(drop)
+            return
+          }
+        }
+        const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
+          filter: (t) => t.store.energy > 0
+        })
+        if (tomb) {
+          if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(tomb)
+            return
+          }
+        }
+        }
 
         let link: StructureLink | undefined
 
@@ -491,6 +491,23 @@ export function init() {
             return
           }
         }
+        else if (this.room.name == 'W49S34') {
+          const source = this.room.sources[this.memory.birth_time % 2]
+          if (source && ((source.energy > 0) || (source.ticksToRegeneration < 10))) {
+            if (this.harvest(source) == ERR_NOT_IN_RANGE) {
+              this.moveTo(source)
+              return
+            }
+          }
+          else {
+            const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+
+            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+              this.moveTo(target)
+              return
+            }
+          }
+        }
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
@@ -502,26 +519,26 @@ export function init() {
       }
     }
 
-    if ((this.memory.status == CreepStatus.UPGRADE) && (((Game.time - this.memory.birth_time) % 5) == 0)) {
-      this.memory.status = CreepStatus.CHARGE
-    }
+    // if ((this.memory.status == CreepStatus.UPGRADE) && (((Game.time - this.memory.birth_time) % 5) == 0)) {
+    //   this.memory.status = CreepStatus.CHARGE
+    // }
 
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
-      if (this.room.name == 'W49S34') {
-        const container = this.pos.findInRange(FIND_STRUCTURES, 2, {
-          filter: (structure: AnyStructure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (_.sum(structure.store) < structure.storeCapacity)
-          }
-        })[0]
+      // if (this.room.name == 'W49S34') {
+      //   const container = this.pos.findInRange(FIND_STRUCTURES, 2, {
+      //     filter: (structure: AnyStructure) => {
+      //       return (structure.structureType == STRUCTURE_CONTAINER) && (_.sum(structure.store) < structure.storeCapacity)
+      //     }
+      //   })[0]
 
-        if (container) {
-          if (this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(container)
-            return
-          }
-        }
-      }
+      //   if (container) {
+      //     if (this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      //       this.moveTo(container)
+      //       return
+      //     }
+      //   }
+      // }
 
       const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: structure => {
@@ -549,8 +566,35 @@ export function init() {
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
       if (this.room.attacked) {
-        this.memory.status = CreepStatus.CHARGE
-        return
+        const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
+
+        if (!is_safemode_active) {
+          this.memory.status = CreepStatus.CHARGE
+          return
+        }
+      }
+
+      if (this.room.controller && this.room.controller.my && (this.room.controller.ticksToDowngrade < 5000)) {
+        this.memory.status = CreepStatus.UPGRADE
+      }
+    }
+
+    if (this.memory.status == CreepStatus.BUILD) {
+      if (this.room.name == 'W49S34') {
+        const damaged_structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType != STRUCTURE_WALL)
+              && (structure.structureType != STRUCTURE_RAMPART)
+              && (structure.hits < (structure.hitsMax * 0.6))
+          }
+        })
+
+        if (damaged_structure) {
+          if (this.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
+            this.moveTo(damaged_structure)
+          }
+          return
+        }
       }
 
       const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
@@ -580,6 +624,10 @@ export function init() {
         }
       }
 
+      if (this.room.name == 'W48S39') {
+        should_upgrade = false
+      }
+
       if (!target) {
         if (should_upgrade) {
           this.memory.status = CreepStatus.UPGRADE
@@ -597,7 +645,8 @@ export function init() {
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
       }
-      else if (this.build(target) == ERR_NOT_IN_RANGE) {
+      else {
+        this.build(target)
         this.moveTo(target)
         return
       }
@@ -783,6 +832,12 @@ export function init() {
 
       case ERR_NOT_IN_RANGE:
         this.moveTo(target)
+        return ActionResult.IN_PROGRESS
+
+      case ERR_GCL_NOT_ENOUGH:
+        console.log(`Creep.claim ${action} GCL not enough ${result}, ${this.name}`)
+        this.moveTo(target)
+        this.reserveController(target)
         return ActionResult.IN_PROGRESS
 
       default:

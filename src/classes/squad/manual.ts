@@ -22,9 +22,9 @@ export class ManualSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+    // return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
 
-    // return SpawnPriority.NONE
+    return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -64,114 +64,54 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
-    let flag_checked = false
-
     this.creeps.forEach((creep) => {
       const memory = creep.memory as ManualMemory
-      const target_room_name = 'W49S34'
-      const target_container_id = '5b0db80109027f220a404a60'
-      let was_harvester = (creep.memory.status == CreepStatus.HARVEST)
 
-      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-        return
-      }
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
-      if ((creep.room.attacked) && (creep.hits < 1000)) {
-        creep.moveToRoom('W50S34')
-        Game.notify(`${target_room_name} is under attack`)
-        return
-      }
-      else if (Game.time % 13 == 0) {
-        const can_work = (creep.getActiveBodyparts(WORK) + creep.getActiveBodyparts(CARRY) + creep.getActiveBodyparts(MOVE)) > 0
-        if (!can_work) {
-          console.log(`Creep in ${creep.room.name} suicide ${creep.body.map(b=>b.type)}`)
-          creep.suicide()
+      if (needs_renew) {
+        if ((creep.room.spawns.length > 0)) {
+          creep.goToRenew(creep.room.spawns[0])
+          creep.transfer(creep.room.spawns[0], RESOURCE_ENERGY)
           return
         }
-      }
-
-      if (!flag_checked && (Game.time % 11 == 0)) {
-        const has_construction_site = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0
-
-        if (has_construction_site == false) {
-          const flag = creep.room.find(FIND_FLAGS)[0]
-
-          if (flag && (creep.room.createConstructionSite(flag.pos, STRUCTURE_CONTAINER) == OK)) {
-            console.log(`Place container construction site on ${flag.pos.x}, ${flag.pos.y} in ${creep.room}`)
-            flag.remove()
-          }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.CHARGE
         }
       }
 
-      // ---
-
-      const is_going_to_die = ((creep.ticksToLive || 0) < 30)
-
-      if (!creep.memory.status || (creep.memory.status == CreepStatus.NONE)) {
+      if (creep.memory.status == CreepStatus.NONE) {
         creep.memory.status = CreepStatus.HARVEST
-      }
-
-      if (creep.carry.energy == 0) {
-        creep.memory.status = CreepStatus.HARVEST
-      }
-      else if (is_going_to_die && (creep.carry.energy > 10)) {
-        creep.memory.status = CreepStatus.ATTACK
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
-        (creep.memory as ManualMemory).repairing_structure_id = undefined
-
         if (creep.carry.energy == creep.carryCapacity) {
-          creep.memory.status = CreepStatus.BUILD
+          creep.memory.status = CreepStatus.CHARGE
+
+          const needs_renew = !creep.memory.let_thy_die && (((creep.ticksToLive || 0) < 300))
+
+          if (needs_renew) {
+            if ((creep.room.spawns.length > 0)) {
+              creep.goToRenew(creep.room.spawns[0])
+              return
+            }
+          }
         }
         else {
-          const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+          let target: Source | undefined
 
-          if (source) {
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(source)
+          if (memory.target_id) {
+            target = Game.getObjectById(memory.target_id) as Source | undefined
+          }
+          if (!target) {
+            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+          }
+
+          if (target) {
+            if (creep.harvest(target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target)
+              return
             }
-            return
-          }
-        }
-      }
-
-      if (creep.memory.status == CreepStatus.BUILD) {
-        if (memory.repairing_structure_id) {
-          const repair_target = Game.getObjectById(memory.repairing_structure_id) as AnyStructure | undefined
-          if (repair_target && (repair_target.hits < (repair_target.hitsMax * 0.8))) {
-            if (creep.repair(repair_target) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(repair_target)
-            }
-            return
-          }
-          else {
-            (creep.memory as ManualMemory).repairing_structure_id = undefined
-          }
-        }
-
-        const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.hits < (structure.hitsMax * 0.6))
-              && (structure.id != target_container_id)
-          }
-        })
-
-        if (damaged_structure) {
-          (creep.memory as ManualMemory).repairing_structure_id = damaged_structure.id
-          if (creep.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(damaged_structure)
-          }
-          return
-        }
-        else {
-          const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
-
-          if (construction_site) {
-            if (creep.build(construction_site) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(construction_site)
-            }
-            return
           }
           else {
             creep.memory.status = CreepStatus.CHARGE
@@ -180,78 +120,25 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
-
-        let target = Game.getObjectById(target_container_id) as StructureContainer | undefined
-        if (target) {
-          creep.memory.status = CreepStatus.ATTACK
-        }
-      }
-
-      if (creep.memory.status == CreepStatus.CHARGE) {
         if (creep.carry.energy == 0) {
           creep.memory.status = CreepStatus.HARVEST
-          return
-        }
-
-        const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
-          }
-        })
-
-        if (container) {
-          if (creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(container)
-          }
-          return
         }
         else {
-          creep.memory.status = CreepStatus.ATTACK
-        }
-      }
-
-      if (creep.memory.status == CreepStatus.ATTACK) {
-        if ((creep.carry.energy == creep.carryCapacity) && !was_harvester && !is_going_to_die) {
-          creep.memory.status = CreepStatus.BUILD
-        }
-        else {
-          // const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
-          let target = Game.getObjectById(target_container_id) as StructureContainer | undefined
-
-          if (target && !is_going_to_die) {
-            creep.withdraw(target, RESOURCE_ENERGY)
-            if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target)
+          const container = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+            filter: (structure: AnyStructure) => {
+              return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
             }
-            return
-          }
-          else if (was_harvester || is_going_to_die) {
-            ErrorMapper.wrapLoop(() => {
-              const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
-                filter: (d: Resource) => {
-                  return (d.resourceType == RESOURCE_ENERGY)
-                }
-              })[0]
+          })[0]
 
-              if (drop) {
-                if ((drop.pos.x == creep.pos.x) && (drop.pos.y == creep.pos.y)) {
-                  creep.drop(RESOURCE_ENERGY)
-                }
-                else {
-                  creep.moveTo(drop)
-                  if (Game.time % 3 == 0) {
-                    creep.drop(RESOURCE_ENERGY)
-                  }
-                }
-              }
-              else {
-                creep.drop(RESOURCE_ENERGY)
-              }
-            })()
-            creep.memory.status = CreepStatus.HARVEST
+          if (container) {
+            if (creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(container)
+            }
           }
           else {
+            creep.drop(RESOURCE_ENERGY)
             creep.memory.status = CreepStatus.HARVEST
+            return
           }
         }
       }
@@ -686,6 +573,201 @@ export class ManualSquad extends Squad {
 
     const result = spawnFunc(body, name, {
       memory: memory
+    })
+  }
+
+  private preserve(): void {
+    let flag_checked = false
+
+    this.creeps.forEach((creep) => {
+      const memory = creep.memory as ManualMemory
+      const target_room_name = 'W49S34'
+      const target_container_id = '5b0db80109027f220a404a60'
+      let was_harvester = (creep.memory.status == CreepStatus.HARVEST)
+
+      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+        return
+      }
+
+      if ((creep.room.attacked) && (creep.hits < 1000)) {
+        creep.moveToRoom('W50S34')
+        Game.notify(`${target_room_name} is under attack`)
+        return
+      }
+      else if (Game.time % 13 == 0) {
+        const can_work = (creep.getActiveBodyparts(WORK) + creep.getActiveBodyparts(CARRY) + creep.getActiveBodyparts(MOVE)) > 0
+        if (!can_work) {
+          console.log(`Creep in ${creep.room.name} suicide ${creep.body.map(b=>b.type)}`)
+          creep.suicide()
+          return
+        }
+      }
+
+      if (!flag_checked && (Game.time % 11 == 0)) {
+        const has_construction_site = creep.room.find(FIND_CONSTRUCTION_SITES).length > 0
+
+        if (has_construction_site == false) {
+          const flag = creep.room.find(FIND_FLAGS)[0]
+
+          if (flag && (creep.room.createConstructionSite(flag.pos, STRUCTURE_CONTAINER) == OK)) {
+            console.log(`Place container construction site on ${flag.pos.x}, ${flag.pos.y} in ${creep.room}`)
+            flag.remove()
+          }
+        }
+      }
+
+      // ---
+
+      const is_going_to_die = ((creep.ticksToLive || 0) < 30)
+
+      if (!creep.memory.status || (creep.memory.status == CreepStatus.NONE)) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+
+      if (creep.carry.energy == 0) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+      else if (is_going_to_die && (creep.carry.energy > 10)) {
+        creep.memory.status = CreepStatus.ATTACK
+      }
+
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        (creep.memory as ManualMemory).repairing_structure_id = undefined
+
+        if (creep.carry.energy == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.BUILD
+        }
+        else {
+          const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+
+          if (source) {
+            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(source)
+            }
+            return
+          }
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.BUILD) {
+        if (memory.repairing_structure_id) {
+          const repair_target = Game.getObjectById(memory.repairing_structure_id) as AnyStructure | undefined
+          if (repair_target && (repair_target.hits < (repair_target.hitsMax * 0.8))) {
+            if (creep.repair(repair_target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(repair_target)
+            }
+            return
+          }
+          else {
+            (creep.memory as ManualMemory).repairing_structure_id = undefined
+          }
+        }
+
+        const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.hits < (structure.hitsMax * 0.6))
+              && (structure.id != target_container_id)
+          }
+        })
+
+        if (damaged_structure) {
+          (creep.memory as ManualMemory).repairing_structure_id = damaged_structure.id
+          if (creep.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(damaged_structure)
+          }
+          return
+        }
+        else {
+          const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
+
+          if (construction_site) {
+            if (creep.build(construction_site) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(construction_site)
+            }
+            return
+          }
+          else {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+
+        let target = Game.getObjectById(target_container_id) as StructureContainer | undefined
+        if (target) {
+          creep.memory.status = CreepStatus.ATTACK
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if (creep.carry.energy == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
+          }
+        })
+
+        if (container) {
+          if (creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(container)
+          }
+          return
+        }
+        else {
+          creep.memory.status = CreepStatus.ATTACK
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.ATTACK) {
+        if ((creep.carry.energy == creep.carryCapacity) && !was_harvester && !is_going_to_die) {
+          creep.memory.status = CreepStatus.BUILD
+        }
+        else {
+          // const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
+          let target = Game.getObjectById(target_container_id) as StructureContainer | undefined
+
+          if (target && !is_going_to_die) {
+            creep.withdraw(target, RESOURCE_ENERGY)
+            if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target)
+            }
+            return
+          }
+          else if (was_harvester || is_going_to_die) {
+            ErrorMapper.wrapLoop(() => {
+              const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
+                filter: (d: Resource) => {
+                  return (d.resourceType == RESOURCE_ENERGY)
+                }
+              })[0]
+
+              if (drop) {
+                if ((drop.pos.x == creep.pos.x) && (drop.pos.y == creep.pos.y)) {
+                  creep.drop(RESOURCE_ENERGY)
+                }
+                else {
+                  creep.moveTo(drop)
+                  if (Game.time % 3 == 0) {
+                    creep.drop(RESOURCE_ENERGY)
+                  }
+                }
+              }
+              else {
+                creep.drop(RESOURCE_ENERGY)
+              }
+            })()
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+        }
+      }
     })
   }
 }

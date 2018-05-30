@@ -273,7 +273,9 @@ export class ControllerKeeperSquad extends Squad {
       //     return
       //   }
       // }
-      if (creep.claim(this.room_name) == ActionResult.DONE) {
+      const should_claim = this.room_name == 'W49S34'
+
+      if (creep.claim(this.room_name, should_claim) == ActionResult.DONE) {
         console.log(`CLAIMED ANOTHER ROOM ${this.room_name}`)
       }
     })

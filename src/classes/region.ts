@@ -12,6 +12,7 @@ import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
+import { TempSquad } from "./squad/temp";
 
 export class Region {
   // Public
@@ -224,7 +225,7 @@ export class Region {
           { id: '59f19fff82100e1594f35dec', room_name: 'W48S39' },  // home left
         ]
         lightweight_harvester_targets = [
-          { id: '59f19fef82100e1594f35c6a', room_name: 'W49S39' },  // left
+          // { id: '59f19fef82100e1594f35c6a', room_name: 'W49S39' },  // left
         ]
         this.room_names = [this.room.name, 'W49S34']
         rooms_need_scout = ['W49S39']
@@ -242,7 +243,11 @@ export class Region {
         break
 
       case 'W49S34':
+        lightweight_harvester_targets = [
+          { id: '59f19ffe82100e1594f35ddb', room_name: 'W48S34' },
+        ]
         this.room_names = [this.room.name]
+        rooms_need_scout = ['W48S34']
         break
 
       default:
@@ -384,6 +389,12 @@ export class Region {
         const squad = new InvaderSquad(squad_memory.name, this.room.name, invade_target)
 
         invader_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.TEMP: {
+        const squad = new TempSquad(squad_memory.name, this.room.name)
+
         this.squads.set(squad.name, squad)
         break
       }
@@ -853,6 +864,10 @@ export class Region {
 
   // --- Private ---
   private activateSafeModeIfNeeded() {
+    if (this.room.name != 'W49S34') {
+      return  // @fixme: FIXMEEEEEE
+    }
+
     // Safe mode
     // @todo: this codes should be located on somewhere like Empire
     if (Game.time % 2 == 0) {

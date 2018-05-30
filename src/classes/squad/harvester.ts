@@ -271,6 +271,9 @@ export class HarvesterSquad extends Squad {
       if (room && ((source.ticksToRegeneration || 0) > 100)) {
         return SpawnPriority.NONE
       }
+      else if (room.name == 'W48S39') {
+        return SpawnPriority.NORMAL
+      }
       return SpawnPriority.HIGH
     }
 
