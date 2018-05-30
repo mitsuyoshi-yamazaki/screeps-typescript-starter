@@ -44,10 +44,11 @@ export class ManualSquad extends Squad {
     const body: BodyPartConstant[] = [
       CARRY, MOVE, CARRY, MOVE,
       CARRY, MOVE, CARRY, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
       WORK, MOVE, WORK, MOVE, WORK, MOVE,
-      WORK, MOVE, WORK, MOVE, WORK, MOVE,
+      CARRY, MOVE, CARRY, MOVE,
+      WORK, MOVE, WORK, MOVE,
+      CARRY, MOVE, CARRY, MOVE,
+      WORK, MOVE,
     ]
     const memory: CreepMemory = {
       squad_name: this.name,
@@ -75,10 +76,18 @@ export class ManualSquad extends Squad {
         return
       }
 
-      if (creep.room.attacked) {
+      if ((creep.room.attacked) && (creep.hits < 1000)) {
         creep.moveToRoom('W50S34')
         Game.notify(`${target_room_name} is under attack`)
         return
+      }
+      else if (Game.time % 13 == 0) {
+        const can_work = (creep.getActiveBodyparts(WORK) + creep.getActiveBodyparts(CARRY) + creep.getActiveBodyparts(MOVE)) > 0
+        if (!can_work) {
+          console.log(`Creep in ${creep.room.name} suicide ${creep.body.map(b=>b.type)}`)
+          creep.suicide()
+          return
+        }
       }
 
       if (!flag_checked && (Game.time % 11 == 0)) {
@@ -96,6 +105,8 @@ export class ManualSquad extends Squad {
 
       // ---
 
+      const is_going_to_die = ((creep.ticksToLive || 0) < 30)
+
       if (!creep.memory.status || (creep.memory.status == CreepStatus.NONE)) {
         creep.memory.status = CreepStatus.HARVEST
       }
@@ -103,11 +114,13 @@ export class ManualSquad extends Squad {
       if (creep.carry.energy == 0) {
         creep.memory.status = CreepStatus.HARVEST
       }
-      else if (((creep.ticksToLive || 0) < 30) && (creep.carry.energy > 10)) {
-        creep.memory.status = CreepStatus.BUILD
+      else if (is_going_to_die && (creep.carry.energy > 10)) {
+        creep.memory.status = CreepStatus.ATTACK
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
+        (creep.memory as ManualMemory).repairing_structure_id = undefined
+
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.BUILD
         }
@@ -126,7 +139,7 @@ export class ManualSquad extends Squad {
       if (creep.memory.status == CreepStatus.BUILD) {
         if (memory.repairing_structure_id) {
           const repair_target = Game.getObjectById(memory.repairing_structure_id) as AnyStructure | undefined
-          if (repair_target && (repair_target.hits > (repair_target.hitsMax * 0.8))) {
+          if (repair_target && (repair_target.hits < (repair_target.hitsMax * 0.8))) {
             if (creep.repair(repair_target) == ERR_NOT_IN_RANGE) {
               creep.moveTo(repair_target)
             }
@@ -139,7 +152,7 @@ export class ManualSquad extends Squad {
 
         const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
-            return (structure.hits < (structure.hitsMax * 0.5))
+            return (structure.hits < (structure.hitsMax * 0.6))
               && (structure.id != target_container_id)
           }
         })
@@ -198,21 +211,21 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.ATTACK) {
-        if ((creep.carry.energy == creep.carryCapacity) && !was_harvester) {
+        if ((creep.carry.energy == creep.carryCapacity) && !was_harvester && !is_going_to_die) {
           creep.memory.status = CreepStatus.BUILD
         }
         else {
           // const target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES)
           let target = Game.getObjectById(target_container_id) as StructureContainer | undefined
 
-          if (target) {
+          if (target && !is_going_to_die) {
             creep.withdraw(target, RESOURCE_ENERGY)
             if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
             }
             return
           }
-          else if (was_harvester) {
+          else if (was_harvester || is_going_to_die) {
             ErrorMapper.wrapLoop(() => {
               const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
                 filter: (d: Resource) => {
@@ -226,6 +239,9 @@ export class ManualSquad extends Squad {
                 }
                 else {
                   creep.moveTo(drop)
+                  if (Game.time % 3 == 0) {
+                    creep.drop(RESOURCE_ENERGY)
+                  }
                 }
               }
               else {

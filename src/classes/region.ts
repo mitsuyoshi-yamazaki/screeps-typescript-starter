@@ -226,7 +226,7 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19fef82100e1594f35c6a', room_name: 'W49S39' },  // left
         ]
-        this.room_names = [this.room.name]
+        this.room_names = [this.room.name, 'W49S34']
         rooms_need_scout = ['W49S39']
         if (!harvester_destination) {
           harvester_destination = Game.getObjectById('5b05392f25d4f474fcc21633') as StructureContainer
