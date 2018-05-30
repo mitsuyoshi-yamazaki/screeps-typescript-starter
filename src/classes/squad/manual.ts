@@ -1,3 +1,4 @@
+import { ErrorMapper } from "utils/ErrorMapper"
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
@@ -7,6 +8,7 @@ interface ManualMemory extends CreepMemory {
   target_x?: number
   target_y?: number
   search_and_destroy?: boolean
+  repairing_structure_id?: string
 }
 
 export class ManualSquad extends Squad {
@@ -64,8 +66,10 @@ export class ManualSquad extends Squad {
     let flag_checked = false
 
     this.creeps.forEach((creep) => {
+      const memory = creep.memory as ManualMemory
       const target_room_name = 'W49S34'
       const target_container_id = '5b0db80109027f220a404a60'
+      let was_harvester = (creep.memory.status == CreepStatus.HARVEST)
 
       if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
         return
@@ -120,14 +124,28 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.BUILD) {
+        if (memory.repairing_structure_id) {
+          const repair_target = Game.getObjectById(memory.repairing_structure_id) as AnyStructure | undefined
+          if (repair_target && (repair_target.hits > (repair_target.hitsMax * 0.8))) {
+            if (creep.repair(repair_target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(repair_target)
+            }
+            return
+          }
+          else {
+            (creep.memory as ManualMemory).repairing_structure_id = undefined
+          }
+        }
+
         const damaged_structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
-            return (structure.hits < (structure.hitsMax * 0.6))
+            return (structure.hits < (structure.hitsMax * 0.5))
               && (structure.id != target_container_id)
           }
         })
 
         if (damaged_structure) {
+          (creep.memory as ManualMemory).repairing_structure_id = damaged_structure.id
           if (creep.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
             creep.moveTo(damaged_structure)
           }
@@ -157,6 +175,10 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
+        if (creep.carry.energy == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
 
         const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
@@ -176,7 +198,7 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.ATTACK) {
-        if (creep.carry.energy == creep.carryCapacity) {
+        if ((creep.carry.energy == creep.carryCapacity) && !was_harvester) {
           creep.memory.status = CreepStatus.BUILD
         }
         else {
@@ -189,6 +211,28 @@ export class ManualSquad extends Squad {
               creep.moveTo(target)
             }
             return
+          }
+          else if (was_harvester) {
+            ErrorMapper.wrapLoop(() => {
+              const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
+                filter: (d: Resource) => {
+                  return (d.resourceType == RESOURCE_ENERGY)
+                }
+              })[0]
+
+              if (drop) {
+                if ((drop.pos.x == creep.pos.x) && (drop.pos.y == creep.pos.y)) {
+                  creep.drop(RESOURCE_ENERGY)
+                }
+                else {
+                  creep.moveTo(drop)
+                }
+              }
+              else {
+                creep.drop(RESOURCE_ENERGY)
+              }
+            })()
+            creep.memory.status = CreepStatus.HARVEST
           }
           else {
             creep.memory.status = CreepStatus.HARVEST

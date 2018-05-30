@@ -241,6 +241,10 @@ export class Region {
         this.room_names = [this.room.name, 'W49S49']
         break
 
+      case 'W49S34':
+        this.room_names = [this.room.name]
+        break
+
       default:
         console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
         break
@@ -998,6 +1002,10 @@ export class Region {
 
       case 'W49S48':
         pos = {x: 23, y: 30}
+        break
+
+      case 'W49S34':
+        pos = {x: 1, y: 21}
         break
 
       default:

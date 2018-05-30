@@ -508,6 +508,21 @@ export function init() {
 
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
+      if (this.room.name == 'W49S34') {
+        const container = this.pos.findInRange(FIND_STRUCTURES, 2, {
+          filter: (structure: AnyStructure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (_.sum(structure.store) < structure.storeCapacity)
+          }
+        })[0]
+
+        if (container) {
+          if (this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.moveTo(container)
+            return
+          }
+        }
+      }
+
       const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: structure => {
           return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
