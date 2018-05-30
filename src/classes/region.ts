@@ -762,7 +762,7 @@ export class Region {
       if (closest_damaged_creep) {
         tower.heal(closest_damaged_creep)
       }
-      else if (tower.energy > (tower.energyCapacity / 2)) {
+      else if ((tower.energy > (tower.energyCapacity / 2)) && (this.room.name != 'W49S34')) {
         let hits_max = 150000
         if (this.room.storage && (this.room.storage.store.energy > 500000)) {
           hits_max = 300000
@@ -860,6 +860,10 @@ export class Region {
     this.spawnAndRenew()
     this.drawDebugInfo()
     this.activateSafeModeIfNeeded()
+
+    if (this.room.name == 'W49S34') {
+      this.room.createConstructionSite(12, 15, STRUCTURE_TOWER)
+    }
   }
 
   // --- Private ---

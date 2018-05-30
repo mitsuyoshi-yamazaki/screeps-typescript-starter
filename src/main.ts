@@ -30,19 +30,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       continue
     }
 
-    creep.memory.squad_name = 'temp'
     console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
     // creep.suicide()
-  }
-
-  if ((Game.time % 11) == 0) {
-    for (const squad_name in Memory.squads) {
-      const squad_memory = Memory.squads[squad_name]
-
-      if (squad_memory.owner_name == 'W48S39') {
-        console.log(`W48S39 squad ${squad_memory.name}`)
-      }
-    }
   }
 
   // const w48s47 = Game.rooms['W48S47']

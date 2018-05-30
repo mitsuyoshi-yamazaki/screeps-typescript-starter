@@ -232,12 +232,20 @@ export class LightWeightHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.HARVEST
         }
         else {
+          if ((this.source_info.room_name == 'W48S34') && (creep.room.controller) && creep.room.controller.my) {
+            creep.upgradeController(creep.room.controller)
+            creep.moveTo(creep.room.controller)
+            return
+          }
+
           for (const resource_type of Object.keys(creep.carry)) {
             const amount = creep.carry[resource_type as ResourceConstant]
             if (amount == 0) {
               continue
             }
-            if (creep.transfer(this.destination, resource_type as ResourceConstant) == ERR_NOT_IN_RANGE) {
+
+            const result = creep.transfer(this.destination, resource_type as ResourceConstant)
+            if (result == ERR_NOT_IN_RANGE) {
               creep.moveTo(this.destination)
             }
           }

@@ -386,7 +386,7 @@ export function init() {
     //   this.memory.status = CreepStatus.UPGRADE
     // }
 
-    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0) || (this.room.attacked == true)) {
+    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
 
@@ -395,6 +395,9 @@ export function init() {
     }
 
     let should_harvest_from_link = false
+
+    let charge_target: StructureExtension | StructureSpawn | StructureTerminal | StructureTower | undefined
+    let find_charge_target = false
 
     // Harvest
     if (this.memory.status == CreepStatus.HARVEST) {
@@ -547,7 +550,9 @@ export function init() {
                   || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
                   || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
         }
-      })
+      }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+      charge_target = target
+      find_charge_target = true
 
       if (!target) {
         if (this.memory.type != CreepType.CARRIER) {
@@ -568,7 +573,20 @@ export function init() {
       if (this.room.attacked) {
         const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
-        if (!is_safemode_active) {
+        if (!find_charge_target) {
+          const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: structure => {
+              return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
+                      || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
+                      || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
+                      || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
+            }
+          }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+          charge_target = target
+          find_charge_target = true
+        }
+
+        if (!is_safemode_active && charge_target) {
           this.memory.status = CreepStatus.CHARGE
           return
         }
@@ -580,11 +598,11 @@ export function init() {
     }
 
     if (this.memory.status == CreepStatus.BUILD) {
+
       if (this.room.name == 'W49S34') {
         const damaged_structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure) => {
-            return (structure.structureType != STRUCTURE_WALL)
-              && (structure.structureType != STRUCTURE_RAMPART)
+            return ((structure.structureType == STRUCTURE_ROAD) || (structure.structureType == STRUCTURE_CONTAINER))
               && (structure.hits < (structure.hitsMax * 0.6))
           }
         })
@@ -654,12 +672,32 @@ export function init() {
 
     // Upgrade
     if (this.memory.status == CreepStatus.UPGRADE) {
+      if (this.room.attacked) {
+        const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
+
+        if (!find_charge_target) {
+          const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: structure => {
+              return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
+                      || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
+                      || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
+                      || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
+            }
+          }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+          charge_target = target
+          find_charge_target = true
+        }
+
+        if (!is_safemode_active && charge_target) {
+          this.memory.status = CreepStatus.CHARGE
+          return
+        }
+      }
+    }
+
+    if (this.memory.status == CreepStatus.UPGRADE) {
       if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
-      }
-      else if (this.room.attacked) {
-        this.memory.status = CreepStatus.CHARGE
-        return
       }
       else if ((['W49S48', 'W48S39'].indexOf(this.room.name) < 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
         this.memory.status = CreepStatus.CHARGE

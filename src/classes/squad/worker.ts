@@ -137,8 +137,6 @@ export class WorkerSquad extends Squad {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
           }
         }) as StructureContainer | undefined
-
-        creep.memory.let_thy_die = false
       }
 
       // Renewal needs almost same but slightly less time
