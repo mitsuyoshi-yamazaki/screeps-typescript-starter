@@ -28,7 +28,7 @@ export class LightWeightHarvesterSquad extends Squad {
       this.destination = link
     }
     else if (this.source_info.room_name == 'W48S34') {
-      const container = Game.getObjectById('5b0dc5f5a4a4f10aff7c1bd4') as StructureContainer | undefined
+      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined
       if (container) {
         this.destination = container
       }
@@ -245,8 +245,30 @@ export class LightWeightHarvesterSquad extends Squad {
             }
 
             const result = creep.transfer(this.destination, resource_type as ResourceConstant)
-            if (result == ERR_NOT_IN_RANGE) {
-              creep.moveTo(this.destination)
+            switch (result) {
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(this.destination)
+                break
+
+              case OK:
+                break
+
+              default:
+                if (!this.destination) {
+                  console.log(`LightweightHarvesterSquad.run unexpectedly found nil target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
+
+                  if (this.region.room.controller && this.region.room.controller.my) {
+                    if (creep.upgradeController(this.region.room.controller) == ERR_NOT_IN_RANGE) {
+                      creep.moveTo(this.region.room.controller)
+                    }
+                  }
+                  else {
+                    console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
+                  }
+                }
+                else {
+                  console.log(`LightweightHarvesterSquad.run unexpected transfer error ${result}, target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
+                }
             }
           }
         }

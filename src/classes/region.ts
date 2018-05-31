@@ -736,7 +736,7 @@ export class Region {
 
     this.towers.forEach((tower) => {
       // if (!is_safemode_active) {
-        if ((this.room.attacker_info.heal < 10)) {
+        if ((this.room.attacker_info.heal < 15)) {
           const closestDamagedHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
             filter: (creep) => {
               return creep.hits < creep.hitsMax
@@ -762,20 +762,40 @@ export class Region {
       if (closest_damaged_creep) {
         tower.heal(closest_damaged_creep)
       }
-      else if ((tower.energy > (tower.energyCapacity / 2)) && (this.room.name != 'W49S34')) {
-        let hits_max = 150000
-        if (this.room.storage && (this.room.storage.store.energy > 500000)) {
-          hits_max = 300000
-        }
-        const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-          filter: (structure) => {
-            const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-            const max = is_wall ? hits_max : 100000
-            return (structure.hits < Math.min(structure.hitsMax, max))
+      else if ((tower.energy > (tower.energyCapacity * 0.66))) {
+        if (this.room.name == 'W49S34') {
+          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
+            filter: (structure) => {
+              const is_wall = (structure.structureType == STRUCTURE_WALL)
+              if (is_wall) {
+                return false
+              }
+              else if (structure.structureType == STRUCTURE_RAMPART) {
+                return structure.hits < 100000
+              }
+              const max = 100000
+              return (structure.hits < Math.min(structure.hitsMax, max))
+            }
+          })
+          if(closestDamagedStructure) {
+            tower.repair(closestDamagedStructure)
           }
-        })
-        if(closestDamagedStructure) {
-          tower.repair(closestDamagedStructure)
+        }
+        else {
+          let hits_max = 150000
+          if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+            hits_max = 300000
+          }
+          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
+            filter: (structure) => {
+              const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+              const max = is_wall ? hits_max : 100000
+              return (structure.hits < Math.min(structure.hitsMax, max))
+            }
+          })
+          if(closestDamagedStructure) {
+            tower.repair(closestDamagedStructure)
+          }
         }
       }
     })

@@ -428,7 +428,10 @@ export function init() {
             }
           }
 
-          if (number > 3) {
+          if ((this.room.name == 'W49S34') && (number > 7)) {
+            this.memory.status = CreepStatus.BUILD
+          }
+          else if (number > 3) {
             this.memory.status = CreepStatus.BUILD
           }
         }
@@ -519,9 +522,18 @@ export function init() {
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
-          if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-            this.moveTo(target)
-            return
+          if (target) {
+            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+              this.moveTo(target)
+              return
+            }
+          }
+          else {
+            const target = this.pos.findClosestByPath(FIND_SOURCES)
+            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+              this.moveTo(target)
+              return
+            }
           }
         }
       }

@@ -32,7 +32,7 @@ export class WorkerSquad extends Squad {
         max = 14
       }
       else if (room.controller.level < 4) {
-        max = 10
+        max = 16
       }
     }
     if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
