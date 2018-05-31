@@ -248,10 +248,12 @@ export class Region {
           { id: '59f19fef82100e1594f35c62', room_name: 'W49S36' },  // right
           { id: '59f19ffe82100e1594f35ddf', room_name: 'W48S35' },  // left
           { id: '59f19ffe82100e1594f35dde', room_name: 'W48S35' },  // right
+          { id: '59f19fef82100e1594f35c5e', room_name: 'W49S35' },  // top
+          { id: '59f19fef82100e1594f35c5f', room_name: 'W49S35' },  // bottom
         ]
         this.room_names = [this.room.name]
-        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35']
-        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35']
+        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35']
+        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35']
         break
 
       default:

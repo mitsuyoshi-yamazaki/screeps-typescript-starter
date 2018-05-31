@@ -18,7 +18,7 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     // return SpawnPriority.NONE // @fixme: for debugging upgrader
-    const size = Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
+    const size = this.room_name == 'W49S34' ? this.creeps.size : Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
 
     if (size < 2) {
       return SpawnPriority.URGENT
@@ -29,10 +29,10 @@ export class WorkerSquad extends Squad {
 
     if (room && room.controller) {
       if ((room.controller.level < 3)) {
-        max = 14
+        max = 10
       }
       else if (room.controller.level < 4) {
-        max = 16
+        max = 10
       }
     }
     if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
@@ -151,7 +151,7 @@ export class WorkerSquad extends Squad {
       // }
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 20) || ((creep.ticksToLive ||0) > 400)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }

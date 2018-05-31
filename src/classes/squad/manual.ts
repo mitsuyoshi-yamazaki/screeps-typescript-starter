@@ -22,14 +22,14 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    if (Game.time > 6630000) {
+    if (Game.time > 6626000) {
       return SpawnPriority.NONE
     }
 
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+    // return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
 
-    // return SpawnPriority.NONE
+    return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -40,33 +40,39 @@ export class ManualSquad extends Squad {
     return ManualSquad.generateNewName()
   }
 
-  public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable >= 1700
+  public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
+    // return energyAvailable >= 1700
+
+    const energy_unit = 450
+
+    const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 2250)
+    return energy_available >= energy_needed
   }
 
-  public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      CARRY, MOVE, CARRY, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      WORK, MOVE, WORK, MOVE, WORK, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      WORK, MOVE, WORK, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      WORK, MOVE,
-    ]
-    const memory: ManualMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.HARVESTER,
-      let_thy_die: false,
-      history: []
-    }
+  public addCreep(energy_available: number, spawnFunc: SpawnFunction): void {
+    return this.addLightWeightHarvester(energy_available, spawnFunc)
+    // const name = this.generateNewName()
+    // const body: BodyPartConstant[] = [
+    //   CARRY, MOVE, CARRY, MOVE,
+    //   CARRY, MOVE, CARRY, MOVE,
+    //   WORK, MOVE, WORK, MOVE, WORK, MOVE,
+    //   CARRY, MOVE, CARRY, MOVE,
+    //   WORK, MOVE, WORK, MOVE,
+    //   CARRY, MOVE, CARRY, MOVE,
+    //   WORK, MOVE,
+    // ]
+    // const memory: ManualMemory = {
+    //   squad_name: this.name,
+    //   status: CreepStatus.NONE,
+    //   birth_time: Game.time,
+    //   type: CreepType.HARVESTER,
+    //   let_thy_die: false,
+    //   history: []
+    // }
 
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
+    // const result = spawnFunc(body, name, {
+    //   memory: memory
+    // })
   }
 
   public run(): void {
@@ -82,8 +88,17 @@ export class ManualSquad extends Squad {
         (creep.memory as ManualMemory).history!.push(creep.room.name)
       }
 
+      if (creep.hits < 100) {
+        const message = `Creep almost dead: ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
+        console.log(message)
+        Game.notify(message)
+      }
+
       if ((memory.history!.indexOf('W47S41') < 0)) {
         target_room_name = 'W47S41'
+      }
+      else if ((memory.history!.indexOf('W47S40') < 0)) {
+        target_room_name = 'W47S40'
       }
       else if ((memory.history!.indexOf('W48S39') < 0)) {
         target_room_name = 'W48S39'
@@ -117,6 +132,32 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
+  public addLightWeightHarvester(energy_available: number, spawn_func: SpawnFunction): void {
+    const body_unit: BodyPartConstant[] = [WORK, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE]
+    const energy_unit = 450
+    energy_available = Math.min(energy_available, 2250)
+
+    const name = this.generateNewName()
+    let body: BodyPartConstant[] = []
+    const memory: ManualMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.HARVESTER,
+      let_thy_die: false,
+      history: [],
+    }
+
+    while (energy_available >= energy_unit) {
+      body = body.concat(body_unit)
+      energy_available -= energy_unit
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+  }
+
   private withdrawFromLabs(): void {
     this.creeps.forEach((creep) => {
       if (_.sum(creep.carry) > 0) {

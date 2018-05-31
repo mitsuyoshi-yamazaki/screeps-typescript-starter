@@ -27,8 +27,14 @@ export class LightWeightHarvesterSquad extends Squad {
       const link = Game.getObjectById('5b0a65a7741ae20afad04d05') as StructureLink  // W48S39 upper left
       this.destination = link
     }
+    else if (['W49S35', 'W49S36'].indexOf(this.source_info.room_name) >= 0) {
+      const container = Game.getObjectById('5b0e051f5b5e535c68b7d333') as StructureContainer | undefined  // W49S34 bottom
+      if (container) {
+        this.destination = container
+      }
+    }
     else if (this.region.room.name == 'W49S34') {
-      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined
+      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined  // W49S34 top
       if (container) {
         this.destination = container
       }
@@ -49,6 +55,20 @@ export class LightWeightHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.source_info.room_name == 'W49S35') {
+      // const room = Game.rooms['W49S35']
+      // if (room && room.controller) {
+      //   if (room.controller.owner) {
+      //     return SpawnPriority.NONE
+      //   }
+      // }
+      // else {
+        if (Game.time <  6630952) {
+          return SpawnPriority.NONE
+        }
+      // }
+    }
+
     if (this.energy_capacity < 450) {
       return SpawnPriority.NONE
     }
@@ -65,6 +85,10 @@ export class LightWeightHarvesterSquad extends Squad {
     }
     else if ((!w45s42 || w45s42.heavyly_attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
       return SpawnPriority.NONE
+    }
+
+    if (this.region.room.name == 'W49S34') {
+      return this.creeps.size > 1 ? SpawnPriority.NONE : SpawnPriority.LOW
     }
 
     return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
@@ -119,7 +143,7 @@ export class LightWeightHarvesterSquad extends Squad {
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 20) || ((creep.ticksToLive ||0) > 500)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           return
         }
@@ -254,8 +278,8 @@ export class LightWeightHarvesterSquad extends Squad {
                 break
 
               default:
-                if (!this.destination) {
-                  console.log(`LightweightHarvesterSquad.run unexpectedly found nil target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
+                // if (!this.destination) {
+                  // console.log(`LightweightHarvesterSquad.run unexpectedly found nil target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
 
                   if (this.region.room.controller && this.region.room.controller.my) {
                     if (creep.upgradeController(this.region.room.controller) == ERR_NOT_IN_RANGE) {
@@ -265,10 +289,10 @@ export class LightWeightHarvesterSquad extends Squad {
                   else {
                     console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
                   }
-                }
-                else {
+                // }
+                // else {
                   console.log(`LightweightHarvesterSquad.run unexpected transfer error ${result}, target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
-                }
+                // }
             }
           }
         }
