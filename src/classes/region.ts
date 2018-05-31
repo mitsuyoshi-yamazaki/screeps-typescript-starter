@@ -203,20 +203,28 @@ export class Region {
         upgrader_source_ids = ['5aefe21eaade48390c7da59c']
         research_input_targets = [
           {
-            id: '5af7c5180ce89a3235fd46d8', // 17, 25
-            resource_type: RESOURCE_OXYGEN,
-          },
-          {
             id: '5af7db5db44f464c8ea3a7f5', // 16, 25
             resource_type: RESOURCE_HYDROGEN,
           },
-        ]
-        research_output_targets = [
           {
-            id: '5af804e78f5981321726fefa', // 16, 26
+            id: '5b097191d169a83c16900c03', // 17, 26
+            resource_type: RESOURCE_OXYGEN,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
             resource_type: RESOURCE_HYDROXIDE,
           }
-        ]
+          return target
+        })
+        console.log(`TARGETS: ${research_output_targets.map(t=>t.id)}`)
         break
       }
       case 'W48S39':
