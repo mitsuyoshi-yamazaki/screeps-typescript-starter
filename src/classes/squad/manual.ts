@@ -9,6 +9,7 @@ interface ManualMemory extends CreepMemory {
   target_y?: number
   search_and_destroy?: boolean
   repairing_structure_id?: string
+  history?: string[]
 }
 
 export class ManualSquad extends Squad {
@@ -21,10 +22,14 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-    // return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+    if (Game.time > 6630000) {
+      return SpawnPriority.NONE
+    }
 
-    return SpawnPriority.NONE
+    // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+
+    // return SpawnPriority.NONE
   }
 
   public static generateNewName(): string {
@@ -50,12 +55,13 @@ export class ManualSquad extends Squad {
       CARRY, MOVE, CARRY, MOVE,
       WORK, MOVE,
     ]
-    const memory: CreepMemory = {
+    const memory: ManualMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.WORKER,
-      let_thy_die: true,
+      type: CreepType.HARVESTER,
+      let_thy_die: false,
+      history: []
     }
 
     const result = spawnFunc(body, name, {
@@ -64,78 +70,43 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
+    let target_room_name = 'W49S34'
+    const target_squad_name = 'worker65961626'
+
     this.creeps.forEach((creep) => {
       const memory = creep.memory as ManualMemory
-
-      if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-        if ((creep.room.spawns.length > 0)) {
-          creep.goToRenew(creep.room.spawns[0])
-          return
-        }
+      if (!memory.history) {
+        (creep.memory as ManualMemory).history = []
+      }
+      if (memory.history!.indexOf(creep.room.name) < 0) {
+        (creep.memory as ManualMemory).history!.push(creep.room.name)
       }
 
-      if (creep.memory.status == CreepStatus.NONE) {
-        creep.memory.status = CreepStatus.HARVEST
+      if ((memory.history!.indexOf('W47S41') < 0)) {
+        target_room_name = 'W47S41'
+      }
+      else if ((memory.history!.indexOf('W48S39') < 0)) {
+        target_room_name = 'W48S39'
       }
 
-      if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy == creep.carryCapacity) {
+      creep.say(target_room_name)
 
-          const needs_renew = !creep.memory.let_thy_die && (((creep.ticksToLive || 0) < 300))
-
-          if (needs_renew) {
-            if ((creep.room.spawns.length > 0)) {
-              creep.goToRenew(creep.room.spawns[0])
-              return
-            }
-          }
-          creep.memory.status = CreepStatus.CHARGE
-        }
-        else {
-          let target: Source | undefined
-
-          if (memory.target_id) {
-            target = Game.getObjectById(memory.target_id) as Source | undefined
-          }
-          if (!target) {
-            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-          }
-
-          if (target) {
-            if (creep.harvest(target) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target)
-              return
-            }
-          }
-          else {
-            creep.memory.status = CreepStatus.CHARGE
+      if ((creep.room.name == 'W48S39') && (creep.carry.energy < creep.carryCapacity)) {
+        if (creep.room.storage) {
+          if (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.storage)
           }
         }
       }
 
-      if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry.energy == 0) {
-          creep.memory.status = CreepStatus.HARVEST
-        }
-        else {
-          const container = creep.pos.findInRange(FIND_STRUCTURES, 3, {
-            filter: (structure: AnyStructure) => {
-              return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < structure.storeCapacity)
-            }
-          })[0]
-
-          if (container) {
-            if (creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(container)
-            }
-          }
-          else {
-            creep.drop(RESOURCE_ENERGY)
-            creep.memory.status = CreepStatus.HARVEST
-            return
-          }
-        }
+      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+        return
       }
+      creep.memory.squad_name = target_squad_name
+
+      const message = `Creep arrived to ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
+      console.log(message)
+      Game.notify(message)
     })
   }
 
