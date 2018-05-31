@@ -243,6 +243,10 @@ export class Region {
         break
 
       case 'W49S34':
+        harvester_targets = [
+          { id: '59f19fee82100e1594f35c5a', room_name: 'W49S34' },  // right
+          { id: '59f19fee82100e1594f35c5b', room_name: 'W49S34' },  // left
+        ]
         lightweight_harvester_targets = [
           { id: '59f19ffe82100e1594f35ddb', room_name: 'W48S34' },
           { id: '59f19fef82100e1594f35c62', room_name: 'W49S36' },  // right
@@ -250,10 +254,14 @@ export class Region {
           { id: '59f19ffe82100e1594f35dde', room_name: 'W48S35' },  // right
           { id: '59f19fef82100e1594f35c5e', room_name: 'W49S35' },  // top
           { id: '59f19fef82100e1594f35c5f', room_name: 'W49S35' },  // bottom
+          { id: '59f19fee82100e1594f35c56', room_name: 'W49S33' },  // bottom
         ]
         this.room_names = [this.room.name]
-        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35']
-        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35']
+        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
+        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
+        if (!harvester_destination) {
+          harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer
+        }
         break
 
       default:

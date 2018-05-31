@@ -372,6 +372,11 @@ export class HarvesterSquad extends Squad {
   private addHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE]
     const energy_unit = 550
+    let let_thy_die = false
+
+    if (this.source_info.room_name == 'W49S34') {
+      let_thy_die = true
+    }
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = body_unit
@@ -380,7 +385,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
-      let_thy_die: false,
+      let_thy_die: let_thy_die,
     }
 
     if (energyAvailable >= (energy_unit * 2)) {
@@ -499,7 +504,11 @@ export class HarvesterSquad extends Squad {
       if (!this.store) {
         harvester.memory.status = CreepStatus.BUILD
       }
-      else if ((this.resource_type == RESOURCE_ENERGY) && (this.store!.hits < this.store!.hitsMax)) {
+      else if ((this.resource_type == RESOURCE_ENERGY) && harvester.room.controller && harvester.room.controller.my && (this.store!.hits < (this.store!.hitsMax * 0.6))) {
+        harvester.repair(this.store!)
+        return
+      }
+      else if ((this.resource_type == RESOURCE_ENERGY) && (harvester.room.controller && !harvester.room.controller.my) && (this.store!.hits < this.store!.hitsMax)) {
         harvester.repair(this.store!)
         return
       }

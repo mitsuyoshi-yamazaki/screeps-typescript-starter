@@ -139,12 +139,14 @@ export function init() {
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
       console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
+      this.say('NOEXIT')
       return ActionResult.IN_PROGRESS
     }
 
     const closest_exit = this.pos.findClosestByPath(exit)
 
     if (this.moveTo(closest_exit) == ERR_NO_PATH) {
+      this.say('NOPATH')
         // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 1) {
         if (this.move(RIGHT) == OK) {
@@ -172,6 +174,7 @@ export function init() {
       // } as MoveToOpts)
     }
 
+    this.say(destination_room_name)
     return ActionResult.IN_PROGRESS
   }
 
