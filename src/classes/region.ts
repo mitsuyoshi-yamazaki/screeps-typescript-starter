@@ -860,16 +860,16 @@ export class Region {
     this.spawnAndRenew()
     this.drawDebugInfo()
     this.activateSafeModeIfNeeded()
-
-    if (this.room.name == 'W49S34') {
-      this.room.createConstructionSite(12, 15, STRUCTURE_TOWER)
-    }
   }
 
   // --- Private ---
   private activateSafeModeIfNeeded() {
     if (this.room.name != 'W49S34') {
-      return  // @fixme: FIXMEEEEEE
+      const w49s34 = Game.rooms['W49S34']
+
+      if (w49s34 && w49s34.controller && w49s34.controller.my && ((w49s34.controller.safeModeCooldown || 0) < 20000)) {
+        return
+      }
     }
 
     // Safe mode

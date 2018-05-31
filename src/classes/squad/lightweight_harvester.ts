@@ -28,7 +28,7 @@ export class LightWeightHarvesterSquad extends Squad {
       this.destination = link
     }
     else if (this.source_info.room_name == 'W48S34') {
-      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined
+      const container = Game.getObjectById('5b0dc5f5a4a4f10aff7c1bd4') as StructureContainer | undefined
       if (container) {
         this.destination = container
       }
@@ -119,7 +119,7 @@ export class LightWeightHarvesterSquad extends Squad {
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 50) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           return
         }
@@ -223,7 +223,7 @@ export class LightWeightHarvesterSquad extends Squad {
 
       if (creep.memory.status == CreepStatus.CHARGE) {
         if (_.sum(creep.carry) == 0) {
-          if ((this.region.room.name != 'W48S39') && ((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
+          if ((this.region.room.name != 'W49S34') && ((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
             creep.memory.squad_name = this.region.worker_squad.name
             creep.memory.status = CreepStatus.CHARGE
             creep.memory.let_thy_die = true
@@ -232,11 +232,11 @@ export class LightWeightHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.HARVEST
         }
         else {
-          if ((this.source_info.room_name == 'W48S34') && (creep.room.controller) && creep.room.controller.my) {
-            creep.upgradeController(creep.room.controller)
-            creep.moveTo(creep.room.controller)
-            return
-          }
+          // if ((this.source_info.room_name == 'W49S34') && (creep.room.controller) && creep.room.controller.my) {
+          //   creep.upgradeController(creep.room.controller)
+          //   creep.moveTo(creep.room.controller)
+          //   return
+          // }
 
           for (const resource_type of Object.keys(creep.carry)) {
             const amount = creep.carry[resource_type as ResourceConstant]

@@ -29,10 +29,10 @@ export class WorkerSquad extends Squad {
 
     if (room && room.controller) {
       if ((room.controller.level < 3)) {
-        max = 10
+        max = 14
       }
       else if (room.controller.level < 4) {
-        max = 8
+        max = 10
       }
     }
     if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
@@ -89,7 +89,7 @@ export class WorkerSquad extends Squad {
     const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
     const room = Game.rooms[this.room_name]
 
-    // if ((this.creeps.size > 2) && (number_of_carriers == 0) && room && room.controller && (room.controller.level >= 5)) {
+    // if ((this.creeps.size > 2) && (number_of_carriers == 0) && room && room.controller && (this.room_name == 'W49S34')) {//(room.controller.level >= 5)) {
     //   body_unit = [CARRY, MOVE, CARRY, MOVE]
     //   type = CreepType.CARRIER
     // }
@@ -132,11 +132,11 @@ export class WorkerSquad extends Squad {
       }
 
       if (this.room_name == 'W49S34') {
-        source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
+        source = creep.pos.findInRange(FIND_STRUCTURES, 5, {
+          filter: (structure: AnyStructure) => {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
           }
-        }) as StructureContainer | undefined
+        })[0] as StructureContainer | undefined
       }
 
       // Renewal needs almost same but slightly less time
@@ -145,13 +145,13 @@ export class WorkerSquad extends Squad {
       if (this.room_name == 'W49S48') {
         creep.memory.let_thy_die = false
       }
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 350) && (creep.carry.energy > (creep.carryCapacity * 0.8))))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
       // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
       //   creep.memory.status = CreepStatus.NONE
       // }
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 50) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }

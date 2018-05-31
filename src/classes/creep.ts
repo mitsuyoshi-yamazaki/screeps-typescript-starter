@@ -180,6 +180,11 @@ export function init() {
       this.memory.status = CreepStatus.NONE
       return ActionResult.DONE
     }
+    else if ((this.room.name == 'W49S34') && (this.room.energyAvailable < 10) && ((this.ticksToLive || 0) >= 1200)) {
+      this.memory.status = CreepStatus.NONE
+      return ActionResult.DONE
+    }
+
     if (this.memory.let_thy_die) {
       console.log(`Creep.goToRenew unexpectedly found let_thy_die is true ${this.name}`)
       return ActionResult.DONE
@@ -431,16 +436,16 @@ export function init() {
       else {
         if (this.room.name == 'W49S34') {
         // To not pickup harvesters drop
-        const drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES) as Resource
+        const drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4)[0] as Resource | undefined
         if (drop) {
           if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
             this.moveTo(drop)
             return
           }
         }
-        const tomb = this.pos.findClosestByPath(FIND_TOMBSTONES, {
-          filter: (t) => t.store.energy > 0
-        })
+        const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {
+          filter: (t: Tombstone) => t.store.energy > 0
+        })[0]
         if (tomb) {
           if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             this.moveTo(tomb)
@@ -494,23 +499,23 @@ export function init() {
             return
           }
         }
-        else if (this.room.name == 'W49S34') {
-          const source = this.room.sources[this.memory.birth_time % 2]
-          if (source && ((source.energy > 0) || (source.ticksToRegeneration < 10))) {
-            if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-              this.moveTo(source)
-              return
-            }
-          }
-          else {
-            const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+        // else if (this.room.name == 'W49S34') {
+        //   const source = this.room.sources[this.memory.birth_time % 2]
+        //   if (source && ((source.energy > 0) || (source.ticksToRegeneration < 10))) {
+        //     if (this.harvest(source) == ERR_NOT_IN_RANGE) {
+        //       this.moveTo(source)
+        //       return
+        //     }
+        //   }
+        //   else {
+        //     const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
-            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-              this.moveTo(target)
-              return
-            }
-          }
-        }
+        //     if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+        //       this.moveTo(target)
+        //       return
+        //     }
+        //   }
+        // }
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
@@ -599,21 +604,21 @@ export function init() {
 
     if (this.memory.status == CreepStatus.BUILD) {
 
-      if (this.room.name == 'W49S34') {
-        const damaged_structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return ((structure.structureType == STRUCTURE_ROAD) || (structure.structureType == STRUCTURE_CONTAINER))
-              && (structure.hits < (structure.hitsMax * 0.6))
-          }
-        })
+      // if (this.room.name == 'W49S34') {
+      //   const damaged_structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      //     filter: (structure) => {
+      //       return ((structure.structureType == STRUCTURE_ROAD) || (structure.structureType == STRUCTURE_CONTAINER))
+      //         && (structure.hits < (structure.hitsMax * 0.6))
+      //     }
+      //   })
 
-        if (damaged_structure) {
-          if (this.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
-            this.moveTo(damaged_structure)
-          }
-          return
-        }
-      }
+      //   if (damaged_structure) {
+      //     if (this.repair(damaged_structure) == ERR_NOT_IN_RANGE) {
+      //       this.moveTo(damaged_structure)
+      //     }
+      //     return
+      //   }
+      // }
 
       const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
         filter: (site) => site.my

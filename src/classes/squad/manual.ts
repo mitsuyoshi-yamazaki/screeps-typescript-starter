@@ -67,16 +67,10 @@ export class ManualSquad extends Squad {
     this.creeps.forEach((creep) => {
       const memory = creep.memory as ManualMemory
 
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
-
-      if (needs_renew) {
+      if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
         if ((creep.room.spawns.length > 0)) {
           creep.goToRenew(creep.room.spawns[0])
-          creep.transfer(creep.room.spawns[0], RESOURCE_ENERGY)
           return
-        }
-        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-          creep.memory.status = CreepStatus.CHARGE
         }
       }
 
@@ -86,7 +80,6 @@ export class ManualSquad extends Squad {
 
       if (creep.memory.status == CreepStatus.HARVEST) {
         if (creep.carry.energy == creep.carryCapacity) {
-          creep.memory.status = CreepStatus.CHARGE
 
           const needs_renew = !creep.memory.let_thy_die && (((creep.ticksToLive || 0) < 300))
 
@@ -96,6 +89,7 @@ export class ManualSquad extends Squad {
               return
             }
           }
+          creep.memory.status = CreepStatus.CHARGE
         }
         else {
           let target: Source | undefined
