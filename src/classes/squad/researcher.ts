@@ -429,7 +429,7 @@ export class ResearcherSquad extends Squad {
           creep.memory.status = CreepStatus.HARVEST
         }
 
-        let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 100)
+        let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 500)
         if (this.room_name == 'W48S47') {
           has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 2500)
         }

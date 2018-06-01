@@ -33,12 +33,6 @@ export class LightWeightHarvesterSquad extends Squad {
         this.destination = container
       }
     }
-    else if (this.region.room.name == 'W49S34') {
-      const container = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer | undefined  // W49S34 top
-      if (container) {
-        this.destination = container
-      }
-    }
   }
 
   public get type(): SquadType {

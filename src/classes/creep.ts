@@ -29,6 +29,7 @@ export enum CreepType {
   SCOUT             = 'scout',
 }
 
+
 declare global {
   interface Creep {
     squad: Squad
@@ -40,6 +41,7 @@ declare global {
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
+    find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -247,6 +249,27 @@ export function init() {
     //   }
     //   return ActionResult.IN_PROGRESS
     // }
+  }
+
+  Creep.prototype.find_charge_target = function(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined {
+    return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+      filter: structure => {
+        if (structure.structureType == STRUCTURE_EXTENSION) {
+          return (structure.energy < structure.energyCapacity)
+        }
+        else if (structure.structureType == STRUCTURE_SPAWN) {
+          return structure.energy < (structure.energyCapacity - 50)
+        }
+        else if (structure.structureType == STRUCTURE_TOWER) {
+          let margin = this.room.attacked ? 100 : 200
+          return structure.energy < (structure.energyCapacity - margin)
+        }
+        else if (structure.structureType == STRUCTURE_TERMINAL) {
+          return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
+        }
+        return false
+      }
+    }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
   }
 
   // --- Worker tasks ---
@@ -563,14 +586,7 @@ export function init() {
       //   }
       // }
 
-      const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: structure => {
-          return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
-                  || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
-                  || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
-                  || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
-        }
-      }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+      const target = this.find_charge_target()
       charge_target = target
       find_charge_target = true
 
@@ -594,14 +610,7 @@ export function init() {
         const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
         if (!find_charge_target) {
-          const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-            filter: structure => {
-              return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
-                      || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
-                      || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
-                      || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
-            }
-          }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+          const target = this.find_charge_target()
           charge_target = target
           find_charge_target = true
         }
@@ -696,14 +705,7 @@ export function init() {
         const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
         if (!find_charge_target) {
-          const target = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-            filter: structure => {
-              return ((structure.structureType == STRUCTURE_EXTENSION) && (structure.energy < structure.energyCapacity))
-                      || ((structure.structureType == STRUCTURE_SPAWN) && (structure.energy < structure.energyCapacity - 50))
-                      || ((structure.structureType == STRUCTURE_TOWER) && (structure.energy < structure.energyCapacity - 50))
-                      || ((structure.structureType == STRUCTURE_TERMINAL) && (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000))
-            }
-          }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+          const target = this.find_charge_target()
           charge_target = target
           find_charge_target = true
         }

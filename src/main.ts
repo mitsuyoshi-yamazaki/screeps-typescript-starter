@@ -34,26 +34,76 @@ export const loop = ErrorMapper.wrapLoop(() => {
     // creep.suicide()
   }
 
-  // const w48s47 = Game.rooms['W48S47']
-  // const o_amount = (w48s47.terminal!.store[RESOURCE_OXYGEN] || 0)
-  // if (o_amount > 4900) {
-  //   console.log(`Send OXYGEN from W48S47 to W44S42 ${w48s47.terminal!.send(RESOURCE_OXYGEN, 2000, 'W44S42')}`)
+  const first_room_name = 'W48S47'
+  const second_room_name = 'W49S47'
+  const third_room_name = 'W44S42'
+
+  const transports: {from: string, to: string, resource_type: ResourceConstant}[] = [
+    { from: first_room_name, to: third_room_name, resource_type: RESOURCE_OXYGEN },
+    { from: second_room_name, to: first_room_name, resource_type: RESOURCE_UTRIUM_HYDRIDE },
+    { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN },
+    { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROXIDE },
+  ]
+
+  transports.forEach((transport) => {
+    const from_room = Game.rooms[transport.from]
+    const to_room = Game.rooms[transport.to]
+
+    if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
+      const message = `Terminal ${to_room.name} is full`
+      console.log(message)
+      Game.notify(message)
+      return
+    }
+
+    const from_room_ready: boolean = !(!from_room)
+      && !(!from_room.terminal)
+      && (from_room.terminal.cooldown == 0)
+      && ((from_room.terminal.store[transport.resource_type] || 0) > 4900)
+
+    const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
+
+    if (from_room_ready && to_room_ready) {
+      const result = from_room.terminal!.send(transport.resource_type, 2000, transport.to)
+      console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
+    }
+  })
+
+  // const w48s47 = Game.rooms[first_room_name]
+  // const w49s47 = Game.rooms[second_room_name]
+  // const w44s42 = Game.rooms[third_room_name]
+
+  // if (w48s47 && w48s47.terminal && (w48s47.terminal.cooldown == 0) && w44s42.terminal && (_.sum(w44s42.terminal.store) < (w44s42.terminal.storeCapacity * 0.6))) {
+  //   const resource_type = RESOURCE_OXYGEN
+  //   const o_amount = (w48s47.terminal.store[resource_type] || 0)
+  //   if (o_amount > 4900) {
+  //     console.log(`Send ${resource_type} from ${first_room_name} to ${third_room_name} ${w48s47.terminal.send(resource_type, 2000, third_room_name)}`)
+  //   }
   // }
 
-  // const w49s47 = Game.rooms['W49S47']
-  // const uh_amount = (w49s47.terminal!.store[RESOURCE_LEMERGIUM_OXIDE] || 0)
-  // if (uh_amount > 100) {
-  //   console.log(`Send RESOURCE_LEMERGIUM_OXIDE from W49S47 to W48S47 ${w49s47.terminal!.send(RESOURCE_LEMERGIUM_OXIDE, uh_amount, 'W48S47')}`)
+  // if (w49s47 && w49s47.terminal && (w49s47.terminal.cooldown == 0) && w48s47.terminal && (_.sum(w48s47.terminal.store) < (w48s47.terminal.storeCapacity * 0.6))) {
+  //   const resource_type = RESOURCE_UTRIUM_HYDRIDE
+  //   const uh_amount = (w49s47.terminal.store[resource_type] || 0)
+  //   if (uh_amount > 1000) {
+  //     console.log(`Send ${resource_type} from ${second_room_name} to ${first_room_name} ${w49s47.terminal.send(resource_type, uh_amount, first_room_name)}`)
+  //   }
   // }
 
-  // const w44s42 = Game.rooms['W44S42']
-  // const ho_amount = (w44s42.terminal!.store[RESOURCE_HYDROXIDE] || 0)
-  // if (ho_amount > 100) {
-  //   console.log(`Send HYDROXIDE from W44S42 to W48S47 ${w44s42.terminal!.send(RESOURCE_HYDROXIDE, ho_amount, 'W48S47')}`)
+  // if (w44s42 && w44s42.terminal && (w44s42.terminal.cooldown == 0) && w49s47.terminal && (_.sum(w49s47.terminal.store) < (w49s47.terminal.storeCapacity * 0.6))) {
+
+  //   const ingredient_resource_type = RESOURCE_HYDROGEN
+  //   const h_amount = (w44s42.terminal.store[ingredient_resource_type] || 0)
+  //   if (h_amount > 4900) {
+  //     console.log(`Send ${ingredient_resource_type} from ${third_room_name} to ${second_room_name} ${w44s42.terminal.send(ingredient_resource_type, 2000, second_room_name)}`)
+  //   }
   // }
-  // const h_amount = (w44s42.terminal!.store[RESOURCE_HYDROGEN] || 0)
-  // if (h_amount > 4900) {
-  //   console.log(`Send HYDROGEN from W44S42 to W49S47 ${w44s42.terminal!.send(RESOURCE_HYDROGEN, 2000, 'W49S47')}`)
+
+  // if (w44s42 && w44s42.terminal && (w44s42.terminal.cooldown == 0) && w48s47.terminal && (_.sum(w48s47.terminal.store) < (w48s47.terminal.storeCapacity * 0.6))) {
+  //   const product_resoutce_type = RESOURCE_HYDROXIDE
+  //   const ho_amount = (w44s42.terminal.store[product_resoutce_type] || 0)
+  //   if (ho_amount > 100) {
+  //     console.log(`Send ${product_resoutce_type} from ${third_room_name} to ${first_room_name} ${w44s42.terminal.send(product_resoutce_type, ho_amount, first_room_name)}`)
+  //   }
   // }
 })
 

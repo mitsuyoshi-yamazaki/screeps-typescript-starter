@@ -125,10 +125,11 @@ export class WorkerSquad extends Squad {
     const storage = (room.storage && (room.storage.store.energy > 1000)) ? room.storage : undefined
     const terminal = (room.terminal && (room.terminal.store.energy > 1000)) ? room.terminal : undefined
 
-    let source: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
+    const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
+      let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 
       if (creep.room.name != this.room_name) {
         creep.moveToRoom(this.room_name)
@@ -136,11 +137,15 @@ export class WorkerSquad extends Squad {
       }
 
       if (this.room_name == 'W49S34') {
-        source = creep.pos.findInRange(FIND_STRUCTURES, 5, {
+        const container = creep.pos.findInRange(FIND_STRUCTURES, 3, {
           filter: (structure: AnyStructure) => {
             return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
           }
         })[0] as StructureContainer | undefined
+
+        if (container) {
+          source_local = container
+        }
       }
 
       // Renewal needs almost same but slightly less time
@@ -171,7 +176,7 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      creep.work(room, source)
+      creep.work(room, source_local)
     }
   }
 }

@@ -118,31 +118,26 @@ export class Region {
         research_input_targets = [
           {
             id: '5afb75051c04254c89283685', // 40, 11
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_HYDROXIDE,
           },
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
           },
         ]
-        research_output_targets = [
-          {
-            id: '5afb5a00c41b880caa6c3058', // 41, 11
-            resource_type: RESOURCE_HYDROXIDE,
-          },
-          {
-            id: '5af458a11ad10d5415bba8f2', // 40, 12
-            resource_type: RESOURCE_HYDROXIDE,
-          },
-          {
-            id: '5afb586ccae66639b23225e1', // 39, 12
-            resource_type: RESOURCE_HYDROXIDE,
-          },
-          {
-            id: '5af48c6802a75a3c68294d43', // 40, 13
-            resource_type: RESOURCE_HYDROXIDE,
-          },
-        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_UTRIUM_ACID,
+          }
+          return target
+        })
         break
 
       case 'W49S47':
@@ -166,18 +161,26 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_UTRIUM,
           },
           {
-            id: '5af7c1dcd9566308c315f47f', // 32, 22
+            id: '5af7c69c2d04d70cc3c4775a', // 32, 23
             resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = [
           {
-            id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_HYDROXIDE,
-          }
+            id: '5af7c1dcd9566308c315f47f', // 32, 22
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+          },
+          {
+            id: '5b083cf3f30cc0671dc11558', // 34, 23
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+          },
+          {
+            id: '5b085a977ccdfa5c2029aeef', // 33, 24
+            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+          },
         ]
         break
 
@@ -224,7 +227,6 @@ export class Region {
           }
           return target
         })
-        console.log(`TARGETS: ${research_output_targets.map(t=>t.id)}`)
         break
       }
       case 'W48S39':
@@ -267,9 +269,13 @@ export class Region {
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
         rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
-        if (!harvester_destination) {
-          harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer
-        }
+        // if (!harvester_destination) {
+        //   console.log(`DESN'T have harvester_destination ${harvester_destination}`)
+        //   harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer
+        // }
+        // else {
+        //   console.log(`HAS harvester_destination ${harvester_destination}`)
+        // }
         break
 
       default:
@@ -839,7 +845,7 @@ export class Region {
               break
 
             default:
-              console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}`)
+              console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}, ${output_lab.pos}`)
               break
           }
         })
@@ -906,13 +912,13 @@ export class Region {
 
   // --- Private ---
   private activateSafeModeIfNeeded() {
-    if (this.room.name != 'W49S34') {
-      const w49s34 = Game.rooms['W49S34']
+    // if (this.room.name != 'W49S34') {
+    //   const w49s34 = Game.rooms['W49S34']
 
-      if (w49s34 && w49s34.controller && w49s34.controller.my && ((w49s34.controller.safeModeCooldown || 0) < 20000)) {
-        return
-      }
-    }
+    //   if (w49s34 && w49s34.controller && w49s34.controller.my && ((w49s34.controller.safeModeCooldown || 0) < 20000)) {
+    //     return
+    //   }
+    // }
 
     // Safe mode
     // @todo: this codes should be located on somewhere like Empire
