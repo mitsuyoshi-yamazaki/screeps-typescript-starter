@@ -137,11 +137,11 @@ export class WorkerSquad extends Squad {
       }
 
       if (this.room_name == 'W49S34') {
-        const container = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+        const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
           filter: (structure: AnyStructure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 1000)
           }
-        })[0] as StructureContainer | undefined
+        }) as StructureContainer | undefined
 
         if (container) {
           source_local = container

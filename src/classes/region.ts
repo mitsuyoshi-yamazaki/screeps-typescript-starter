@@ -760,11 +760,24 @@ export class Region {
         return structure.structureType == STRUCTURE_TOWER
       }
     }) as StructureTower[]
-    // const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
+    const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
+
+    let a = 0
 
     this.towers.forEach((tower) => {
-      // if (!is_safemode_active) {
-        if ((this.room.attacker_info.heal < 15)) {
+      if (!is_safemode_active) {
+        if ((this.room.attacker_info.heal <= 20)) {
+          const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
+            filter: (creep: Creep) => {
+              return creep.getActiveBodyparts(HEAL) > 0
+            }
+          })
+          if(closestHealer.length > 0) {
+            tower.attack(closestHealer[a % closestHealer.length])
+            a += 1
+            return
+          }
+
           const closestDamagedHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
             filter: (creep) => {
               return creep.hits < creep.hitsMax
@@ -782,7 +795,7 @@ export class Region {
             }
           }
         }
-      // }
+      }
 
       const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: (creep) => creep.hits < creep.hitsMax

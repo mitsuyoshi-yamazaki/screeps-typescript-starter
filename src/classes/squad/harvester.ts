@@ -274,6 +274,10 @@ export class HarvesterSquad extends Squad {
     if (this.needs_harvester) {
       const room = Game.rooms[this.source_info.room_name]
 
+      if (room && room.heavyly_attacked && (this.resource_type != RESOURCE_ENERGY)) {
+        return SpawnPriority.NONE
+      }
+
       if ((this.source_info.id == '59f1c0cf7d0b3d79de5f0392') && (!room || room.heavyly_attacked) && !Game.getObjectById('5b0be9976a892a3c1db395e2') && !Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
         return SpawnPriority.NONE
       }
@@ -592,7 +596,7 @@ export class HarvesterSquad extends Squad {
         }
       }
 
-      if (creep.room.resourceful_tombstones.length > 0) {
+      if (!creep.room.attacked && (creep.room.resourceful_tombstones.length > 0)) {
         const target = creep.room.resourceful_tombstones[0]
         const resource_amount = _.sum(target.store)
         if (resource_amount > 0) {
