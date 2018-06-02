@@ -766,7 +766,7 @@ export class Region {
 
     this.towers.forEach((tower) => {
       if (!is_safemode_active) {
-        if ((this.room.attacker_info.heal <= 20)) {
+        if ((this.room.attacker_info.heal <= 20) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 2)) {
           const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
             filter: (creep: Creep) => {
               return creep.getActiveBodyparts(HEAL) > 0

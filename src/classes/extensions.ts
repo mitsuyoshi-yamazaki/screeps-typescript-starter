@@ -2,6 +2,8 @@ import { SquadMemory } from "./squad/squad";
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
 
 export interface AttackerInfo  {
+  hostile_creeps: Creep[]
+  hostile_teams: string[]
   attack: number
   ranged_attack: number
   heal: number
@@ -43,13 +45,21 @@ export function init() {
     this.sources = this.find(FIND_SOURCES)
 
     const attacker_info: AttackerInfo = {
+      hostile_creeps: [],
+      hostile_teams: [],
       attack: 0,
       ranged_attack: 0,
       heal: 0,
       work: 0,
     }
 
-    this.find(FIND_HOSTILE_CREEPS).forEach((creep: Creep) => {
+    attacker_info.hostile_creeps = this.find(FIND_HOSTILE_CREEPS)
+
+    attacker_info.hostile_creeps.forEach((creep: Creep) => {
+      if (attacker_info.hostile_teams.indexOf(creep.owner.username) < 0) {
+        attacker_info.hostile_teams.push(creep.owner.username)
+      }
+
       attacker_info.attack = creep.getActiveBodyparts(ATTACK)
       attacker_info.ranged_attack = creep.getActiveBodyparts(RANGED_ATTACK)
       attacker_info.heal = creep.getActiveBodyparts(HEAL)

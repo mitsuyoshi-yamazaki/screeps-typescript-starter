@@ -19,7 +19,7 @@ export class HarvesterSquad extends Squad {
   private get needs_harvester(): boolean {
     if (this.source_info.room_name == 'W49S34') {
       const room = Game.rooms[this.source_info.room_name]
-      if (room && (room.energyCapacityAvailable < 1600)) {
+      if (room && (room.energyCapacityAvailable < 1200)) {
         return this.harvesters.length < 2
       }
     }
