@@ -278,8 +278,24 @@ export class HarvesterSquad extends Squad {
         return SpawnPriority.NONE
       }
 
-      if ((this.source_info.id == '59f1c0cf7d0b3d79de5f0392') && (!room || room.heavyly_attacked) && !Game.getObjectById('5b0be9976a892a3c1db395e2') && !Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
-        return SpawnPriority.NONE
+      if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {
+        if (!room || room.heavyly_attacked) {
+          return SpawnPriority.NONE
+        }
+        else if (!Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
+          return SpawnPriority.NONE
+        }
+
+        const position = RoomPosition(42, 13, this.source_info.room_name)
+        const extractor = position.findInRange(FIND_STRUCTURES, 1, {
+          filter: (structure: AnyStructure) => {
+            return (structure.structureType == STRUCTURE_EXTRACTOR)
+          }
+        })
+
+        if (!extractor) {
+          return SpawnPriority.NONE
+        }
       }
 
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
