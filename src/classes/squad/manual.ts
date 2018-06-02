@@ -22,10 +22,6 @@ export class ManualSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
-    if (Game.time > 6626000) {
-      return SpawnPriority.NONE
-    }
-
     // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
     // return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
 
@@ -50,79 +46,78 @@ export class ManualSquad extends Squad {
   }
 
   public addCreep(energy_available: number, spawnFunc: SpawnFunction): void {
-    return this.addLightWeightHarvester(energy_available, spawnFunc)
-    // const name = this.generateNewName()
-    // const body: BodyPartConstant[] = [
-    //   CARRY, MOVE, CARRY, MOVE,
-    //   CARRY, MOVE, CARRY, MOVE,
-    //   WORK, MOVE, WORK, MOVE, WORK, MOVE,
-    //   CARRY, MOVE, CARRY, MOVE,
-    //   WORK, MOVE, WORK, MOVE,
-    //   CARRY, MOVE, CARRY, MOVE,
-    //   WORK, MOVE,
-    // ]
-    // const memory: ManualMemory = {
-    //   squad_name: this.name,
-    //   status: CreepStatus.NONE,
-    //   birth_time: Game.time,
-    //   type: CreepType.HARVESTER,
-    //   let_thy_die: false,
-    //   history: []
-    // }
+    // return this.addLightWeightHarvester(energy_available, spawnFunc)
 
-    // const result = spawnFunc(body, name, {
-    //   memory: memory
-    // })
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      WORK, MOVE, WORK, MOVE, WORK, MOVE,
+      WORK, MOVE, WORK, MOVE, WORK, MOVE,
+    ]
+    const memory: ManualMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.WORKER,
+      let_thy_die: false,
+      history: []
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
   }
 
   public run(): void {
-    let target_room_name = 'W49S34'
-    const target_squad_name = 'worker65961626'
 
-    this.creeps.forEach((creep) => {
-      const memory = creep.memory as ManualMemory
-      if (!memory.history) {
-        (creep.memory as ManualMemory).history = []
-      }
-      if (memory.history!.indexOf(creep.room.name) < 0) {
-        (creep.memory as ManualMemory).history!.push(creep.room.name)
-      }
+    this.dismantle('W47S34')
 
-      if (creep.hits < 100) {
-        const message = `Creep almost dead: ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
-        console.log(message)
-        Game.notify(message)
-      }
+    // let target_room_name = 'W49S34'
+    // const target_squad_name = 'worker65961626'
 
-      if ((memory.history!.indexOf('W47S41') < 0)) {
-        target_room_name = 'W47S41'
-      }
-      else if ((memory.history!.indexOf('W47S40') < 0)) {
-        target_room_name = 'W47S40'
-      }
-      else if ((memory.history!.indexOf('W48S39') < 0)) {
-        target_room_name = 'W48S39'
-      }
+    // this.creeps.forEach((creep) => {
+    //   const memory = creep.memory as ManualMemory
+    //   if (!memory.history) {
+    //     (creep.memory as ManualMemory).history = []
+    //   }
+    //   if (memory.history!.indexOf(creep.room.name) < 0) {
+    //     (creep.memory as ManualMemory).history!.push(creep.room.name)
+    //   }
 
-      creep.say(target_room_name)
+    //   if (creep.hits < 100) {
+    //     const message = `Creep almost dead: ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
+    //     console.log(message)
+    //     Game.notify(message)
+    //   }
 
-      if ((creep.room.name == 'W48S39') && (creep.carry.energy < creep.carryCapacity)) {
-        if (creep.room.storage) {
-          if (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.storage)
-          }
-        }
-      }
+    //   if ((memory.history!.indexOf('W47S41') < 0)) {
+    //     target_room_name = 'W47S41'
+    //   }
+    //   else if ((memory.history!.indexOf('W47S40') < 0)) {
+    //     target_room_name = 'W47S40'
+    //   }
+    //   else if ((memory.history!.indexOf('W48S39') < 0)) {
+    //     target_room_name = 'W48S39'
+    //   }
 
-      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-        return
-      }
-      creep.memory.squad_name = target_squad_name
+    //   creep.say(target_room_name)
 
-      const message = `Creep arrived to ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
-      console.log(message)
-      Game.notify(message)
-    })
+    //   if ((creep.room.name == 'W48S39') && (creep.carry.energy < creep.carryCapacity)) {
+    //     if (creep.room.storage) {
+    //       if (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+    //         creep.moveTo(creep.room.storage)
+    //       }
+    //     }
+    //   }
+
+    //   if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+    //     return
+    //   }
+    //   creep.memory.squad_name = target_squad_name
+
+    //   const message = `Creep arrived to ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
+    //   console.log(message)
+    //   Game.notify(message)
+    // })
   }
 
   public description(): string {
