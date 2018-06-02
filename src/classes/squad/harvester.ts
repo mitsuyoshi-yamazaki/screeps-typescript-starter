@@ -493,7 +493,7 @@ export class HarvesterSquad extends Squad {
       if (harvester.memory.status == CreepStatus.HARVEST) {
         if (this.source) {
           if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-            const ignoreCreeps = harvester.pos.getRangeTo(this.source!) <= 2  // If the blocking creep is next to the source, ignore
+            const ignoreCreeps = ((Game.time % 3) == 0) ? false : harvester.pos.getRangeTo(this.source!) <= 2  // If the blocking creep is next to the source, ignore
 
             harvester.moveTo(this.source!, {
               ignoreCreeps: ignoreCreeps,
