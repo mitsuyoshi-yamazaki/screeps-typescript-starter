@@ -876,6 +876,14 @@ export class Region {
   }
 
   public run(): void {
+    ErrorMapper.wrapLoop(() => {
+      this.activateSafeModeIfNeeded()
+    })()
+
+    ErrorMapper.wrapLoop(() => {
+      this.drawDebugInfo()
+    })()
+
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
       ErrorMapper.wrapLoop(() => {
@@ -919,19 +927,20 @@ export class Region {
     }
 
     if (destination_id) {
-      this.transferLinks(destination_id)
+      ErrorMapper.wrapLoop(() => {
+        this.transferLinks(destination_id!)
+      })()
     }
-    this.spawnAndRenew()
-    this.drawDebugInfo()
-    this.activateSafeModeIfNeeded()
-
-    if (this.room.name == 'W49S34') {
-      this.room.createConstructionSite(12, 12, STRUCTURE_TOWER)
-    }
+    ErrorMapper.wrapLoop(() => {
+      this.spawnAndRenew()
+    })()
   }
 
   // --- Private ---
   private activateSafeModeIfNeeded() {
+    if (this.room.name == 'W44S42') {
+      return
+    }
     // if (this.room.name != 'W49S34') {
     //   const w49s34 = Game.rooms['W49S34']
 
@@ -972,19 +981,20 @@ export class Region {
     }
     console.log('DETECT ', healers.length, ' Healer-Attackers!!! owner: ', healers[0].owner.username)
 
-    const damaged_structures = room.find(FIND_MY_STRUCTURES, {
+    const important_structures: StructureConstant[] = [
+      STRUCTURE_SPAWN,
+      STRUCTURE_STORAGE,
+      STRUCTURE_TERMINAL,
+      STRUCTURE_LAB,
+      STRUCTURE_OBSERVER,
+      STRUCTURE_POWER_SPAWN,
+      STRUCTURE_NUKER,
+      STRUCTURE_EXTENSION,
+      STRUCTURE_TOWER,
+    ]
+
+    const damaged_structures = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        const important_structures: StructureConstant[] = [
-          STRUCTURE_SPAWN,
-          STRUCTURE_STORAGE,
-          STRUCTURE_TERMINAL,
-          STRUCTURE_LAB,
-          STRUCTURE_OBSERVER,
-          STRUCTURE_POWER_SPAWN,
-          STRUCTURE_NUKER,
-          STRUCTURE_EXTENSION,
-          STRUCTURE_TOWER,
-        ]
         return (important_structures.indexOf(structure.structureType) >= 0)
           && (structure.hits < structure.hitsMax)
       }
@@ -996,8 +1006,14 @@ export class Region {
       return
     }
 
+    const damaged_my_creeps = room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return creep.hits < creep.hitsMax
+      }
+    })
+
     const number_of_creeps = room.find(FIND_MY_CREEPS).length
-    if (number_of_creeps < 5) {
+    if ((number_of_creeps < 5) && (damaged_my_creeps.length > 0)) {
       const message = `Activate safe mode at ${room.name} : ${room.controller.activateSafeMode()}, number of creeps: ${number_of_creeps}`
       console.log(message)
       Game.notify(message)
