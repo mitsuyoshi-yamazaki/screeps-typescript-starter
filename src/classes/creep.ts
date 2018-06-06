@@ -454,10 +454,7 @@ export function init() {
             }
           }
 
-          if ((this.room.name == 'W49S34') && (number > 7)) {
-            this.memory.status = CreepStatus.BUILD
-          }
-          else if (number > 3) {
+          if (number > 3) {
             this.memory.status = CreepStatus.BUILD
           }
         }
@@ -616,6 +613,7 @@ export function init() {
         }
 
         if (!is_safemode_active && charge_target) {
+          console.log(`${this.room} remain charge`)
           this.memory.status = CreepStatus.CHARGE
           return
         }

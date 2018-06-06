@@ -39,10 +39,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const third_room_name = 'W44S42'
 
   const transports: {from: string, to: string, resource_type: ResourceConstant}[] = [
-    { from: first_room_name, to: third_room_name, resource_type: RESOURCE_OXYGEN },
-    { from: second_room_name, to: first_room_name, resource_type: RESOURCE_UTRIUM_HYDRIDE },
-    { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN },
-    { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROXIDE },
+    // { from: first_room_name, to: third_room_name, resource_type: RESOURCE_OXYGEN },
+    // { from: second_room_name, to: first_room_name, resource_type: RESOURCE_UTRIUM_HYDRIDE },
+    // { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN },
+    // { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROXIDE },
   ]
 
   transports.forEach((transport) => {
@@ -68,43 +68,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
       console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
     }
   })
-
-  // const w48s47 = Game.rooms[first_room_name]
-  // const w49s47 = Game.rooms[second_room_name]
-  // const w44s42 = Game.rooms[third_room_name]
-
-  // if (w48s47 && w48s47.terminal && (w48s47.terminal.cooldown == 0) && w44s42.terminal && (_.sum(w44s42.terminal.store) < (w44s42.terminal.storeCapacity * 0.6))) {
-  //   const resource_type = RESOURCE_OXYGEN
-  //   const o_amount = (w48s47.terminal.store[resource_type] || 0)
-  //   if (o_amount > 4900) {
-  //     console.log(`Send ${resource_type} from ${first_room_name} to ${third_room_name} ${w48s47.terminal.send(resource_type, 2000, third_room_name)}`)
-  //   }
-  // }
-
-  // if (w49s47 && w49s47.terminal && (w49s47.terminal.cooldown == 0) && w48s47.terminal && (_.sum(w48s47.terminal.store) < (w48s47.terminal.storeCapacity * 0.6))) {
-  //   const resource_type = RESOURCE_UTRIUM_HYDRIDE
-  //   const uh_amount = (w49s47.terminal.store[resource_type] || 0)
-  //   if (uh_amount > 1000) {
-  //     console.log(`Send ${resource_type} from ${second_room_name} to ${first_room_name} ${w49s47.terminal.send(resource_type, uh_amount, first_room_name)}`)
-  //   }
-  // }
-
-  // if (w44s42 && w44s42.terminal && (w44s42.terminal.cooldown == 0) && w49s47.terminal && (_.sum(w49s47.terminal.store) < (w49s47.terminal.storeCapacity * 0.6))) {
-
-  //   const ingredient_resource_type = RESOURCE_HYDROGEN
-  //   const h_amount = (w44s42.terminal.store[ingredient_resource_type] || 0)
-  //   if (h_amount > 4900) {
-  //     console.log(`Send ${ingredient_resource_type} from ${third_room_name} to ${second_room_name} ${w44s42.terminal.send(ingredient_resource_type, 2000, second_room_name)}`)
-  //   }
-  // }
-
-  // if (w44s42 && w44s42.terminal && (w44s42.terminal.cooldown == 0) && w48s47.terminal && (_.sum(w48s47.terminal.store) < (w48s47.terminal.storeCapacity * 0.6))) {
-  //   const product_resoutce_type = RESOURCE_HYDROXIDE
-  //   const ho_amount = (w44s42.terminal.store[product_resoutce_type] || 0)
-  //   if (ho_amount > 100) {
-  //     console.log(`Send ${product_resoutce_type} from ${third_room_name} to ${first_room_name} ${w44s42.terminal.send(product_resoutce_type, ho_amount, first_room_name)}`)
-  //   }
-  // }
 })
 
 /**

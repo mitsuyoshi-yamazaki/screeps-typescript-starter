@@ -248,6 +248,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
           { id: '59f19ff082100e1594f35c8b', room_name: 'W49S49' },  // bottom bottom
+          { id: '59f1c0ce7d0b3d79de5f01e2', room_name: 'W49S49' },  // hydrogen
         ]
         this.room_names = [this.room.name, 'W49S49']
         break
@@ -802,27 +803,24 @@ export class Region {
       })
       if (closest_damaged_creep) {
         tower.heal(closest_damaged_creep)
+        return
       }
       else if ((tower.energy > (tower.energyCapacity * 0.66))) {
         // if (this.room.name == 'W49S34') {
-        //   const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-        //     filter: (structure) => {
-        //       const is_wall = (structure.structureType == STRUCTURE_WALL)
-        //       if (is_wall) {
-        //         return false
-        //       }
-        //       else if (structure.structureType == STRUCTURE_RAMPART) {
-        //         return structure.hits < 100000
-        //       }
-        //       const max = 100000
-        //       return (structure.hits < Math.min(structure.hitsMax, max))
-        //     }
-        //   })
-        //   if(closestDamagedStructure) {
-        //     tower.repair(closestDamagedStructure)
-        //   }
-        // }
-        // else {
+          const heavyry_damaged_rampart = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
+            filter: (structure) => {
+              if (structure.structureType == STRUCTURE_RAMPART) {
+                return structure.hits < 1000
+              }
+              return false
+            }
+          })
+          if(heavyry_damaged_rampart) {
+            tower.repair(heavyry_damaged_rampart)
+            return
+          }
+
+          // else {
           let hits_max = 150000
           if (this.room.storage && (this.room.storage.store.energy > 500000)) {
             hits_max = 300000

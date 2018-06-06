@@ -36,6 +36,10 @@ export class UpgraderSquad extends Squad {
       }
     }
 
+    if ((this.room_name == 'W49S34') && room && room.storage && (room.storage.store.energy > 11000)) {
+      max = 1
+    }
+
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 

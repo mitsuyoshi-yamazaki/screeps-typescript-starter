@@ -49,12 +49,12 @@ export class HarvesterSquad extends Squad {
         this.destination = destination
       }
     }
-    // else if ((this.source_info.room_name == 'W49S49')) { // @fixme: temp code
-    //   const destination = Game.getObjectById('5b0a5aaf7533293c116780a4') as StructureLink // Link in W49S48 bottom left
-    //   if (destination) {
-    //     this.destination = destination
-    //   }
-    // }
+    else if ((this.source_info.room_name == 'W49S49')) { // @fixme: temp code
+      const destination = Game.getObjectById('5b1348599bf6fe5c1aeadba6') as StructureLink // Link in W49S48 bottom
+      if (destination) {
+        this.destination = destination
+      }
+    }
     else if (['W49S48'].indexOf(this.source_info.room_name) >= 0) {
 
       const target_room = Game.rooms['W49S48']
@@ -117,6 +117,9 @@ export class HarvesterSquad extends Squad {
       this.resource_type = RESOURCE_UTRIUM
     }
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // home3 hydrogen
+      this.resource_type = RESOURCE_HYDROGEN
+    }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // home4 hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
     else {
@@ -339,6 +342,9 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // W44S42 hydrogen
       number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // W49S48 hydrogen
+      number_of_carriers = 1
     }
     else if (this.source_info.id == '59f19fff82100e1594f35ded') { // W48S39
       number_of_carriers = 0
