@@ -42,6 +42,8 @@ declare global {
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
     find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+    transferResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
+    withdrawResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -146,6 +148,15 @@ export function init() {
     }
 
     const closest_exit = this.pos.findClosestByPath(exit)
+
+    if ((this.room.name == 'W48S34') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 17)
+      return ActionResult.IN_PROGRESS
+    }
+    if ((this.room.name == 'W47S34') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 7)
+      return ActionResult.IN_PROGRESS
+    }
 
     if (this.moveTo(closest_exit) == ERR_NO_PATH) {
       this.say('NOPATH')
@@ -271,6 +282,43 @@ export function init() {
       }
     }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
   }
+
+  Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
+    let return_code: ScreepsReturnCode = OK
+    for (const key of Object.keys(this.carry)) {
+      const resource_type = key as ResourceConstant
+      if ((resource_type == RESOURCE_ENERGY) && !include_energy) {
+        continue
+      }
+      if (this.carry[resource_type] == 0) {
+        continue
+      }
+      return_code = this.transfer(target, resource_type)
+      if (return_code != OK) {
+        return return_code
+      }
+    }
+    return return_code
+  }
+
+  Creep.prototype.withdrawResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
+    let return_code: ScreepsReturnCode = OK
+    for (const key of Object.keys(target.store)) {
+      const resource_type = key as ResourceConstant
+      if ((resource_type == RESOURCE_ENERGY) && !include_energy) {
+        continue
+      }
+      if (this.carry[resource_type] == 0) {
+        continue
+      }
+      return_code = this.withdraw(target, resource_type)
+      if (return_code != OK) {
+        return return_code
+      }
+    }
+    return return_code
+  }
+
 
   // --- Worker tasks ---
   Creep.prototype.harvestFrom = function(source: Source): ActionResult {
@@ -417,12 +465,25 @@ export function init() {
     //   this.memory.status = CreepStatus.UPGRADE
     // }
 
+    let debug_say = false
+
+    // if (this.room.name == 'W49S34') {
+    //   debug_say = true
+    // }
+
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
+
+      if (debug_say) {
+        this.say('N2H')
+      }
     }
 
     if ((this.memory.type == CreepType.CARRIER) && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.UPGRADE))) {
       this.memory.status = CreepStatus.CHARGE
+      if (debug_say) {
+        this.say('B2C-1')
+      }
     }
 
     let should_harvest_from_link = false
@@ -434,6 +495,9 @@ export function init() {
     if (this.memory.status == CreepStatus.HARVEST) {
       if (this.carry.energy == this.carryCapacity) {
         this.memory.status = CreepStatus.CHARGE
+        if (debug_say) {
+          this.say('H2C')
+        }
 
         // if ((Game.shard.name == 'swc') && this.room.controller && (this.room.controller.ticksToDowngrade < 1000)) {
         //   this.memory.status = CreepStatus.UPGRADE
@@ -456,6 +520,9 @@ export function init() {
 
           if (number > 3) {
             this.memory.status = CreepStatus.BUILD
+            if (debug_say) {
+              this.say('C2B-1')
+            }
           }
         }
       }
@@ -590,11 +657,17 @@ export function init() {
       if (!target) {
         if (this.memory.type != CreepType.CARRIER) {
           this.memory.status = CreepStatus.BUILD
+          if (debug_say) {
+            this.say('C2B-2')
+          }
         }
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
-      }
+        if (debug_say) {
+          this.say('C2H-1')
+        }
+    }
       else if (this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         this.moveTo(target)
         return
@@ -615,12 +688,18 @@ export function init() {
         if (!is_safemode_active && charge_target) {
           console.log(`${this.room} remain charge`)
           this.memory.status = CreepStatus.CHARGE
+          if (debug_say) {
+            this.say('B2C-2')
+          }
           return
         }
       }
 
       if (this.room.controller && this.room.controller.my && (this.room.controller.ticksToDowngrade < 5000)) {
         this.memory.status = CreepStatus.UPGRADE
+        if (debug_say) {
+          this.say('B2U-1')
+        }
       }
     }
 
@@ -676,9 +755,15 @@ export function init() {
       if (!target) {
         if (should_upgrade) {
           this.memory.status = CreepStatus.UPGRADE
+          if (debug_say) {
+            this.say('B2U-2')
+          }
         }
         else {
           this.memory.status = CreepStatus.HARVEST
+          if (debug_say) {
+            this.say('B2H-1')
+          }
 
           if (this.room.storage) {
             this.transfer(this.room.storage, RESOURCE_ENERGY)
@@ -689,6 +774,10 @@ export function init() {
       }
       else if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
+        if (debug_say) {
+          this.say('B2H-2')
+        }
+
       }
       else {
         this.build(target)
@@ -710,7 +799,10 @@ export function init() {
 
         if (!is_safemode_active && charge_target) {
           this.memory.status = CreepStatus.CHARGE
-          return
+          if (debug_say) {
+            this.say('U2C-1')
+          }
+            return
         }
       }
     }
@@ -718,9 +810,15 @@ export function init() {
     if (this.memory.status == CreepStatus.UPGRADE) {
       if (this.carry.energy == 0) {
         this.memory.status = CreepStatus.HARVEST
+        if (debug_say) {
+          this.say('U2H-1')
+        }
       }
-      else if ((['W49S48', 'W48S39'].indexOf(this.room.name) < 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
+      else if ((['W49S48', 'W48S39', 'W49S34'].indexOf(this.room.name) < 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
         this.memory.status = CreepStatus.CHARGE
+        if (debug_say) {
+          this.say('U2C-2')
+        }
         return
       }
       else {

@@ -266,10 +266,12 @@ export class Region {
           { id: '59f19fef82100e1594f35c5e', room_name: 'W49S35' },  // top
           { id: '59f19fef82100e1594f35c5f', room_name: 'W49S35' },  // bottom
           { id: '59f19fee82100e1594f35c56', room_name: 'W49S33' },  // bottom
+          { id: '59f1a00c82100e1594f35f5b', room_name: 'W47S34' },  // top
+          { id: '59f1a00c82100e1594f35f5d', room_name: 'W47S34' },  // bottom
         ]
         this.room_names = [this.room.name]
-        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
-        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33']
+        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33', 'W47S34']
+        rooms_need_scout = ['W48S34', 'W49S36', 'W48S35', 'W49S35', 'W49S33', 'W47S34']
         // if (!harvester_destination) {
         //   console.log(`DESN'T have harvester_destination ${harvester_destination}`)
         //   harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer

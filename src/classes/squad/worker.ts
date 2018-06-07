@@ -122,8 +122,8 @@ export class WorkerSquad extends Squad {
 
   public run(): void {
     const room = Game.rooms[this.room_name]
-    const storage = (room.storage && (room.storage.store.energy > 1000)) ? room.storage : undefined
-    const terminal = (room.terminal && (room.terminal.store.energy > 1000)) ? room.terminal : undefined
+    const storage = (room.storage && (room.storage.store.energy > 400)) ? room.storage : undefined
+    const terminal = (room.terminal && (room.terminal.store.energy > 400)) ? room.terminal : undefined
 
     const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
 
@@ -136,24 +136,21 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if (this.room_name == 'W49S34') {
-        const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure: AnyStructure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 1600)
-          }
-        }) as StructureContainer | undefined
+      // if (this.room_name == 'W49S34') {
+      //   const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      //     filter: (structure: AnyStructure) => {
+      //       return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 1600)
+      //     }
+      //   }) as StructureContainer | undefined
 
-        if (container) {
-          source_local = container
-        }
-      }
+      //   if (container) {
+      //     source_local = container
+      //   }
+      // }
 
       // Renewal needs almost same but slightly less time
       const room = Game.rooms[this.room_name]
 
-      if (this.room_name == 'W49S48') {
-        creep.memory.let_thy_die = false
-      }
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 350) && (creep.carry.energy > (creep.carryCapacity * 0.8))))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
       // if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
       //   creep.memory.status = CreepStatus.NONE

@@ -63,9 +63,14 @@ export class ControllerKeeperSquad extends Squad {
         energy_needed = 700
         break
 
-      case State.NOT_OWNED:
+      case State.NOT_OWNED: {
+        const room = Game.rooms[this.room_name]
+        if (room && room.controller && room.controller.reservation && (room.controller.reservation.ticksToEnd > 4000)) {
+          return SpawnPriority.NONE
+        }
         energy_needed = 650
         break
+      }
 
       case State.MINE:
         // energy_needed = 250

@@ -17,8 +17,12 @@ interface ManualSquadMemory extends SquadMemory {
 }
 
 export class ManualSquad extends Squad {
+  private any_creep: Creep | undefined
+
   constructor(readonly name: string, readonly original_room_name: string) {
     super(name)
+
+    this.any_creep = Array.from(this.creeps.values())[0]
   }
 
   public get type(): SquadType {
@@ -31,12 +35,16 @@ export class ManualSquad extends Squad {
         const memory = (Memory.squads[this.name] as ManualSquadMemory)
         if (memory.claimer_last_spawned) {
           const ticks_from_last_spawned = Game.time - memory.claimer_last_spawned
-          if (ticks_from_last_spawned < 900) {
+          if (ticks_from_last_spawned < 1000) {
             return SpawnPriority.NONE
           }
         }
         return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
       }
+
+      case 'W49S48':
+        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+
       default:
         return SpawnPriority.NONE
     }
@@ -57,6 +65,9 @@ export class ManualSquad extends Squad {
       case 'W49S34':
         return energy_available >= 1300
 
+      case 'W49S48':
+        return energy_available >= 100
+
       default:
         return false
     }
@@ -72,6 +83,10 @@ export class ManualSquad extends Squad {
         }
         return
 
+      case 'W49S48':
+        this.addCarrier(energy_available, spawn_func)
+        return
+
       default:
         return
     }
@@ -82,7 +97,71 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
       case 'W49S34':
         this.runClaimer()
+        // this.dismantle('W48S33')
+        this.creeps.forEach((creep) => {
+          if (creep.getActiveBodyparts(CARRY) == 0) {
+            return
+          }
+          if (creep.memory.status == CreepStatus.CHARGE) {
+            if (_.sum(creep.carry) == 0) {
+              creep.memory.status = CreepStatus.HARVEST
+              return
+            }
+            if (creep.transferResources(creep.room.storage!) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.storage!)
+            }
+          }
+          else {
+            creep.memory.status = CreepStatus.HARVEST
+
+            if (_.sum(creep.carry) == creep.carryCapacity) {
+              creep.memory.status = CreepStatus.CHARGE
+              return
+            }
+
+            const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+              filter: (structure) => {
+                return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < _.sum(structure.store))
+              }
+            }) as StructureContainer | undefined
+            if (target) {
+              if (creep.withdrawResources(target, true) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target)
+              }
+            }
+            else {
+              if (_.sum(creep.carry) > 0) {
+                creep.memory.status = CreepStatus.CHARGE
+                return
+              }
+              creep.say('DONE')
+              creep.memory.squad_name = 'worker65961626'
+            }
+          }
+        })
         return
+
+      case 'W49S48': {
+        if (!this.any_creep) {
+          return
+        }
+        if ((this.any_creep.pos.x != 5) || (this.any_creep.pos.y != 11)) {
+          this.any_creep.moveTo(5, 11)
+          return
+        }
+        const link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink | undefined
+        if (!link || !this.any_creep.room.storage) {
+          console.log(`ERROR!`)
+          return
+        }
+        if (this.any_creep.carry.energy > 0) {
+          this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY)
+        }
+        else {
+          this.any_creep.withdraw(link, RESOURCE_ENERGY)
+        }
+        return
+      }
 
       default:
         return
@@ -154,8 +233,28 @@ export class ManualSquad extends Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.WORKER,
-      let_thy_die: false,
+      type: CreepType.CLAIMER,
+      let_thy_die: true,
+      history: []
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+    return result
+  }
+
+  public addCarrier(energy_available: number, spawn_func: SpawnFunction): ScreepsReturnCode {
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      MOVE, CARRY
+    ]
+    const memory: ManualMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.CARRIER,
+      let_thy_die: true,
       history: []
     }
 
@@ -166,60 +265,81 @@ export class ManualSquad extends Squad {
   }
 
   public runClaimer() {
-    // const first_room_name = 'W47S34'
+    const first_room_name = 'W48S33'
     const second_room_name = 'W51S29'
-    // const waypoint_room_name = 'W50S34'
+    const waypoint_room_name = 'W50S33'
 
     this.creeps.forEach((creep) => {
-      const memory = creep.memory as ManualMemory
-
-      if (!memory.target_id) {
-        (creep.memory as ManualMemory).target_id = second_room_name//first_room_name
-      }
-
-      const target_room_name = memory.target_id!
-
-      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+      if (creep.getActiveBodyparts(CLAIM) == 0) {
         return
       }
 
-      // if ([first_room_name, second_room_name].indexOf(target_room_name) >= 0) {
-        const room = Game.rooms[target_room_name]
-        if (room && room.controller && !room.controller.my) {
-          const result = creep.attackController(room.controller)
+      const room_name_to_claim = 'W46S33'
+      const room_to_claim = Game.rooms[room_name_to_claim]
 
-          switch (result) {
-            case OK:
-              if (target_room_name == second_room_name) {
-                return
-              }
-              else {
-                // (creep.memory as ManualMemory).target_id = waypoint_room_name
-                return
-              }
-              // break
+      // if (room_to_claim && room_to_claim.controller && room_to_claim.controller.my) {
+        const memory = creep.memory as ManualMemory
 
-            case ERR_TIRED:
-              break
+        if (!memory.target_id) {
+          (creep.memory as ManualMemory).target_id = first_room_name
+        }
 
-            case ERR_NOT_IN_RANGE:
-              creep.moveTo(room.controller)
-              break
+        const target_room_name = memory.target_id!
 
-            default:
-              const message = `Cannot attackController ${result} ${target_room_name}, ${creep.name}`
-              console.log(message)
-              Game.notify(message)
-              break
+        if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+          return
+        }
+
+        if ([first_room_name, second_room_name].indexOf(target_room_name) >= 0) {
+          const room = Game.rooms[target_room_name]
+          if (room && room.controller && !room.controller.my) {
+            const result = creep.attackController(room.controller)
+
+            switch (result) {
+              case OK:
+                if (target_room_name == second_room_name) {
+                  return
+                }
+                else {
+                  (creep.memory as ManualMemory).target_id = waypoint_room_name
+                  return
+                }
+                // break
+
+              case ERR_TIRED:
+                break
+
+              case ERR_NOT_IN_RANGE:
+                creep.moveTo(room.controller)
+                break
+
+              default:
+                const message = `Cannot attackController ${result} ${target_room_name}, ${creep.name}`
+                console.log(message)
+                Game.notify(message)
+                break
+            }
           }
-        // }
-        // else {
-        //   console.log(`${target_room_name} is already mine`)
-        // }
-      }
-      else {
-        (creep.memory as ManualMemory).target_id = second_room_name
-      }
+          else {
+            console.log(`${target_room_name} is already mine`)
+          }
+        }
+        else {
+          (creep.memory as ManualMemory).target_id = second_room_name
+        }
+      // }
+      // else {
+      //   if (creep.moveToRoom(room_name_to_claim) == ActionResult.IN_PROGRESS) {
+      //     return
+      //   }
+
+      //   if (!room_to_claim || !room_to_claim.controller) {
+      //     console.log(`SOMETHING WRONG!`)
+      //     return
+      //   }
+
+      //   creep.claim(room_name_to_claim, true)
+      // }
     })
   }
 
@@ -351,6 +471,9 @@ export class ManualSquad extends Squad {
 
   private dismantle(target_room_name: string): void {
     this.creeps.forEach((creep, _) => {
+      if (creep.getActiveBodyparts(MOVE) == 0) {
+        return
+      }
 
       creep.drop(RESOURCE_ENERGY)
 

@@ -8,6 +8,7 @@ interface ScoutCreepMemory extends CreepMemory {
 
 export class ScoutSquad extends Squad {
   private creep_for_room = new Map<string, Creep>()
+  private room_needs_scout: string | undefined
 
   constructor(readonly name: string, readonly room_names: string[]) {
     super(name)
@@ -20,6 +21,10 @@ export class ScoutSquad extends Squad {
       }
       this.creep_for_room.set(memory.room_name, creep)
     })
+
+    this.room_needs_scout = this.room_names.filter((name) => {
+      return !this.creep_for_room.get(name)
+    })[0]
   }
 
   public get type(): SquadType {
@@ -42,27 +47,30 @@ export class ScoutSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    return energyAvailable > 50
+    let energy_need = 50
+
+    if (this.room_needs_scout == 'W48S33') {
+      energy_need = 70
+    }
+
+    return energyAvailable >= 50
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const room_needs_scout = this.room_names.filter((name) => {
-      return !this.creep_for_room.get(name)
-    })
-    if (room_needs_scout.length == 0) {
+    if (!this.room_needs_scout) {
       console.log(`ScoutSquad.addCreep no room that needs scout ${this.name}, ${this.room_names}`)
       return
     }
 
-    const body: BodyPartConstant[] = [MOVE]
+    const body: BodyPartConstant[] = (this.room_needs_scout == 'W48S33') ? [TOUGH, TOUGH, MOVE] : [MOVE]
     const name = this.generateNewName()
     const memory: ScoutCreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.CLAIMER,
-      room_name: room_needs_scout[0],
-      let_thy_die: false,
+      type: CreepType.SCOUT,
+      room_name: this.room_needs_scout,
+      let_thy_die: true,
     }
 
     const result = spawnFunc(body, name, {

@@ -227,7 +227,9 @@ export class LightWeightHarvesterSquad extends Squad {
 
             if (this.source) {
               if (creep.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(this.source)
+                creep.moveTo(this.source, {
+                  ignoreCreeps: true
+                })
                 return
               }
             }

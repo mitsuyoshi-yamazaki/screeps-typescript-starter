@@ -302,7 +302,8 @@ export class HarvesterSquad extends Squad {
       }
 
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
-      if (room && (source as Mineral).mineralAmount && ((source as Mineral).mineralAmount == 0) && ((source.ticksToRegeneration || 0) > 100)) {
+      // Using (source as Mineral).mineralType because (source as Mineral).mineralAmount when it's 0 value, it's considered as false
+      if (room && (source as Mineral).mineralType && ((source as Mineral).mineralAmount == 0) && ((source.ticksToRegeneration || 0) > 100)) {
         return SpawnPriority.NONE
       }
       return SpawnPriority.HIGH
@@ -409,11 +410,6 @@ export class HarvesterSquad extends Squad {
   private addHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE]
     const energy_unit = 550
-    let let_thy_die = false
-
-    if (this.source_info.room_name == 'W49S34') {
-      let_thy_die = true
-    }
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = body_unit
@@ -422,7 +418,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
-      let_thy_die: let_thy_die,
+      let_thy_die: true,
     }
 
     if (energyAvailable >= (energy_unit * 2)) {
@@ -437,6 +433,11 @@ export class HarvesterSquad extends Squad {
   private addCarrier(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [CARRY, MOVE]
     const energy_unit = 100
+    let let_thy_die = false
+
+    if (this.source_info.room_name == 'W49S34') {
+      let_thy_die = true
+    }
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -445,7 +446,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
-      let_thy_die: false,
+      let_thy_die: let_thy_die,
     }
 
     let max_energy = 1200
