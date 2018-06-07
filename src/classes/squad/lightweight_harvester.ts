@@ -27,7 +27,8 @@ export class LightWeightHarvesterSquad extends Squad {
       const link = Game.getObjectById('5b0a65a7741ae20afad04d05') as StructureLink  // W48S39 upper left
       this.destination = link
     }
-    else if (['W49S35', 'W49S36'].indexOf(this.source_info.room_name) >= 0) {
+    // else if (['W49S35', 'W49S36'].indexOf(this.source_info.room_name) >= 0) {
+    else if (['W49S36'].indexOf(this.source_info.room_name) >= 0) {
       const container = Game.getObjectById('5b0e051f5b5e535c68b7d333') as StructureContainer | undefined  // W49S34 bottom
       if (container) {
         this.destination = container

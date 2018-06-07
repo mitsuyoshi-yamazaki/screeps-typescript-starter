@@ -38,10 +38,15 @@ export class ResearcherSquad extends Squad {
         case 'W44S42':
           room_resource = RESOURCE_HYDROGEN
           break
+
+        default:
+          break
       }
 
       if (!room_resource) {
-        console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
+        const message = `ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`
+        console.log(message)
+        Game.notify(message)
         this.needs_research = false
       }
       else {

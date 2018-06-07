@@ -32,14 +32,15 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
-        const memory = (Memory.squads[this.name] as ManualSquadMemory)
-        if (memory.claimer_last_spawned) {
-          const ticks_from_last_spawned = Game.time - memory.claimer_last_spawned
-          if (ticks_from_last_spawned < 1000) {
-            return SpawnPriority.NONE
-          }
-        }
-        return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+        // const memory = (Memory.squads[this.name] as ManualSquadMemory)
+        // if (memory.claimer_last_spawned) {
+        //   const ticks_from_last_spawned = Game.time - memory.claimer_last_spawned
+        //   if (ticks_from_last_spawned < 1000) {
+        //     return SpawnPriority.NONE
+        //   }
+        // }
+        // return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'W49S48':
@@ -66,7 +67,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 1300
 
       case 'W49S48':
-        return energy_available >= 100
+        return energy_available >= 150
 
       default:
         return false
@@ -247,7 +248,7 @@ export class ManualSquad extends Squad {
   public addCarrier(energy_available: number, spawn_func: SpawnFunction): ScreepsReturnCode {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
-      MOVE, CARRY
+      CARRY, CARRY, MOVE
     ]
     const memory: ManualMemory = {
       squad_name: this.name,
