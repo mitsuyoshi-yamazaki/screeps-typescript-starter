@@ -558,10 +558,6 @@ export function init() {
             link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
             break
 
-          case 'W44S42':
-            link = Game.getObjectById('5af19011f859db1e994a8d6d') as StructureLink
-            break
-
           case 'W49S48':
             link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
             break
@@ -727,7 +723,7 @@ export function init() {
 
 
       let should_upgrade = true
-      if (['W48S47', 'W49S47', 'W44S42'].indexOf(this.room.name) >= 0) {
+      if (['W48S47', 'W49S47'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {
@@ -839,10 +835,6 @@ export function init() {
 
         case 'W49S47':
           link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
-          break
-
-        case 'W44S42':
-          link = Game.getObjectById('5af19011f859db1e994a8d6d') as StructureLink
           break
 
         case 'W49S48':

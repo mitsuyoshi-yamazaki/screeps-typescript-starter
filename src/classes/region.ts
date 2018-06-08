@@ -80,18 +80,6 @@ export class Region {
     const energy_capacity = this.room.energyCapacityAvailable - 50
 
     switch (this.room.name) {
-      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-        lightweight_harvester_targets = [
-          { id: '5afd5faef071b00013361e1f', room_name: 'E13S18' },
-          { id: '5afd5faef071b00013361eae', room_name: 'E14S19' },
-          { id: '5afd5faef071b00013361ead', room_name: 'E14S19' }
-        ]
-        this.room_names = [this.room.name]//, 'E12S19']
-        break
-
-      case 'W1N8':  // @fixme: it's in private server
-        break
-
       case 'W48S47':
         harvester_targets = [
           { id: '59f19fff82100e1594f35e06', room_name: 'W48S47' },  // home top right
@@ -184,51 +172,6 @@ export class Region {
         ]
         break
 
-      case 'W44S42': {
-        // harvester_targets = [
-        //   { id: '59f1a03c82100e1594f36609', room_name: 'W44S42' },  // home right
-        //   { id: '59f1a03c82100e1594f36608', room_name: 'W44S42' },  // home left
-        //   { id: '59f1c0cf7d0b3d79de5f0392', room_name: 'W44S42' },  // home hydrogen
-        // ]
-        // lightweight_harvester_targets = [
-        //   // // { id: '59f1a03c82100e1594f3660c', room_name: 'W44S43' },  // bottom, top
-        //   // // { id: '59f1a03c82100e1594f3660e', room_name: 'W44S43' },  // bottom, center
-        //   // // // { id: '59f1a01f82100e1594f361a4', room_name: 'W46S43' },  // bottom left
-        //   // { id: '59f1a02e82100e1594f363c5', room_name: 'W45S41' },  // bottom
-        //   // { id: '59f1a02e82100e1594f363c4', room_name: 'W45S41' },  // left
-        //   // { id: '59f1a02e82100e1594f363c7', room_name: 'W45S42' },  // left
-        //   // { id: '59f1a02e82100e1594f363cb', room_name: 'W45S43' },  // left down
-        //   // { id: '59f1a04a82100e1594f367af', room_name: 'W43S42' },  // right
-        // ]
-        // rooms_need_to_be_defended = []//['W45S41', 'W45S42', 'W45S43', 'W43S42']
-        // this.room_names = [this.room.name]
-        // rooms_need_scout = []//['W45S43', 'W45S42', 'W45S41', 'W44S41', 'W43S42']
-        // upgrader_source_ids = ['5aefe21eaade48390c7da59c']
-        // research_input_targets = [
-        //   {
-        //     id: '5af7db5db44f464c8ea3a7f5', // 16, 25
-        //     resource_type: RESOURCE_HYDROGEN,
-        //   },
-        //   {
-        //     id: '5b097191d169a83c16900c03', // 17, 26
-        //     resource_type: RESOURCE_OXYGEN,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_HYDROXIDE,
-        //   }
-        //   return target
-        // })
-        break
-      }
       case 'W48S39':
         harvester_targets = [
           { id: '59f19fff82100e1594f35ded', room_name: 'W48S39' },  // home bottom
@@ -915,10 +858,6 @@ export class Region {
         destination_id = '5af1900395fe4569eddba9da'
         break
 
-      case 'W44S42':
-        // destination_id = '5af19011f859db1e994a8d6d'
-        break
-
       case 'W48S39':
         destination_id = '5b0a2b654e8c62672f3191fb'
         break
@@ -939,10 +878,6 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
     })()
-
-    if (this.room.name == 'W46S33') {
-      this.room.createConstructionSite(21, 23, STRUCTURE_TOWER)
-    }
   }
 
   // --- Private ---
@@ -1106,10 +1041,6 @@ export class Region {
 
       case 'W49S47':
         pos = {x: 21, y: 30}
-        break
-
-      case 'W44S42':
-        pos = {x: 25, y: 26}
         break
 
       case 'W49S48':

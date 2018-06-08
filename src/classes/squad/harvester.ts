@@ -116,9 +116,6 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // home2 utrium
       this.resource_type = RESOURCE_UTRIUM
     }
-    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // home3 hydrogen
-      this.resource_type = RESOURCE_HYDROGEN
-    }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // home4 hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
@@ -202,37 +199,6 @@ export class HarvesterSquad extends Squad {
         Game.notify(message)
       }
     }
-    else if ((this.source_info.id == '59f1a03c82100e1594f36609') && (this.carriers.length > 0)) { // W44S42 top
-      // const hydrogen_container = Game.getObjectById('5afcf491b356f4346fbaf441') as StructureContainer
-      const pos = new RoomPosition(43, 12, this.source_info.room_name)
-      const hydrogen_container = pos.findInRange(FIND_STRUCTURES, 1, {
-        filter: function(structure: AnyStructure): boolean {
-          return structure.structureType == STRUCTURE_CONTAINER
-        }
-      })[0] as StructureContainer | undefined
-
-      if (hydrogen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((hydrogen_container.store[RESOURCE_HYDROGEN] || 0) > 400)) {
-        this.resource_type = RESOURCE_HYDROGEN
-        this.container = hydrogen_container
-      }
-      if (!hydrogen_container) {
-        const message = `HarvesterSquad hydrogen_container in ${this.source_info.room_name} not found`
-        console.log(message)
-        Game.notify(message)
-      }
-    }
-    else if ((this.source_info.id == '59f1a03c82100e1594f36608') && (this.carriers.length > 0)) {  // W44S42 left
-      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
-        filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
-            || ((structure.id == '5af19011f859db1e994a8d6d') && ((structure as StructureLink).energy > 0)) // No Link yet
-        }
-      }) as StructureContainer | StructureLink
-
-      if (target) {
-        this.container = target
-      }
-    }
     // else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) {  // W49S47 right
     //   const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
     //     filter: (structure) => {
@@ -284,25 +250,26 @@ export class HarvesterSquad extends Squad {
         return SpawnPriority.NONE
       }
 
-      if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {
-        if (!room || room.heavyly_attacked) {
-          return SpawnPriority.NONE
-        }
-        else if (!Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
-          return SpawnPriority.NONE
-        }
+      // Extactorがない場合の処理
+      // if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {
+      //   if (!room || room.heavyly_attacked) {
+      //     return SpawnPriority.NONE
+      //   }
+      //   else if (!Game.getObjectById('5b04ba4ed36ad43822b2ccfe')) {
+      //     return SpawnPriority.NONE
+      //   }
 
-        const position = RoomPosition(42, 13, this.source_info.room_name)
-        const extractor = position.findInRange(FIND_STRUCTURES, 1, {
-          filter: (structure: AnyStructure) => {
-            return (structure.structureType == STRUCTURE_EXTRACTOR)
-          }
-        })
+      //   const position = RoomPosition(42, 13, this.source_info.room_name)
+      //   const extractor = position.findInRange(FIND_STRUCTURES, 1, {
+      //     filter: (structure: AnyStructure) => {
+      //       return (structure.structureType == STRUCTURE_EXTRACTOR)
+      //     }
+      //   })
 
-        if (!extractor) {
-          return SpawnPriority.NONE
-        }
-      }
+      //   if (!extractor) {
+      //     return SpawnPriority.NONE
+      //   }
+      // }
 
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
       // Using (source as Mineral).mineralType because (source as Mineral).mineralAmount when it's 0 value, it's considered as false
@@ -342,9 +309,6 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 0
     }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // W49S47 utrium
-      number_of_carriers = 0
-    }
-    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f0392') {  // W44S42 hydrogen
       number_of_carriers = 0
     }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // W49S48 hydrogen

@@ -21,10 +21,6 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.room_name == 'W44S42') {
-      return SpawnPriority.NONE
-    }
-
     let max = 0
     const room = Game.rooms[this.room_name]
 

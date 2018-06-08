@@ -128,10 +128,6 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((attacker) => {
-      // if (this.base_room.name == 'W44S42') {
-      //   attacker.moveToRoom('W45S42')
-      //   return
-      // }
       const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
 
       if (attacker.room.attacked && !is_safemode_active) {
@@ -151,10 +147,6 @@ export class AttackerSquad extends Squad {
 
             case 'W49S47':
               attacker.moveTo(17, 26)
-              break
-
-            case 'W44S42':
-              attacker.moveTo(11, 28)
               break
 
             case 'W48S39':
