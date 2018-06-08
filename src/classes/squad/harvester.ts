@@ -122,6 +122,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // home4 hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01d5') {  // home5 keanium
+      this.resource_type = RESOURCE_KEANIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -364,7 +367,7 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 3
     }
     else if (this.source_info.room_name == 'W49S34') {
-      number_of_carriers = 2
+      number_of_carriers = 1
     }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {

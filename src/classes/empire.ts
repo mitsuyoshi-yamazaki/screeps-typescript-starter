@@ -1,6 +1,7 @@
 
 import { ErrorMapper } from "utils/ErrorMapper"
 import { Region } from "./region"
+import { SpawnPriority } from "./squad/squad";
 
 enum State {
   EXPAND = "expand"
@@ -22,11 +23,11 @@ export class Empire {
       })()
     }
 
-    const base_region = this.regions.get('W49S47')//('W44S42')
-    const colony_region = this.regions.get('W49S48')//('W48S39')
+    const base_region = this.regions.get('W49S34')
+    const colony_region = this.regions.get('W46S33')
 
     if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 3)) {
-      if (colony_region.worker_squad && (colony_region.worker_squad.creeps.size < 6)) {
+      if (colony_region.worker_squad.spawnPriority != SpawnPriority.NONE) {
         base_region.delegated_squads = [colony_region.worker_squad]
       }
     }

@@ -467,7 +467,7 @@ export function init() {
 
     let debug_say = false
 
-    // if (this.room.name == 'W49S34') {
+    // if (this.room.name == 'W46S33') {
     //   debug_say = true
     // }
 
@@ -695,7 +695,7 @@ export function init() {
         }
       }
 
-      if (this.room.controller && this.room.controller.my && (this.room.controller.ticksToDowngrade < 5000)) {
+      if (this.room.controller && this.room.controller.my && (this.room.controller.ticksToDowngrade < 3000)) {
         this.memory.status = CreepStatus.UPGRADE
         if (debug_say) {
           this.say('B2U-1')

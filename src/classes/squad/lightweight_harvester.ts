@@ -50,20 +50,6 @@ export class LightWeightHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.source_info.room_name == 'W49S35') {
-      // const room = Game.rooms['W49S35']
-      // if (room && room.controller) {
-      //   if (room.controller.owner) {
-      //     return SpawnPriority.NONE
-      //   }
-      // }
-      // else {
-        if (Game.time <  6630952) {
-          return SpawnPriority.NONE
-        }
-      // }
-    }
-
     if (this.energy_capacity < 450) {
       return SpawnPriority.NONE
     }
@@ -82,7 +68,7 @@ export class LightWeightHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    if (this.region.room.name == 'W49S34') {
+    if (this.source_info.room_name == 'W49S36') {
       return this.creeps.size > 1 ? SpawnPriority.NONE : SpawnPriority.LOW
     }
 
@@ -228,8 +214,10 @@ export class LightWeightHarvesterSquad extends Squad {
 
             if (this.source) {
               if (creep.harvest(this.source!) == ERR_NOT_IN_RANGE) {
+                const ignoreCreeps = ((Game.time % 2) == 0) ? false : true
+
                 creep.moveTo(this.source, {
-                  ignoreCreeps: true
+                  ignoreCreeps: ignoreCreeps
                 })
                 return
               }

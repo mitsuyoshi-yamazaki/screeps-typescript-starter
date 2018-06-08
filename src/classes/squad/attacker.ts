@@ -2,8 +2,12 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface AttackerSquadMemory extends SquadMemory {
+  target_room_name: string | undefined
+}
+
 export class AttackerSquad extends Squad {
-  private destination: Room | undefined
+  private destination_room_name: string | undefined
   private energy_unit = 330
   private fix_part_energy = 120
   private max_energy = 1930
@@ -11,11 +15,29 @@ export class AttackerSquad extends Squad {
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
 
+    const memory = (Memory.squads[this.name] as AttackerSquadMemory)
+
     if ((this.rooms_to_defend.indexOf(this.base_room) >= 0)) {
-      this.destination = this.base_room
+      this.destination_room_name = this.base_room.name
+    }
+    else if (memory.target_room_name) {
+      const room = Game.rooms[memory.target_room_name]
+
+      if (room) {
+        if (room.attacked) {
+          this.destination_room_name = room.name
+        }
+        else {
+          (Memory.squads[this.name] as AttackerSquadMemory).target_room_name = undefined
+          this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined
+        }
+      }
+      else {
+        this.destination_room_name = memory.target_room_name
+      }
     }
     else {
-      this.destination = rooms_to_defend[0]
+      this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined
     }
 
     const attacker = Array.from(this.creeps.values())[0]
@@ -43,12 +65,12 @@ export class AttackerSquad extends Squad {
     if (this.energy_capacity < this.energy_unit) {
       return SpawnPriority.NONE
     }
-    if (!this.destination) {
+    if (!this.destination_room_name) {
       return SpawnPriority.NONE
     }
 
     let max = 1
-    if (this.base_room.name == this.destination.name) {
+    if (this.base_room.name == this.destination_room_name) {
       max = 2
     }
     return this.creeps.size < max ? SpawnPriority.URGENT : SpawnPriority.NONE
@@ -120,7 +142,7 @@ export class AttackerSquad extends Squad {
         }
       }
 
-      if (!this.destination) {
+      if (!this.destination_room_name) {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {
           switch (attacker.room.name) {
             case 'W48S47':
@@ -144,11 +166,11 @@ export class AttackerSquad extends Squad {
               break
 
             case 'W49S34':
-              attacker.moveTo(22, 17)
+              attacker.moveTo(34, 34)
               break
 
             case 'W46S33':
-              attacker.moveTo(24, 29)
+              attacker.moveTo(18, 20)
               break
 
             default:
@@ -184,9 +206,8 @@ export class AttackerSquad extends Squad {
 
       attacker.searchAndDestroy()
 
-      const room = this.destination
-      if (attacker.moveToRoom(room.name) != ActionResult.DONE) {
-        attacker.say(room.name)
+      if (attacker.moveToRoom(this.destination_room_name) != ActionResult.DONE) {
+        attacker.say(this.destination_room_name)
         return
       }
     })
@@ -195,7 +216,7 @@ export class AttackerSquad extends Squad {
   public description(): string {
     const attacker = Array.from(this.creeps.values())[0]
     const attacker_info = attacker ? `${attacker.name} ${attacker.pos}` : ''
-    return `${super.description()}, ${attacker_info}\n    - to ${this.destination} (${this.rooms_to_defend})`
+    return `${super.description()}, ${attacker_info}\n    - to ${this.destination_room_name} (${this.rooms_to_defend})`
   }
 
   // -- Private --

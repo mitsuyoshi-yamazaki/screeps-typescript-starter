@@ -51,6 +51,9 @@ export class WorkerSquad extends Squad {
     else if (this.room_name == 'W49S34') {
       max = 3
     }
+    else if (this.room_name == 'W46S33') {
+      max = 5
+    }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
@@ -89,6 +92,7 @@ export class WorkerSquad extends Squad {
     const energy_unit = 200
     let body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
     let type = CreepType.WORKER
+    let let_thy_die = true
 
     const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
     const room = Game.rooms[this.room_name]
@@ -98,6 +102,13 @@ export class WorkerSquad extends Squad {
     //   type = CreepType.CARRIER
     // }
 
+    if (this.room_name == 'W46S33') {
+      const room = Game.rooms[this.room_name]
+      if (room && room.controller && room.controller.my && (room.controller.level < 4)) {
+        let_thy_die = false
+      }
+    }
+
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = {
@@ -105,7 +116,7 @@ export class WorkerSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: type,
-      let_thy_die: true,
+      let_thy_die: let_thy_die,
     }
 
     energy_available = Math.min(energy_available, 1400)
@@ -157,7 +168,7 @@ export class WorkerSquad extends Squad {
       // }
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 20) || ((creep.ticksToLive ||0) > 400)) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive ||0) > 400)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           continue
         }
