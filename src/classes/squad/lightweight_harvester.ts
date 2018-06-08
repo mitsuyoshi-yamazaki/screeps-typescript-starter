@@ -120,7 +120,7 @@ export class LightWeightHarvesterSquad extends Squad {
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 20) || ((creep.ticksToLive ||0) > 500)) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) < 500)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           return
         }
@@ -138,12 +138,12 @@ export class LightWeightHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
-          if (creep.room.name ==  this.region.room.name) {
-            const drop = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-              filter: (d) => {
+          if (creep.carry.energy < (creep.carryCapacity - 50)) {
+            const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 10, {
+              filter: (d: Resource) => {
                 return (d.resourceType == RESOURCE_ENERGY) && (d.amount > 50)
               }
-            }) as Resource
+            })[0] as Resource
             if (drop) {
               if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(drop)

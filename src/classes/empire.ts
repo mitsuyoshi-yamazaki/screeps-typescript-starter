@@ -1,7 +1,7 @@
 
 import { ErrorMapper } from "utils/ErrorMapper"
 import { Region } from "./region"
-import { SpawnPriority } from "./squad/squad";
+import { Squad, SpawnPriority, SquadType } from "./squad/squad";
 
 enum State {
   EXPAND = "expand"
@@ -23,27 +23,18 @@ export class Empire {
       })()
     }
 
-    const base_region = this.regions.get('W49S34')
-    const colony_region = this.regions.get('W46S33')
+    // const base_region = this.regions.get('W49S34')
+    // const colony_region = this.regions.get('W46S33')
 
-    if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 3)) {
-      if (colony_region.worker_squad.spawnPriority != SpawnPriority.NONE) {
-        base_region.delegated_squads = [colony_region.worker_squad]
-      }
-    }
+    // if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
+    //   const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+    //     return (squad.type != SquadType.ATTACKER)
+    //       && (squad.type != SquadType.SCOUT)
+    //   })
 
-    // this.regions.get(first)!.delegated_squads = this.regions.get(third)!.squads_need_spawn
+    //   base_region.delegated_squads = squads
+    // }
 
-    // // Reassign controller keeper
-    // this.regions.forEach((region) => {
-
-    //   const room_keeper = region.room.keeper
-    //   if (!room_keeper) {
-    //     return
-    //   }
-
-    //   Memory.squads[room_keeper!.name]
-    // })
   }
 
   public say(message: string): void {

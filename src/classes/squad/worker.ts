@@ -27,14 +27,14 @@ export class WorkerSquad extends Squad {
     let max = 4
     const room = Game.rooms[this.room_name]
 
-    if (room && room.controller) {
-      if ((room.controller.level < 3)) {
-        max = 10
-      }
-      else if (room.controller.level < 4) {
-        max = 10
-      }
-    }
+    // if (room && room.controller) {
+    //   if ((room.controller.level < 3)) {
+    //     max = 10
+    //   }
+    //   else if (room.controller.level < 4) {
+    //     max = 10
+    //   }
+    // }
 
     if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
       max = 3
@@ -49,7 +49,7 @@ export class WorkerSquad extends Squad {
       max = 3
     }
     else if (this.room_name == 'W46S33') {
-      max = 5
+      max = 3
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -99,13 +99,6 @@ export class WorkerSquad extends Squad {
     //   type = CreepType.CARRIER
     // }
 
-    if (this.room_name == 'W46S33') {
-      const room = Game.rooms[this.room_name]
-      if (room && room.controller && room.controller.my && (room.controller.level < 4)) {
-        let_thy_die = false
-      }
-    }
-
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = {
@@ -129,11 +122,20 @@ export class WorkerSquad extends Squad {
   }
 
   public run(): void {
-    const room = Game.rooms[this.room_name]
+    const room: Room | undefined = Game.rooms[this.room_name]
     const storage = (room.storage && (room.storage.store.energy > 400)) ? room.storage : undefined
     const terminal = (room.terminal && (room.terminal.store.energy > 400)) ? room.terminal : undefined
 
     const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
+    let containers: StructureContainer[] = []
+
+    if (room) {
+      containers = room.find(FIND_STRUCTURES, {
+        filter: (structure: AnyStructure) => {
+          return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
+        }
+      }) as StructureContainer[]
+    }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
@@ -144,15 +146,14 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      // if (this.room_name == 'W49S34') {
-      //   const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      //     filter: (structure: AnyStructure) => {
-      //       return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 1600)
-      //     }
-      //   }) as StructureContainer | undefined
+      // if (this.room_name == 'W46S33') {
+      //   let objects: (StructureContainer | Source)[] = creep.room.sources
+      //   objects = objects.concat(containers)
 
-      //   if (container) {
-      //     source_local = container
+      //   const target = creep.pos.findClosestByPath(objects) as StructureContainer | Source | undefined
+
+      //   if (target && (target as StructureContainer).structureType) {
+      //     source_local = (target as StructureContainer)
       //   }
       // }
 

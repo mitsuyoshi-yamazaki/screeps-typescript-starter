@@ -68,14 +68,8 @@ export class HarvesterSquad extends Squad {
         }
       }
     }
-    else if ((this.source_info.room_name == 'W45S43')) {
-      const destination = Game.getObjectById('5af1cc45b2b1a554170136d1') as StructureLink // Link in W44S42
-      if (destination) {
-        this.destination = destination
-      }
-    }
 
-    if (!destination) {
+    if (!this.destination) {
       console.log(`HarvesterSquad destination not specified ${this.name}`)
     }
 
@@ -223,6 +217,17 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
+    else if ((this.source_info.id == '59f1a01e82100e1594f36174') && (this.carriers.length > 0)) {  // W46S33 bottom left
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+        }
+      }) as StructureContainer | StructureLink
+
+      if (target) {
+        this.container = target
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -323,6 +328,12 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f19ff082100e1594f35c88') { // W49S48 right
       number_of_carriers = 1
     }
+    else if (this.source_info.id == '59f1a01e82100e1594f36173') { // W46S33 center
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f19ff082100e1594f35c8b') { // W49S49
+      number_of_carriers = 1
+    }
 
     if (this.source_info.room_name == 'W47S49') {
       number_of_carriers = 3
@@ -342,6 +353,14 @@ export class HarvesterSquad extends Squad {
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     if (this.needs_harvester) {
+      if (this.resource_type && (this.resource_type != RESOURCE_ENERGY)) {
+        capacity = Math.min(capacity, 2300)
+
+        const energy_unit = 250
+        const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
+        return energyAvailable >= energyNeeded
+      }
+
       const energy_unit = 550
       const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), energy_unit * 2)
       return energyAvailable >= energy_needed
@@ -357,7 +376,12 @@ export class HarvesterSquad extends Squad {
   // --
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     if (this.needs_harvester) {
-      this.addHarvester(energyAvailable, spawnFunc)
+      if (this.resource_type && (this.resource_type != RESOURCE_ENERGY)) {
+        this.addMineralHarvester(energyAvailable, spawnFunc)
+      }
+      else {
+        this.addHarvester(energyAvailable, spawnFunc)
+      }
     }
     else {
       this.addCarrier(energyAvailable, spawnFunc)
@@ -405,6 +429,9 @@ export class HarvesterSquad extends Squad {
     if (this.source_info.room_name == 'W49S34') {
       let_thy_die = true
     }
+    else if (this.source_info.id == '59f1a01e82100e1594f36174') {
+      let_thy_die = true
+    }
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -420,6 +447,12 @@ export class HarvesterSquad extends Squad {
     if (this.source_info.id == '59f19fff82100e1594f35dec') {
       max_energy = 600
     }
+    else if (this.source_info.id = '59f19fee82100e1594f35c5b') {  // W49S34 bottom
+      max_energy = 1600
+    }
+    else if (this.source_info.id = '59f19ff082100e1594f35c8b') {  // W49S49
+      max_energy = 1600
+    }
 
     energyAvailable = Math.min(energyAvailable, max_energy)
 
@@ -433,8 +466,53 @@ export class HarvesterSquad extends Squad {
     })
   }
 
+  private addMineralHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    // capacity: 2300
+    // 8 units, 2C, 16W, 9M
+
+    energyAvailable = Math.min(energyAvailable, 2300)
+
+    const move: BodyPartConstant[] = [MOVE]
+    const work: BodyPartConstant[] = [WORK, WORK]
+    const energy_unit = 250
+
+    energyAvailable -= 150
+    const header: BodyPartConstant[] = [CARRY, CARRY]
+    let body: BodyPartConstant[] = [MOVE]
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.HARVESTER,
+      let_thy_die: true,
+    }
+
+    while (energyAvailable >= energy_unit) {
+      body = move.concat(body)
+      body = body.concat(work)
+      energyAvailable -= energy_unit
+    }
+    body = header.concat(body)
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+  }
+
   private harvest(): void {
     this.harvesters.forEach((harvester) => {
+      const needs_renew = !harvester.memory.let_thy_die && ((harvester.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((harvester.ticksToLive || 0) < 300))
+
+      if (needs_renew) {
+        if ((harvester.room.spawns.length > 0) && ((harvester.room.energyAvailable > 40) || ((harvester.ticksToLive || 0) < 500)) && !harvester.room.spawns[0].spawning) {
+          harvester.goToRenew(harvester.room.spawns[0])
+          return
+        }
+        else if (harvester.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          harvester.memory.status = CreepStatus.HARVEST
+        }
+      }
 
       if ((harvester.memory.status == CreepStatus.NONE) || ((harvester.carry[this.resource_type!] || 0) == 0)) {
         harvester.memory.status = CreepStatus.HARVEST
@@ -543,7 +621,7 @@ export class HarvesterSquad extends Squad {
 
       // Build
       if (harvester.memory.status == CreepStatus.BUILD) {
-        const target = harvester.pos.findInRange(FIND_CONSTRUCTION_SITES, 1)[0] as ConstructionSite
+        const target = harvester.pos.findInRange(FIND_CONSTRUCTION_SITES, 2)[0] as ConstructionSite
 
         if (target) {
           const result = harvester.build(target)
@@ -580,7 +658,7 @@ export class HarvesterSquad extends Squad {
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) < 500)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           return
         }

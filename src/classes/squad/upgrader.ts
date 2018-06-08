@@ -32,10 +32,6 @@ export class UpgraderSquad extends Squad {
       }
     }
 
-    if ((this.room_name == 'W49S34') && room && room.storage && (room.storage.store.energy > 11000)) {
-      max = 1
-    }
-
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
@@ -109,7 +105,7 @@ export class UpgraderSquad extends Squad {
 
       creep.upgrade((structure) => {
         // If source is storage and it contains less energy, wait for charge
-        if ((structure.structureType == STRUCTURE_STORAGE) && (structure.store.energy > 10000)) {
+        if (structure.structureType == STRUCTURE_STORAGE) {
           return true
         }
         return ((structure.structureType == STRUCTURE_LINK) && (this.source_ids.indexOf(structure.id) >= 0) && (structure.energy > 0))

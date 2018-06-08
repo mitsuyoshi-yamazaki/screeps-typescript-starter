@@ -527,7 +527,7 @@ export function init() {
         }
       }
       else {
-        if (this.room.name == 'W49S34') {
+        if (this.room.name == 'W46S33') {
         // To not pickup harvesters drop
         const drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4)[0] as Resource | undefined
         if (drop) {
