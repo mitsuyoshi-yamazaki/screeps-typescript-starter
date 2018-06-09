@@ -32,19 +32,7 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
-        const target_room = Game.rooms['W51S29']
-        if (target_room && target_room.controller && target_room.controller.my) {
-          return SpawnPriority.NONE
-        }
-        const memory = (Memory.squads[this.name] as ManualSquadMemory)
-        if (memory.claimer_last_spawned) {
-          const ticks_from_last_spawned = Game.time - memory.claimer_last_spawned
-          if (ticks_from_last_spawned < 1000) {
-            return SpawnPriority.NONE
-          }
-        }
-        return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
-        // return SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'W49S48':
@@ -64,8 +52,6 @@ export class ManualSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    // return energyAvailable >= 1700
-
     switch (this.original_room_name) {
       case 'W49S34':
         return energy_available >= 1300
@@ -79,8 +65,6 @@ export class ManualSquad extends Squad {
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    // return this.addLightWeightHarvester(energy_available, spawnFunc)
-
     switch (this.original_room_name) {
       case 'W49S34':
         if (this.addClaimer(energy_available, spawn_func) == OK) {
@@ -102,48 +86,6 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
       case 'W49S34':
         this.runClaimer()
-        this.dismantle('W45S32')
-        // this.creeps.forEach((creep) => {
-        //   if (creep.getActiveBodyparts(CARRY) == 0) {
-        //     return
-        //   }
-        //   if (creep.memory.status == CreepStatus.CHARGE) {
-        //     if (_.sum(creep.carry) == 0) {
-        //       creep.memory.status = CreepStatus.HARVEST
-        //       return
-        //     }
-        //     if (creep.transferResources(creep.room.storage!) == ERR_NOT_IN_RANGE) {
-        //       creep.moveTo(creep.room.storage!)
-        //     }
-        //   }
-        //   else {
-        //     creep.memory.status = CreepStatus.HARVEST
-
-        //     if (_.sum(creep.carry) == creep.carryCapacity) {
-        //       creep.memory.status = CreepStatus.CHARGE
-        //       return
-        //     }
-
-        //     const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        //       filter: (structure) => {
-        //         return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < _.sum(structure.store))
-        //       }
-        //     }) as StructureContainer | undefined
-        //     if (target) {
-        //       if (creep.withdrawResources(target, true) == ERR_NOT_IN_RANGE) {
-        //         creep.moveTo(target)
-        //       }
-        //     }
-        //     else {
-        //       if (_.sum(creep.carry) > 0) {
-        //         creep.memory.status = CreepStatus.CHARGE
-        //         return
-        //       }
-        //       creep.say('DONE')
-        //       creep.memory.squad_name = 'worker65961626'
-        //     }
-        //   }
-        // })
         return
 
       case 'W49S48': {
@@ -171,55 +113,6 @@ export class ManualSquad extends Squad {
       default:
         return
     }
-
-
-    // let target_room_name = 'W49S34'
-    // const target_squad_name = 'worker65961626'
-
-    // this.creeps.forEach((creep) => {
-    //   const memory = creep.memory as ManualMemory
-    //   if (!memory.history) {
-    //     (creep.memory as ManualMemory).history = []
-    //   }
-    //   if (memory.history!.indexOf(creep.room.name) < 0) {
-    //     (creep.memory as ManualMemory).history!.push(creep.room.name)
-    //   }
-
-    //   if (creep.hits < 100) {
-    //     const message = `Creep almost dead: ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
-    //     console.log(message)
-    //     Game.notify(message)
-    //   }
-
-    //   if ((memory.history!.indexOf('W47S41') < 0)) {
-    //     target_room_name = 'W47S41'
-    //   }
-    //   else if ((memory.history!.indexOf('W47S40') < 0)) {
-    //     target_room_name = 'W47S40'
-    //   }
-    //   else if ((memory.history!.indexOf('W48S39') < 0)) {
-    //     target_room_name = 'W48S39'
-    //   }
-
-    //   creep.say(target_room_name)
-
-    //   if ((creep.room.name == 'W48S39') && (creep.carry.energy < creep.carryCapacity)) {
-    //     if (creep.room.storage) {
-    //       if (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-    //         creep.moveTo(creep.room.storage)
-    //       }
-    //     }
-    //   }
-
-    //   if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-    //     return
-    //   }
-    //   creep.memory.squad_name = target_squad_name
-
-    //   const message = `Creep arrived to ${target_room_name} with ${creep.hits}/${creep.hits} hits, ${creep.ticksToLive} ticks to live, history: ${memory.history}`
-    //   console.log(message)
-    //   Game.notify(message)
-    // })
   }
 
   public description(): string {
@@ -268,6 +161,79 @@ export class ManualSquad extends Squad {
     })
     return result
   }
+
+  public addLightWeightHarvester(energy_available: number, spawn_func: SpawnFunction): void {
+    const body_unit: BodyPartConstant[] = [WORK, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE]
+    const energy_unit = 450
+    energy_available = Math.min(energy_available, 2250)
+
+    const name = this.generateNewName()
+    let body: BodyPartConstant[] = []
+    const memory: ManualMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.HARVESTER,
+      let_thy_die: false,
+      history: [],
+    }
+
+    while (energy_available >= energy_unit) {
+      body = body.concat(body_unit)
+      energy_available -= energy_unit
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+  }
+
+  private addHealer(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
+      MOVE,
+    ]
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.HEALER,
+      let_thy_die: true,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+  }
+
+  private addAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
+
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      TOUGH,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE,
+      MOVE
+    ]
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.ATTACKER,
+      let_thy_die: true,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+  }
+
+
+  // ---
 
   public runClaimer() {
     const first_room_name = 'W48S33'
@@ -349,29 +315,49 @@ export class ManualSquad extends Squad {
     })
   }
 
-  public addLightWeightHarvester(energy_available: number, spawn_func: SpawnFunction): void {
-    const body_unit: BodyPartConstant[] = [WORK, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE]
-    const energy_unit = 450
-    energy_available = Math.min(energy_available, 2250)
+  private transferMinerals(): void {
+    const worker_squad_name = 'worker65961626'
 
-    const name = this.generateNewName()
-    let body: BodyPartConstant[] = []
-    const memory: ManualMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.HARVESTER,
-      let_thy_die: false,
-      history: [],
-    }
+    this.creeps.forEach((creep) => {
+      if (creep.getActiveBodyparts(CARRY) == 0) {
+        return
+      }
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if (_.sum(creep.carry) == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+        if (creep.transferResources(creep.room.storage!) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(creep.room.storage!)
+        }
+      }
+      else {
+        creep.memory.status = CreepStatus.HARVEST
 
-    while (energy_available >= energy_unit) {
-      body = body.concat(body_unit)
-      energy_available -= energy_unit
-    }
+        if (_.sum(creep.carry) == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+          return
+        }
 
-    const result = spawn_func(body, name, {
-      memory: memory
+        const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < _.sum(structure.store))
+          }
+        }) as StructureContainer | undefined
+        if (target) {
+          if (creep.withdrawResources(target, true) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target)
+          }
+        }
+        else {
+          if (_.sum(creep.carry) > 0) {
+            creep.memory.status = CreepStatus.CHARGE
+            return
+          }
+          creep.say('DONE')
+          creep.memory.squad_name = worker_squad_name
+        }
+      }
     })
   }
 
@@ -783,46 +769,6 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private addAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
-        // const name = this.generateNewName()
-    // const body: BodyPartConstant[] = [
-    //   MOVE, MOVE, MOVE, MOVE, MOVE,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   MOVE,
-    // ]
-    // const memory: CreepMemory = {
-    //   squad_name: this.name,
-    //   status: CreepStatus.NONE,
-    //   birth_time: Game.time,
-    //   type: CreepType.HEALER,
-    //   let_thy_die: true,
-    // }
-
-    // const result = spawnFunc(body, name, {
-    //   memory: memory
-    // })
-
-    const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      TOUGH,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE,
-      MOVE
-    ]
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.ATTACKER,
-      let_thy_die: true,
-    }
-
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
-  }
 
   private preserve(): void {
     let flag_checked = false

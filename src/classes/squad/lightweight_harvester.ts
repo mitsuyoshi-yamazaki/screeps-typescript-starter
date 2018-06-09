@@ -117,10 +117,10 @@ export class LightWeightHarvesterSquad extends Squad {
         return
       }
 
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
 
       if (needs_renew) {
-        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) < 500)) && !creep.room.spawns[0].spawning) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) < 600)) && !creep.room.spawns[0].spawning) {
           creep.goToRenew(creep.room.spawns[0])
           return
         }
