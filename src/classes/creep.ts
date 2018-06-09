@@ -42,7 +42,7 @@ declare global {
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
     find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
-    transferResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
+    transferResources(target: StructureContainer | StructureStorage | StructureTerminal): ScreepsReturnCode
     withdrawResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
 
     // Worker tasks
@@ -286,13 +286,10 @@ export function init() {
     }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
   }
 
-  Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
-    let return_code: ScreepsReturnCode = OK
+  Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal): ScreepsReturnCode {
+    let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(this.carry)) {
       const resource_type = key as ResourceConstant
-      if ((resource_type == RESOURCE_ENERGY) && !include_energy) {
-        continue
-      }
       if (this.carry[resource_type] == 0) {
         continue
       }
@@ -305,7 +302,7 @@ export function init() {
   }
 
   Creep.prototype.withdrawResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
-    let return_code: ScreepsReturnCode = OK
+    let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(target.store)) {
       const resource_type = key as ResourceConstant
       if ((resource_type == RESOURCE_ENERGY) && !include_energy) {

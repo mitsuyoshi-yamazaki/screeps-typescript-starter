@@ -110,7 +110,7 @@ export class Region {
           },
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_KEANIUM_OXIDE,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -122,7 +122,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_UTRIUM_ACID,
+            resource_type: RESOURCE_KEANIUM_ALKALIDE,  // this is output
           }
           return target
         })
@@ -149,25 +149,25 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_UTRIUM,
+            resource_type: RESOURCE_KEANIUM,
           },
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_OXYGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_KEANIUM_OXIDE,
           },
           {
             id: '5b083cf3f30cc0671dc11558', // 34, 23
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_KEANIUM_OXIDE,
           },
           {
             id: '5b085a977ccdfa5c2029aeef', // 33, 24
-            resource_type: RESOURCE_UTRIUM_HYDRIDE,
+            resource_type: RESOURCE_KEANIUM_OXIDE,
           },
         ]
         break
@@ -204,7 +204,7 @@ export class Region {
         ]
         lightweight_harvester_targets = [
           { id: '59f19ffe82100e1594f35ddb', room_name: 'W48S34' },
-          { id: '59f19fef82100e1594f35c62', room_name: 'W49S36' },  // right
+          // { id: '59f19fef82100e1594f35c62', room_name: 'W49S36' },  // right
           // { id: '59f19ffe82100e1594f35ddf', room_name: 'W48S35' },  // left
           // { id: '59f19ffe82100e1594f35dde', room_name: 'W48S35' },  // right
           { id: '59f19fef82100e1594f35c5e', room_name: 'W49S35' },  // top
@@ -214,8 +214,8 @@ export class Region {
           // { id: '59f1a00c82100e1594f35f5d', room_name: 'W47S34' },  // bottom
         ]
         this.room_names = [this.room.name]
-        rooms_need_to_be_defended = ['W48S34', 'W49S36', 'W49S35', 'W49S33']//, 'W48S35', 'W47S34']
-        rooms_need_scout = ['W48S34', 'W49S36', 'W49S35', 'W49S33']//, 'W48S35', 'W47S34']
+        rooms_need_to_be_defended = ['W48S34', 'W49S35', 'W49S33']//, 'W49S36', 'W48S35', 'W47S34']
+        rooms_need_scout = ['W48S34', 'W49S35', 'W49S33']//, 'W49S36', 'W48S35', 'W47S34']
         // if (!harvester_destination) {
         //   console.log(`DESN'T have harvester_destination ${harvester_destination}`)
         //   harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer
@@ -241,7 +241,14 @@ export class Region {
         break
 
       case 'W51S29':
+        harvester_targets = [
+          { id: '59f19fd382100e1594f35a4c', room_name: 'W51S29' }, // bottom right
+          { id: '59f19fd382100e1594f35a4b', room_name: 'W51S29' }, // bottom center
+        ]
         this.room_names = [this.room.name]
+        if (!harvester_destination) {
+          //
+        }
         break
 
       default:
@@ -666,7 +673,10 @@ export class Region {
     // --- Construction site ---
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
-      if (flag.room && (flag.room.name != this.room.name)) {
+      if (!flag.room) {
+        continue
+      }
+      if ((flag.room.name != this.room.name)) {
         continue
       }
       if (this.room.spawns.length == 0) {
@@ -677,7 +687,7 @@ export class Region {
       }
 
       if (this.room.createConstructionSite(flag.pos, STRUCTURE_EXTENSION) == OK) {
-        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}`)
+        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}, ${flag.name}, ${flag.pos}`)
         flag.remove()
 
         break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails

@@ -32,6 +32,15 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
+        // const worker_squad_name = 'worker688160461'
+        // let number = 0
+        // for (const creep_name of Object.keys(Game.creeps)) {
+        //   const creep = Game.creeps[creep_name]
+        //   if (creep.memory.squad_name == worker_squad_name) {
+        //     number += 1
+        //   }
+        // }
+        // return number >= 6 ? SpawnPriority.NONE :SpawnPriority.LOW
         return SpawnPriority.NONE
       }
 
@@ -54,7 +63,7 @@ export class ManualSquad extends Squad {
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     switch (this.original_room_name) {
       case 'W49S34':
-        return energy_available >= 1300
+        return energy_available >= 1400
 
       case 'W49S48':
         return energy_available >= 150
@@ -67,9 +76,7 @@ export class ManualSquad extends Squad {
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     switch (this.original_room_name) {
       case 'W49S34':
-        if (this.addClaimer(energy_available, spawn_func) == OK) {
-          (Memory.squads[this.name] as ManualSquadMemory).claimer_last_spawned = Game.time
-        }
+        this.addWorker(energy_available, spawn_func)
         return
 
       case 'W49S48':
@@ -84,28 +91,59 @@ export class ManualSquad extends Squad {
   public run(): void {
 
     switch (this.original_room_name) {
-      case 'W49S34':
-        this.runClaimer()
+      case 'W49S34': {
+        if (!this.any_creep || !this.any_creep.room.storage || !this.any_creep.room.terminal) {
+          // console.log(`HOGE no creeps`)
+          return
+        }
+        if (_.sum(this.any_creep.carry) > 0) {
+          const r = this.any_creep.transferResources(this.any_creep.room.terminal)
+          if (r == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(this.any_creep.room.terminal)
+            return
+          }
+        }
+        else {
+          if (this.any_creep.withdraw(this.any_creep.room.storage, RESOURCE_KEANIUM) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(this.any_creep.room.storage)
+            return
+          }
+        }
         return
-
+      }
       case 'W49S48': {
         if (!this.any_creep) {
           return
         }
-        if ((this.any_creep.pos.x != 5) || (this.any_creep.pos.y != 11)) {
-          this.any_creep.moveTo(5, 11)
-          return
-        }
         const link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink | undefined
-        if (!link || !this.any_creep.room.storage) {
-          console.log(`ERROR!`)
+        if (!link || !this.any_creep.room.storage || !this.any_creep.room.terminal) {
+          console.log(`ManualSquad W49S48 missing link or storage or terminal`)
           return
         }
         if (this.any_creep.carry.energy > 0) {
-          this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY)
+          if (this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(this.any_creep.room.storage)
+          }
+        }
+        else if ((this.any_creep.carry[RESOURCE_HYDROGEN] || 0) > 0) {
+          if (this.any_creep.transfer(this.any_creep.room.terminal, RESOURCE_HYDROGEN) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(this.any_creep.room.terminal)
+          }
         }
         else {
-          this.any_creep.withdraw(link, RESOURCE_ENERGY)
+          if (link.energy > 0) {
+            if (this.any_creep.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.any_creep.moveTo(link)
+            }
+          }
+          else if (((this.any_creep.room.terminal.store[RESOURCE_HYDROGEN] || 0) < 50000) && ((this.any_creep.ticksToLive || 0) > 5)) {
+            if (this.any_creep.withdraw(this.any_creep.room.storage, RESOURCE_HYDROGEN) == ERR_NOT_IN_RANGE) {
+              this.any_creep.moveTo(this.any_creep.room.storage)
+            }
+          }
+          else {
+            // do nothing
+          }
         }
         return
       }
@@ -122,7 +160,33 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
-  public addClaimer(energy_available: number, spawn_func: SpawnFunction): ScreepsReturnCode {
+  private addWorker(energy_available: number, spawn_func: SpawnFunction): void {
+    const energy_unit = 200
+    let body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
+
+    let body: BodyPartConstant[] = []
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.WORKER,
+      let_thy_die: false,
+    }
+
+    energy_available = Math.min(energy_available, 1400)
+
+    while (energy_available >= energy_unit) {
+      body = body.concat(body_unit)
+      energy_available -= energy_unit
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+  }
+
+  private addClaimer(energy_available: number, spawn_func: SpawnFunction): ScreepsReturnCode {
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
       CLAIM, MOVE, CLAIM, MOVE

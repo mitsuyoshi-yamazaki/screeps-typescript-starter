@@ -68,6 +68,14 @@ export class HarvesterSquad extends Squad {
         }
       }
     }
+    else if ((this.source_info.room_name == 'W51S29')) { // @fixme: temp code
+      if (!this.destination) {
+        const destination = Game.getObjectById('5b1bd48e9e3f4a3fbb6a9a28') as StructureContainer
+        if (destination) {
+          this.destination = destination
+        }
+      }
+    }
 
     if (!this.destination) {
       console.log(`HarvesterSquad destination not specified ${this.name}`)
@@ -228,6 +236,18 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
+    else if ((this.source_info.id == '59f19fd382100e1594f35a4c') && (this.carriers.length > 0)) {  // W51S29 bottom right
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 400))
+            && (structure.id != this.destination.id)
+        }
+      }) as StructureContainer | StructureLink
+
+      if (target) {
+        this.container = target
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -333,6 +353,9 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f19ff082100e1594f35c8b') { // W49S49
       number_of_carriers = 1
+    }
+    else if (this.source_info.id == '59f19fd382100e1594f35a4b') { // W51S29 center
+      number_of_carriers = 0
     }
 
     if (this.source_info.room_name == 'W47S49') {
@@ -554,6 +577,11 @@ export class HarvesterSquad extends Squad {
             default:
               console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${harvester.name}, ${this.name}`)
               break
+          }
+        }
+        else if (this.container && this.store && (this.container.id != this.store.id) && (this.container.structureType == STRUCTURE_CONTAINER) && (this.container.store.energy > 0)) {
+          if (harvester.withdraw(this.container, RESOURCE_ENERGY) == OK) {
+            return
           }
         }
       }

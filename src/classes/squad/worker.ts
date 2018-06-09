@@ -150,16 +150,16 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      // if (this.room_name == 'W46S33') {
-      //   let objects: (StructureContainer | Source)[] = creep.room.sources
-      //   objects = objects.concat(containers)
+      if (this.room_name == 'W51S29') {
+        let objects: (StructureContainer | Source)[] = creep.room.sources
+        objects = objects.concat(containers)
 
-      //   const target = creep.pos.findClosestByPath(objects) as StructureContainer | Source | undefined
+        const target = creep.pos.findClosestByPath(objects) as StructureContainer | Source | undefined
 
-      //   if (target && (target as StructureContainer).structureType) {
-      //     source_local = (target as StructureContainer)
-      //   }
-      // }
+        if (target && (target as StructureContainer).structureType) {
+          source_local = (target as StructureContainer)
+        }
+      }
 
       // Renewal needs almost same but slightly less time
       const room = Game.rooms[this.room_name]

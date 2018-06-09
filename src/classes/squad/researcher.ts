@@ -73,11 +73,9 @@ export class ResearcherSquad extends Squad {
     //   this.needs_research = false // somehow it's true in W48S47
     // }
 
-    if (this.needs_research == false) {
-      this.creeps.forEach((creep) => {
-        creep.memory.let_thy_die = true
-      })
-    }
+    this.creeps.forEach((creep) => {
+      creep.memory.let_thy_die = !this.needs_research
+    })
   }
 
   public get type(): SquadType {
@@ -426,10 +424,10 @@ export class ResearcherSquad extends Squad {
           creep.memory.status = CreepStatus.HARVEST
         }
 
-        let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 500)
-        if (this.room_name == 'W48S47') {
-          has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 2500)
-        }
+        let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 300)
+        // if (this.room_name == 'W48S47') {
+        //   has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 2500)
+        // }
 
         const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)
         if (has_output || has_micellaous) {

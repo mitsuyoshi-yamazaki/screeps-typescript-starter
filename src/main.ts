@@ -36,10 +36,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   const first_room_name = 'W48S47'
   const second_room_name = 'W49S47'
+  const third_room_name = 'W49S48'
 
-  const transports: {from: string, to: string, resource_type: ResourceConstant}[] = [
-    // { from: first_room_name, to: third_room_name, resource_type: RESOURCE_OXYGEN },
-    // { from: second_room_name, to: first_room_name, resource_type: RESOURCE_UTRIUM_HYDRIDE },
+  const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
+    { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
+    { from: second_room_name, to: first_room_name, resource_type: RESOURCE_KEANIUM_OXIDE, is_output: true },
     // { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN },
     // { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROXIDE },
   ]
@@ -55,15 +56,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
       return
     }
 
+    const amount_needed = transport.is_output ? 500 : 4900
+
     const from_room_ready: boolean = !(!from_room)
       && !(!from_room.terminal)
       && (from_room.terminal.cooldown == 0)
-      && ((from_room.terminal.store[transport.resource_type] || 0) > 4900)
+      && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
 
     const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
 
     if (from_room_ready && to_room_ready) {
-      const result = from_room.terminal!.send(transport.resource_type, 2000, transport.to)
+      const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
+      const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
       console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
     }
   })
