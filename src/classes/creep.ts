@@ -41,7 +41,7 @@ declare global {
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
-    find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+    find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
     transferResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
     withdrawResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
 
@@ -262,7 +262,7 @@ export function init() {
     // }
   }
 
-  Creep.prototype.find_charge_target = function(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined {
+  Creep.prototype.find_charge_target = function(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => {
         if (structure.structureType == STRUCTURE_EXTENSION) {
@@ -278,9 +278,12 @@ export function init() {
         else if (structure.structureType == STRUCTURE_TERMINAL) {
           return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
         }
+        else if (structure.structureType == STRUCTURE_LAB) {
+          return (structure.energy < (structure.energyCapacity - 100))
+        }
         return false
       }
-    }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | undefined
+    }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
   }
 
   Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
@@ -488,7 +491,7 @@ export function init() {
 
     let should_harvest_from_link = false
 
-    let charge_target: StructureExtension | StructureSpawn | StructureTerminal | StructureTower | undefined
+    let charge_target: StructureExtension | StructureSpawn | StructureTerminal | StructureTower | StructureLab | undefined
     let find_charge_target = false
 
     // Harvest

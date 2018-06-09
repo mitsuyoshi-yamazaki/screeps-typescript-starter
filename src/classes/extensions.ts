@@ -92,9 +92,9 @@ export function init() {
     let number_of_attacks = 0
 
     hostiles.forEach((creep: Creep) => {
-      number_of_attacks += creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK) + creep.getActiveBodyparts(HEAL)
+      number_of_attacks += (creep.getActiveBodyparts(ATTACK) * 3) + creep.getActiveBodyparts(RANGED_ATTACK) + creep.getActiveBodyparts(HEAL)
     })
-    this.heavyly_attacked = number_of_attacks > 5
+    this.heavyly_attacked = number_of_attacks > 16
 
     this.resourceful_tombstones = this.find(FIND_TOMBSTONES, {
       filter: (tombstone: Tombstone) => {

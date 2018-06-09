@@ -191,7 +191,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19ff082100e1594f35c89', room_name: 'W49S48' },  // bottom, bottom left
           { id: '59f19ff082100e1594f35c8b', room_name: 'W49S49' },  // bottom bottom
-          { id: '59f1c0ce7d0b3d79de5f01e2', room_name: 'W49S49' },  // hydrogen
+          { id: '59f1c0ce7d0b3d79de5f01e2', room_name: 'W49S48' },  // hydrogen
         ]
         this.room_names = [this.room.name, 'W49S49']
         break
@@ -240,8 +240,12 @@ export class Region {
         rooms_need_scout = ['W47S33', 'W45S33']
         break
 
+      case 'W51S29':
+        this.room_names = [this.room.name]
+        break
+
       default:
-        console.log(`Spawn.initialize unexpected spawn name, ${this.name}`)
+        console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
     }
 
@@ -591,17 +595,17 @@ export class Region {
     // --- Attacker ---
     if (!this.defend_squad) {
       const name = AttackerSquad.generateNewName()
+      const memory: SquadMemory = {
+        name: name,
+        type: SquadType.ATTACKER,
+        owner_name: this.name,
+      }
+      Memory.squads[name] = memory
+
       const squad = new AttackerSquad(name, this.attacked_rooms, this.room, energy_capacity)
 
       this.defend_squad = squad
       this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-      }
-      Memory.squads[squad.name] = memory
 
       console.log(`Create defender for ${this.attacked_rooms}, assigned: ${squad.name}`)
     }

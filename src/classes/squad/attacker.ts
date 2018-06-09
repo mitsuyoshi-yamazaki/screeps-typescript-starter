@@ -130,12 +130,10 @@ export class AttackerSquad extends Squad {
     this.creeps.forEach((attacker) => {
       const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
 
-      if (attacker.room.attacked && !is_safemode_active) {
-        const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-        if (target) {
-          attacker.destroy(target)
-          return
-        }
+      const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+      if (target) {
+        attacker.destroy(target)
+        return
       }
 
       if (!this.destination_room_name) {

@@ -49,7 +49,10 @@ export class WorkerSquad extends Squad {
       max = 3
     }
     else if (this.room_name == 'W46S33') {
-      max = 3
+      max = 5
+    }
+    else if (this.room_name == 'W51S29') {
+      max = 4
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -98,6 +101,7 @@ export class WorkerSquad extends Squad {
     //   body_unit = [CARRY, MOVE, CARRY, MOVE]
     //   type = CreepType.CARRIER
     // }
+
 
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()

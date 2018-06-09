@@ -23,17 +23,17 @@ export class Empire {
       })()
     }
 
-    // const base_region = this.regions.get('W49S34')
-    // const colony_region = this.regions.get('W46S33')
+    const base_region = this.regions.get('W49S34')
+    const colony_region = this.regions.get('W51S29')
 
-    // if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
-    //   const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
-    //     return (squad.type != SquadType.ATTACKER)
-    //       && (squad.type != SquadType.SCOUT)
-    //   })
+    if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
+      const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+        return (squad.type != SquadType.ATTACKER)
+          && (squad.type != SquadType.SCOUT)
+      })
 
-    //   base_region.delegated_squads = squads
-    // }
+      base_region.delegated_squads = squads
+    }
 
   }
 
