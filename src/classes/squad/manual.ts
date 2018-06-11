@@ -47,6 +47,9 @@ export class ManualSquad extends Squad {
       case 'W49S48':
         return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
+      case 'W48S47':
+        return SpawnPriority.NONE
+
       default:
         return SpawnPriority.NONE
     }
@@ -68,6 +71,9 @@ export class ManualSquad extends Squad {
       case 'W49S48':
         return energy_available >= 150
 
+      case 'W48S47':
+        return false
+
       default:
         return false
     }
@@ -81,6 +87,9 @@ export class ManualSquad extends Squad {
 
       case 'W49S48':
         this.addCarrier(energy_available, spawn_func)
+        return
+
+      case 'W48S47':
         return
 
       default:
@@ -148,6 +157,27 @@ export class ManualSquad extends Squad {
         return
       }
 
+      case 'W48S47': {
+        if (!this.any_creep) {
+          return
+        }
+        const power_spawn = Game.getObjectById('5b1e82eb721d41270bdfdd8c') as StructurePowerSpawn | undefined
+        if (!power_spawn || !this.any_creep.room.terminal) {
+          console.log(`ManualSquad.run W48S47 no power spawn or terminal`)
+          return
+        }
+        if ((this.any_creep.carry[RESOURCE_POWER] || 0) > 0) {
+          if (this.any_creep.transfer(power_spawn, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(power_spawn)
+          }
+        }
+        else {
+          if (this.any_creep.withdraw(this.any_creep.room.terminal, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(this.any_creep.room.terminal)
+          }
+        }
+        return
+      }
       default:
         return
     }

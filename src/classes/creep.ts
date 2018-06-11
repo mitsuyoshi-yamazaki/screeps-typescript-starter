@@ -263,6 +263,8 @@ export function init() {
   }
 
   Creep.prototype.find_charge_target = function(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
+    const is_attacked = this.room.attacked
+
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: structure => {
         if (structure.structureType == STRUCTURE_EXTENSION) {
@@ -275,11 +277,16 @@ export function init() {
           let margin = this.room.attacked ? 100 : 200
           return structure.energy < (structure.energyCapacity - margin)
         }
-        else if (structure.structureType == STRUCTURE_TERMINAL) {
-          return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
-        }
-        else if (structure.structureType == STRUCTURE_LAB) {
-          return (structure.energy < (structure.energyCapacity - 100))
+        else if (!is_attacked) {
+          if (structure.structureType == STRUCTURE_POWER_SPAWN) {
+            return (structure.energy < structure.energyCapacity)
+          }
+          else if (structure.structureType == STRUCTURE_TERMINAL) {
+            return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
+          }
+          else if (structure.structureType == STRUCTURE_LAB) {
+            return (structure.energy < (structure.energyCapacity - 100))
+          }
         }
         return false
       }
@@ -464,6 +471,13 @@ export function init() {
     // if ((this.room.name == 'W49S48') && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.CHARGE)) && this.room.controller && this.room.controller.my && (this.room.controller.level < 3)) {
     //   this.memory.status = CreepStatus.UPGRADE
     // }
+
+    if ((_.sum(this.carry) > this.carry.energy) && this.room.storage) {
+      if (this.transferResources(this.room.storage) == ERR_NOT_IN_RANGE) {
+        this.moveTo(this.room.storage)
+        return
+      }
+    }
 
     let debug_say = false
 
