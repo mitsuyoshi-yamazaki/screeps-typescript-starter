@@ -68,23 +68,23 @@ export function init() {
     this.attacker_info = attacker_info
 
     const hostiles = this.find(FIND_HOSTILE_CREEPS, {
-      filter: function(creep: Creep): boolean {
-        if (creep.pos.x == 0) {
-          return false
-        }
-        if (creep.pos.x == 49) {
-          return false
-        }
-        if (creep.pos.y == 0) {
-          return false
-        }
-        if (creep.pos.y == 49) {
-          return false
-        }
+      // filter: function(creep: Creep): boolean {
+      //   if (creep.pos.x == 0) {
+      //     return false
+      //   }
+      //   if (creep.pos.x == 49) {
+      //     return false
+      //   }
+      //   if (creep.pos.y == 0) {
+      //     return false
+      //   }
+      //   if (creep.pos.y == 49) {
+      //     return false
+      //   }
 
-        const attack_parts = creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)
-        return attack_parts > 0
-      }
+      //   const attack_parts = creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)
+      //   return attack_parts > 0
+      // }
     })
 
     this.attacked = hostiles.length > 0

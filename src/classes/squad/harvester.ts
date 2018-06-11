@@ -14,7 +14,7 @@ export class HarvesterSquad extends Squad {
   private source: Source | Mineral | undefined  // A source that the harvester harvests energy
   private store: StructureContainer | StructureLink | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
-  private destination_storage: StructureStorage
+  private destination_storage: StructureStorage | undefined
 
   private get needs_harvester(): boolean {
     if (this.source_info.room_name == 'W49S34') {
@@ -641,7 +641,7 @@ export class HarvesterSquad extends Squad {
               break
 
             default:
-              console.log(`HarvesterSquad.harvest() unexpected transfer result: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}, ${this.source_info.room_name}`)
+              console.log(`HarvesterSquad.harvest() unexpected transfer result1: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}, ${this.source_info.room_name}`)
               break
           }
           harvester.memory.status = CreepStatus.HARVEST
@@ -761,7 +761,7 @@ export class HarvesterSquad extends Squad {
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
-        const destination = has_mineral ? this.destination_storage : this.destination
+        const destination = (has_mineral && !(!this.destination_storage)) ? this.destination_storage : this.destination
 
         let resource_type: ResourceConstant | undefined
         for (const type of Object.keys(creep.carry)) {
@@ -791,7 +791,7 @@ export class HarvesterSquad extends Squad {
               break
 
             default:
-              console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${resource_type}, ${creep.name}, ${this.name}, ${this.source_info.room_name}`)
+              console.log(`HarvesterSquad.carry() unexpected transfer result: ${transfer_result}, ${resource_type}, ${creep.name}, ${this.name}, ${this.source_info.room_name}, ${destination}`)
               break
           }
         }
