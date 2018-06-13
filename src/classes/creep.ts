@@ -42,8 +42,8 @@ declare global {
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
     find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
-    transferResources(target: StructureContainer | StructureStorage | StructureTerminal): ScreepsReturnCode
-    withdrawResources(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode
+    transferResources(target: {store: StoreDefinition}): ScreepsReturnCode
+    withdrawResources(target: {store: StoreDefinition}, include_energy?: Boolean): ScreepsReturnCode
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult

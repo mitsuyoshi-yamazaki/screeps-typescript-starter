@@ -16,6 +16,8 @@ interface ManualSquadMemory extends SquadMemory {
   claimer_last_spawned?: number
 }
 
+type MineralContainer = StructureLab | {store: StoreDefinition}
+
 export class ManualSquad extends Squad {
   private any_creep: Creep | undefined
 
@@ -415,50 +417,68 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private transferMinerals(): void {
-    const worker_squad_name = 'worker65961626'
-
-    this.creeps.forEach((creep) => {
-      if (creep.getActiveBodyparts(CARRY) == 0) {
-        return
-      }
-      if (creep.memory.status == CreepStatus.CHARGE) {
-        if (_.sum(creep.carry) == 0) {
-          creep.memory.status = CreepStatus.HARVEST
-          return
-        }
-        if (creep.transferResources(creep.room.storage!) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(creep.room.storage!)
-        }
+  private transferMineral(from: MineralContainer, to: MineralContainer, resource_type: ResourceConstant, amount?: number): void {
+    const switch_structure = function(structure: MineralContainer, case_lab: (lab: StructureLab) => void, case_other: (structure: {store: StoreDefinition}) => void): void {
+      if ((structure as StructureLab).mineralCapacity) {
+        case_lab((structure as StructureLab))
       }
       else {
-        creep.memory.status = CreepStatus.HARVEST
-
-        if (_.sum(creep.carry) == creep.carryCapacity) {
-          creep.memory.status = CreepStatus.CHARGE
-          return
-        }
-
-        const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < _.sum(structure.store))
-          }
-        }) as StructureContainer | undefined
-        if (target) {
-          if (creep.withdrawResources(target, true) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target)
-          }
-        }
-        else {
-          if (_.sum(creep.carry) > 0) {
-            creep.memory.status = CreepStatus.CHARGE
-            return
-          }
-          creep.say('DONE')
-          creep.memory.squad_name = worker_squad_name
-        }
+        case_other(structure as {store: StoreDefinition})
       }
-    })
+    }
+
+    // working on it
+    // this.creeps.forEach((creep) => {
+    //   if (creep.getActiveBodyparts(CARRY) == 0) {
+    //     console.log(`ManualSquad.transferMineral no CARRY body parts`)
+    //     return
+    //   }
+    //   if (creep.memory.status == CreepStatus.CHARGE) {
+    //     if (_.sum(creep.carry) == 0) {
+    //       creep.memory.status = CreepStatus.HARVEST
+    //       return
+    //     }
+
+    //     switch_structure(to, (lab) => {
+    //       if (creep.transferResources() == ERR_NOT_IN_RANGE) {
+    //         creep.moveTo(creep.room.storage!)
+    //       }
+    //     }, (structure) => {
+    //       if (creep.transfer(structure, resource_type) == ERR_NOT_IN_RANGE) {
+    //         creep.moveTo(creep.room.storage!)
+    //       }
+    //     })
+    //     if () {
+
+    //     }
+    //   }
+    //   else {
+    //     creep.memory.status = CreepStatus.HARVEST
+
+    //     if (_.sum(creep.carry) == creep.carryCapacity) {
+    //       creep.memory.status = CreepStatus.CHARGE
+    //       return
+    //     }
+
+    //     const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    //       filter: (structure) => {
+    //         return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy < _.sum(structure.store))
+    //       }
+    //     }) as StructureContainer | undefined
+    //     if (target) {
+    //       if (creep.withdrawResources(target, true) == ERR_NOT_IN_RANGE) {
+    //         creep.moveTo(target)
+    //       }
+    //     }
+    //     else {
+    //       if (_.sum(creep.carry) > 0) {
+    //         creep.memory.status = CreepStatus.CHARGE
+    //         return
+    //       }
+    //       creep.say('DONE')
+    //     }
+    //   }
+    // })
   }
 
   private withdrawFromLabs(): void {
