@@ -50,6 +50,7 @@ export class ManualSquad extends Squad {
         return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
       case 'W48S47':
+        // return this.creeps.size < 2 ? SpawnPriority.URGENT : SpawnPriority.NONE
         return SpawnPriority.NONE
 
       case 'W49S47':
@@ -78,10 +79,10 @@ export class ManualSquad extends Squad {
         return energy_available >= 150
 
       case 'W48S47':
-        return false
+        return energy_available >= 4800
 
       case 'W49S47':
-      return energy_available >= 4040
+        return energy_available >= 4040
 
       default:
         return false
@@ -99,6 +100,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W48S47':
+        this.addAttacker(energy_available, spawn_func)
         return
 
       case 'W49S47':
@@ -171,28 +173,14 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S47': {
-        const room = Game.rooms[this.original_room_name]
-        if (!this.any_creep || !room || !room.storage || !room.terminal) {
-          return
-        }
-
-        this.transferMineral(room.storage, room.terminal, RESOURCE_GHODIUM_OXIDE)
-
-        // const power_spawn = Game.getObjectById('5b1e82eb721d41270bdfdd8c') as StructurePowerSpawn | undefined
-        // if (!power_spawn || !this.any_creep.room.terminal) {
-        //   console.log(`ManualSquad.run W48S47 no power spawn or terminal`)
+        // const room = Game.rooms[this.original_room_name]
+        // const lab = Game.getObjectById('5afb5a00c41b880caa6c3058') as StructureLab | undefined
+        // if (!this.any_creep || !room || !room.storage || !room.terminal || !lab) {
         //   return
         // }
-        // if ((this.any_creep.carry[RESOURCE_POWER] || 0) > 0) {
-        //   if (this.any_creep.transfer(power_spawn, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
-        //     this.any_creep.moveTo(power_spawn)
-        //   }
-        // }
-        // else {
-        //   if (this.any_creep.withdraw(this.any_creep.room.terminal, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
-        //     this.any_creep.moveTo(this.any_creep.room.terminal)
-        //   }
-        // }
+
+        // this.transferMineralToLab(room.terminal, lab, RESOURCE_UTRIUM_ACID)
+        this.runAttacker()
         return
       }
 
@@ -362,12 +350,21 @@ export class ManualSquad extends Squad {
 
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
-      TOUGH,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE,
-      MOVE
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE,
+      ATTACK, MOVE, ATTACK, MOVE,
+      HEAL, MOVE,
+      HEAL, MOVE,
+      HEAL, MOVE,
+      HEAL, MOVE,
+      HEAL, MOVE,
     ]
     const memory: CreepMemory = {
       squad_name: this.name,
@@ -384,15 +381,73 @@ export class ManualSquad extends Squad {
 
 
   // ---
+  private runAttacker() {
+    const lab = Game.getObjectById('5afb5a00c41b880caa6c3058') as StructureLab | undefined
+    const target_room_name = 'W45S41'
+
+    this.creeps.forEach((creep) => {
+      (creep.memory as {target_id?: string}).target_id = '5ac2d005bc88a23950950fe4'
+
+      if (!creep.boosted && lab) {
+        if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(lab)
+          creep.heal(creep)
+          return
+        }
+      }
+
+      if (creep.room.name != target_room_name) {
+        const hostile_creep = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 4)[0]
+
+        if (hostile_creep) {
+          creep.destroy(hostile_creep)
+          return
+        }
+      }
+
+      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+        creep.heal(creep)
+        return
+      }
+
+      creep.searchAndDestroy()
+    })
+  }
+
   private runForcedScout() {
     const target_room_name = 'W48S42'
+    const waypoint_1 = 'W49S45'
+    const waypoint_2 = 'W47S42'
+
+    let first_creep = true
 
     this.creeps.forEach((creep) => {
       this.creeps.forEach((creep) => {
         creep.moveTo(16, 8)
       })
 
+      const memory = creep.memory as ManualMemory
 
+      if (!memory.target_id) {
+        (creep.memory as ManualMemory).target_id = waypoint_1
+      }
+      else if (memory.target_id == waypoint_1) {
+        if (creep.moveToRoom(waypoint_1) == ActionResult.IN_PROGRESS) {
+          return
+        }
+        (creep.memory as ManualMemory).target_id = waypoint_2
+      }
+      else if (memory.target_id == waypoint_2) {
+        if (creep.moveToRoom(waypoint_2) == ActionResult.IN_PROGRESS) {
+          return
+        }
+        if (first_creep) {
+          first_creep = false
+        }
+        else {
+
+        }
+      }
     })
   }
 
@@ -472,6 +527,82 @@ export class ManualSquad extends Squad {
         }
 
         creep.claim(room_name_to_claim, true)
+      }
+    })
+  }
+
+  private transferMineralToLab(from: MineralContainer, to: StructureLab, resource_type: ResourceConstant): void {
+    this.creeps.forEach((creep) => {
+      if (creep.getActiveBodyparts(CARRY) == 0) {
+        console.log(`ManualSquad.transferMineralToLab no CARRY body parts`)
+        return
+      }
+
+      if ((to.mineralType != resource_type) && (to.mineralType != null)) {
+        if (creep.withdraw(to, to.mineralType) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(to)
+        }
+        return
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if ((creep.carry[resource_type] || 0) == 0) {
+          if (_.sum(creep.carry) > 0) {
+            if (creep.transferResources(from) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(from)
+            }
+            return
+          }
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        if (creep.transfer(to, resource_type) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(to)
+        }
+      }
+      else {
+        if ((creep.carry[resource_type] || 0) == 0) {
+          if (_.sum(creep.carry) > 0) {
+            if (creep.transferResources(from) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(from)
+            }
+            return
+          }
+        }
+
+        creep.memory.status = CreepStatus.HARVEST
+
+        if (_.sum(creep.carry) == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+          return
+        }
+
+        const amount = Math.min(creep.carryCapacity, (to.mineralCapacity - to.mineralAmount))
+        const result = creep.withdraw(from, resource_type, amount)
+
+        switch (result) {
+          case OK:
+            break
+
+          case ERR_NOT_IN_RANGE:
+            creep.moveTo(from)
+            break
+
+          case ERR_NOT_ENOUGH_RESOURCES:
+            if (_.sum(creep.carry) == 0) {
+              creep.say(`DONE`)
+            }
+            else {
+              creep.memory.status = CreepStatus.CHARGE
+            }
+            break
+
+          default:
+            creep.say(`ERROR`)
+            console.log(`ManualSquad.transferMineral unknown withdraw error ${result}, ${this.name}, ${creep.name}, ${from}`)
+            break
+        }
       }
     })
   }

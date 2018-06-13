@@ -101,7 +101,7 @@ export class Region {
         ]
         rooms_need_to_be_defended = ['W48S49', 'W47S49', 'W47S47', 'W47S46', 'W47S48']
         this.room_names = [this.room.name, 'W48S48', 'W48S49', 'W47S49']//, 'W47S47', 'W47S46', 'W47S48']
-        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W47S48']
+        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W47S48', 'W46S44']
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
 
         let output_resource_type: ResourceConstant = RESOURCE_LEMERGIUM_ALKALIDE
@@ -136,6 +136,7 @@ export class Region {
             let input_target_ids = research_input_targets.map(t=>t.id)
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
+              && (structure.id != '5afb5a00c41b880caa6c3058') // top right 41, 11
           }
         }).map((lab) => {
           const target: ResearchTarget = {
