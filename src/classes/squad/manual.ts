@@ -53,6 +53,7 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
 
       case 'W49S47':
+        // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
         return SpawnPriority.NONE
 
       default:
@@ -61,7 +62,7 @@ export class ManualSquad extends Squad {
   }
 
   public static generateNewName(): string {
-    return UID(SquadType.MANUAL)
+    return UID('Creep')
   }
 
   public generateNewName(): string {
@@ -80,7 +81,7 @@ export class ManualSquad extends Squad {
         return false
 
       case 'W49S47':
-        return false
+      return energy_available >= 4040
 
       default:
         return false
@@ -101,6 +102,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W49S47':
+        this.addRangedHunter(energy_available, spawn_func)
         return
 
       default:
@@ -195,12 +197,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W49S47':
-        const room = Game.rooms[this.original_room_name]
-        if (!this.any_creep || !room || !room.storage || !room.terminal) {
-          return
-        }
-
-        this.transferMineral(room.storage, room.terminal, RESOURCE_GHODIUM_OXIDE)
+        this.runForcedScout()
         return
 
       default:
@@ -271,6 +268,40 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      let_thy_die: true,
+      history: []
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+    return result
+  }
+
+  public addRangedHunter(energy_available: number, spawn_func: SpawnFunction): ScreepsReturnCode {
+    const name = this.generateNewName()
+    const body: BodyPartConstant[] = [
+      TOUGH, MOVE, TOUGH, MOVE,
+      TOUGH, MOVE, TOUGH, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,  // 5
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE,  // 10
+      HEAL, MOVE, HEAL, MOVE,
+      HEAL, MOVE, HEAL, MOVE,
+      HEAL, MOVE, HEAL, MOVE,
+    ]
+    const memory: ManualMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.ATTACKER,
       let_thy_die: true,
       history: []
     }
@@ -353,8 +384,19 @@ export class ManualSquad extends Squad {
 
 
   // ---
+  private runForcedScout() {
+    const target_room_name = 'W48S42'
 
-  public runClaimer() {
+    this.creeps.forEach((creep) => {
+      this.creeps.forEach((creep) => {
+        creep.moveTo(16, 8)
+      })
+
+
+    })
+  }
+
+  private runClaimer() {
     const first_room_name = 'W48S33'
     const second_room_name = 'W51S29'
     const waypoint_room_name = 'W50S33'

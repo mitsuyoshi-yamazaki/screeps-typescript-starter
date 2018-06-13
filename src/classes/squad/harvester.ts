@@ -231,7 +231,13 @@ export class HarvesterSquad extends Squad {
     else if ((this.source_info.id == '59f1a01e82100e1594f36174') && (this.carriers.length > 0)) {  // W46S33 bottom left
       const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
         filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
+          if (structure.structureType != STRUCTURE_CONTAINER) {
+            return false
+          }
+          if (structure.id == '59f1a01e82100e1594f36173') { // center
+            return ((structure as StructureContainer).store.energy > 1000)
+          }
+          return ((structure as StructureContainer).store.energy > 300)
         }
       }) as StructureContainer | StructureLink
 
