@@ -39,10 +39,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const third_room_name = 'W49S48'
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
-    { from: second_room_name, to: first_room_name, resource_type: RESOURCE_KEANIUM_OXIDE, is_output: true },
-    // { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN },
-    // { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROXIDE },
+    { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
+    // { from: second_room_name, to: first_room_name, resource_type: RESOURCE_KEANIUM_OXIDE, is_output: true },
   ]
 
   transports.forEach((transport) => {
@@ -133,3 +131,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
 // // healer
 // // heal
 // Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61326144'])
+
+// Game.market.deal('5b203fed8a6d474f110f5457', 200	, 'W48S47')

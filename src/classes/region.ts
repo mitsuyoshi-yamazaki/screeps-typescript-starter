@@ -106,11 +106,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5afb75051c04254c89283685', // 40, 11
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_LEMERGIUM,
           },
           {
             id: '5af483456449d07df7f76acc', // 41, 12
-            resource_type: RESOURCE_KEANIUM_OXIDE,
+            resource_type: RESOURCE_OXYGEN,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -122,7 +122,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_KEANIUM_ALKALIDE,  // this is output
+            resource_type: RESOURCE_LEMERGIUM_OXIDE,  // this is output
           }
           return target
         })
@@ -149,7 +149,7 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_KEANIUM,
+            resource_type: RESOURCE_HYDROGEN,
           },
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
@@ -159,15 +159,15 @@ export class Region {
         research_output_targets = [
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_KEANIUM_OXIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           },
           {
             id: '5b083cf3f30cc0671dc11558', // 34, 23
-            resource_type: RESOURCE_KEANIUM_OXIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           },
           {
             id: '5b085a977ccdfa5c2029aeef', // 33, 24
-            resource_type: RESOURCE_KEANIUM_OXIDE,
+            resource_type: RESOURCE_HYDROXIDE,
           },
         ]
         break
@@ -196,7 +196,7 @@ export class Region {
         this.room_names = [this.room.name, 'W49S49']
         break
 
-      case 'W49S34':
+      case 'W49S34': {
         harvester_targets = [
           { id: '59f19fee82100e1594f35c5a', room_name: 'W49S34' },  // right
           { id: '59f19fee82100e1594f35c5b', room_name: 'W49S34' },  // left
@@ -217,14 +217,48 @@ export class Region {
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = ['W48S34', 'W49S35', 'W49S33', 'W48S33']//, 'W49S36', 'W48S35', 'W47S34']
         rooms_need_scout = ['W48S34', 'W49S35', 'W49S33', 'W48S33']//, 'W49S36', 'W48S35', 'W47S34']
-        // if (!harvester_destination) {
-        //   console.log(`DESN'T have harvester_destination ${harvester_destination}`)
-        //   harvester_destination = Game.getObjectById('5b0db021f9e1a866b61fc434') as StructureContainer
-        // }
-        // else {
-        //   console.log(`HAS harvester_destination ${harvester_destination}`)
-        // }
+        research_input_targets = [
+          {
+            id: '5b1a62f17d32c0599da27e9c', // 4, 7
+            resource_type: RESOURCE_ZYNTHIUM,
+          },
+          {
+            id: '5b1a14d8d04d681b9b758a7b', // 5, 8
+            resource_type: RESOURCE_KEANIUM,
+          },
+        ]
+        let output_resource_type: ResourceConstant = RESOURCE_ZYNTHIUM_KEANITE
+        const output_labs = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }) as StructureLab[]
+        if (output_labs[0] && this.room.terminal) {
+          if (output_labs[0].mineralAmount + (this.room.terminal.store[RESOURCE_ZYNTHIUM_KEANITE] || 0) >= 5000) {
+            research_input_targets = [
+              {
+                id: '5b1a62f17d32c0599da27e9c', // 4, 7
+                resource_type: RESOURCE_UTRIUM,
+              },
+              {
+                id: '5b1a14d8d04d681b9b758a7b', // 5, 8
+                resource_type: RESOURCE_LEMERGIUM,
+              },
+            ]
+            output_resource_type = RESOURCE_UTRIUM_LEMERGITE
+          }
+        }
+        research_output_targets = output_labs.map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: output_resource_type,  // this is output
+          }
+          return target
+        })
         break
+      }
 
       case 'W46S33':
         harvester_targets = [

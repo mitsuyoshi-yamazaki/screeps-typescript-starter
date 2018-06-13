@@ -287,6 +287,9 @@ export function init() {
           else if (structure.structureType == STRUCTURE_LAB) {
             return (structure.energy < (structure.energyCapacity - 100))
           }
+          else if (structure.structureType == STRUCTURE_NUKER) {
+            return (structure.energy < structure.energyCapacity)
+          }
         }
         return false
       }

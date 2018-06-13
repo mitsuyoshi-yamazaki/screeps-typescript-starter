@@ -161,21 +161,22 @@ export class ManualSquad extends Squad {
         if (!this.any_creep) {
           return
         }
-        const power_spawn = Game.getObjectById('5b1e82eb721d41270bdfdd8c') as StructurePowerSpawn | undefined
-        if (!power_spawn || !this.any_creep.room.terminal) {
-          console.log(`ManualSquad.run W48S47 no power spawn or terminal`)
-          return
-        }
-        if ((this.any_creep.carry[RESOURCE_POWER] || 0) > 0) {
-          if (this.any_creep.transfer(power_spawn, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(power_spawn)
-          }
-        }
-        else {
-          if (this.any_creep.withdraw(this.any_creep.room.terminal, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(this.any_creep.room.terminal)
-          }
-        }
+        this.dismantle('W48S44', true)
+        // const power_spawn = Game.getObjectById('5b1e82eb721d41270bdfdd8c') as StructurePowerSpawn | undefined
+        // if (!power_spawn || !this.any_creep.room.terminal) {
+        //   console.log(`ManualSquad.run W48S47 no power spawn or terminal`)
+        //   return
+        // }
+        // if ((this.any_creep.carry[RESOURCE_POWER] || 0) > 0) {
+        //   if (this.any_creep.transfer(power_spawn, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
+        //     this.any_creep.moveTo(power_spawn)
+        //   }
+        // }
+        // else {
+        //   if (this.any_creep.withdraw(this.any_creep.room.terminal, RESOURCE_POWER) == ERR_NOT_IN_RANGE) {
+        //     this.any_creep.moveTo(this.any_creep.room.terminal)
+        //   }
+        // }
         return
       }
       default:
@@ -555,7 +556,7 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private dismantle(target_room_name: string): void {
+  private dismantle(target_room_name: string, include_wall?: boolean): void {
     this.creeps.forEach((creep, _) => {
       if (creep.getActiveBodyparts(WORK) == 0) {
         return
@@ -593,29 +594,43 @@ export class ManualSquad extends Squad {
             creep.moveTo(construction_site)
           }
           else {
-            const memory = creep.memory as ManualMemory
-            if (memory.target_id && Game.getObjectById(memory.target_id)) {
-              const specified_target = Game.getObjectById(memory.target_id) as Structure
-              const result = creep.dismantle(specified_target)
+            const wall = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+              filter: (structure) => {
+                return (structure.structureType == STRUCTURE_RAMPART)
+                  || (structure.structureType == STRUCTURE_WALL)
+              }
+            })
 
-              switch (result) {
-                case OK:
-                  break
-
-                case ERR_NOT_IN_RANGE:
-                  creep.moveTo(specified_target)
-                  creep.say(`${specified_target.pos.x}, ${specified_target.pos.y}`)
-                  break
-
-                default:
-                  console.log(`ManualSquad.dismantle unexpected dismantle specified target ${specified_target} result ${result} ${this.name}`)
-                  break
+            if (wall && include_wall) {
+              if (creep.dismantle(wall) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(wall)
               }
             }
             else {
-              creep.say('DONE')
-              console.log(`No more targets in ${target_room_name}, ${creep.name}`)
-              // creep.memory.squad_name = 'worker5864301'
+              const memory = creep.memory as ManualMemory
+              if (memory.target_id && Game.getObjectById(memory.target_id)) {
+                const specified_target = Game.getObjectById(memory.target_id) as Structure
+                const result = creep.dismantle(specified_target)
+
+                switch (result) {
+                  case OK:
+                    break
+
+                  case ERR_NOT_IN_RANGE:
+                    creep.moveTo(specified_target)
+                    creep.say(`${specified_target.pos.x}, ${specified_target.pos.y}`)
+                    break
+
+                  default:
+                    console.log(`ManualSquad.dismantle unexpected dismantle specified target ${specified_target} result ${result} ${this.name}`)
+                    break
+                }
+              }
+              else {
+                creep.say('DONE')
+                console.log(`No more targets in ${target_room_name}, ${creep.name}`)
+                // creep.memory.squad_name = 'worker5864301'
+              }
             }
           }
         }
