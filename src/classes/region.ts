@@ -220,14 +220,14 @@ export class Region {
         research_input_targets = [
           {
             id: '5b1a62f17d32c0599da27e9c', // 4, 7
-            resource_type: RESOURCE_ZYNTHIUM,
+            resource_type: RESOURCE_UTRIUM,
           },
           {
             id: '5b1a14d8d04d681b9b758a7b', // 5, 8
-            resource_type: RESOURCE_KEANIUM,
+            resource_type: RESOURCE_LEMERGIUM,
           },
         ]
-        let output_resource_type: ResourceConstant = RESOURCE_ZYNTHIUM_KEANITE
+        let output_resource_type: ResourceConstant = RESOURCE_UTRIUM_LEMERGITE
         const output_labs = this.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
             let input_target_ids = research_input_targets.map(t=>t.id)
@@ -236,18 +236,18 @@ export class Region {
           }
         }) as StructureLab[]
         if (output_labs[0] && this.room.terminal) {
-          if (output_labs[0].mineralAmount + (this.room.terminal.store[RESOURCE_ZYNTHIUM_KEANITE] || 0) >= 5000) {
+          if (output_labs[0].mineralAmount + (this.room.terminal.store[RESOURCE_GHODIUM] || 0) >= 5000) {
             research_input_targets = [
               {
                 id: '5b1a62f17d32c0599da27e9c', // 4, 7
-                resource_type: RESOURCE_UTRIUM,
+                resource_type: RESOURCE_ZYNTHIUM_KEANITE,
               },
               {
                 id: '5b1a14d8d04d681b9b758a7b', // 5, 8
-                resource_type: RESOURCE_LEMERGIUM,
+                resource_type: RESOURCE_UTRIUM_LEMERGITE,
               },
             ]
-            output_resource_type = RESOURCE_UTRIUM_LEMERGITE
+            output_resource_type = RESOURCE_GHODIUM
           }
         }
         research_output_targets = output_labs.map((lab) => {

@@ -478,6 +478,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id = '59f19ff082100e1594f35c8b') {  // W49S49
       max_energy = 1600
     }
+    else if (this.source_info.room_name == 'W51S29') {
+      max_energy = 800
+    }
 
     energyAvailable = Math.min(energyAvailable, max_energy)
 

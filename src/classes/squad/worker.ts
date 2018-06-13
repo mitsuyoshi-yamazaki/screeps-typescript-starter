@@ -49,7 +49,7 @@ export class WorkerSquad extends Squad {
       max = 3
     }
     else if (this.room_name == 'W46S33') {
-      max = 5
+      max = 3
     }
     else if (this.room_name == 'W51S29') {
       max = 3
