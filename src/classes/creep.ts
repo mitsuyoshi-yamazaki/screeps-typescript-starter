@@ -481,7 +481,7 @@ export function init() {
 
     let debug_say = false
 
-    // if (this.room.name == 'W46S33') {
+    // if (this.room.name == 'W51S29') {
     //   debug_say = true
     // }
 
@@ -824,7 +824,7 @@ export function init() {
           this.say('U2H-1')
         }
       }
-      else if ((['W49S48', 'W48S39', 'W49S34'].indexOf(this.room.name) < 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
+      else if ((['W49S47', 'W48S47'].indexOf(this.room.name) >= 0) && this.room.storage && ((this.room.storage.store.energy + (this.room.terminal || {store: {energy: 0}}).store.energy) < 20000) && (this.room.controller) && (this.room.controller.ticksToDowngrade > 30000)) {
         this.memory.status = CreepStatus.CHARGE
         if (debug_say) {
           this.say('U2C-2')

@@ -236,18 +236,18 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
-    else if ((this.source_info.id == '59f19fd382100e1594f35a4c') && (this.carriers.length > 0)) {  // W51S29 bottom right
-      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 400))
-            && (structure.id != this.destination.id)
-        }
-      }) as StructureContainer | StructureLink
+    // else if ((this.source_info.id == '59f19fd382100e1594f35a4c') && (this.carriers.length > 0)) {  // W51S29 bottom right
+    //   const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
+    //     filter: (structure) => {
+    //       return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 400))
+    //         && (structure.id != this.destination.id)
+    //     }
+    //   }) as StructureContainer | StructureLink
 
-      if (target) {
-        this.container = target
-      }
-    }
+    //   if (target) {
+    //     this.container = target
+    //   }
+    // }
   }
 
   public get type(): SquadType {
@@ -355,7 +355,7 @@ export class HarvesterSquad extends Squad {
       number_of_carriers = 1
     }
     else if (this.source_info.id == '59f19fd382100e1594f35a4b') { // W51S29 center
-      number_of_carriers = 0
+      number_of_carriers = 1
     }
 
     if (this.source_info.room_name == 'W47S49') {
