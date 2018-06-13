@@ -124,6 +124,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01d5') {  // home5 keanium
       this.resource_type = RESOURCE_KEANIUM
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f02fd') { // W46S33 zynthium
+      this.resource_type = RESOURCE_ZYNTHIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -273,6 +276,16 @@ export class HarvesterSquad extends Squad {
 
       if (room && room.heavyly_attacked && (this.resource_type != RESOURCE_ENERGY)) {
         return SpawnPriority.NONE
+      }
+
+      if ((this.source_info.id == '59f1c0cf7d0b3d79de5f02fd')) {  // W46S33 Zynthium
+        if (!Game.getObjectById('5b2121da4e899551a6595ae7') || !Game.getObjectById('5b209ad0b8917c5f23cde3fa')) {
+          const message = `W46S33 missing zynthium extractor or container`
+          console.log(message)
+          if ((Game.time % 51) == 0) {
+            Game.notify(message)
+          }
+        }
       }
 
       // Extactorがない場合の処理

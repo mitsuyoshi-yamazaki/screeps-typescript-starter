@@ -105,11 +105,11 @@ export class Region {
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
 
         let output_resource_type: ResourceConstant = RESOURCE_LEMERGIUM_ALKALIDE
-        if (this.room.terminal && ((this.room.terminal.store[RESOURCE_LEMERGIUM_ALKALIDE] || 0) > 6000)) {
+        // if (this.room.terminal && ((this.room.terminal.store[RESOURCE_LEMERGIUM_ALKALIDE] || 0) > 6000)) {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_GHODIUM,
+              resource_type: RESOURCE_GHODIUM_OXIDE,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
@@ -117,20 +117,20 @@ export class Region {
             },
           ]
           output_resource_type = RESOURCE_GHODIUM_ALKALIDE
-        }
-        else {
-          research_input_targets = [
-            {
-              id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_LEMERGIUM_OXIDE,
-            },
-            {
-              id: '5af483456449d07df7f76acc', // 41, 12
-              resource_type: RESOURCE_HYDROXIDE,
-            },
-          ]
-          output_resource_type = RESOURCE_LEMERGIUM_ALKALIDE
-        }
+        // }
+        // else {
+        //   research_input_targets = [
+        //     {
+        //       id: '5afb75051c04254c89283685', // 40, 11
+        //       resource_type: RESOURCE_LEMERGIUM_OXIDE,
+        //     },
+        //     {
+        //       id: '5af483456449d07df7f76acc', // 41, 12
+        //       resource_type: RESOURCE_HYDROXIDE,
+        //     },
+        //   ]
+        //   output_resource_type = RESOURCE_LEMERGIUM_ALKALIDE
+        // }
         research_output_targets = this.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
             let input_target_ids = research_input_targets.map(t=>t.id)
@@ -239,40 +239,23 @@ export class Region {
         research_input_targets = [
           {
             id: '5b1a62f17d32c0599da27e9c', // 4, 7
-            resource_type: RESOURCE_UTRIUM,
+            resource_type: RESOURCE_ZYNTHIUM_KEANITE,
           },
           {
             id: '5b1a14d8d04d681b9b758a7b', // 5, 8
-            resource_type: RESOURCE_LEMERGIUM,
+            resource_type: RESOURCE_UTRIUM_LEMERGITE,
           },
         ]
-        let output_resource_type: ResourceConstant = RESOURCE_UTRIUM_LEMERGITE
-        const output_labs = this.room.find(FIND_STRUCTURES, {
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
             let input_target_ids = research_input_targets.map(t=>t.id)
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
           }
-        }) as StructureLab[]
-        if (output_labs[0] && this.room.terminal) {
-          if (output_labs[0].mineralAmount + (this.room.terminal.store[RESOURCE_GHODIUM] || 0) >= 5000) {
-            research_input_targets = [
-              {
-                id: '5b1a62f17d32c0599da27e9c', // 4, 7
-                resource_type: RESOURCE_ZYNTHIUM_KEANITE,
-              },
-              {
-                id: '5b1a14d8d04d681b9b758a7b', // 5, 8
-                resource_type: RESOURCE_UTRIUM_LEMERGITE,
-              },
-            ]
-            output_resource_type = RESOURCE_GHODIUM
-          }
-        }
-        research_output_targets = output_labs.map((lab) => {
+        }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: output_resource_type,  // this is output
+            resource_type: RESOURCE_GHODIUM,  // this is output
           }
           return target
         })
@@ -283,6 +266,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a01e82100e1594f36173', room_name: 'W46S33' },  // center
           { id: '59f1a01e82100e1594f36174', room_name: 'W46S33' },  // bottom left
+          { id: '59f1c0cf7d0b3d79de5f02fd', room_name: 'W46S33' },  // zynthium
         ]
         lightweight_harvester_targets = [
           { id: '59f1a00c82100e1594f35f58', room_name: 'W47S33' },  // right
