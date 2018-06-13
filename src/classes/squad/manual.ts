@@ -161,7 +161,12 @@ export class ManualSquad extends Squad {
         if (!this.any_creep) {
           return
         }
-        this.dismantle('W48S44', true)
+        const target_room_name = 'W45S41'
+        if (this.any_creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+          return
+        }
+        this.any_creep.searchAndDestroy()
+
         // const power_spawn = Game.getObjectById('5b1e82eb721d41270bdfdd8c') as StructurePowerSpawn | undefined
         // if (!power_spawn || !this.any_creep.room.terminal) {
         //   console.log(`ManualSquad.run W48S47 no power spawn or terminal`)
