@@ -137,7 +137,8 @@ export class Region {
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
               // && (structure.id != '5afb5a00c41b880caa6c3058') // top right 41, 11
-          }
+              && (structure.id != '5b22b58d31be7d52a5ddb788') // top right 39, 14 // out of range
+            }
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
