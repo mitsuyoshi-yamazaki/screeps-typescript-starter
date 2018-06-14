@@ -109,14 +109,14 @@ export class Region {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_ZYNTHIUM_HYDRIDE,
+              resource_type: RESOURCE_LEMERGIUM_OXIDE,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
               resource_type: RESOURCE_HYDROXIDE,
             },
           ]
-          output_resource_type = RESOURCE_ZYNTHIUM_ACID
+          output_resource_type = RESOURCE_LEMERGIUM_ALKALIDE
         // }
         // else {
         //   research_input_targets = [
