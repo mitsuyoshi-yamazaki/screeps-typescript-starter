@@ -6,37 +6,43 @@ interface InvaderMemory extends CreepMemory {
   target_id?: string
   target_x?: number
   target_y?: number
+  is_leader?: boolean
 }
 
 export class InvaderSquad extends Squad {
-  private attacker: Creep | undefined
-  private healer: Creep | undefined
   private target: Creep | Structure | undefined
+  private leader: Creep | undefined
 
   constructor(readonly name: string, readonly base_room_name: string, readonly target_room_name: string) {
     super(name)
 
+    let max_hits = 0
+    let max_hits_creep: Creep | undefined
+
     this.creeps.forEach((creep) => {
-      switch (creep.memory.type) {
-        case CreepType.ATTACKER:
-          this.attacker = creep
-          break
+      const memory = creep.memory as InvaderMemory
+      if (memory.is_leader) {
+        this.leader = creep
+      }
+      else if (creep.hits > max_hits) {
+        max_hits = creep.hits
+        max_hits_creep = creep
 
-        case CreepType.HEALER:
-          this.healer = creep
-          break
-
-        default:
-          console.log(`InvaderSquad unexpectedly found ${creep.memory.type} ${creep.name}, ${this.name}`)
-          break
+        creep.memory.should_silent = true
       }
     })
 
-    if (this.attacker) {
-      const memory = this.attacker.memory as InvaderMemory
-      if (memory.target_id) {
-        this.target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
-      }
+    if (!this.leader && max_hits_creep) {
+      (max_hits_creep.memory as InvaderMemory).is_leader = true
+      this.leader = max_hits_creep
+    }
+    else if (this.leader && max_hits_creep && ((this.leader.hits + 300) < max_hits_creep.hits)) {
+      (max_hits_creep.memory as InvaderMemory).is_leader = true
+      this.leader = max_hits_creep
+    }
+
+    if (this.leader) {
+      this.leader.memory.should_silent = false
     }
   }
 
@@ -45,7 +51,8 @@ export class InvaderSquad extends Squad {
   }
 
   public static generateNewName(): string {
-    return UID(SquadType.INVADER)
+    // return UID(SquadType.INVADER)
+    return UID('Creep')
   }
 
   public generateNewName(): string {
@@ -54,104 +61,96 @@ export class InvaderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    // if (!this.attacker || !this.healer) {
-    //   return SpawnPriority.URGENT
-    // }
+    const room = Game.rooms[this.base_room_name]
+
+    if (!room || !room.storage) {
+      return SpawnPriority.NONE
+    }
+
+    switch (this.base_room_name) {
+      case 'W48S47':
+        break
+
+      default:
+        return SpawnPriority.NONE
+    }
+
+    if (Game.time > 7044299) {
+      // return SpawnPriority.NONE
+    }
+
+    if (room.storage.store.energy < 100000) {
+      return SpawnPriority.NONE
+    }
+    // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
     return SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    if (capacity > 2200) {
-      if (!this.attacker) {
-        return energy_available >= 2610
-      }
-      if (!this.healer) {
-        return energy_available >= 5280
-      }
-      return false
-    }
-    else {
-      if (!this.attacker) {
-        return energy_available >= 2040
-      }
-      if (!this.healer) {
-        return energy_available >= 2180
-      }
-      return false
-    }
+    return energy_available >= 4180
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    if (!this.attacker) {
-      this.addAttacker(energy_available, spawn_func)
-      return
-    }
-    if (!this.healer) {
-      this.addHealer(energy_available, spawn_func)
-      return
-    }
+    this.addAttacker(energy_available, spawn_func)
   }
 
   public run(): void {
+    if (!this.leader) {
+      return
+    }
+
+    if (this.leader.hits < 2000) {
+      this.leader.moveToRoom('W48S47')
+      this.leader.heal(this.leader)
+      return
+    }
+
+    // --- Leader
+    this.leader.searchAndDestroyTo('W46S46', true)
+
+    // --- Follower
     this.creeps.forEach((creep) => {
-      creep.memory.let_thy_die = true
+      creep.searchAndDestroy(true)
+      creep.moveTo(this.leader!)
     })
+  }
 
-    // if (this.attacker) {
-    //   this.attacker.moveTo(16, 24)
-    // }
-    // if (this.healer) {
-    //   this.healer.moveTo(17, 24)
-    // }
-
-
-
-    // this.runAttacker()
-    // this.runHealer()
-
-
-    this.recycle()
-    // this.returnToBase()
-    // this.moveToOutpost()
+  public description(): string {
+    const additions = !this.leader ? "" : `, ${this.leader.pos}`
+    return `${super.description()}${additions}`
   }
 
   // --- Private ---
-  private addAttacker(energy_available: number, spawn_func: SpawnFunction) {
+  private addAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    // 4180
+
+    const is_leader = !this.leader
+
     const name = this.generateNewName()
-    let body: BodyPartConstant[] = []
-
-    if (energy_available >= 2610) {
-      body = [
-        TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-        MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-        ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-        ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-        MOVE, HEAL,
-      ]
-    }
-    else {
-      body = [
-        TOUGH, TOUGH, TOUGH,
-        MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-        ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-        MOVE, HEAL,
-      ]
-    }
-
+    const body: BodyPartConstant[] = [
+      TOUGH, TOUGH,
+      ATTACK, MOVE, ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
+      HEAL, MOVE, HEAL, MOVE,
+      HEAL, MOVE, HEAL, MOVE,
+      HEAL, MOVE,
+      MOVE, MOVE, MOVE,
+      HEAL,
+    ]
     const memory: InvaderMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
       let_thy_die: true,
+      is_leader: is_leader
     }
 
-    const result = spawn_func(body, name, {
+    const result = spawnFunc(body, name, {
       memory: memory
     })
   }
@@ -196,13 +195,6 @@ export class InvaderSquad extends Squad {
 
     const result = spawn_func(body, name, {
       memory: memory
-    })
-  }
-
-  private returnToBase(): void {
-    this.creeps.forEach((creep) => {
-      // creep.moveToRoom(this.base_room_name)
-      creep.moveToRoom('W44S42')
     })
   }
 
@@ -257,87 +249,87 @@ export class InvaderSquad extends Squad {
     })
   }
 
-  private runAttacker() {
-    // if healer is not beside, stop
-    // if target, attack
-    // if no target, search and destroy
+  // private runAttacker() {
+  //   // if healer is not beside, stop
+  //   // if target, attack
+  //   // if no target, search and destroy
 
 
-    if (!this.attacker) {
-      return
-    }
+  //   if (!this.attacker) {
+  //     return
+  //   }
 
-    let should_stop = false
-    if ((this.attacker.room.name != this.base_room_name) && this.healer && (this.healer.pos.getRangeTo(this.attacker) > 1)) {
-      should_stop = true
-    }
+  //   let should_stop = false
+  //   if ((this.attacker.room.name != this.base_room_name) && this.healer && (this.healer.pos.getRangeTo(this.attacker) > 1)) {
+  //     should_stop = true
+  //   }
 
-    if (this.attacker.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
-      return
-    }
+  //   if (this.attacker.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
+  //     return
+  //   }
 
-    if (this.target) {
-      this.attacker.destroy(this.target)
-    }
-    else {
-      const memory = this.attacker.memory as InvaderMemory
-      if (memory.target_x && memory.target_y) {
-        this.attacker.moveTo(memory.target_x, memory.target_y)
-        this.attacker.heal(this.attacker)
-      }
-      else {
-        this.attacker.searchAndDestroy()
-      }
-    }
-  }
+  //   if (this.target) {
+  //     this.attacker.destroy(this.target)
+  //   }
+  //   else {
+  //     const memory = this.attacker.memory as InvaderMemory
+  //     if (memory.target_x && memory.target_y) {
+  //       this.attacker.moveTo(memory.target_x, memory.target_y)
+  //       this.attacker.heal(this.attacker)
+  //     }
+  //     else {
+  //       this.attacker.searchAndDestroy()
+  //     }
+  //   }
+  // }
 
-  private runHealer() {
-    // follow attacker
-    // heal attacker or self
-    // ranged attack if enemy nearby
+  // private runHealer() {
+  //   // follow attacker
+  //   // heal attacker or self
+  //   // ranged attack if enemy nearby
 
-    if (!this.healer) {
-      return
-    }
-    if (!this.attacker) {
-      this.healer.moveToRoom(this.base_room_name)
-      return
-    }
+  //   if (!this.healer) {
+  //     return
+  //   }
+  //   if (!this.attacker) {
+  //     this.healer.moveToRoom(this.base_room_name)
+  //     return
+  //   }
 
-    this.healer.moveTo(this.attacker)
+  //   this.healer.moveTo(this.attacker)
 
-    const attacker_hit_lack = this.attacker.hitsMax - this.attacker.hits
-    const healer_hit_lack = this.healer.hitsMax - this.healer.hits
-    const heal_target = attacker_hit_lack < healer_hit_lack ? this.healer : this.attacker
+  //   const attacker_hit_lack = this.attacker.hitsMax - this.attacker.hits
+  //   const healer_hit_lack = this.healer.hitsMax - this.healer.hits
+  //   const heal_target = attacker_hit_lack < healer_hit_lack ? this.healer : this.attacker
 
-    const heal_result = this.healer.heal(heal_target)
+  //   const heal_result = this.healer.heal(heal_target)
 
-    switch (heal_result) {
-      case OK:
-        break
+  //   switch (heal_result) {
+  //     case OK:
+  //       break
 
-      case ERR_NOT_IN_RANGE:
-      default:
-        this.healer.rangedHeal(heal_target)
-        console.log(`InvaderSquad.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
-        break
-    }
+  //     case ERR_NOT_IN_RANGE:
+  //     default:
+  //       this.healer.rangedHeal(heal_target)
+  //       console.log(`InvaderSquad.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
+  //       break
+  //   }
 
-    if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
-      let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
-      if (!target) {
-        this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
-          filter: (structure: Structure) => {
-            if ((structure as AnyOwnedStructure).my) {
-              return !(structure as AnyOwnedStructure).my
-            }
-            return true
-          }
-        })[0]
-      }
-      if (target) {
-        this.healer.rangedAttack(target)
-      }
-    }
-  }
+  //   if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
+  //     let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
+  //     if (!target) {
+  //       this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
+  //         filter: (structure: Structure) => {
+  //           if ((structure as AnyOwnedStructure).my) {
+  //             return !(structure as AnyOwnedStructure).my
+  //           }
+  //           return true
+  //         }
+  //       })[0]
+  //     }
+  //     if (target) {
+  //       this.healer.rangedAttack(target)
+  //     }
+  //   }
+  // }
 }

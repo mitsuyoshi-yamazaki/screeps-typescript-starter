@@ -95,13 +95,13 @@ export class Region {
         ]
         lightweight_harvester_targets = [
           { id: '59f1a00e82100e1594f35f82', room_name: 'W47S47' },  // right
-          { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
+          // { id: '59f1a00e82100e1594f35f80', room_name: 'W47S46' },  // top right
           { id: '59f1a00e82100e1594f35f85', room_name: 'W47S48' },  // bottom right
           { id: '59f1a00e82100e1594f35f87', room_name: 'W47S48' },  // bottom right
         ]
-        rooms_need_to_be_defended = ['W48S49', 'W47S49', 'W47S47', 'W47S46', 'W47S48']
+        rooms_need_to_be_defended = ['W48S49', 'W47S49', 'W47S47', 'W47S48'] // , 'W47S46'
         this.room_names = [this.room.name, 'W48S48', 'W48S49', 'W47S49']//, 'W47S47', 'W47S46', 'W47S48']
-        rooms_need_scout = ['W47S47', 'W47S46', 'W46S46', 'W47S48', 'W46S44']
+        rooms_need_scout = ['W47S47', 'W47S48'] // , 'W47S46', 'W46S46', 'W46S44'
         upgrader_source_ids = ['5aec04e52a35133912c2cb1b', '5af5c771dea4db08d5fb7c84']  // storage, link
 
         let output_resource_type: ResourceConstant = RESOURCE_LEMERGIUM_ALKALIDE
@@ -109,14 +109,14 @@ export class Region {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_LEMERGIUM_OXIDE,
+              resource_type: RESOURCE_OXYGEN,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
-              resource_type: RESOURCE_HYDROXIDE,
+              resource_type: RESOURCE_HYDROGEN,
             },
           ]
-          output_resource_type = RESOURCE_LEMERGIUM_ALKALIDE
+          output_resource_type = RESOURCE_HYDROXIDE
         // }
         // else {
         //   research_input_targets = [
@@ -784,7 +784,7 @@ export class Region {
       if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4) && (squad.creeps.size == 0)) {
         worker_harvester.memory.squad_name = squad.name
         worker_harvester.memory.status = CreepStatus.CHARGE
-        console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
+        // console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
         return false
       }
 

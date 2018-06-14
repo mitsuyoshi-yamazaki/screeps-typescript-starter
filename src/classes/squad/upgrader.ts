@@ -24,6 +24,10 @@ export class UpgraderSquad extends Squad {
     let max = 0
     const room = Game.rooms[this.room_name]
 
+    if (!room || !room.controller || !room.controller.my || (room.controller.level == 8)) {
+      return SpawnPriority.NONE
+    }
+
     if (room && room.storage) {
       const energy = room.storage!.store.energy
       let available = (energy - 400000)
