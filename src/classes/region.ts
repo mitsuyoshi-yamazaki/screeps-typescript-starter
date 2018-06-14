@@ -1109,7 +1109,9 @@ export class Region {
       if (squad) {
         squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
           const result = spawn.spawnCreep(body, name, ops)
-          console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}`)
+          if (result != OK) {
+            console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}`)
+          }
           return result
         })
       }
