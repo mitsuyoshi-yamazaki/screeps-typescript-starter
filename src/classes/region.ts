@@ -136,7 +136,7 @@ export class Region {
             let input_target_ids = research_input_targets.map(t=>t.id)
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
-              && (structure.id != '5afb5a00c41b880caa6c3058') // top right 41, 11
+              // && (structure.id != '5afb5a00c41b880caa6c3058') // top right 41, 11
           }
         }).map((lab) => {
           const target: ResearchTarget = {
@@ -240,11 +240,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b1a62f17d32c0599da27e9c', // 4, 7
-            resource_type: RESOURCE_ZYNTHIUM_KEANITE,
+            resource_type: RESOURCE_KEANIUM,
           },
           {
             id: '5b1a14d8d04d681b9b758a7b', // 5, 8
-            resource_type: RESOURCE_UTRIUM_LEMERGITE,
+            resource_type: RESOURCE_OXYGEN,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -256,7 +256,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_GHODIUM,  // this is output
+            resource_type: RESOURCE_KEANIUM_OXIDE,  // this is output
           }
           return target
         })
@@ -277,6 +277,29 @@ export class Region {
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = ['W47S33', 'W45S33']
         rooms_need_scout = ['W47S33', 'W45S33']
+        research_input_targets = [
+          {
+            id: '5b213fe5f0e4b5471f2af92f', // 25, 16
+            resource_type: RESOURCE_ZYNTHIUM,
+          },
+          {
+            id: '5b214e391992d52f7e33cbbf', // 26, 15
+            resource_type: RESOURCE_HYDROGEN,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_ZYNTHIUM_HYDRIDE,  // this is output
+          }
+          return target
+        })
         break
 
       case 'W51S29':

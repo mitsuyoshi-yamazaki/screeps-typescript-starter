@@ -180,7 +180,10 @@ export class ManualSquad extends Squad {
         // }
 
         // this.transferMineralToLab(room.terminal, lab, RESOURCE_UTRIUM_ACID)
-        this.runAttacker()
+
+        // this.runAttacker()
+
+        this.chargeNuke()
         return
       }
 
@@ -388,7 +391,7 @@ export class ManualSquad extends Squad {
     this.creeps.forEach((creep) => {
       (creep.memory as {target_id?: string}).target_id = '5ac2d005bc88a23950950fe4'
 
-      if (!creep.boosted && lab) {
+      if (!creep.boosted && lab && (lab.mineralType == RESOURCE_UTRIUM_ACID)) {
         if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
           creep.moveTo(lab)
           creep.heal(creep)
@@ -531,10 +534,86 @@ export class ManualSquad extends Squad {
     })
   }
 
+  private chargeNuke(): void {
+    const room = Game.rooms[this.original_room_name] as Room | undefined
+
+    if (!room || !room.terminal || !room.storage) {
+      console.log(`ManualSquad.chargeNuke no room | terminal | storage ${this.name}`)
+      return
+    }
+
+    const nuker = room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_NUKER
+      }
+    })[0] as StructureNuker | undefined
+
+    if (!nuker) {
+      console.log(`ManualSquad.chargeNuke no nuker ${this.name}`)
+      return
+    }
+
+    const resource_type = RESOURCE_GHODIUM
+
+    this.creeps.forEach((creep) => {
+      if (nuker.ghodium == nuker.ghodiumCapacity) {
+        creep.say(`DONE`)
+        return
+      }
+
+      if (creep.getActiveBodyparts(CARRY) == 0) {
+        console.log(`ManualSquad.chargeNuke no CARRY body parts  ${this.name}`)
+        creep.say(`ERROR`)
+        return
+      }
+
+      if ((creep.carry[resource_type] || 0) < _.sum(creep.carry)) {
+        if (creep.transferResources(room.terminal!) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(room.terminal!)
+        }
+        return
+      }
+
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (_.sum(creep.carry) == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else if ((room.terminal!.store[resource_type] || 0) > 0) {
+          if (creep.withdraw(room.terminal!, resource_type) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(room.terminal!)
+          }
+        }
+        else if ((room.storage!.store[resource_type] || 0) > 0) {
+          if (creep.withdraw(room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(room.storage!)
+          }
+        }
+        else {
+          console.log(`ManualSquad.chargeNuke no enough ${resource_type} ${this.name}`)
+          creep.say(`ERROR`)
+          return
+        }
+      }
+      else {
+        creep.memory.status = CreepStatus.CHARGE
+
+        if ((creep.carry[resource_type] || 0) == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        if (creep.transfer(nuker, resource_type) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(nuker)
+        }
+      }
+    })
+  }
+
   private transferMineralToLab(from: MineralContainer, to: StructureLab, resource_type: ResourceConstant): void {
     this.creeps.forEach((creep) => {
       if (creep.getActiveBodyparts(CARRY) == 0) {
-        console.log(`ManualSquad.transferMineralToLab no CARRY body parts`)
+        console.log(`ManualSquad.transferMineralToLab no CARRY body parts  ${this.name}`)
+        creep.say(`ERROR`)
         return
       }
 
@@ -620,6 +699,7 @@ export class ManualSquad extends Squad {
     this.creeps.forEach((creep) => {
       if (creep.getActiveBodyparts(CARRY) == 0) {
         console.log(`ManualSquad.transferMineral no CARRY body parts`)
+        creep.say(`ERROR`)
         return
       }
       if (creep.memory.status == CreepStatus.CHARGE) {
