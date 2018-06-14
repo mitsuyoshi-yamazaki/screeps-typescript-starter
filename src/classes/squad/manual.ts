@@ -588,6 +588,9 @@ export class ManualSquad extends Squad {
             creep.moveTo(room.storage!)
           }
         }
+        else if ((creep.carry[resource_type] || 0) > 0) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
         else {
           console.log(`ManualSquad.chargeNuke no enough ${resource_type} ${this.name}`)
           creep.say(`ERROR`)
