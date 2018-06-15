@@ -21,10 +21,25 @@ type MineralContainer = StructureTerminal | StructureStorage | StructureContaine
 export class ManualSquad extends Squad {
   private any_creep: Creep | undefined
 
+  private attackers: Creep[] = []
+  private workers: Creep[] = []
+
   constructor(readonly name: string, readonly original_room_name: string) {
     super(name)
 
     this.any_creep = Array.from(this.creeps.values())[0]
+
+    this.creeps.forEach((creep) => {
+      switch (creep.memory.type) {
+        case CreepType.ATTACKER:
+          this.attackers.push(creep)
+          break
+
+        case CreepType.WORKER:
+          this.workers.push(creep)
+          break
+      }
+    })
   }
 
   public get type(): SquadType {
@@ -34,15 +49,19 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
-        // const worker_squad_name = 'worker688160461'
-        // let number = 0
-        // for (const creep_name of Object.keys(Game.creeps)) {
-        //   const creep = Game.creeps[creep_name]
-        //   if (creep.memory.squad_name == worker_squad_name) {
-        //     number += 1
-        //   }
-        // }
-        // return number >= 6 ? SpawnPriority.NONE :SpawnPriority.LOW
+        if (this.attackers.length == 0) {
+          return SpawnPriority.LOW
+        }
+        else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
+          return SpawnPriority.NORMAL
+        }
+
+        if (this.workers.length == 0) {
+          return SpawnPriority.LOW
+        }
+        else if ((this.workers.length < 2) && !this.workers[0].spawning && ((this.workers[0].ticksToLive || 1000) < 550)) {
+          return SpawnPriority.LOW
+        }
         return SpawnPriority.NONE
       }
 
@@ -73,7 +92,13 @@ export class ManualSquad extends Squad {
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     switch (this.original_room_name) {
       case 'W49S34':
-        return energy_available >= 1400
+        if (this.attackers.length == 0) {
+          return energy_available >= 1240
+        }
+        else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
+          return energy_available >= 1240
+        }
+        return energy_available >= 2250 // worker
 
       case 'W49S48':
         return energy_available >= 150
@@ -91,9 +116,29 @@ export class ManualSquad extends Squad {
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     switch (this.original_room_name) {
-      case 'W49S34':
-        this.addWorker(energy_available, spawn_func)
+      case 'W49S34': {
+        const attacker_body: BodyPartConstant[] = [
+          TOUGH, MOVE, TOUGH, MOVE,
+          ATTACK, MOVE, ATTACK, MOVE,
+          ATTACK, MOVE, ATTACK, MOVE,
+          MOVE, MOVE, HEAL, HEAL
+        ]
+        if (this.attackers.length == 0) {
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
+          return
+        }
+        else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
+          return
+        }
+        const worker_body: BodyPartConstant[] = [
+          WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
+          WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
+          WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER)
         return
+      }
 
       case 'W49S48':
         this.addCarrier(energy_available, spawn_func)
@@ -116,7 +161,51 @@ export class ManualSquad extends Squad {
 
     switch (this.original_room_name) {
       case 'W49S34': {
-        this.dismantle('W46S39')
+        const target_room_name = 'W46S39'
+        const target_wall = Game.getObjectById('5b04a24d187fe614ff0bd6f5') as StructureWall | undefined
+
+        this.attackers.forEach((creep) => {
+          if (creep.room.name != target_room_name) {
+            creep.searchAndDestroyTo(target_room_name, false)
+            return
+          }
+
+          const hostile_creep = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)[0]
+          if (hostile_creep) {
+            creep.destroy(hostile_creep)
+            return
+          }
+
+          if (target_wall) {
+            creep.moveTo(1, 10)
+            creep.attack(target_wall)
+
+            const damaged_creep = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
+              filter: (c: Creep) => (c.hits < c.hitsMax)
+            })[0]
+            if (damaged_creep) {
+              creep.heal(damaged_creep)
+            }
+
+            return
+          }
+
+          creep.searchAndDestroy()
+        })
+
+        this.workers.forEach((creep) => {
+          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+            return
+          }
+
+          if (target_wall) {
+            creep.moveTo(2, 9)
+            creep.dismantle(target_wall)
+            return
+          }
+
+          creep.dismantleObjects(target_room_name, Game.getObjectById('5b1fdc427e7744038af7f139') as Structure | undefined)
+        })
         return
       }
       case 'W49S48': {
@@ -187,6 +276,21 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
+  private addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType): void {
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: type,
+      let_thy_die: false,
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+  }
+
   private addWorker(energy_available: number, spawn_func: SpawnFunction): void {
     const energy_unit = 200
     let body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
@@ -837,102 +941,29 @@ export class ManualSquad extends Squad {
 
   private dismantle(target_room_name: string, include_wall?: boolean): void {
     this.creeps.forEach((creep, _) => {
-      if (creep.getActiveBodyparts(WORK) == 0) {
-        creep.say(`ERROR`)
-        return
-      }
+      let specified_target: Structure | undefined
 
-      creep.drop(RESOURCE_ENERGY)
+      if (creep.room.name == target_room_name) {
+        const memory = creep.memory as ManualMemory
 
-      if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
-        creep.say(target_room_name)
-        return
-      }
+        if (memory.target_id) {
+          specified_target = Game.getObjectById(memory.target_id) as Structure | undefined
 
-      const memory = creep.memory as ManualMemory
-
-      if (memory.target_id) {
-        const specified_target = Game.getObjectById(memory.target_id)
-
-        if ((specified_target as Structure).structureType) {
-          if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
-            creep.moveTo((specified_target as Structure))
-          }
-          return
-        }
-        else {
-          creep.say(`NO T`)
-          console.log(`No target ${memory.target_id} for ${this.name}`);
-          (creep.memory as ManualMemory).target_id = undefined
-        }
-      }
-
-      const target = creep.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
-
-      if (target) {
-        if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(target)
-        }
-      }
-      else {
-        const structure = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
-          filter: (structure) => {
-            return structure.structureType != STRUCTURE_CONTROLLER
-          }
-        })
-        if (structure) {
-          if (creep.dismantle(structure) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(structure)
-          }
-        }
-        else {
-          const construction_site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
-
-          if (construction_site) {
-            creep.moveTo(construction_site)
+          if ((specified_target as Structure).structureType) {
+            if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
+              creep.moveTo((specified_target as Structure))
+            }
+            return
           }
           else {
-            const wall = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-              filter: (structure) => {
-                return (structure.structureType == STRUCTURE_RAMPART)
-                  || (structure.structureType == STRUCTURE_WALL)
-              }
-            })
-
-            if (wall && include_wall) {
-              if (creep.dismantle(wall) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(wall)
-              }
-            }
-            else {
-              const memory = creep.memory as ManualMemory
-              if (memory.target_id && Game.getObjectById(memory.target_id)) {
-                const specified_target = Game.getObjectById(memory.target_id) as Structure
-                const result = creep.dismantle(specified_target)
-
-                switch (result) {
-                  case OK:
-                    break
-
-                  case ERR_NOT_IN_RANGE:
-                    creep.moveTo(specified_target)
-                    creep.say(`${specified_target.pos.x}, ${specified_target.pos.y}`)
-                    break
-
-                  default:
-                    console.log(`ManualSquad.dismantle unexpected dismantle specified target ${specified_target} result ${result} ${this.name}`)
-                    break
-                }
-              }
-              else {
-                creep.say('DONE')
-                console.log(`No more targets in ${target_room_name}, ${creep.name}`)
-                // creep.memory.squad_name = 'worker5864301'
-              }
-            }
+            creep.say(`NO T`)
+            console.log(`No target ${memory.target_id} for ${this.name}`);
+            (creep.memory as ManualMemory).target_id = undefined
           }
         }
       }
+
+      creep.dismantleObjects(target_room_name, specified_target, include_wall)
     })
   }
 

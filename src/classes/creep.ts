@@ -44,6 +44,7 @@ declare global {
     find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
     transferResources(target: {store: StoreDefinition}): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, include_energy?: Boolean): ScreepsReturnCode
+    dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -166,6 +167,10 @@ export function init() {
     }
     else if ((this.room.name == 'W46S45') && (exit == TOP)) { // @fixme: temp code
       this.moveTo(27, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W47S39') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 10)
       return ActionResult.IN_PROGRESS
     }
 
@@ -344,6 +349,74 @@ export function init() {
     return return_code
   }
 
+  Creep.prototype.dismantleObjects = function(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult {
+    if (this.getActiveBodyparts(WORK) == 0) {
+      this.say(`ERROR`)
+      return ActionResult.IN_PROGRESS
+    }
+
+    this.drop(RESOURCE_ENERGY)
+
+    if (this.moveToRoom(target_room_name) != ActionResult.DONE) {
+      this.say(target_room_name)
+      return ActionResult.IN_PROGRESS
+    }
+
+    if (specified_target) {
+      if (this.dismantle(specified_target) == ERR_NOT_IN_RANGE) {
+        this.moveTo(specified_target)
+      }
+      return ActionResult.IN_PROGRESS
+    }
+
+    const target = this.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
+
+    if (target) {
+      if (this.dismantle(target) == ERR_NOT_IN_RANGE) {
+        this.moveTo(target)
+      }
+    }
+    else {
+      const structure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType != STRUCTURE_CONTROLLER
+        }
+      })
+      if (structure) {
+        if (this.dismantle(structure) == ERR_NOT_IN_RANGE) {
+          this.moveTo(structure)
+        }
+      }
+      else {
+        const construction_site = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+
+        if (construction_site) {
+          this.moveTo(construction_site)
+        }
+        else {
+          const wall = this.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return (structure.structureType == STRUCTURE_RAMPART)
+                || (structure.structureType == STRUCTURE_WALL)
+            }
+          })
+
+          if (wall && include_wall) {
+            if (this.dismantle(wall) == ERR_NOT_IN_RANGE) {
+              this.moveTo(wall)
+            }
+          }
+          else {
+            this.say('DONE')
+            console.log(`No more targets in ${target_room_name}, ${this.name}`)
+            return ActionResult.DONE
+          }
+        }
+      }
+    }
+    return ActionResult.IN_PROGRESS
+  }
+
 
   // --- Worker tasks ---
   Creep.prototype.harvestFrom = function(source: Source): ActionResult {
@@ -499,9 +572,9 @@ export function init() {
 
     let debug_say = false
 
-    // if (this.room.name == 'W51S29') {
-    //   debug_say = true
-    // }
+    if (this.room.name == 'W48S47') {
+      debug_say = true
+    }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
