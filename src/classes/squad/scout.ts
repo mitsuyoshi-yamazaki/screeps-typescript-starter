@@ -69,6 +69,7 @@ export class ScoutSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.SCOUT,
+      should_notify_attack: false,
       room_name: this.room_needs_scout,
       let_thy_die: true,
     }

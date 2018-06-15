@@ -966,6 +966,10 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
     })()
+
+    if (this.room.name == 'W51S29') {
+      this.room.createConstructionSite(23, 22, STRUCTURE_TERMINAL)
+    }
   }
 
   // --- Private ---

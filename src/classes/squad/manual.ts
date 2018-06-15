@@ -49,6 +49,17 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
+        const target_room_name = 'W46S39'
+        const room = Game.rooms[target_room_name]
+        const observer = Game.getObjectById('5b1e1041c359e26f06c000c1') as StructureObserver | undefined
+
+        if (observer) {
+          observer.observeRoom(target_room_name)
+        }
+        if (room && (room.find(FIND_HOSTILE_SPAWNS).length == 0)) {
+          return SpawnPriority.NONE
+        }
+
         if (this.attackers.length == 0) {
           return SpawnPriority.LOW
         }

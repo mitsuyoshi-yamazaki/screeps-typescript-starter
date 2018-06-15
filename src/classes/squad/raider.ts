@@ -166,6 +166,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 
@@ -192,6 +193,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 
@@ -220,6 +222,7 @@ export class RaiderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 

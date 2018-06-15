@@ -1107,12 +1107,18 @@ export function init() {
       this.say(`T${target.pos.x},${target.pos.y}`)
     }
 
+    if ((target as Creep).carry) {
+      if (((target as Creep).getActiveBodyparts(RANGED_ATTACK) > 0) && (((target as Creep).getActiveBodyparts(ATTACK) == 0))) {
+        no_move = true
+      }
+    }
+
     let ranged_target: Creep | Structure = target
     let should_flee = false
     const is_creep = !(!(target as Creep).carry)
 
     if (is_creep) {
-      if (!no_move) {
+      if (!no_move && (this.getActiveBodyparts(RANGED_ATTACK) > 4)) {
         const hostile_creep = target as Creep
         if (this.pos.getRangeTo(hostile_creep) < 4) {
           const filter = function(creep: Creep): boolean {
