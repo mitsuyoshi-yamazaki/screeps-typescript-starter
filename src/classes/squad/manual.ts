@@ -116,23 +116,7 @@ export class ManualSquad extends Squad {
 
     switch (this.original_room_name) {
       case 'W49S34': {
-        if (!this.any_creep || !this.any_creep.room.storage || !this.any_creep.room.terminal) {
-          // console.log(`HOGE no creeps`)
-          return
-        }
-        if (_.sum(this.any_creep.carry) > 0) {
-          const r = this.any_creep.transferResources(this.any_creep.room.terminal)
-          if (r == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(this.any_creep.room.terminal)
-            return
-          }
-        }
-        else {
-          if (this.any_creep.withdraw(this.any_creep.room.storage, RESOURCE_KEANIUM) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(this.any_creep.room.storage)
-            return
-          }
-        }
+        this.dismantle('W46S39')
         return
       }
       case 'W49S48': {
@@ -854,6 +838,7 @@ export class ManualSquad extends Squad {
   private dismantle(target_room_name: string, include_wall?: boolean): void {
     this.creeps.forEach((creep, _) => {
       if (creep.getActiveBodyparts(WORK) == 0) {
+        creep.say(`ERROR`)
         return
       }
 
@@ -862,6 +847,24 @@ export class ManualSquad extends Squad {
       if (creep.moveToRoom(target_room_name) != ActionResult.DONE) {
         creep.say(target_room_name)
         return
+      }
+
+      const memory = creep.memory as ManualMemory
+
+      if (memory.target_id) {
+        const specified_target = Game.getObjectById(memory.target_id)
+
+        if ((specified_target as Structure).structureType) {
+          if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
+            creep.moveTo((specified_target as Structure))
+          }
+          return
+        }
+        else {
+          creep.say(`NO T`)
+          console.log(`No target ${memory.target_id} for ${this.name}`);
+          (creep.memory as ManualMemory).target_id = undefined
+        }
       }
 
       const target = creep.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
