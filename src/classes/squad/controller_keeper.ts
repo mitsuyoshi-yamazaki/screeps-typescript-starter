@@ -172,6 +172,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CONTROLLER_KEEPER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 
@@ -188,6 +189,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CLAIMER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 
@@ -204,6 +206,7 @@ export class ControllerKeeperSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.SCOUT,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 

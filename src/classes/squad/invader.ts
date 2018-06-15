@@ -146,6 +146,7 @@ export class InvaderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      should_notify_attack: false,
       let_thy_die: true,
       is_leader: is_leader
     }
@@ -190,6 +191,7 @@ export class InvaderSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HEALER,
+      should_notify_attack: false,
       let_thy_die: true,
     }
 

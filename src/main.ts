@@ -19,19 +19,19 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   empire.run()
 
-  for (const creep_name in Game.creeps) {
-    const creep = Game.creeps[creep_name]
+  if (((Game.time + 3) % 11) == 0) {
+    for (const creep_name in Game.creeps) {
+      const creep = Game.creeps[creep_name]
 
-    if ((creep.ticksToLive || 0) >= 1499) {
-      creep.notifyWhenAttacked(false)
+      creep.notifyWhenAttacked(!(!creep.memory.should_notify_attack))
+
+      if (creep.squad || creep.spawning) {
+        continue
+      }
+
+      console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
+      // creep.suicide()
     }
-
-    if (creep.squad || creep.spawning) {
-      continue
-    }
-
-    console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
-    // creep.suicide()
   }
 
   const first_room_name = 'W48S47'

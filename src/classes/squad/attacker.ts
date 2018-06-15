@@ -103,6 +103,7 @@ export class AttackerSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 

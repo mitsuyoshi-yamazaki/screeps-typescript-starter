@@ -454,6 +454,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      should_notify_attack: false,
       let_thy_die: true,
     }
 
@@ -487,6 +488,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      should_notify_attack: false,
       let_thy_die: let_thy_die,
     }
 
@@ -535,6 +537,7 @@ export class HarvesterSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      should_notify_attack: false,
       let_thy_die: true,
     }
 

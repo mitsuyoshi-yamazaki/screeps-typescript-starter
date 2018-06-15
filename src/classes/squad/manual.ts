@@ -124,11 +124,11 @@ export class ManualSquad extends Squad {
           MOVE, MOVE, HEAL, HEAL
         ]
         if (this.attackers.length == 0) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, true)
           return
         }
         else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, true)
           return
         }
         const worker_body: BodyPartConstant[] = [
@@ -136,7 +136,7 @@ export class ManualSquad extends Squad {
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
         ]
-        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER)
+        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER, true)
         return
       }
 
@@ -199,7 +199,7 @@ export class ManualSquad extends Squad {
           }
 
           if (target_wall) {
-            creep.moveTo(2, 9)
+            creep.moveTo(1, 9)
             creep.dismantle(target_wall)
             return
           }
@@ -276,13 +276,14 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
-  private addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType): void {
+  private addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, should_notify_attack?: boolean): void {
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: type,
+      should_notify_attack: !(!should_notify_attack),
       let_thy_die: false,
     }
 
@@ -302,6 +303,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.WORKER,
+      should_notify_attack: false,
       let_thy_die: false,
     }
 
@@ -327,6 +329,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CLAIMER,
+      should_notify_attack: false,
       let_thy_die: true,
       history: []
     }
@@ -347,6 +350,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CARRIER,
+      should_notify_attack: false,
       let_thy_die: true,
       history: []
     }
@@ -381,6 +385,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      should_notify_attack: false,
       let_thy_die: true,
       history: []
     }
@@ -403,6 +408,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HARVESTER,
+      should_notify_attack: false,
       let_thy_die: false,
       history: [],
     }
@@ -429,6 +435,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.HEALER,
+      should_notify_attack: false,
       let_thy_die: true,
     }
 
@@ -462,6 +469,7 @@ export class ManualSquad extends Squad {
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.ATTACKER,
+      should_notify_attack: false,
       let_thy_die: true,
     }
 

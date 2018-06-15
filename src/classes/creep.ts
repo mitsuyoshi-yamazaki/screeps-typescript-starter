@@ -67,6 +67,7 @@ declare global {
     type: CreepType
     birth_time: number
     should_silent?: boolean
+    should_notify_attack: boolean
     let_thy_die: boolean
   }
 }
@@ -572,9 +573,9 @@ export function init() {
 
     let debug_say = false
 
-    if (this.room.name == 'W48S47') {
-      debug_say = true
-    }
+    // if (this.room.name == 'W48S47') {
+    //   debug_say = true
+    // }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
