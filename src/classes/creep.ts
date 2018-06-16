@@ -1113,7 +1113,23 @@ export function init() {
       return this.destroy(hostile_spawn)
     }
 
-    const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+    const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+      filter: (creep) => {
+        if (this.pos.x == 0) {
+          return false
+        }
+        if (this.pos.x == 49) {
+          return false
+        }
+        if (this.pos.y == 0) {
+          return false
+        }
+        if (this.pos.y == 49) {
+          return false
+        }
+        return true
+      }
+    })
     if (hostile_creep) {
       return this.destroy(hostile_creep)
     }

@@ -181,11 +181,14 @@ export class InvaderSquad extends Squad {
             if (creep.owner.username == 'Source Keeper') {
               return false
             }
-            return true
+            if ((creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)) > 5) {
+              return true
+            }
+            return false
           }
         }).length
 
-        if (number_of_hostiles > 2) {
+        if (number_of_hostiles > 3) {
           const goal: {pos: RoomPosition, range: number} = {
             pos: hostile_creep.pos,
             range: 50,

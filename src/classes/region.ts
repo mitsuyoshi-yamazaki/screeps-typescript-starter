@@ -969,6 +969,44 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
     })()
+
+    ErrorMapper.wrapLoop(() => {
+      const nuke: Nuke = this.room.find(FIND_NUKES, {
+        filter: (nuke) => {
+          return (nuke.timeToLand < 60)
+        }
+      })[0]
+
+      if (nuke) {
+        let creeps: Creep[] = []
+
+        this.squads.forEach((squad) => {
+          const c = Array.from(squad.creeps.values()).filter((cc) => {
+            return cc.room.name == this.room.name
+          })
+          creeps = creeps.concat(c)
+        })
+
+        let room_name: string
+
+        switch (this.room.name) {
+          case 'W48S47':
+            room_name = 'W48S48'
+            break
+
+          default:
+            room_name = 'W48S48'  // better than nothing
+            break
+        }
+
+        creeps.forEach((c) => {
+          if (c.moveToRoom(room_name) == ActionResult.IN_PROGRESS) {
+            return
+          }
+          c.moveTo(26, 11)
+        })
+      }
+    })()
   }
 
   // --- Private ---
