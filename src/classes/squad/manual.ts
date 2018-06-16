@@ -49,30 +49,30 @@ export class ManualSquad extends Squad {
   public get spawnPriority(): SpawnPriority {
     switch (this.original_room_name) {
       case 'W49S34': {
-        const target_room_name = 'W46S39'
-        const room = Game.rooms[target_room_name]
-        const observer = Game.getObjectById('5b1e1041c359e26f06c000c1') as StructureObserver | undefined
+        // const target_room_name = 'W46S39'
+        // const room = Game.rooms[target_room_name]
+        // const observer = Game.getObjectById('5b1e1041c359e26f06c000c1') as StructureObserver | undefined
 
-        if (observer) {
-          observer.observeRoom(target_room_name)
-        }
-        if (room && (room.find(FIND_HOSTILE_SPAWNS).length == 0)) {
-          return SpawnPriority.NONE
-        }
+        // if (observer) {
+        //   observer.observeRoom(target_room_name)
+        // }
+        // if (room && (room.find(FIND_HOSTILE_SPAWNS).length == 0)) {
+        //   return SpawnPriority.NONE
+        // }
 
-        if (this.attackers.length == 0) {
-          return SpawnPriority.LOW
-        }
-        else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
-          return SpawnPriority.NORMAL
-        }
+        // if (this.attackers.length == 0) {
+        //   return SpawnPriority.LOW
+        // }
+        // else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
+        //   return SpawnPriority.NORMAL
+        // }
 
-        if (this.workers.length == 0) {
-          return SpawnPriority.LOW
-        }
-        else if ((this.workers.length < 2) && !this.workers[0].spawning && ((this.workers[0].ticksToLive || 1000) < 550)) {
-          return SpawnPriority.LOW
-        }
+        // if (this.workers.length == 0) {
+        //   return SpawnPriority.LOW
+        // }
+        // else if ((this.workers.length < 2) && !this.workers[0].spawning && ((this.workers[0].ticksToLive || 1000) < 550)) {
+        //   return SpawnPriority.LOW
+        // }
         return SpawnPriority.NONE
       }
 
@@ -135,11 +135,11 @@ export class ManualSquad extends Squad {
           MOVE, MOVE, HEAL, HEAL
         ]
         if (this.attackers.length == 0) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, true)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, false)
           return
         }
         else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, true)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, false)
           return
         }
         const worker_body: BodyPartConstant[] = [
@@ -147,7 +147,7 @@ export class ManualSquad extends Squad {
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
         ]
-        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER, true)
+        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER, false)
         return
       }
 
@@ -173,11 +173,12 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
       case 'W49S34': {
         const target_room_name = 'W46S39'
-        const target_wall = Game.getObjectById('5b04a24d187fe614ff0bd6f5') as StructureWall | undefined
+        const target_wall = Game.getObjectById('5b1fdc427e7744038af7f139') as StructureRampart | undefined
 
         this.attackers.forEach((creep) => {
           if (creep.room.name != target_room_name) {
-            creep.searchAndDestroyTo(target_room_name, false)
+            // creep.searchAndDestroyTo(target_room_name, false)
+            creep.moveToRoom(target_room_name)
             return
           }
 
@@ -188,8 +189,10 @@ export class ManualSquad extends Squad {
           }
 
           if (target_wall) {
-            creep.moveTo(1, 10)
-            creep.attack(target_wall)
+            // creep.moveTo(1, 10)
+            if (creep.attack(target_wall) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target_wall)
+            }
 
             const damaged_creep = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
               filter: (c: Creep) => (c.hits < c.hitsMax)
@@ -210,12 +213,20 @@ export class ManualSquad extends Squad {
           }
 
           if (target_wall) {
-            creep.moveTo(1, 9)
-            creep.dismantle(target_wall)
+            if (creep.pos.x == 0) {
+              this.attackers.forEach((attacker) => {
+                if (attacker.room.name != target_room_name) {
+                  return
+                }
+                attacker.move(BOTTOM)
+              })
+            }
+            // creep.moveTo(1, 9)
+            creep.dismantleObjects(target_room_name, target_wall)
             return
           }
 
-          creep.dismantleObjects(target_room_name, Game.getObjectById('5b1fdc427e7744038af7f139') as Structure | undefined)
+          creep.dismantleObjects(target_room_name, undefined) //Game.getObjectById('5b1fdc427e7744038af7f139') as Structure | undefined)
         })
         return
       }

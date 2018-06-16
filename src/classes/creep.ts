@@ -1118,7 +1118,7 @@ export function init() {
     const is_creep = !(!(target as Creep).carry)
 
     if (is_creep) {
-      if (!no_move && (this.getActiveBodyparts(RANGED_ATTACK) > 4)) {
+      if (!no_move && (this.getActiveBodyparts(RANGED_ATTACK) > 0)) {
         const hostile_creep = target as Creep
         if (this.pos.getRangeTo(hostile_creep) < 4) {
           const filter = function(creep: Creep): boolean {

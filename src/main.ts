@@ -41,7 +41,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const fifth_room_name = 'W46S33'
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
+    // { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
     { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
     // { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
     { from: third_room_name, to: fifth_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },

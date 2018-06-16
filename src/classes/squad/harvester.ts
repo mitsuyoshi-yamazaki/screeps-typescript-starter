@@ -596,7 +596,7 @@ export class HarvesterSquad extends Squad {
 
         if (dropped_object) {
           const energy = dropped_object.resource!
-          const pickup_result = harvester.pickup(energy)
+          const pickup_result = harvester.pickup(energy)  // @fixme: 位置につく前にpickupするとそこから動かなくなる
           switch (pickup_result) {
             case OK:
             case ERR_FULL:
