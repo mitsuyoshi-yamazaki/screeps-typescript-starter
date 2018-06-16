@@ -80,8 +80,8 @@ export class ManualSquad extends Squad {
         return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
       case 'W48S47':
-        // return this.creeps.size < 2 ? SpawnPriority.URGENT : SpawnPriority.NONE
-        return SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return SpawnPriority.NONE
 
       case 'W49S47':
         // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
@@ -115,7 +115,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 150
 
       case 'W48S47':
-        return energy_available >= 4800
+        return energy_available >= 300
 
       case 'W49S47':
         return energy_available >= 4040
@@ -156,7 +156,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W48S47':
-        this.addAttacker(energy_available, spawn_func)
+        this.addGeneralCreep(spawn_func, [MOVE, MOVE, CARRY, CARRY, CARRY, MOVE], CreepType.CARRIER)
         return
 
       case 'W49S47':
@@ -268,17 +268,38 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S47': {
-        // const room = Game.rooms[this.original_room_name]
-        // const lab = Game.getObjectById('5afb5a00c41b880caa6c3058') as StructureLab | undefined
-        // if (!this.any_creep || !room || !room.storage || !room.terminal || !lab) {
-        //   return
-        // }
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.terminal) {
+          return
+        }
 
-        // this.transferMineralToLab(room.terminal, lab, RESOURCE_UTRIUM_ACID)
+        type Target = {lab: StructureLab, resource_type: ResourceConstant}
+        const targets: Target[] = [
+          {
+            lab: Game.getObjectById('5b22b58d31be7d52a5ddb788') as StructureLab,
+            resource_type: RESOURCE_ZYNTHIUM_ACID,
+          },
+          {
+            lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
+            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+          },
+          {
+            lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
+            resource_type: RESOURCE_KEANIUM_ALKALIDE,
+          },
+        ]
 
-        // this.runAttacker()
+        let target: Target = targets.filter((t) => {
+          return !(!t.lab)
+            && (
+              (t.lab.mineralType != t.resource_type)
+                || (t.lab.mineralAmount < t.lab.mineralCapacity)
+            )
+        })[0]
 
-        this.chargeNuke()
+        if (target) {
+          this.transferMineralToLab(room.terminal, target.lab, target.resource_type)
+        }
         return
       }
 
@@ -739,6 +760,12 @@ export class ManualSquad extends Squad {
       }
 
       if ((to.mineralType != resource_type) && (to.mineralType != null)) {
+        if (_.sum(creep.carry) > 0) {
+          if (creep.transferResources(from) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(from)
+          }
+          return
+        }
         if (creep.withdraw(to, to.mineralType) == ERR_NOT_IN_RANGE) {
           creep.moveTo(to)
         }
@@ -783,6 +810,7 @@ export class ManualSquad extends Squad {
 
         switch (result) {
           case OK:
+            creep.memory.status = CreepStatus.CHARGE
             break
 
           case ERR_NOT_IN_RANGE:
@@ -896,78 +924,78 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private chargeLab(): void {
-    // It's in room W44S42
-    // const resource = RESOURCE_UTRIUM_ACID
-    // const lab = Game.getObjectById('5af7db5db44f464c8ea3a7f5') as StructureLab
+  // private chargeLab(): void {
+  //   // It's in room W44S42
+  //   // const resource = RESOURCE_UTRIUM_ACID
+  //   // const lab = Game.getObjectById('5af7db5db44f464c8ea3a7f5') as StructureLab
 
-    const resource = RESOURCE_LEMERGIUM_ALKALIDE
-    const lab = Game.getObjectById('5af7c5180ce89a3235fd46d8') as StructureLab
+  //   const resource = RESOURCE_LEMERGIUM_ALKALIDE
+  //   const lab = Game.getObjectById('5af7c5180ce89a3235fd46d8') as StructureLab
 
-    if ((this.creeps.size > 0) && (lab.mineralAmount > 0) && (lab.mineralType != resource)) {
-      console.log(`Manual.run lab mineral type is different from specified one ${resource}, ${lab.mineralType}, ${lab.id}`)
-      return
-    }
+  //   if ((this.creeps.size > 0) && (lab.mineralAmount > 0) && (lab.mineralType != resource)) {
+  //     console.log(`Manual.run lab mineral type is different from specified one ${resource}, ${lab.mineralType}, ${lab.id}`)
+  //     return
+  //   }
 
-    this.creeps.forEach((creep) => {
-      if (creep.memory.status == CreepStatus.NONE) {
-        creep.memory.status = CreepStatus.HARVEST
-      }
+  //   this.creeps.forEach((creep) => {
+  //     if (creep.memory.status == CreepStatus.NONE) {
+  //       creep.memory.status = CreepStatus.HARVEST
+  //     }
 
-      const source = creep.room.terminal!
-      let resource_type: ResourceConstant = RESOURCE_ENERGY
+  //     const source = creep.room.terminal!
+  //     let resource_type: ResourceConstant = RESOURCE_ENERGY
 
-      if (creep.memory.status == CreepStatus.HARVEST) {
-        if ((lab.mineralCapacity - lab.mineralAmount) < 400) {
-          creep.memory.status = CreepStatus.NONE
-          creep.say('😴')
-          return
-          }
-        else if ((creep.carry.energy > 0) && ((creep.carry[resource] || 0) > 0)) {
-          creep.memory.status = CreepStatus.CHARGE
-        }
-        else {
-          let amount = 1
+  //     if (creep.memory.status == CreepStatus.HARVEST) {
+  //       if ((lab.mineralCapacity - lab.mineralAmount) < 400) {
+  //         creep.memory.status = CreepStatus.NONE
+  //         creep.say('😴')
+  //         return
+  //         }
+  //       else if ((creep.carry.energy > 0) && ((creep.carry[resource] || 0) > 0)) {
+  //         creep.memory.status = CreepStatus.CHARGE
+  //       }
+  //       else {
+  //         let amount = 1
 
-          if (creep.carry.energy > 0) {
-            resource_type = resource
-            amount = 380
-          }
+  //         if (creep.carry.energy > 0) {
+  //           resource_type = resource
+  //           amount = 380
+  //         }
 
-          const r = creep.withdraw(source, resource_type, amount)
-          if (r == ERR_NOT_IN_RANGE) {
-            creep.moveTo(source)
-            creep.say('🏦')
-          }
-          else if (r != OK) {
-            creep.say(`w${r}`)
-          }
-        }
-      }
-      if (creep.memory.status == CreepStatus.CHARGE) {
-        if ((creep.carry.energy == 0) && ((creep.carry[resource] || 0) == 0)) {
-          creep.memory.status = CreepStatus.CHARGE
-        }
-        else {
-          if ((creep.carry.energy == 0) || (lab.energy == lab.energyCapacity)) {
-            resource_type = resource
+  //         const r = creep.withdraw(source, resource_type, amount)
+  //         if (r == ERR_NOT_IN_RANGE) {
+  //           creep.moveTo(source)
+  //           creep.say('🏦')
+  //         }
+  //         else if (r != OK) {
+  //           creep.say(`w${r}`)
+  //         }
+  //       }
+  //     }
+  //     if (creep.memory.status == CreepStatus.CHARGE) {
+  //       if ((creep.carry.energy == 0) && ((creep.carry[resource] || 0) == 0)) {
+  //         creep.memory.status = CreepStatus.CHARGE
+  //       }
+  //       else {
+  //         if ((creep.carry.energy == 0) || (lab.energy == lab.energyCapacity)) {
+  //           resource_type = resource
 
-            if ((creep.carry[resource_type] || 0) == 0) {
-              creep.memory.status = CreepStatus.HARVEST
-            }
-            else if (lab.mineralAmount == lab.mineralCapacity) {
-              creep.memory.status = CreepStatus.NONE
-            }
-          }
+  //           if ((creep.carry[resource_type] || 0) == 0) {
+  //             creep.memory.status = CreepStatus.HARVEST
+  //           }
+  //           else if (lab.mineralAmount == lab.mineralCapacity) {
+  //             creep.memory.status = CreepStatus.NONE
+  //           }
+  //         }
 
-          if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(lab)
-            creep.say('💊')
-          }
-        }
-      }
-    })
-  }
+  //         if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
+  //           creep.moveTo(lab)
+  //           creep.say('💊')
+  //         }
+  //       }
+  //     }
+  //   })
+  // }
 
   private dismantle(target_room_name: string, include_wall?: boolean): void {
     this.creeps.forEach((creep, _) => {

@@ -138,6 +138,9 @@ export function init() {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W45S45'  // @fixme: this is waypoint
     }
+    else if ((destination_room_name == 'W47S42') && (Number(this.room.name.slice(4,6)) > 43)) {
+      destination_room_name = 'W46S43'  // @fixme: this is waypoint
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)
@@ -1129,7 +1132,11 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
-    const is_ranged_attacker = true
+    const is_ranged_attacker = (this.getActiveBodyparts(RANGED_ATTACK) > 0) && (this.getActiveBodyparts(ATTACK) == 0)
+
+    if (is_ranged_attacker && (this.pos.getRangeTo(target) <= 1)) {
+      opt.no_move = true
+    }
 
     if (!(this.memory as {should_silent?: boolean}).should_silent) {
       this.say(`T${target.pos.x},${target.pos.y}`)
@@ -1148,7 +1155,7 @@ export function init() {
     if (is_creep) {
       if (!opt.no_move && is_ranged_attacker) {
         const hostile_creep = target as Creep
-        if (this.pos.getRangeTo(hostile_creep) < 3) {
+        if (this.pos.getRangeTo(hostile_creep) < 4) {
           const filter = function(creep: Creep): boolean {
             return (creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)) > 0
           }
@@ -1184,7 +1191,7 @@ export function init() {
 
         const goal: {pos: RoomPosition, range: number} = {
           pos: target.pos,
-          range: 0,
+          range: 8,
         }
         const path: PathFinderPath = PathFinder.search(this.pos, goal, {
           flee: true,
@@ -1193,7 +1200,7 @@ export function init() {
 
         if (path.path) {
           this.say(`FLEEp`)  // @fixme
-          console.log(`FLEE ${path.path} ${path.path[0] ? path.path[0] : "NO PATH"}, incompleted: ${path.incomplete} ${this.name}`)
+          // console.log(`FLEE ${path.path} ${path.path[0] ? path.path[0] : "NO PATH"}, incompleted: ${path.incomplete} ${this.name}`)
 
           this.moveByPath(path.path)
           return ActionResult.IN_PROGRESS // @todo: Check if finished

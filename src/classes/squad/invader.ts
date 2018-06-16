@@ -9,13 +9,20 @@ interface InvaderMemory extends CreepMemory {
   is_leader?: boolean
 }
 
+interface InvaderSquadMemory extends SquadMemory {
+  target_room_name?: string
+}
+
 export class InvaderSquad extends Squad {
-  private target: Creep | Structure | undefined
+  private target_room_name: string
   private leader: Creep | undefined
   private follower: Creep[]
 
-  constructor(readonly name: string, readonly base_room_name: string, readonly target_room_name: string) {
+  constructor(readonly name: string, readonly base_room_name: string) {
     super(name)
+
+    const memory = (Memory.squads[this.name] as InvaderSquadMemory)
+    this.target_room_name = memory.target_room_name || 'W47S42'
 
     let max_hits = 0
     let max_hits_creep: Creep | undefined
@@ -28,8 +35,6 @@ export class InvaderSquad extends Squad {
       else if (creep.hits > max_hits) {
         max_hits = creep.hits
         max_hits_creep = creep
-
-        creep.memory.should_silent = true
       }
     })
 
@@ -51,6 +56,7 @@ export class InvaderSquad extends Squad {
         return
       }
       (creep.memory as InvaderMemory).is_leader = false
+      creep.memory.should_silent = true
     })
 
     this.follower = Array.from(this.creeps.values()).filter(c=>(!(c.memory as InvaderMemory).is_leader))
@@ -72,8 +78,9 @@ export class InvaderSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     const room = Game.rooms[this.base_room_name]
+    const max = 2
 
-    if (!room || !room.storage) {
+    if (!room || !room.storage || !room.terminal) {
       return SpawnPriority.NONE
     }
 
@@ -85,15 +92,24 @@ export class InvaderSquad extends Squad {
         return SpawnPriority.NONE
     }
 
-    if (Game.time > 7044299) {
-      // return SpawnPriority.NONE
+    const energy = room.storage.store.energy + room.terminal.store.energy
+
+    if (energy < 100000) {
+      console.log(`InvaderSquad.spawnPriority lack of energy ${energy}`)
+      return SpawnPriority.NONE
     }
 
-    if (room.storage.store.energy < 100000) {
-      // return SpawnPriority.NONE
-    }
-    return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
-    // return SpawnPriority.NONE
+    // if ((this.creeps.size < max) && (this.creeps.size > 0)) {
+    //   if (((Array.from(this.creeps.values())[0].ticksToLive || 1500) > 1400)) {
+    //     return SpawnPriority.URGENT
+    //   }
+    //   else {
+    //     return SpawnPriority.NONE
+    //   }
+    // }
+
+    // return this.creeps.size < max ? SpawnPriority.LOW : SpawnPriority.NONE
+    return SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
@@ -109,17 +125,37 @@ export class InvaderSquad extends Squad {
       return
     }
 
-    if (this.leader.hits < 2000) {
-      this.leader.moveToRoom('W48S47')
-      this.leader.heal(this.leader)
-      return
-    }
+    const lab = Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab | undefined
+
+    // if (this.leader.hits < 2000) {
+    //   this.leader.moveToRoom('W48S47')
+    //   this.leader.heal(this.leader)
+    //   return
+    // }
 
     // --- Leader
-    this.leader.searchAndDestroyTo('W47S42', true)
+    if (lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted) {
+      if (lab.boostCreep(this.leader) == ERR_NOT_IN_RANGE) {
+        this.leader.moveTo(lab)
+      }
+    }
+    else if (this.leader.room.controller && this.leader.room.controller.owner) {
+      this.leader.heal(this.leader)
+      this.leader.moveToRoom(this.target_room_name)
+    }
+    else {
+      this.leader.searchAndDestroyTo(this.target_room_name, true)
+    }
 
     // --- Follower
     this.follower.forEach((creep) => {
+      if (lab && (creep.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !creep.boosted) {
+        if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(lab)
+        }
+        return
+      }
+
       creep.searchAndDestroy({no_move: true})
       creep.moveTo(this.leader!)
     })

@@ -109,14 +109,14 @@ export class Region {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_ZYNTHIUM_OXIDE,
+              resource_type: RESOURCE_ZYNTHIUM_HYDRIDE,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
               resource_type: RESOURCE_HYDROXIDE,
             },
           ]
-          output_resource_type = RESOURCE_ZYNTHIUM_ALKALIDE
+          output_resource_type = RESOURCE_ZYNTHIUM_ACID
         // }
         // else {
         //   research_input_targets = [
@@ -136,8 +136,9 @@ export class Region {
             let input_target_ids = research_input_targets.map(t=>t.id)
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
-              // && (structure.id != '5afb5a00c41b880caa6c3058') // top right 41, 11
-              && (structure.id != '5b22b58d31be7d52a5ddb788') // top right 39, 14 // out of range
+              && (structure.id != '5b228fe226aa371fc6f97346') // top right 41, 10
+              && (structure.id != '5b22b80fe65319287dc5ecce') // top right 42, 11
+              && (structure.id != '5b22b58d31be7d52a5ddb788') // out of range
             }
         }).map((lab) => {
           const target: ResearchTarget = {
@@ -165,7 +166,7 @@ export class Region {
         ]
         rooms_need_to_be_defended = ['W49S46', 'W48S46', 'W49S45']
         this.room_names = [this.room.name, 'W49S48'] //, 'W49S48']//, 'W49S46', 'W48S46']
-        rooms_need_scout = ['W49S46', 'W48S46', 'W47S45', 'W49S45']
+        rooms_need_scout = ['W49S46', 'W48S46', 'W49S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
           {
@@ -350,7 +351,6 @@ export class Region {
     let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
     let invader_squad: InvaderSquad | null = null
-    const invade_target = 'W45S41'
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
       lair_id: '59f1a02082100e1594f361b8',
@@ -450,7 +450,7 @@ export class Region {
         break
       }
       case SquadType.INVADER: {
-        const squad = new InvaderSquad(squad_memory.name, this.room.name, invade_target)
+        const squad = new InvaderSquad(squad_memory.name, this.room.name)
 
         invader_squad = squad
         this.squads.set(squad.name, squad)
