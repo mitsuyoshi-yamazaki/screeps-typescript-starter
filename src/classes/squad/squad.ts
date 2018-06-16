@@ -22,6 +22,7 @@ export enum SquadType {
   ATTACKER          = 'attacker',
   RAIDER            = 'raider',
   INVADER           = 'invader',
+  GUARD             = 'guard',
   TEMP              = "temp",
 }
 

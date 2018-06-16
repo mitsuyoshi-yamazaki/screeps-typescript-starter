@@ -7,16 +7,18 @@ interface InvaderMemory extends CreepMemory {
   target_x?: number
   target_y?: number
   is_leader?: boolean
+  target_room_name?: string
 }
 
 interface InvaderSquadMemory extends SquadMemory {
   target_room_name?: string
+  stop_spawning?: boolean
 }
 
 export class InvaderSquad extends Squad {
   private target_room_name: string
   private leader: Creep | undefined
-  private follower: Creep[]
+  private followers: Creep[]
 
   constructor(readonly name: string, readonly base_room_name: string) {
     super(name)
@@ -29,6 +31,11 @@ export class InvaderSquad extends Squad {
 
     this.creeps.forEach((creep) => {
       const memory = creep.memory as InvaderMemory
+
+      if (!memory.target_room_name) {
+        (creep.memory as InvaderMemory).target_room_name = this.target_room_name
+      }
+
       if (memory.is_leader) {
         this.leader = creep
       }
@@ -59,7 +66,7 @@ export class InvaderSquad extends Squad {
       creep.memory.should_silent = true
     })
 
-    this.follower = Array.from(this.creeps.values()).filter(c=>(!(c.memory as InvaderMemory).is_leader))
+    this.followers = Array.from(this.creeps.values()).filter(c=>(!(c.memory as InvaderMemory).is_leader))
   }
 
   public get type(): SquadType {
@@ -77,10 +84,24 @@ export class InvaderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const memory = Memory.squads[this.name] as InvaderSquadMemory
+    if (memory.stop_spawning) {
+      return SpawnPriority.NONE
+    }
+
     const room = Game.rooms[this.base_room_name]
-    const max = 2
+    let max = 1
+
+    // if (memory.target_room_name == 'W47S42') {
+    //   max = 1
+    // }
 
     if (!room || !room.storage || !room.terminal) {
+      return SpawnPriority.NONE
+    }
+
+    if ((room.terminal.store[RESOURCE_KEANIUM_ALKALIDE] || 0) < 4000) {
+      console.log(`InvaderSquad.spawnPriority lack of boost ${RESOURCE_KEANIUM_ALKALIDE}`)
       return SpawnPriority.NONE
     }
 
@@ -99,17 +120,16 @@ export class InvaderSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    // if ((this.creeps.size < max) && (this.creeps.size > 0)) {
-    //   if (((Array.from(this.creeps.values())[0].ticksToLive || 1500) > 1400)) {
-    //     return SpawnPriority.URGENT
-    //   }
-    //   else {
-    //     return SpawnPriority.NONE
-    //   }
-    // }
+    if ((this.creeps.size < max) && (this.creeps.size > 0)) {
+      if (((Array.from(this.creeps.values())[0].ticksToLive || 1500) > 1400)) {
+        return SpawnPriority.URGENT
+      }
+      else {
+        return SpawnPriority.NONE
+      }
+    }
 
-    // return this.creeps.size < max ? SpawnPriority.LOW : SpawnPriority.NONE
-    return SpawnPriority.NONE
+    return this.creeps.size < max ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
@@ -125,7 +145,7 @@ export class InvaderSquad extends Squad {
       return
     }
 
-    const lab = Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab | undefined
+    const lab = Game.getObjectById('5b22b58d31be7d52a5ddb788') as StructureLab | undefined
 
     // if (this.leader.hits < 2000) {
     //   this.leader.moveToRoom('W48S47')
@@ -133,8 +153,10 @@ export class InvaderSquad extends Squad {
     //   return
     // }
 
+    const should_boost = true
+
     // --- Leader
-    if (lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted) {
+    if (should_boost && lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted) {
       if (lab.boostCreep(this.leader) == ERR_NOT_IN_RANGE) {
         this.leader.moveTo(lab)
       }
@@ -144,15 +166,59 @@ export class InvaderSquad extends Squad {
       this.leader.moveToRoom(this.target_room_name)
     }
     else {
+      const hostile_creep = this.leader.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+        filter: (creep) => {
+          if (creep.owner.username == 'Source Keeper') {
+            return false
+          }
+          return true
+        }
+      })
+
+      if (hostile_creep) {
+        const number_of_hostiles = hostile_creep.pos.findInRange(FIND_HOSTILE_CREEPS, 10, {
+          filter: (creep: Creep) => {
+            if (creep.owner.username == 'Source Keeper') {
+              return false
+            }
+            return true
+          }
+        }).length
+
+        if (number_of_hostiles > 2) {
+          const goal: {pos: RoomPosition, range: number} = {
+            pos: hostile_creep.pos,
+            range: 50,
+          }
+
+          const path: PathFinderPath = PathFinder.search(this.leader.pos, goal, {
+            flee: true,
+            maxRooms: 2,
+          })
+
+          if (path.path.length > 0) {
+            this.say(`FLEEp`)
+
+            this.leader.searchAndDestroyTo(this.target_room_name, false, {no_move: true})
+            this.leader.moveByPath(path.path)
+            return
+          }
+        }
+      }
       this.leader.searchAndDestroyTo(this.target_room_name, true)
     }
 
     // --- Follower
-    this.follower.forEach((creep) => {
+    this.followers.forEach((creep) => {
       if (lab && (creep.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !creep.boosted) {
         if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
           creep.moveTo(lab)
         }
+        return
+      }
+      else if (creep.room.controller && creep.room.controller.owner) {
+        creep.heal(creep)
+        creep.moveToRoom(this.target_room_name)
         return
       }
 

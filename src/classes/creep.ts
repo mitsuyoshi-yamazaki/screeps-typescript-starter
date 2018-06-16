@@ -42,6 +42,7 @@ declare global {
     squad: Squad
     initialize(): void
     boosted: boolean
+    boost_info: {[index: string]: boolean}
     carrying_resources: ResourceConstant[]
 
     // General tasks
@@ -86,10 +87,12 @@ export function init() {
     }
 
     this.boosted = false
+    this.boost_info = {}
+
     for (const body of this.body) {
       if (body.boost) {
         this.boosted = true
-        break
+        this.boost_info[body.type] = true
       }
     }
 
@@ -138,8 +141,13 @@ export function init() {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W45S45'  // @fixme: this is waypoint
     }
-    else if ((destination_room_name == 'W47S42') && (Number(this.room.name.slice(4,6)) > 43)) {
-      destination_room_name = 'W46S43'  // @fixme: this is waypoint
+    else if (destination_room_name == 'W47S42') {
+      if (Number(this.room.name.slice(4,6)) > 43) {
+        destination_room_name = 'W46S43'  // @fixme: this is waypoint
+      }
+      else if (Number(this.room.name.slice(4,6)) > 44) {
+        destination_room_name = 'W47S44'  // @fixme: this is waypoint
+      }
     }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
@@ -182,6 +190,10 @@ export function init() {
     }
     else if ((this.room.name == 'W47S39') && (exit == RIGHT)) { // @fixme: temp code
       this.moveTo(49, 10)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W47S46') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 28)
       return ActionResult.IN_PROGRESS
     }
 
@@ -318,9 +330,9 @@ export function init() {
           else if (structure.structureType == STRUCTURE_LAB) {
             return (structure.energy < (structure.energyCapacity - 100))
           }
-          else if (structure.structureType == STRUCTURE_NUKER) {
-            return (structure.energy < structure.energyCapacity)
-          }
+          // else if (structure.structureType == STRUCTURE_NUKER) {
+          //   return (structure.energy < structure.energyCapacity)
+          // }
         }
         return false
       }
@@ -1031,7 +1043,12 @@ export function init() {
       }
 
       if (hostile_creep) {
-        this.destroy(hostile_creep)
+        this.destroy(hostile_creep, opt)
+
+        if (opt.no_move) {
+          this.moveToRoom(room_name)
+        }
+
         return ActionResult.IN_PROGRESS
       }
     }
@@ -1101,23 +1118,57 @@ export function init() {
       return this.destroy(hostile_creep)
     }
 
-    // @todo:
-    // const hostile_structure: AnyOwnedStructure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
-    //   filter: (structure) => {
-    //     return [
-    //       STRUCTURE_CONTROLLER,
-    //       STRUCTURE_RAMPART,
-    //       STRUCTURE_CONTAINER,
-    //       STRUCTURE_LINK,
-    //       STRUCTURE_EXTRACTOR,
-    //       STRUCTURE_EXTENSION,
-    //       STRUCTURE_LAB
-    //     ].indexOf(structure.structureType) < 0
-    //   }
-    // })
-    // if (hostile_structure) {
-    //   return this.destroy(hostile_structure)
-    // }
+    const hostile_structure: AnyStructure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (structure) => {
+        if (structure.room.controller && structure.room.controller.my) {
+          return false
+        }
+        if ((structure as AnyOwnedStructure).my) {
+          return false
+        }
+
+        const ignore: StructureConstant[] = [
+          STRUCTURE_CONTROLLER,
+          STRUCTURE_RAMPART,
+          STRUCTURE_WALL,
+        ]
+        if (ignore.indexOf(structure.structureType) >= 0) {
+          return false
+        }
+        if ((structure.structureType) == STRUCTURE_CONTAINER) {
+          if (structure.room.controller) {
+            if (structure.room.controller.my) {
+              return false
+            }
+            else if (structure.room.controller.owner) {
+              return true
+            }
+            else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
+              return true
+            }
+          }
+          return false
+        }
+        if ((structure.structureType) == STRUCTURE_ROAD) {
+          if (structure.room.controller) {
+            if (structure.room.controller.my) {
+              return false
+            }
+            else if (structure.room.controller.owner) {
+              return true
+            }
+            else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
+              return true
+            }
+          }
+          return false
+        }
+        return true
+      }
+    })
+    if (hostile_structure) {
+      return this.destroy(hostile_structure)
+    }
 
     this.heal(this)
 
@@ -1129,6 +1180,14 @@ export function init() {
     opt = opt || {}
 
     if (this.spawning) {
+      return ActionResult.IN_PROGRESS
+    }
+
+    if ((target as {my: boolean}).my) {
+      this.say(`ERR!!`)
+      const message = `Creep.destroy this IS my Creep | Structure ${target} ${target.pos} attacker: ${this.name}`
+      console.log(message)
+      Game.notify(message)
       return ActionResult.IN_PROGRESS
     }
 
@@ -1198,7 +1257,7 @@ export function init() {
           maxRooms: 2,
         })
 
-        if (path.path) {
+        if (path.path.length > 0) {
           this.say(`FLEEp`)  // @fixme
           // console.log(`FLEE ${path.path} ${path.path[0] ? path.path[0] : "NO PATH"}, incompleted: ${path.incomplete} ${this.name}`)
 

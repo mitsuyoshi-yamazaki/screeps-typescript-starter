@@ -277,16 +277,20 @@ export class ManualSquad extends Squad {
         const targets: Target[] = [
           {
             lab: Game.getObjectById('5b22b58d31be7d52a5ddb788') as StructureLab,
-            resource_type: RESOURCE_ZYNTHIUM_ACID,
-          },
-          {
-            lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
-          },
-          {
-            lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
             resource_type: RESOURCE_KEANIUM_ALKALIDE,
           },
+          // {
+          //   lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
+          //   resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+          // },
+          // {
+          //   lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
+          //   resource_type: RESOURCE_KEANIUM_ALKALIDE,
+          // },
+          // {
+          //   lab: Game.getObjectById('5b22b94cb516ea5f55225541') as StructureLab,
+          //   resource_type: RESOURCE_GHODIUM_ALKALIDE,
+          // },
         ]
 
         let target: Target = targets.filter((t) => {

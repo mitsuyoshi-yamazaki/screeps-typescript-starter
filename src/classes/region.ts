@@ -13,6 +13,7 @@ import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
+import { GuardSquad } from "./squad/guard";
 
 export class Region {
   // Public
@@ -109,14 +110,14 @@ export class Region {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_ZYNTHIUM_HYDRIDE,
+              resource_type: RESOURCE_OXYGEN,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
-              resource_type: RESOURCE_HYDROXIDE,
+              resource_type: RESOURCE_HYDROGEN,
             },
           ]
-          output_resource_type = RESOURCE_ZYNTHIUM_ACID
+          output_resource_type = RESOURCE_HYDROXIDE
         // }
         // else {
         //   research_input_targets = [
@@ -136,8 +137,9 @@ export class Region {
             let input_target_ids = research_input_targets.map(t=>t.id)
             return (structure.structureType == STRUCTURE_LAB)
               && (input_target_ids.indexOf(structure.id) < 0)
-              && (structure.id != '5b228fe226aa371fc6f97346') // top right 41, 10
-              && (structure.id != '5b22b80fe65319287dc5ecce') // top right 42, 11
+              // && (structure.id != '5b228fe226aa371fc6f97346') // top right 41, 10
+              // && (structure.id != '5b22b80fe65319287dc5ecce') // top right 42, 11
+              // && (structure.id != '5b22b94cb516ea5f55225541') // bottom left 39, 13
               && (structure.id != '5b22b58d31be7d52a5ddb788') // out of range
             }
         }).map((lab) => {
@@ -171,25 +173,25 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_ZYNTHIUM,
+            resource_type: RESOURCE_KEANIUM_OXIDE,
           },
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_HYDROXIDE,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
+            resource_type: RESOURCE_KEANIUM_ALKALIDE,
           },
           {
             id: '5b083cf3f30cc0671dc11558', // 34, 23
-            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
+            resource_type: RESOURCE_KEANIUM_ALKALIDE,
           },
           {
             id: '5b085a977ccdfa5c2029aeef', // 33, 24
-            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
+            resource_type: RESOURCE_KEANIUM_ALKALIDE,
           },
         ]
         break
@@ -308,11 +310,9 @@ export class Region {
         harvester_targets = [
           { id: '59f19fd382100e1594f35a4c', room_name: 'W51S29' }, // bottom right
           { id: '59f19fd382100e1594f35a4b', room_name: 'W51S29' }, // bottom center
+          { id: '59f1c0ce7d0b3d79de5f0165', room_name: 'W51S29' }, // Lemergium
         ]
         this.room_names = [this.room.name]
-        if (!harvester_destination) {
-          //
-        }
         break
 
       default:
@@ -453,6 +453,12 @@ export class Region {
         const squad = new InvaderSquad(squad_memory.name, this.room.name)
 
         invader_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.GUARD: {
+        const squad = new GuardSquad(squad_memory.name, this.room.name)
+
         this.squads.set(squad.name, squad)
         break
       }
