@@ -34,47 +34,49 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  const first_room_name = 'W48S47'
-  const second_room_name = 'W49S47'
-  const third_room_name = 'W49S48'
-  const fourth_room_name = 'W49S34'
-  const fifth_room_name = 'W46S33'
+  const first_room_name = 'W48S47'  // O
+  const second_room_name = 'W49S47' // U
+  const third_room_name = 'W49S48'  // H
+  const fourth_room_name = 'W49S34' // K
+  const fifth_room_name = 'W46S33'  // Z
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    // { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
+    { from: first_room_name, to: second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
+    { from: fifth_room_name, to: second_room_name, resource_type: RESOURCE_ZYNTHIUM, is_output: true },
     { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
     // { from: third_room_name, to: second_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
-    { from: third_room_name, to: fifth_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
+    { from: second_room_name, to: first_room_name, resource_type: RESOURCE_ZYNTHIUM_OXIDE, is_output: true },
     { from: first_room_name, to: fourth_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
-    { from: fifth_room_name, to: first_room_name, resource_type: RESOURCE_ZYNTHIUM_HYDRIDE, is_output: true },
   ]
 
-  transports.forEach((transport) => {
-    const from_room = Game.rooms[transport.from]
-    const to_room = Game.rooms[transport.to]
+  if ((Game.time % 13) == 0) {
+    transports.forEach((transport) => {
+      const from_room = Game.rooms[transport.from]
+      const to_room = Game.rooms[transport.to]
 
-    if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
-      const message = `Terminal ${to_room.name} is full`
-      console.log(message)
-      Game.notify(message)
-      return
-    }
+      if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
+        const message = `Terminal ${to_room.name} is full`
+        console.log(message)
+        Game.notify(message)
+        return
+      }
 
-    const amount_needed = transport.is_output ? 500 : 4900
+      const amount_needed = transport.is_output ? 500 : 4900
 
-    const from_room_ready: boolean = !(!from_room)
-      && !(!from_room.terminal)
-      && (from_room.terminal.cooldown == 0)
-      && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
+      const from_room_ready: boolean = !(!from_room)
+        && !(!from_room.terminal)
+        && (from_room.terminal.cooldown == 0)
+        && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
 
-    const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
+      const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
 
-    if (from_room_ready && to_room_ready) {
-      const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
-      const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
-      console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
-    }
-  })
+      if (from_room_ready && to_room_ready) {
+        const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
+        const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
+        console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
+      }
+    })
+  }
 })
 
 /**

@@ -12,6 +12,7 @@ interface InvaderMemory extends CreepMemory {
 export class InvaderSquad extends Squad {
   private target: Creep | Structure | undefined
   private leader: Creep | undefined
+  private follower: Creep[]
 
   constructor(readonly name: string, readonly base_room_name: string, readonly target_room_name: string) {
     super(name)
@@ -44,6 +45,15 @@ export class InvaderSquad extends Squad {
     if (this.leader) {
       this.leader.memory.should_silent = false
     }
+
+    this.creeps.forEach((creep) => {
+      if (this.leader && (creep.id == this.leader.id)) {
+        return
+      }
+      (creep.memory as InvaderMemory).is_leader = false
+    })
+
+    this.follower = Array.from(this.creeps.values()).filter(c=>(!(c.memory as InvaderMemory).is_leader))
   }
 
   public get type(): SquadType {
@@ -80,10 +90,10 @@ export class InvaderSquad extends Squad {
     }
 
     if (room.storage.store.energy < 100000) {
-      return SpawnPriority.NONE
+      // return SpawnPriority.NONE
     }
-    // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-    return SpawnPriority.NONE
+    return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+    // return SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
@@ -106,11 +116,11 @@ export class InvaderSquad extends Squad {
     }
 
     // --- Leader
-    this.leader.searchAndDestroyTo('W46S46', true)
+    this.leader.searchAndDestroyTo('W47S42', true)
 
     // --- Follower
-    this.creeps.forEach((creep) => {
-      creep.searchAndDestroy(true)
+    this.follower.forEach((creep) => {
+      creep.searchAndDestroy({no_move: true})
       creep.moveTo(this.leader!)
     })
   }
@@ -128,8 +138,7 @@ export class InvaderSquad extends Squad {
 
     const name = this.generateNewName()
     const body: BodyPartConstant[] = [
-      TOUGH, TOUGH,
-      ATTACK, MOVE, ATTACK, MOVE,
+      TOUGH, TOUGH, TOUGH, TOUGH,
       RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
       RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
       RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
@@ -138,8 +147,8 @@ export class InvaderSquad extends Squad {
       HEAL, MOVE, HEAL, MOVE,
       HEAL, MOVE, HEAL, MOVE,
       HEAL, MOVE,
-      MOVE, MOVE, MOVE,
-      HEAL,
+      MOVE, MOVE, MOVE, MOVE,
+      MOVE, HEAL,
     ]
     const memory: InvaderMemory = {
       squad_name: this.name,

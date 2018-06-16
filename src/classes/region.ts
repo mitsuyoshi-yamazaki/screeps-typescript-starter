@@ -109,14 +109,14 @@ export class Region {
           research_input_targets = [
             {
               id: '5afb75051c04254c89283685', // 40, 11
-              resource_type: RESOURCE_ZYNTHIUM_HYDRIDE,
+              resource_type: RESOURCE_ZYNTHIUM_OXIDE,
             },
             {
               id: '5af483456449d07df7f76acc', // 41, 12
               resource_type: RESOURCE_HYDROXIDE,
             },
           ]
-          output_resource_type = RESOURCE_ZYNTHIUM_ACID
+          output_resource_type = RESOURCE_ZYNTHIUM_ALKALIDE
         // }
         // else {
         //   research_input_targets = [
@@ -170,25 +170,25 @@ export class Region {
         research_input_targets = [
           {
             id: '5af7a48ae0c61608e7636bfe', // 33, 22
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_ZYNTHIUM,
           },
           {
             id: '5af7c69c2d04d70cc3c4775a', // 32, 23
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_OXYGEN,
           },
         ]
         research_output_targets = [
           {
             id: '5af7c1dcd9566308c315f47f', // 32, 22
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
           },
           {
             id: '5b083cf3f30cc0671dc11558', // 34, 23
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
           },
           {
             id: '5b085a977ccdfa5c2029aeef', // 33, 24
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+            resource_type: RESOURCE_ZYNTHIUM_OXIDE,
           },
         ]
         break
@@ -930,9 +930,6 @@ export class Region {
     let destination_id: string | undefined
 
     switch (this.room.name) {
-      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-        break
-
       case 'W48S47': {
         destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
         const link = Game.getObjectById(destination_id) as StructureLink
@@ -966,10 +963,6 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
     })()
-
-    if (this.room.name == 'W51S29') {
-      this.room.createConstructionSite(23, 22, STRUCTURE_TERMINAL)
-    }
   }
 
   // --- Private ---

@@ -29,6 +29,13 @@ export enum CreepType {
   SCOUT             = 'scout',
 }
 
+export interface CreepDestroyOption {
+  no_move?: boolean,
+}
+
+export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
+  // structure_first?: boolean, // not implemented yet: use target_id
+}
 
 declare global {
   interface Creep {
@@ -52,10 +59,10 @@ declare global {
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source_filter: StructureFilter | undefined): ActionResult
-    searchAndDestroyTo(room_name: string, attack_anything: boolean): ActionResult
-    searchAndDestroy(no_move?: boolean): ActionResult
+    searchAndDestroyTo(room_name: string, attack_anything: boolean, opt?: CreepSearchAndDestroyOption): ActionResult
+    searchAndDestroy(opt?: CreepSearchAndDestroyOption): ActionResult
     healNearbyCreep(): ActionResult
-    destroy(target: Creep | Structure, no_move?: boolean): ActionResult
+    destroy(target: Creep | Structure, opt?: CreepDestroyOption): ActionResult
 
     // Controller tasks
     claim(target_room_name: string, should_claim?: boolean): ActionResult
@@ -994,15 +1001,30 @@ export function init() {
     }
   }
 
-  Creep.prototype.searchAndDestroyTo = function(room_name: string, attack_anything: boolean): ActionResult {
+  Creep.prototype.searchAndDestroyTo = function(room_name: string, attack_anything: boolean, opt?: CreepSearchAndDestroyOption): ActionResult {
+    opt = opt || {}
 
     if (this.room.name != room_name) {
       let hostile_creep: Creep | undefined
       if (attack_anything) {
-        hostile_creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+        hostile_creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+          filter: (creep) => {
+            if (creep.owner.username == 'Source Keeper') {
+              return false
+            }
+            return true
+          }
+        })
       }
       else {
-        hostile_creep = this.pos.findInRange(FIND_HOSTILE_CREEPS, 4)[0]
+        hostile_creep = this.pos.findInRange(FIND_HOSTILE_CREEPS, 4, {
+          filter: (creep: Creep) => {
+            if (creep.owner.username == 'Source Keeper') {
+              return false
+            }
+            return true
+          }
+        })[0]
       }
 
       if (hostile_creep) {
@@ -1016,10 +1038,12 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
-    return this.searchAndDestroy()
+    return this.searchAndDestroy(opt)
   }
 
-  Creep.prototype.searchAndDestroy = function(no_move?: boolean): ActionResult {
+  Creep.prototype.searchAndDestroy = function(opt?: CreepSearchAndDestroyOption): ActionResult {
+    opt = opt || {}
+
     if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
       console.log(`searchAndDestroy no attacker body parts ${this.name}`)
       this.say('DAMAGED')
@@ -1098,29 +1122,33 @@ export function init() {
     return ActionResult.DONE
   }
 
-  Creep.prototype.destroy = function(target: Creep | Structure, no_move?: boolean): ActionResult {
+  Creep.prototype.destroy = function(target: Creep | Structure, opt?: CreepDestroyOption): ActionResult {
+    opt = opt || {}
+
     if (this.spawning) {
       return ActionResult.IN_PROGRESS
     }
+
+    const is_ranged_attacker = true
 
     if (!(this.memory as {should_silent?: boolean}).should_silent) {
       this.say(`T${target.pos.x},${target.pos.y}`)
     }
 
-    if ((target as Creep).carry) {
-      if (((target as Creep).getActiveBodyparts(RANGED_ATTACK) > 0) && (((target as Creep).getActiveBodyparts(ATTACK) == 0))) {
-        no_move = true
-      }
-    }
+    // if ((target as Creep).carry) {
+    //   if (((target as Creep).getActiveBodyparts(RANGED_ATTACK) > 0) && (((target as Creep).getActiveBodyparts(ATTACK) == 0))) {
+    //     no_move = true
+    //   }
+    // }
 
     let ranged_target: Creep | Structure = target
     let should_flee = false
     const is_creep = !(!(target as Creep).carry)
 
     if (is_creep) {
-      if (!no_move && (this.getActiveBodyparts(RANGED_ATTACK) > 0)) {
+      if (!opt.no_move && is_ranged_attacker) {
         const hostile_creep = target as Creep
-        if (this.pos.getRangeTo(hostile_creep) < 4) {
+        if (this.pos.getRangeTo(hostile_creep) < 3) {
           const filter = function(creep: Creep): boolean {
             return (creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)) > 0
           }
@@ -1150,7 +1178,7 @@ export function init() {
     //   console.log(`Creep.destroy action failed ${ranged_attack_result}, ${move_to_result}, ${attack_result}, ${this.name}`)
     // }
 
-    if (!no_move) {
+    if (!opt.no_move) {
       if (should_flee) {
         this.say(`FLEE`)  // @fixme
 
@@ -1165,6 +1193,7 @@ export function init() {
 
         if (path.path) {
           this.say(`FLEEp`)  // @fixme
+          console.log(`FLEE ${path.path} ${path.path[0] ? path.path[0] : "NO PATH"}, incompleted: ${path.incomplete} ${this.name}`)
 
           this.moveByPath(path.path)
           return ActionResult.IN_PROGRESS // @todo: Check if finished
