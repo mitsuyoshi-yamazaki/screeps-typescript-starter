@@ -309,6 +309,10 @@ export class ManualSquad extends Squad {
       }
 
       case 'W49S47': {
+        // if (this.any_creep!.transferResources(this.any_creep!.room.terminal!) == ERR_NOT_IN_RANGE) {
+        //   this.any_creep!.moveTo(this.any_creep!.room.terminal!)
+        // }
+
         const room = Game.rooms[this.original_room_name]
         const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab
         if (!lab || !room || !room.terminal) {
@@ -316,7 +320,9 @@ export class ManualSquad extends Squad {
           return
         }
 
-        this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
+        if (lab.mineralAmount < (lab.mineralCapacity - 450)) {
+          this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
+        }
         return
       }
 
