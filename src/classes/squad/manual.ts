@@ -84,8 +84,8 @@ export class ManualSquad extends Squad {
         // return SpawnPriority.NONE
 
       case 'W49S47':
-        // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-        return SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return SpawnPriority.NONE
 
       default:
         return SpawnPriority.NONE
@@ -118,7 +118,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 300
 
       case 'W49S47':
-        return energy_available >= 4040
+        return energy_available >= 200
 
       default:
         return false
@@ -160,7 +160,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W49S47':
-        this.addRangedHunter(energy_available, spawn_func)
+        this.addGeneralCreep(spawn_func, [MOVE, MOVE, CARRY, CARRY], CreepType.CARRIER)
         return
 
       default:
@@ -270,6 +270,7 @@ export class ManualSquad extends Squad {
       case 'W48S47': {
         const room = Game.rooms[this.original_room_name]
         if (!room || !room.terminal) {
+          console.log(`ManualSquad.run error ${this.original_room_name}`)
           return
         }
 
@@ -307,9 +308,17 @@ export class ManualSquad extends Squad {
         return
       }
 
-      case 'W49S47':
-        this.runForcedScout()
+      case 'W49S47': {
+        const room = Game.rooms[this.original_room_name]
+        const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab
+        if (!lab || !room || !room.terminal) {
+          console.log(`ManualSquad.run error ${this.original_room_name}`)
+          return
+        }
+
+        this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
         return
+      }
 
       default:
         return

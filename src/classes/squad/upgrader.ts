@@ -42,6 +42,10 @@ export class UpgraderSquad extends Squad {
       }
     }
 
+    if ((this.room_name == 'W49S47') && room.storage && (room.storage.store.energy > 30000)) {
+      return (this.creeps.size < 1) ? SpawnPriority.LOW : SpawnPriority.NONE
+    }
+
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
@@ -74,7 +78,7 @@ export class UpgraderSquad extends Squad {
       birth_time: Game.time,
       type: CreepType.WORKER,
       should_notify_attack: false,
-      let_thy_die: false,
+      let_thy_die: true,
     }
 
     while (energyAvailable >= energy_unit) {
@@ -113,6 +117,17 @@ export class UpgraderSquad extends Squad {
       //     return
       //   }
       // }
+
+      if ((this.room_name == 'W49S47') && (!creep.boosted)) {
+        const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab | undefined
+
+        if (lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 480)) {
+          if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(lab)
+          }
+          return
+        }
+      }
 
       creep.upgrade((structure) => {
         // If source is storage and it contains less energy, wait for charge

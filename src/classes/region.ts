@@ -313,6 +313,29 @@ export class Region {
           { id: '59f1c0ce7d0b3d79de5f0165', room_name: 'W51S29' }, // Lemergium
         ]
         this.room_names = [this.room.name]
+        research_input_targets = [
+          {
+            id: '5b2552233deea0034025a183', // 30, 18
+            resource_type: RESOURCE_LEMERGIUM,
+          },
+          {
+            id: '5b2585544218cc4736554b87', // 31, 17
+            resource_type: RESOURCE_OXYGEN,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_LEMERGIUM_OXIDE,  // this is output
+          }
+          return target
+        })
         break
 
       default:
