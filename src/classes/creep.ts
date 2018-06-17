@@ -1115,16 +1115,16 @@ export function init() {
 
     const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
       filter: (creep) => {
-        if (this.pos.x == 0) {
+        if (creep.pos.x == 0) {
           return false
         }
-        if (this.pos.x == 49) {
+        if (creep.pos.x == 49) {
           return false
         }
-        if (this.pos.y == 0) {
+        if (creep.pos.y == 0) {
           return false
         }
-        if (this.pos.y == 49) {
+        if (creep.pos.y == 49) {
           return false
         }
         return true

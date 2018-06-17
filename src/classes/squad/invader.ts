@@ -7,16 +7,18 @@ interface InvaderMemory extends CreepMemory {
   target_x?: number
   target_y?: number
   is_leader?: boolean
-  target_room_name?: string
 }
 
 interface InvaderSquadMemory extends SquadMemory {
-  target_room_name?: string
+  target_room_names?: string[]
+  current_room_index?: number
   stop_spawning?: boolean
 }
 
 export class InvaderSquad extends Squad {
-  private target_room_name: string
+  private target_room_names: string[]
+  private current_room_index: number
+  private current_target_room: string
   private leader: Creep | undefined
   private followers: Creep[]
 
@@ -24,17 +26,15 @@ export class InvaderSquad extends Squad {
     super(name)
 
     const memory = (Memory.squads[this.name] as InvaderSquadMemory)
-    this.target_room_name = memory.target_room_name || 'W47S42'
+    this.target_room_names = memory.target_room_names || ['W47S42']
+    this.current_room_index = memory.current_room_index || 0
+    this.current_target_room = this.target_room_names[this.current_room_index] || this.target_room_names[0] || 'W47S42'
 
     let max_hits = 0
     let max_hits_creep: Creep | undefined
 
     this.creeps.forEach((creep) => {
       const memory = creep.memory as InvaderMemory
-
-      if (!memory.target_room_name) {
-        (creep.memory as InvaderMemory).target_room_name = this.target_room_name
-      }
 
       if (memory.is_leader) {
         this.leader = creep
@@ -90,7 +90,7 @@ export class InvaderSquad extends Squad {
     }
 
     const room = Game.rooms[this.base_room_name]
-    let max = 1
+    let max = 1 // もし複数Creepを運用するとcurrent_target_room如何では遅れてきたfollowerが敵ルームに侵入する可能性がある
 
     // if (memory.target_room_name == 'W47S42') {
     //   max = 1
@@ -153,7 +153,7 @@ export class InvaderSquad extends Squad {
     //   return
     // }
 
-    const should_boost = true
+    const should_boost = false
 
     // --- Leader
     if (should_boost && lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted) {
@@ -161,9 +161,17 @@ export class InvaderSquad extends Squad {
         this.leader.moveTo(lab)
       }
     }
-    else if (this.leader.room.controller && this.leader.room.controller.owner) {
+    else if (this.leader.room.controller && this.leader.room.controller.owner && !this.leader.room.controller.my) {
+      // When accidentaly entered an enemy room
       this.leader.heal(this.leader)
-      this.leader.moveToRoom(this.target_room_name)
+      const exit = this.leader.pos.findClosestByPath(FIND_EXIT)
+
+      if (exit) {
+        this.leader.moveTo(exit)
+      }
+      else {
+        this.leader.moveToRoom(this.current_target_room)
+      }
     }
     else {
       const hostile_creep = this.leader.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
@@ -202,13 +210,13 @@ export class InvaderSquad extends Squad {
           if (path.path.length > 0) {
             this.say(`FLEEp`)
 
-            this.leader.searchAndDestroyTo(this.target_room_name, false, {no_move: true})
+            this.leader.searchAndDestroyTo(this.current_target_room, false, {no_move: true})
             this.leader.moveByPath(path.path)
             return
           }
         }
       }
-      this.leader.searchAndDestroyTo(this.target_room_name, true)
+      this.leader.searchAndDestroyTo(this.current_target_room, true)
     }
 
     // --- Follower
@@ -221,7 +229,7 @@ export class InvaderSquad extends Squad {
       }
       else if (creep.room.controller && creep.room.controller.owner) {
         creep.heal(creep)
-        creep.moveToRoom(this.target_room_name)
+        creep.moveToRoom(this.current_target_room)
         return
       }
 

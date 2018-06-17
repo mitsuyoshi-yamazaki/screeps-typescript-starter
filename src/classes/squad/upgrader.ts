@@ -21,6 +21,10 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (['W46S33', 'W51S29'].indexOf(this.room_name) >= 0) {
+      return SpawnPriority.NONE
+    }
+
     let max = 0
     const room = Game.rooms[this.room_name]
 
@@ -42,7 +46,7 @@ export class UpgraderSquad extends Squad {
       }
     }
 
-    if ((this.room_name == 'W49S47') && room.storage && (room.storage.store.energy > 30000)) {
+    if ((this.room_name == 'W49S47') && room.storage && (room.storage.store.energy > 30000) && room.controller && (room.controller.level < 8)) {
       return (this.creeps.size < 1) ? SpawnPriority.LOW : SpawnPriority.NONE
     }
 
@@ -118,15 +122,23 @@ export class UpgraderSquad extends Squad {
       //   }
       // }
 
-      if ((this.room_name == 'W49S47') && (!creep.boosted)) {
-        const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab | undefined
+      if (this.room_name == 'W49S47') {
+        if (!creep.boosted) {
+          const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab | undefined
 
-        if (lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 480)) {
-          if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(lab)
+          if (lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 480)) {
+            if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(lab)
+            }
+            return
           }
-          return
         }
+        creep.moveTo(43, 24)
+        if ((creep.ticksToLive || 0) > 4) {
+          creep.withdraw(creep.room.storage!, RESOURCE_ENERGY)
+        }
+        creep.upgradeController(creep.room.controller!)
+        return
       }
 
       creep.upgrade((structure) => {
