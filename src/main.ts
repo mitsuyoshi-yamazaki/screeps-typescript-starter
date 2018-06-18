@@ -37,17 +37,17 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const first_room_name = 'W48S47'  // O
   const second_room_name = 'W49S47' // U
   const third_room_name = 'W49S48'  // H
-  const fourth_room_name = 'W49S34' // K
-  const fifth_room_name = 'W46S33'  // Z
+  // const fourth_room_name = 'W49S34' // K
+  // const fifth_room_name = 'W46S33'  // Z
   const sixth_room_name = 'W51S29'  // L
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
     { from: first_room_name, to: second_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
-    { from: fourth_room_name, to: second_room_name, resource_type: RESOURCE_KEANIUM_OXIDE, is_output: true },
+    // { from: fourth_room_name, to: second_room_name, resource_type: RESOURCE_KEANIUM_OXIDE, is_output: true },
     { from: second_room_name, to: first_room_name, resource_type: RESOURCE_KEANIUM_ALKALIDE, is_output: true },
-    { from: third_room_name, to: fifth_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
+    // { from: third_room_name, to: fifth_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
     { from: third_room_name, to: first_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
-    { from: first_room_name, to: fourth_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
+    // { from: first_room_name, to: fourth_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
     { from: first_room_name, to: sixth_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
   ]
 

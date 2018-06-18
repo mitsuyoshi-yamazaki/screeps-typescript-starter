@@ -36,11 +36,14 @@ export class WorkerSquad extends Squad {
     //   }
     // }
 
-    if ((this.room_name == 'W48S47') || (this.room_name == 'W49S47')) {
+    if ((this.room_name == 'W48S47')) {
+      max = 3
+    }
+    else if (this.room_name == 'W49S47') {
       max = 3
     }
     else if (this.room_name == 'W49S48') {
-      max = 3
+      max = 1
     }
     else if (this.room_name == 'W48S39') {
       max = 1
@@ -52,7 +55,7 @@ export class WorkerSquad extends Squad {
       max = 3
     }
     else if (this.room_name == 'W51S29') {
-      max = 3
+      max = 2
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -84,7 +87,7 @@ export class WorkerSquad extends Squad {
 
     let energy_unit = 200
 
-    const energy_needed = Math.min(Math.floor((capacity - 50) / energy_unit) * energy_unit, 1400)
+    const energy_needed = Math.min(Math.floor((capacity - 50) / energy_unit) * energy_unit, 1000)
     return energy_available >= energy_needed
   }
 
@@ -114,7 +117,7 @@ export class WorkerSquad extends Squad {
       let_thy_die: let_thy_die,
     }
 
-    energy_available = Math.min(energy_available, 1400)
+    energy_available = Math.min(energy_available, 1000)
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)

@@ -81,6 +81,8 @@ export class ResearcherSquad extends Squad {
       }
     }
 
+    this.needs_research = false // fixme
+
     // if (this.room_name == 'W48S47') {
     //   this.needs_research = false // somehow it's true in W48S47
     // }

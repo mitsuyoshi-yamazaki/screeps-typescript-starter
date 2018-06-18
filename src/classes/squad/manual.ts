@@ -87,6 +87,9 @@ export class ManualSquad extends Squad {
         return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
         // return SpawnPriority.NONE
 
+      case 'W51S29':
+        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+
       default:
         return SpawnPriority.NONE
     }
@@ -119,6 +122,9 @@ export class ManualSquad extends Squad {
 
       case 'W49S47':
         return energy_available >= 200
+
+      case 'W51S29':
+        return energy_available >= 150
 
       default:
         return false
@@ -161,6 +167,10 @@ export class ManualSquad extends Squad {
 
       case 'W49S47':
         this.addGeneralCreep(spawn_func, [MOVE, MOVE, CARRY, CARRY], CreepType.CARRIER)
+        return
+
+      case 'W51S29':
+        this.addGeneralCreep(spawn_func, [MOVE, CARRY, CARRY], CreepType.CARRIER)
         return
 
       default:
@@ -280,18 +290,22 @@ export class ManualSquad extends Squad {
             lab: Game.getObjectById('5b22b58d31be7d52a5ddb788') as StructureLab,
             resource_type: RESOURCE_KEANIUM_ALKALIDE,
           },
-          // {
-          //   lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
-          //   resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
-          // },
-          // {
-          //   lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
-          //   resource_type: RESOURCE_KEANIUM_ALKALIDE,
-          // },
-          // {
-          //   lab: Game.getObjectById('5b22b94cb516ea5f55225541') as StructureLab,
-          //   resource_type: RESOURCE_GHODIUM_ALKALIDE,
-          // },
+          {
+            lab: Game.getObjectById('5b22b94cb516ea5f55225541') as StructureLab,
+            resource_type: RESOURCE_UTRIUM_ACID,
+          },
+          {
+            lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
+            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+          },
+          {
+            lab: Game.getObjectById('5afb586ccae66639b23225e1') as StructureLab,
+            resource_type: RESOURCE_GHODIUM_ALKALIDE,
+          },
+          {
+            lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
+            resource_type: RESOURCE_ZYNTHIUM_ALKALIDE,
+          },
         ]
 
         let target: Target = targets.filter((t) => {
@@ -325,6 +339,34 @@ export class ManualSquad extends Squad {
         }
         return
       }
+
+      case 'W51S29': {
+        const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
+
+        if (!this.any_creep || !link || !this.any_creep.room.storage) {
+          return
+        }
+
+        const x = 24
+        const y = 21
+
+        if ((this.any_creep.spawning == false) && (this.any_creep.pos.x != x) && (this.any_creep.pos.y != y)) {
+          const obstacle = this.any_creep.room.find(FIND_MY_CREEPS, {
+            filter: (creep) => {
+              return (creep.pos.x == x) && (creep.pos.y == y)
+            }
+          })[0]
+
+          if (obstacle) {
+            obstacle.move(LEFT)
+          }
+        }
+
+        this.any_creep.moveTo(24, 21)
+        this.any_creep.withdraw(link, RESOURCE_ENERGY)
+        this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY)
+      }
+
 
       default:
         return

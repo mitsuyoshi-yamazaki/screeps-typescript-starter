@@ -159,16 +159,16 @@ export class Region {
           { id: '59f1c0ce7d0b3d79de5f01e1', room_name: 'W49S47' },  // home, utrium
           // { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
           // { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
-          { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
+          // { id: '59f19ff082100e1594f35c88', room_name: 'W49S48' },  // bottom, center
         ]
         lightweight_harvester_targets = [
-          { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
-          { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
-          { id: '59f19ff082100e1594f35c7e', room_name: 'W49S45' },  // top top
+          // { id: '59f19ff082100e1594f35c80', room_name: 'W49S46' },  // top
+          // { id: '59f19fff82100e1594f35e04', room_name: 'W48S46' },  // top right
+          // { id: '59f19ff082100e1594f35c7e', room_name: 'W49S45' },  // top top
         ]
-        rooms_need_to_be_defended = ['W49S46', 'W48S46', 'W49S45']
-        this.room_names = [this.room.name, 'W49S48'] //, 'W49S48']//, 'W49S46', 'W48S46']
-        rooms_need_scout = ['W49S46', 'W48S46', 'W49S45']
+        rooms_need_to_be_defended = []//['W49S46', 'W48S46', 'W49S45']
+        this.room_names = [this.room.name]//, 'W49S48'] //, 'W49S48']//, 'W49S46', 'W48S46']
+        rooms_need_scout = []//['W49S46', 'W48S46', 'W49S45']
         upgrader_source_ids = ['5aef62f86627413133777bdf']
         research_input_targets = [
           {
@@ -217,6 +217,7 @@ export class Region {
           { id: '59f19ff082100e1594f35c8b', room_name: 'W49S49' },  // bottom bottom
           { id: '59f1c0ce7d0b3d79de5f01e2', room_name: 'W49S48' },  // hydrogen
         ]
+        rooms_need_scout = ['W49S47']
         this.room_names = [this.room.name, 'W49S49']
         break
 
@@ -833,33 +834,60 @@ export class Region {
     let a = 0
 
     this.towers.forEach((tower) => {
-      if (!is_safemode_active) {
+      if ((!is_safemode_active)) {// && (this.room.name != 'W49S47')) {
         if ((this.room.attacker_info.heal <= 20) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 2)) {
-          const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
-            filter: (creep: Creep) => {
-              return creep.getActiveBodyparts(HEAL) > 0
-            }
-          })
-          if(closestHealer.length > 0) {
-            tower.attack(closestHealer[a % closestHealer.length])
-            a += 1
-            return
-          }
+          // const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
+          //   filter: (creep: Creep) => {
+          //     return creep.getActiveBodyparts(HEAL) > 0
+          //   }
+          // })
+          // if(closestHealer.length > 0) {
+          //   // tower.attack(closestHealer[a % closestHealer.length])
+          //   tower.attack(closestHealer[0])
+          //   a += 1
+          //   return
+          // }
 
           const closestDamagedHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
             filter: (creep) => {
-              return creep.hits < creep.hitsMax
+              return (creep.hits < creep.hitsMax)
             }
           })
           if(closestDamagedHostile) {
-            tower.attack(closestDamagedHostile)
-            return
+            const healer_count = closestDamagedHostile.pos.findInRange(FIND_HOSTILE_CREEPS, 18, {
+              filter: (creep: Creep) => {
+                if (creep.getActiveBodyparts(HEAL) > 3) {
+                  return true
+                }
+                return false
+              }
+            }).length
+
+            if (healer_count < 2) {
+              tower.attack(closestDamagedHostile)
+              return
+            }
           }
           else {
-            const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+            const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
+              filter: (creep: Creep) => {
+                return creep.getActiveBodyparts(ATTACK) > 0
+              }
+            })
             if(closestHostile) {
-              tower.attack(closestHostile)
-              return
+              const healer_count = closestHostile.pos.findInRange(FIND_HOSTILE_CREEPS, 18, {
+                filter: (creep: Creep) => {
+                  if (creep.getActiveBodyparts(HEAL) > 3) {
+                    return true
+                  }
+                  return false
+                }
+              }).length
+
+              if (healer_count < 2) {
+                tower.attack(closestHostile)
+                return
+              }
             }
           }
         }
@@ -980,6 +1008,10 @@ export class Region {
         destination_id = '5b0a45f2f30cc0671dc1e8e1'
         break
 
+      case 'W51S29':
+        destination_id = '5b1f028bb08a2b269fba0f6e'
+        break
+
       default:
         break
     }
@@ -996,7 +1028,7 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       const nuke: Nuke = this.room.find(FIND_NUKES, {
         filter: (nuke) => {
-          return (nuke.timeToLand < 60)
+          return (nuke.timeToLand < 100)
         }
       })[0]
 
@@ -1030,11 +1062,35 @@ export class Region {
         })
       }
     })()
+
+    ErrorMapper.wrapLoop(() => {
+      const power_spawn = this.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType == STRUCTURE_POWER_SPAWN
+        }
+      })[0] as StructurePowerSpawn | undefined
+
+      if (power_spawn && (power_spawn.power > 0)) {
+        power_spawn.processPower()
+      }
+    })()
   }
 
   // --- Private ---
   private activateSafeModeIfNeeded() {
-    if (this.room.name == 'W44S42') {
+    if (this.room.name == 'W49S34') {
+      return
+    }
+    if (this.room.name == 'W46S33') {
+      return
+    }
+    if (this.room.name == 'W48S47') {
+      return
+    }
+    if (this.room.name == 'W49S47') {
+      return
+    }
+    if (this.room.spawns.length == 0) {
       return
     }
     // if (this.room.name != 'W49S34') {

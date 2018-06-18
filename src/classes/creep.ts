@@ -25,16 +25,19 @@ export enum CreepType {
   HARVESTER         = 'harvester',
   CARRIER           = 'carrier',
   ATTACKER          = 'attacker',
+  RANGED_ATTACKER          = 'ranged_attacker',
   HEALER            = 'healer',
   SCOUT             = 'scout',
 }
 
 export interface CreepDestroyOption {
-  no_move?: boolean,
+  no_move?: boolean
+  max_room?: number
 }
 
 export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
   // structure_first?: boolean, // not implemented yet: use target_id
+  ignore_source_keeper?: boolean
 }
 
 declare global {
@@ -149,6 +152,10 @@ export function init() {
         destination_room_name = 'W47S44'  // @fixme: this is waypoint
       }
     }
+    else if ((destination_room_name == 'W42S48') && (Number(this.room.name.slice(1,3)) > 44)) {
+      // destination_room_name = 'W46S42'  // @fixme: this is waypoint
+      destination_room_name = 'W44S46'  // @fixme: this is waypoint
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)
@@ -194,6 +201,10 @@ export function init() {
     }
     else if ((this.room.name == 'W47S46') && (exit == RIGHT)) { // @fixme: temp code
       this.moveTo(49, 28)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W49S48') && (exit == TOP) && (this.getActiveBodyparts(ATTACK) > 0)) { // @fixme: temp code
+      this.moveTo(24, 0)
       return ActionResult.IN_PROGRESS
     }
 
@@ -325,6 +336,9 @@ export function init() {
             return (structure.energy < structure.energyCapacity)
           }
           else if (structure.structureType == STRUCTURE_TERMINAL) {
+            // if (this.room.name == 'W49S48') {
+            //   return true// @fixme:
+            // }
             return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
           }
           else if (structure.structureType == STRUCTURE_LAB) {
@@ -876,6 +890,8 @@ export function init() {
         should_upgrade = false
       }
 
+      should_upgrade = false
+
       if (!target) {
         if (should_upgrade) {
           this.memory.status = CreepStatus.UPGRADE
@@ -1018,6 +1034,7 @@ export function init() {
 
   Creep.prototype.searchAndDestroyTo = function(room_name: string, attack_anything: boolean, opt?: CreepSearchAndDestroyOption): ActionResult {
     opt = opt || {}
+    const memory = this.memory as {target_id?: string}
 
     if (this.room.name != room_name) {
       let hostile_creep: Creep | undefined
@@ -1040,6 +1057,20 @@ export function init() {
             return true
           }
         })[0]
+      }
+
+      const hostile_nearby = !(!hostile_creep) && this.pos.inRangeTo(hostile_creep.pos.x, hostile_creep.pos.y, 4)
+
+      if (hostile_nearby) {
+        return this.destroy(hostile_creep)
+      }
+
+      if (memory.target_id) {
+        const specified_target = Game.getObjectById(memory.target_id) as Creep | Structure | undefined
+
+        if (specified_target) {
+          return this.destroy(specified_target)
+        }
       }
 
       if (hostile_creep) {
@@ -1074,9 +1105,18 @@ export function init() {
 
     const hostile_attacker: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
       filter: (creep) => {
-        return creep.body.filter((body: BodyPartDefinition) => {
+        const is_attacker = creep.body.filter((body: BodyPartDefinition) => {
           return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
         }).length > 0
+
+        if (!is_attacker) {
+          return false
+        }
+
+        if (opt!.ignore_source_keeper && creep.owner.username == 'Source Keeper') {
+          return false
+        }
+        return true
       }
     })
 
@@ -1086,7 +1126,7 @@ export function init() {
       return this.destroy(hostile_attacker)
     }
 
-    if (this.hits < (this.hitsMax - 100)) {
+    if ((this.hits < (this.hitsMax - 100)) && (this.getActiveBodyparts(HEAL) > 3)) {
       this.heal(this)
       return ActionResult.IN_PROGRESS
     }
@@ -1127,6 +1167,9 @@ export function init() {
         if (creep.pos.y == 49) {
           return false
         }
+        if (opt!.ignore_source_keeper && creep.owner.username == 'Source Keeper') {
+          return false
+        }
         return true
       }
     })
@@ -1147,6 +1190,8 @@ export function init() {
           STRUCTURE_CONTROLLER,
           STRUCTURE_RAMPART,
           STRUCTURE_WALL,
+          STRUCTURE_KEEPER_LAIR,
+          STRUCTURE_POWER_BANK,
         ]
         if (ignore.indexOf(structure.structureType) >= 0) {
           return false
@@ -1213,7 +1258,7 @@ export function init() {
       opt.no_move = true
     }
 
-    if (!(this.memory as {should_silent?: boolean}).should_silent) {
+    if (((Game.time % 3) == 0) && !(this.memory as {should_silent?: boolean}).should_silent) {
       this.say(`T${target.pos.x},${target.pos.y}`)
     }
 
@@ -1281,7 +1326,14 @@ export function init() {
           return ActionResult.IN_PROGRESS // @todo: Check if finished
         }
       }
-      this.moveTo(target)
+      // if (opt.max_room) {
+        this.moveTo(target, {
+          maxRooms: 1
+        })
+      // }
+      // else {
+      //   this.moveTo(target)
+      // }
     }
 
     return ActionResult.IN_PROGRESS // @todo: Check if finished

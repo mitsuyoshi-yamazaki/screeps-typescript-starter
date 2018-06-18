@@ -64,6 +64,9 @@ export class AttackerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (this.base_room.name == 'W49S47') {
+      return SpawnPriority.NONE
+    }
     if (this.energy_capacity < this.energy_unit) {
       return SpawnPriority.NONE
     }
