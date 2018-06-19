@@ -1125,6 +1125,9 @@ export class Region {
     if (this.room.name == 'W49S47') {
       return
     }
+    if (this.room.name == 'W49S48') {
+      return
+    }
     if (this.room.controller && (this.room.controller.level < 4)) {
       return
     }

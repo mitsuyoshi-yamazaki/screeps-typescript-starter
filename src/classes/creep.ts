@@ -248,6 +248,19 @@ export function init() {
       this.moveTo(9, 0)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W47S17') && (exit == TOP)) { // @fixme: temp code
+      this.moveTo(19, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W47S20') && (exit == TOP)) { // @fixme: temp code
+      this.moveTo(16, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W47S22') && (exit == TOP)) { // @fixme: temp code
+      this.moveTo(32, 0)
+      return ActionResult.IN_PROGRESS
+    }
+
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint

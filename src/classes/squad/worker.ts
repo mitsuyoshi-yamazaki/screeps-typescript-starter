@@ -151,9 +151,9 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if ((this.room_name == 'W49S26') || (this.room_name == 'W48S19')) {
-        creep.memory.let_thy_die = false
-      }
+      // if ((this.room_name == 'W49S26')) {
+      //   creep.memory.let_thy_die = false
+      // }
 
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 
