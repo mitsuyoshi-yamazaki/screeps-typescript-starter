@@ -23,17 +23,45 @@ export class Empire {
       })()
     }
 
-    // const base_region = this.regions.get('W49S34')
-    // const colony_region = this.regions.get('W51S29')
+    const base_region = this.regions.get('W51S29')
+    const colony_region = this.regions.get('W49S26')
 
-    // if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
-    //   const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
-    //     return (squad.type != SquadType.ATTACKER)
-    //       && (squad.type != SquadType.SCOUT)
-    //   })
+    if ((Game.time % 2) == 0) {
+      if (base_region && colony_region && (colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
+        const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+          return (squad.type != SquadType.ATTACKER)
+            && (squad.type != SquadType.SCOUT)
+            && (squad.type != SquadType.TEMP)
+        })
 
-    //   base_region.delegated_squads = squads
-    // }
+        base_region.delegated_squads = squads
+      }
+    }
+    else {
+      const grand_child_region = this.regions.get('W48S19')
+
+      if (base_region && grand_child_region && (grand_child_region.room.controller) && (grand_child_region.room.controller.my) && (grand_child_region.room.controller.level <= 4)) {
+        const squads: Squad[] = grand_child_region.squads_need_spawn.filter((squad) => {
+          return (squad.type != SquadType.ATTACKER)
+            && (squad.type != SquadType.SCOUT)
+            && (squad.type != SquadType.TEMP)
+        })
+
+        base_region.delegated_squads = squads
+      }
+    }
+
+
+    const grand_child_region2 = this.regions.get('W47S16')
+    if (colony_region && grand_child_region2 && (grand_child_region2.room.controller) && (grand_child_region2.room.controller.my) && (grand_child_region2.room.controller.level <= 4)) {
+      const squads: Squad[] = grand_child_region2.squads_need_spawn.filter((squad) => {
+        return (squad.type != SquadType.ATTACKER)
+          && (squad.type != SquadType.SCOUT)
+          && (squad.type != SquadType.TEMP)
+      })
+
+      colony_region.delegated_squads = squads
+    }
 
   }
 

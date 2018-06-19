@@ -90,6 +90,16 @@ export class ManualSquad extends Squad {
       case 'W51S29':
         return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
+      case 'W49S26': {
+        const target_room_name = 'W49S27'
+        const room = Game.rooms[target_room_name]
+        if (!room || !room.storage || (room.storage.store.energy < 800)) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
+
       default:
         return SpawnPriority.NONE
     }
@@ -125,6 +135,9 @@ export class ManualSquad extends Squad {
 
       case 'W51S29':
         return energy_available >= 150
+
+      case 'W49S26':
+        return energy_available >= 1600
 
       default:
         return false
@@ -172,6 +185,21 @@ export class ManualSquad extends Squad {
       case 'W51S29':
         this.addGeneralCreep(spawn_func, [MOVE, CARRY, CARRY], CreepType.CARRIER)
         return
+
+      case 'W49S26': {
+        const body: BodyPartConstant[] = [
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+        return
+      }
 
       default:
         return
@@ -365,8 +393,86 @@ export class ManualSquad extends Squad {
         this.any_creep.moveTo(24, 21)
         this.any_creep.withdraw(link, RESOURCE_ENERGY)
         this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY)
+        return
       }
 
+    case 'W49S26':{
+      this.creeps.forEach((creep) => {
+        if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+
+        if (creep.memory.status == CreepStatus.HARVEST) {
+          if (creep.carry.energy > 0) {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+          else if (creep.room.name == 'W51S29') {
+            const room = Game.rooms['W51S29']
+
+            if (creep.withdraw(room.terminal!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(room.terminal!)
+              return
+            }
+            return
+          }
+          else {
+            const target_room_name = 'W49S27'
+            if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+            const target_room = Game.rooms[target_room_name]
+
+            if (!target_room || !target_room.storage) {
+              creep.say(`NOSTR`)
+              return
+            }
+
+            const withdraw_result = creep.withdraw(target_room.storage, RESOURCE_ENERGY)
+            if (withdraw_result == ERR_NOT_IN_RANGE) {
+              creep.moveTo(target_room.storage)
+              return
+            }
+            else if (withdraw_result != OK) {
+              creep.say(`E${withdraw_result}`)
+            }
+            else {
+              creep.memory.status = CreepStatus.CHARGE
+            }
+          }
+        }
+
+        if (creep.memory.status == CreepStatus.CHARGE) {
+          if (creep.carry.energy == 0) {
+            creep.memory.status = CreepStatus.HARVEST
+            return
+          }
+          const home_room = 'W49S26'
+
+          if (creep.moveToRoom(home_room) == ActionResult.IN_PROGRESS) {
+            return
+          }
+
+          const charge_target = creep.find_charge_target()
+          if (charge_target) {
+            if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(charge_target)
+            }
+            return
+          }
+
+          const x = 6
+          const y = 39
+
+          creep.moveTo(x, y)
+          if ((creep.pos.x == x) && (creep.pos.y == y)) {
+            creep.drop(RESOURCE_ENERGY)
+            creep.memory.status = CreepStatus.HARVEST
+            return
+          }
+        }
+      })
+      return
+    }
 
       default:
         return

@@ -46,7 +46,8 @@ export class LightWeightHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.energy_capacity < 450) {
+
+    if ((this.energy_capacity < 450) && (this.source_info.room_name != 'W49S27')) {
       return SpawnPriority.NONE
     }
 
@@ -106,6 +107,10 @@ export class LightWeightHarvesterSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
+      if (this.source_info.room_name == 'W49S27') {
+        creep.memory.let_thy_die = false
+      }
+
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']
 
@@ -264,9 +269,8 @@ export class LightWeightHarvesterSquad extends Squad {
                   // console.log(`LightweightHarvesterSquad.run unexpectedly found nil target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
 
                   if (this.region.room.controller && this.region.room.controller.my) {
-                    if (creep.upgradeController(this.region.room.controller) == ERR_NOT_IN_RANGE) {
-                      creep.moveTo(this.region.room.controller)
-                    }
+                    creep.upgradeController(this.region.room.controller)
+                    creep.moveTo(this.region.room.controller)
                   }
                   else {
                     console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)

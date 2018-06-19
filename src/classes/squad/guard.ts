@@ -41,7 +41,7 @@ export class GuardSquad extends Squad {
         }
     })
 
-    console.log(`att: ${this.attacker}, heal: ${this.healer}, ra: ${this.ranged_attacker}, ${this.name}`)
+    // console.log(`att: ${this.attacker}, heal: ${this.healer}, ra: ${this.ranged_attacker}, ${this.name}`)
 
     const observer = Game.getObjectById('5b1e1041c359e26f06c000c1') as StructureObserver | undefined
     if (observer) {
@@ -58,7 +58,7 @@ export class GuardSquad extends Squad {
       this.need = CreepType.HEALER
     }
 
-    console.log(`NEED: ${this.need}, ${this.name}`)
+    // console.log(`NEED: ${this.need}, ${this.name}`)
 
     const attacker_dead = !this.attacker || (this.attacker && (this.attacker.room.name == 'W48S47'))
     const healer_dead = !this.healer || (this.healer && (this.healer.room.name == 'W48S47'))

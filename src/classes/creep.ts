@@ -181,6 +181,11 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
+    if ((this.room.name == 'W51S29') && (destination_room_name != this.room.name)) { // @fixme: temp code
+      this.moveTo(21, 49)
+      return ActionResult.IN_PROGRESS
+    }
+
     const closest_exit = this.pos.findClosestByPath(exit)
 
     if ((this.room.name == 'W48S34') && (exit == RIGHT)) { // @fixme: temp code
@@ -206,6 +211,47 @@ export function init() {
     else if ((this.room.name == 'W49S48') && (exit == TOP) && (this.getActiveBodyparts(ATTACK) > 0)) { // @fixme: temp code
       this.moveTo(24, 0)
       return ActionResult.IN_PROGRESS
+    }
+    else if (((this.room.name == 'W50S29') || (this.room.name == 'W50S28') || (this.room.name == 'W50S27')) && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26'))) { // @fixme: temp code
+      this.moveTo(18, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W51S30') && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26') || (destination_room_name == 'W49S27'))) { // @fixme: temp code
+      this.moveTo(49, 8)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W50S30') && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26'))) { // @fixme: temp code
+      this.moveTo(20, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W49S26') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(41, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W49S25') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(49, 35)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W48S25') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(33, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W48S24') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(35, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W48S23') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(49, 23)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W47S23') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
+      this.moveTo(9, 0)
+      return ActionResult.IN_PROGRESS
+    }
+
+    if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
+      // destination_room_name = 'W46S42'  // @fixme: this is waypoint
+      destination_room_name = 'W50S26'  // @fixme: this is waypoint
     }
 
     if (this.moveTo(closest_exit) == ERR_NO_PATH) {
@@ -669,7 +715,7 @@ export function init() {
         }
       }
       else {
-        if (this.room.name == 'W46S33') {
+        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19')) {
         // To not pickup harvesters drop
         const drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4)[0] as Resource | undefined
         if (drop) {
@@ -865,7 +911,7 @@ export function init() {
 
 
       let should_upgrade = true
-      if (['W48S47', 'W49S47'].indexOf(this.room.name) >= 0) {
+      if (['W48S47', 'W49S47', 'W51S29'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {
@@ -889,8 +935,6 @@ export function init() {
       if (this.room.name == 'W48S39') {
         should_upgrade = false
       }
-
-      should_upgrade = false
 
       if (!target) {
         if (should_upgrade) {

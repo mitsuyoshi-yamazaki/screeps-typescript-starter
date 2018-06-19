@@ -14,6 +14,13 @@ export class ResearcherSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
     super(name)
 
+    const room = Game.rooms[this.room_name]
+
+    if (!room || (room.spawns.length == 0)) {
+      this.needs_research = false
+      return
+    }
+
     if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
       this.needs_research = false
     }

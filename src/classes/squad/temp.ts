@@ -3,6 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class TempSquad extends Squad {
+  private target_room_name: string
   private harvesters: Creep[] = []
   private workers: Creep[] = []
 
@@ -24,6 +25,20 @@ export class TempSquad extends Squad {
           break
       }
     })
+
+    switch (this.room_name) {
+      case 'W51S29':
+        this.target_room_name = 'W49S26'
+        break
+
+      case 'W49S26':
+        this.target_room_name = 'W47S16'
+        break
+
+      default:
+        this.target_room_name = 'W49S26'
+        break
+    }
   }
 
   public get type(): SquadType {
@@ -40,19 +55,19 @@ export class TempSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const room = Game.rooms[this.target_room_name]
+
+    if (room && room.controller && room.controller.my) {
+      return SpawnPriority.NONE
+    }
+
+    // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
     return SpawnPriority.NONE
 
-    // if (this.workers.length < 10) {
-    //   return SpawnPriority.HIGH
-    // }
-    // if (this.harvesters.length < 2) {
-    //   return SpawnPriority.HIGH
-    // }
-    // return SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    return energy_available >= 1500
+    return energy_available >= 750
 
     // if (this.workers.length < 10) {
     //   return energy_available >= 1500
@@ -64,17 +79,38 @@ export class TempSquad extends Squad {
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    this.addWorker(energy_available, spawn_func)
-
-    // if (this.workers.length < 10) {
-    //   this.addWorker(energy_available, spawn_func)
-    // }
-    // else if (this.harvesters.length < 2) {
-    //   this.addHarvester(energy_available, spawn_func)
-    // }
+    this.addCreepForClaim(energy_available, spawn_func)
   }
 
-  public run(): void {
+  private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const body: BodyPartConstant[] = [MOVE, MOVE, MOVE, CLAIM]
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.CLAIMER,
+      should_notify_attack: false,
+      let_thy_die: true,
+    }
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+  }
+
+  public run():void {
+
+    this.creeps.forEach((creep) => {
+      if (creep.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
+        return
+      }
+
+      creep.claim(this.target_room_name, true)
+    })
+  }
+
+  public _run(): void {
     const room = Game.rooms[this.room_name]
 
     const target_room_name = 'W49S34'

@@ -217,7 +217,7 @@ export class Region {
           { id: '59f19ff082100e1594f35c8b', room_name: 'W49S49' },  // bottom bottom
           { id: '59f1c0ce7d0b3d79de5f01e2', room_name: 'W49S48' },  // hydrogen
         ]
-        rooms_need_scout = ['W49S47']
+        rooms_need_scout = []
         this.room_names = [this.room.name, 'W49S49']
         break
 
@@ -314,6 +314,7 @@ export class Region {
           { id: '59f1c0ce7d0b3d79de5f0165', room_name: 'W51S29' }, // Lemergium
         ]
         this.room_names = [this.room.name]
+        rooms_need_scout = []//['W51S21']
         research_input_targets = [
           {
             id: '5b2552233deea0034025a183', // 30, 18
@@ -339,10 +340,31 @@ export class Region {
         })
         break
 
+      case 'W49S26':
+        lightweight_harvester_targets = [
+          { id: '59f19fed82100e1594f35c45', room_name: 'W49S27' },  // top
+          { id: '59f19fed82100e1594f35c46', room_name: 'W49S27' },  // right
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = ['W49S27']
+        break
+
+      case 'W48S19':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W47S16':
+        this.room_names = [this.room.name]
+        break
+
+
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
     }
+
+    research_input_targets = []
+    research_output_targets = []
 
     // --
     this.attacked_rooms = this.room_names.map((room_name) => {
@@ -801,7 +823,6 @@ export class Region {
     const availableEnergy = this.room.energyAvailable
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
-
       const is_lightweight_harvester = squad.type == SquadType.LIGHTWEIGHT_HARVESTER
       const worker_squad_name = this.worker_squad.name
       const worker_harvester = Array.from(this.worker_squad.creeps.values()).filter((creep) => {
@@ -819,7 +840,7 @@ export class Region {
         return false
       }
 
-      return (squad.spawnPriority == highest_priority) && (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
+      return (squad.spawnPriority == highest_priority)
     })
 
     // --- Defend ---
@@ -990,7 +1011,7 @@ export class Region {
       case 'W48S47': {
         destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
         const link = Game.getObjectById(destination_id) as StructureLink
-        if (link.energy > (link.energyCapacity / 2)) {
+        if (link && (link.energy > (link.energyCapacity / 2))) {
           destination_id = '5aee959afd02f942b0a03361'
         }
         // The link next to the storage is not currently used
@@ -1074,6 +1095,20 @@ export class Region {
         power_spawn.processPower()
       }
     })()
+
+    ErrorMapper.wrapLoop(() => {
+      if (this.room.name == 'W47S16') {
+        this.room.createConstructionSite(35, 42, STRUCTURE_SPAWN)
+      }
+    })()
+
+    // ErrorMapper.wrapLoop(() => {
+    //   if ((this.room.name == 'W48S47') || (this.room.name == 'W49S47') || (this.room.name == 'S49S48')) {
+    //     this.room.find(FIND_STRUCTURES).forEach((s) => {
+    //       s.notifyWhenAttacked(false)
+    //     })
+    //   }
+    // })()
   }
 
   // --- Private ---
@@ -1088,6 +1123,9 @@ export class Region {
       return
     }
     if (this.room.name == 'W49S47') {
+      return
+    }
+    if (this.room.controller && (this.room.controller.level < 4)) {
       return
     }
     if (this.room.spawns.length == 0) {
@@ -1212,7 +1250,12 @@ export class Region {
 
   private spawnAndRenew(): void {
     const availableEnergy = this.room.energyAvailable
+    const energy_capacity = this.room.energyCapacityAvailable - 50
+
     let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
+    squad_needs_spawn = squad_needs_spawn.filter((squad) => {
+      return (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
+    })
 
     const urgent = (squad_needs_spawn.length > 0) ? squad_needs_spawn[0].spawnPriority == SpawnPriority.URGENT : false
 
