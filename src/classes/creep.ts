@@ -159,6 +159,12 @@ export function init() {
     else if ((destination_room_name == 'W48S12') && (Number(this.room.name.slice(4,6)) > 15) && (Number(this.room.name.slice(1,3)) == 50)) {
       destination_room_name = 'W50S15'  // @fixme: this is waypoint
     }
+    else if ((destination_room_name == 'W48S6') && (Number(this.room.name.slice(4,6)) > 7) && (Number(this.room.name.slice(1,3)) == 48)) {
+      destination_room_name = 'W47S7'
+    }
+    else if ((destination_room_name == 'W48S6') && (Number(this.room.name.slice(4,6)) > 6) && ((Number(this.room.name.slice(1,3)) == 49) || (Number(this.room.name.slice(1,3)) == 50))) {
+      destination_room_name = 'W50S6'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)
@@ -495,7 +501,7 @@ export function init() {
         }
       }
       else {
-        const construction_site = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES)
+        const construction_site = this.pos.findClosestByPath(FIND_HOSTILE_CONSTRUCTION_SITES)
 
         if (construction_site) {
           this.moveTo(construction_site)
@@ -503,6 +509,9 @@ export function init() {
         else {
           const wall = this.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (structure) => {
+              if ((structure as {my?: boolean}).my) {
+                return false
+              }
               return (structure.structureType == STRUCTURE_RAMPART)
                 || (structure.structureType == STRUCTURE_WALL)
             }

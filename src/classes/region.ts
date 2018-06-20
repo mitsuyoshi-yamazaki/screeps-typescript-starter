@@ -344,6 +344,7 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19fed82100e1594f35c45', room_name: 'W49S27' },  // top
           { id: '59f19fed82100e1594f35c46', room_name: 'W49S27' },  // right
+          { id: '59f19fed82100e1594f35c42', room_name: 'W49S26' }
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = ['W49S27']//, 'W49S18']
@@ -359,22 +360,65 @@ export class Region {
           { id: '59f19ffb82100e1594f35d92', room_name: 'W48S12' },  // left
           { id: '59f19fec82100e1594f35c18', room_name: 'W49S12' },
           { id: '59f1a00a82100e1594f35f16', room_name: 'W47S12' },
+          { id: '59f19fec82100e1594f35c1a', room_name: 'W49S13' },
         ]
         rooms_need_scout = [
           'W49S12',
           'W47S12',
+          'W49S13',
         ]
         rooms_need_to_be_defended = [
           'W49S12',
           'W47S12',
+          'W49S13',
         ]
         this.room_names = [this.room.name]
         break
 
       case 'W49S19':
+        lightweight_harvester_targets = [
+          // { id: '59f19fec82100e1594f35c2a', room_name: 'W49S18' }, // The room is under enemy's control
+          { id: '59f19fec82100e1594f35c2c', room_name: 'W49S19' },
+          { id: '59f19ffc82100e1594f35daa', room_name: 'W48S19' },
+        ]
         this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W49S18'
+        ]
+        rooms_need_to_be_defended = [
+          'W49S18'
+        ]
         break
 
+      case 'W44S7':
+        lightweight_harvester_targets = [
+          { id: '59f1a03882100e1594f36569', room_name: 'W44S7' },
+          { id: '59f1a04682100e1594f3673d', room_name: 'W43S7' }, // left
+          { id: '59f1a04682100e1594f3673e', room_name: 'W43S7' }, // bottom
+          { id: '59f1a02a82100e1594f36330', room_name: 'W45S7' },
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W44S7',
+          'W45S7',
+        ]
+        rooms_need_to_be_defended = [
+          'W43S7',
+          'W45S7',
+        ]
+        break
+
+      case 'W48S6':
+        lightweight_harvester_targets = [
+          { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
+          { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+        ]
+          rooms_need_to_be_defended = [
+        ]
+        break
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
@@ -1029,16 +1073,7 @@ export class Region {
     let destination_id: string | undefined
 
     switch (this.room.name) {
-      case 'W48S47': {
-        destination_id = '5af5c771dea4db08d5fb7c84'  // Link for upgrader
-        const link = Game.getObjectById(destination_id) as StructureLink
-        if (link && (link.energy > (link.energyCapacity / 2))) {
-          destination_id = '5aee959afd02f942b0a03361'
-        }
-        // The link next to the storage is not currently used
-        break
-      }
-      case 'W49S47':
+     case 'W49S47':
         destination_id = '5af1900395fe4569eddba9da'
         break
 
@@ -1118,9 +1153,12 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      // if (this.room.name == 'W47S16') {
-      //   this.room.createConstructionSite(35, 42, STRUCTURE_SPAWN)
-      // }
+      if (this.room.name == 'W44S7') {
+        this.room.createConstructionSite(18, 42, STRUCTURE_SPAWN)
+      }
+      else if (this.room.name == 'W44S7') {
+        this.room.createConstructionSite(34, 22, STRUCTURE_SPAWN)
+      }
     })()
 
     // ErrorMapper.wrapLoop(() => {
@@ -1149,7 +1187,8 @@ export class Region {
     if (this.room.name == 'W49S48') {
       return
     }
-    if (this.room.controller && (this.room.controller.level < 4)) {
+    // if (this.room.controller && (this.room.controller.level < 4)) {
+    if (this.room.controller) {
       if (this.room.name == 'W48S12') {
         // activate safemode if needed
       }
@@ -1215,7 +1254,7 @@ export class Region {
     const damaged_structures = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         return (important_structures.indexOf(structure.structureType) >= 0)
-          && (structure.hits < structure.hitsMax)
+          && (structure.hits < (structure.hitsMax - 100))
       }
     })
     if (damaged_structures.length > 0) {
@@ -1232,7 +1271,7 @@ export class Region {
     })
 
     const number_of_creeps = room.find(FIND_MY_CREEPS).length
-    if ((number_of_creeps < 5) && (damaged_my_creeps.length > 0)) {
+    if ((number_of_creeps < 5) && (damaged_my_creeps.length > 1) && (this.worker_squad.creeps.size < 2)) {
       const message = `Activate safe mode at ${room.name} : ${room.controller.activateSafeMode()}, number of creeps: ${number_of_creeps}`
       console.log(message)
       Game.notify(message)

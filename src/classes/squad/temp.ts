@@ -4,27 +4,9 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class TempSquad extends Squad {
   private target_room_name: string | undefined
-  private harvesters: Creep[] = []
-  private workers: Creep[] = []
 
   constructor(readonly name: string, readonly room_name: string) {
     super(name)
-
-    this.creeps.forEach((creep) => {
-      switch (creep.memory.type) {
-        case CreepType.HARVESTER:
-          this.harvesters.push(creep)
-          break
-
-        case CreepType.WORKER:
-          this.workers.push(creep)
-          break
-
-        default:
-          console.log(`TempSquad unexpected creep type ${creep.memory.type}, ${creep.name}`)
-          break
-      }
-    })
 
     switch (this.room_name) {
       case 'W51S29':
@@ -36,7 +18,12 @@ export class TempSquad extends Squad {
         break
 
       case 'W48S19':
-        this.target_room_name = 'W49S19'
+        // this.target_room_name = 'W49S19'
+        break
+
+      case 'W48S12':
+        // this.target_room_name = 'W44S7'
+        this.target_room_name = 'W48S6'
         break
 
       default:

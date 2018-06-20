@@ -36,25 +36,7 @@ export class WorkerSquad extends Squad {
     //   }
     // }
 
-    if ((this.room_name == 'W48S47')) {
-      max = 3
-    }
-    else if (this.room_name == 'W49S47') {
-      max = 3
-    }
-    else if (this.room_name == 'W49S48') {
-      max = 1
-    }
-    else if (this.room_name == 'W48S39') {
-      max = 1
-    }
-    else if (this.room_name == 'W49S34') {
-      max = 3
-    }
-    else if (this.room_name == 'W46S33') {
-      max = 3
-    }
-    else if (this.room_name == 'W51S29') {
+    if (this.room_name == 'W51S29') {
       max = 2
     }
     else if (this.room_name == 'W48S19') {
@@ -62,6 +44,15 @@ export class WorkerSquad extends Squad {
     }
     else if (this.room_name == 'W48S12') {
       max = 10
+    }
+    else if (this.room_name == 'W49S26') {
+      max = 3
+    }
+    else if (this.room_name == 'W44S7') {
+      max = 8
+    }
+    else if (this.room_name == 'W48S6') {
+      max = 8
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -170,7 +161,7 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if (room_to_escape && room.attacked && room.controller && room.controller.my && (room.controller.level < 3)) {
+      if (room_to_escape && room.attacked && room.controller && room.controller.my && (room.controller.level <= 3)) {
         creep.drop(RESOURCE_ENERGY)
         if (creep.moveToRoom(room_to_escape) == ActionResult.IN_PROGRESS) {
           creep.say(`wRUN`)

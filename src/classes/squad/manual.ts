@@ -209,164 +209,6 @@ export class ManualSquad extends Squad {
   public run(): void {
 
     switch (this.original_room_name) {
-      case 'W49S34': {
-        const target_room_name = 'W46S39'
-        const target_wall = Game.getObjectById('5b1fdc427e7744038af7f139') as StructureRampart | undefined
-
-        this.attackers.forEach((creep) => {
-          if (creep.room.name != target_room_name) {
-            // creep.searchAndDestroyTo(target_room_name, false)
-            creep.moveToRoom(target_room_name)
-            return
-          }
-
-          const hostile_creep = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 1)[0]
-          if (hostile_creep) {
-            creep.destroy(hostile_creep)
-            return
-          }
-
-          if (target_wall) {
-            // creep.moveTo(1, 10)
-            if (creep.attack(target_wall) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target_wall)
-            }
-
-            const damaged_creep = creep.pos.findInRange(FIND_MY_CREEPS, 1, {
-              filter: (c: Creep) => (c.hits < c.hitsMax)
-            })[0]
-            if (damaged_creep) {
-              creep.heal(damaged_creep)
-            }
-
-            return
-          }
-
-          creep.searchAndDestroy()
-        })
-
-        this.workers.forEach((creep) => {
-          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-            return
-          }
-
-          if (target_wall) {
-            if (creep.pos.x == 0) {
-              this.attackers.forEach((attacker) => {
-                if (attacker.room.name != target_room_name) {
-                  return
-                }
-                attacker.move(BOTTOM)
-              })
-            }
-            // creep.moveTo(1, 9)
-            creep.dismantleObjects(target_room_name, target_wall)
-            return
-          }
-
-          creep.dismantleObjects(target_room_name, undefined) //Game.getObjectById('5b1fdc427e7744038af7f139') as Structure | undefined)
-        })
-        return
-      }
-      case 'W49S48': {
-        if (!this.any_creep) {
-          return
-        }
-        const link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink | undefined
-        if (!link || !this.any_creep.room.storage || !this.any_creep.room.terminal) {
-          console.log(`ManualSquad W49S48 missing link or storage or terminal`)
-          return
-        }
-        if (this.any_creep.carry.energy > 0) {
-          if (this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(this.any_creep.room.storage)
-          }
-        }
-        else if ((this.any_creep.carry[RESOURCE_HYDROGEN] || 0) > 0) {
-          if (this.any_creep.transfer(this.any_creep.room.terminal, RESOURCE_HYDROGEN) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(this.any_creep.room.terminal)
-          }
-        }
-        else {
-          if (link.energy > 0) {
-            if (this.any_creep.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              this.any_creep.moveTo(link)
-            }
-          }
-          else if (((this.any_creep.room.terminal.store[RESOURCE_HYDROGEN] || 0) < 50000) && ((this.any_creep.ticksToLive || 0) > 5)) {
-            if (this.any_creep.withdraw(this.any_creep.room.storage, RESOURCE_HYDROGEN) == ERR_NOT_IN_RANGE) {
-              this.any_creep.moveTo(this.any_creep.room.storage)
-            }
-          }
-          else {
-            // do nothing
-          }
-        }
-        return
-      }
-
-      case 'W48S47': {
-        const room = Game.rooms[this.original_room_name]
-        if (!room || !room.terminal) {
-          console.log(`ManualSquad.run error ${this.original_room_name}`)
-          return
-        }
-
-        type Target = {lab: StructureLab, resource_type: ResourceConstant}
-        const targets: Target[] = [
-          {
-            lab: Game.getObjectById('5b22b58d31be7d52a5ddb788') as StructureLab,
-            resource_type: RESOURCE_KEANIUM_ALKALIDE,
-          },
-          {
-            lab: Game.getObjectById('5b22b94cb516ea5f55225541') as StructureLab,
-            resource_type: RESOURCE_UTRIUM_ACID,
-          },
-          {
-            lab: Game.getObjectById('5b22b80fe65319287dc5ecce') as StructureLab,
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
-          },
-          {
-            lab: Game.getObjectById('5afb586ccae66639b23225e1') as StructureLab,
-            resource_type: RESOURCE_GHODIUM_ALKALIDE,
-          },
-          {
-            lab: Game.getObjectById('5b228fe226aa371fc6f97346') as StructureLab,
-            resource_type: RESOURCE_ZYNTHIUM_ALKALIDE,
-          },
-        ]
-
-        let target: Target = targets.filter((t) => {
-          return !(!t.lab)
-            && (
-              (t.lab.mineralType != t.resource_type)
-                || (t.lab.mineralAmount < t.lab.mineralCapacity)
-            )
-        })[0]
-
-        if (target) {
-          this.transferMineralToLab(room.terminal, target.lab, target.resource_type)
-        }
-        return
-      }
-
-      case 'W49S47': {
-        // if (this.any_creep!.transferResources(this.any_creep!.room.terminal!) == ERR_NOT_IN_RANGE) {
-        //   this.any_creep!.moveTo(this.any_creep!.room.terminal!)
-        // }
-
-        const room = Game.rooms[this.original_room_name]
-        const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab
-        if (!lab || !room || !room.terminal) {
-          console.log(`ManualSquad.run error ${this.original_room_name}`)
-          return
-        }
-
-        if (lab.mineralAmount < (lab.mineralCapacity - 450)) {
-          this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
-        }
-        return
-      }
 
       case 'W51S29': {
         const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
@@ -412,7 +254,7 @@ export class ManualSquad extends Squad {
         }
       })
 
-      this.stealEnergyFrom(base_room_name, target_room_name, 7, 38)
+      this.stealEnergyFrom(base_room_name, target_room_name, 7, 38, true)
       return
     }
       case 'W48S19': {
@@ -448,19 +290,59 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S12':{
-        // this.dismantle('')
+        this.dismantle('W42S4')
         return
       }
 
       case 'W49S19': {
+        this.creeps.forEach((creep) => {
+          creep.memory.let_thy_die = false
+        })
+
         const base_room_name = this.original_room_name
         const target_room_name = 'W49S18'
 
-        this.stealEnergyFrom(base_room_name, target_room_name, 20, 33)
+        this.stealEnergyFrom(base_room_name, target_room_name, 20, 33, true)
+
+        this.renewIfNeeded()
+        return
+      }
+
+      case 'W44S7':
+        if (this.dismantle('W44S7') == ActionResult.IN_PROGRESS) {
+          return
+        }
+        this.creeps.forEach((creep) => {
+          creep.memory.squad_name = 'worker72214031'
+        })
+        return
+
+      case 'W48S6': {
+        this.creeps.forEach((creep) => {
+          const hostile_extension = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+            filter: (structure) => {
+              if (structure.structureType == STRUCTURE_EXTENSION) {
+                return true
+              }
+              return false
+            }
+          })
+
+          if (!hostile_extension) {
+            creep.say(`DONE!`)
+            creep.memory.squad_name = 'worker72220381'
+            return
+          }
+
+          if (creep.dismantle(hostile_extension) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(hostile_extension)
+          }
+        })
         return
       }
 
       default:
+        console.log(`ManualSquad.run error no script for ${this.original_room_name}`)
         return
     }
   }
@@ -676,6 +558,22 @@ export class ManualSquad extends Squad {
 
 
   // ---
+  private renewIfNeeded(): void {
+    this.creeps.forEach((creep) => {
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 350) && (creep.carry.energy > (creep.carryCapacity * 0.8))))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+
+      if (needs_renew) {
+        if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive ||0) > 400)) && !creep.room.spawns[0].spawning) {
+          creep.goToRenew(creep.room.spawns[0])
+          return
+        }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+      }
+    })
+  }
+
   private runAttacker() {
     const lab = Game.getObjectById('5afb5a00c41b880caa6c3058') as StructureLab | undefined
     const target_room_name = 'W45S41'
@@ -1077,8 +975,12 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private stealEnergyFrom(base_room_name: string, target_room_name: string, x: number, y: number): void {
+  private stealEnergyFrom(base_room_name: string, target_room_name: string, x: number, y: number, should_die: boolean): void {
     this.creeps.forEach((creep) => {
+      if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+        return
+      }
+
       if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
         creep.memory.status = CreepStatus.HARVEST
       }
@@ -1092,15 +994,38 @@ export class ManualSquad extends Squad {
             return
           }
           const target_room = Game.rooms[target_room_name]
-
-          if (!target_room || !target_room.storage) {
-            creep.say(`NOSTR`)
+          if (!target_room) {
+            creep.say(`NO ROM`)
             return
           }
 
-          const withdraw_result = creep.withdraw(target_room.storage, RESOURCE_ENERGY)
+          let target: StructureStorage | StructureTerminal | StructureContainer | undefined
+
+          if (target_room.storage && (target_room.storage.store.energy > 0)) {
+            target = target_room.storage
+          }
+          else if (target_room.terminal && (target_room.terminal.store.energy > 0)) {
+            target = target_room.terminal
+          }
+          else {
+            target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+              filter: (structure) => {
+                return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+              }
+            }) as StructureContainer | undefined
+          }
+
+          if (!target) {
+            creep.say(`NO TGT`)
+            if (should_die) {
+              creep.memory.let_thy_die = true
+            }
+            return
+          }
+
+          const withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target_room.storage)
+            creep.moveTo(target)
             return
           }
           else if (withdraw_result != OK) {

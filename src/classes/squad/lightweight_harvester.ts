@@ -52,16 +52,8 @@ export class LightWeightHarvesterSquad extends Squad {
     }
 
     const room = Game.rooms[this.source_info.room_name]
-    const w45s42 = Game.rooms['W45S42']
-
-    // if (this.source_info.room_name == 'W43S42') {
-    //   console.log(`HOGE ${this.source_info.room_name}, ${room}, ${room ? room.attacked : 'no visibility'}`)
-    // }
 
     if (!room || room.heavyly_attacked) {
-      return SpawnPriority.NONE
-    }
-    else if ((!w45s42 || w45s42.heavyly_attacked) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
       return SpawnPriority.NONE
     }
 
@@ -265,9 +257,6 @@ export class LightWeightHarvesterSquad extends Squad {
                 break
 
               default:
-                // if (!this.destination) {
-                  // console.log(`LightweightHarvesterSquad.run unexpectedly found nil target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
-
                   if (this.region.room.controller && this.region.room.controller.my) {
                     creep.upgradeController(this.region.room.controller)
                     creep.moveTo(this.region.room.controller)
@@ -275,10 +264,6 @@ export class LightWeightHarvesterSquad extends Squad {
                   else {
                     console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
                   }
-                // }
-                // else {
-                  console.log(`LightweightHarvesterSquad.run unexpected transfer error ${result}, target: ${this.destination}, ${this.name}, ${creep.name} at ${creep.pos}`)
-                // }
             }
           }
         }
