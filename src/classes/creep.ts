@@ -165,6 +165,9 @@ export function init() {
     else if ((destination_room_name == 'W48S6') && (Number(this.room.name.slice(4,6)) > 6) && ((Number(this.room.name.slice(1,3)) == 49) || (Number(this.room.name.slice(1,3)) == 50))) {
       destination_room_name = 'W50S6'
     }
+    else if ((destination_room_name == 'W48S2') && (Number(this.room.name.slice(4,6)) > 3) && ((Number(this.room.name.slice(1,3)) == 48) || (Number(this.room.name.slice(1,3)) == 49) || (Number(this.room.name.slice(1,3)) == 50))) {
+      destination_room_name = 'W50S3'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)

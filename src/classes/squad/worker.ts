@@ -156,6 +156,14 @@ export class WorkerSquad extends Squad {
       case 'W48S19':
         room_to_escape = 'W49S18'
         break
+
+      case 'W48S6':
+        room_to_escape = 'W48S7'
+        break
+
+      case 'W44S7':
+        room_to_escape = 'W44S8'
+        break
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {

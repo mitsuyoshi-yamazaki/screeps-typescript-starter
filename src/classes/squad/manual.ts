@@ -318,26 +318,27 @@ export class ManualSquad extends Squad {
         return
 
       case 'W48S6': {
-        this.creeps.forEach((creep) => {
-          const hostile_extension = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
-            filter: (structure) => {
-              if (structure.structureType == STRUCTURE_EXTENSION) {
-                return true
-              }
-              return false
-            }
-          })
+        this.dismantle('W48S2')
+        // this.creeps.forEach((creep) => {
+        //   const hostile_extension = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+        //     filter: (structure) => {
+        //       if (structure.structureType == STRUCTURE_EXTENSION) {
+        //         return true
+        //       }
+        //       return false
+        //     }
+        //   })
 
-          if (!hostile_extension) {
-            creep.say(`DONE!`)
-            creep.memory.squad_name = 'worker72220381'
-            return
-          }
+        //   if (!hostile_extension) {
+        //     creep.say(`DONE!`)
+        //     creep.memory.squad_name = 'worker72220381'
+        //     return
+        //   }
 
-          if (creep.dismantle(hostile_extension) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(hostile_extension)
-          }
-        })
+        //   if (creep.dismantle(hostile_extension) == ERR_NOT_IN_RANGE) {
+        //     creep.moveTo(hostile_extension)
+        //   }
+        // })
         return
       }
 
