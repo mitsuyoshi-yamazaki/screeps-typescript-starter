@@ -52,7 +52,7 @@ export class Empire {
     }
 
 
-    const grand_child_region2 = this.regions.get('W47S16')
+    const grand_child_region2 = this.regions.get('W48S19')
     if (colony_region && grand_child_region2 && (grand_child_region2.room.controller) && (grand_child_region2.room.controller.my) && (grand_child_region2.room.controller.level <= 4)) {
       const squads: Squad[] = grand_child_region2.squads_need_spawn.filter((squad) => {
         return (squad.type != SquadType.ATTACKER)
@@ -61,6 +61,21 @@ export class Empire {
       })
 
       colony_region.delegated_squads = squads
+    }
+
+    const grand_child_region3 = this.regions.get('W48S12')
+    if (grand_child_region2 && grand_child_region3 && (grand_child_region3.room.controller) && (grand_child_region3.room.controller.my) && (grand_child_region3.room.controller.level <= 4)) {
+      const squads: Squad[] = grand_child_region3.squads_need_spawn.filter((squad) => {
+        return (squad.type != SquadType.ATTACKER)
+          && (squad.type != SquadType.SCOUT)
+          && (squad.type != SquadType.TEMP)
+      })
+
+      grand_child_region2.delegated_squads = squads
+      console.log(`DELEGATED ${grand_child_region3.name} to ${grand_child_region2.name}`)
+    }
+    else {
+      console.log(`!DELEGATED`)
     }
 
   }

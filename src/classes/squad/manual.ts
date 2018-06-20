@@ -460,8 +460,15 @@ export class ManualSquad extends Squad {
             return
           }
 
-          const x = 6
-          const y = 39
+          if (creep.room.controller && creep.room.controller.my && creep.room.storage) {
+            if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.storage)
+            }
+            return
+          }
+
+          const x = 7
+          const y = 38
 
           creep.moveTo(x, y)
           if ((creep.pos.x == x) && (creep.pos.y == y)) {
@@ -471,6 +478,11 @@ export class ManualSquad extends Squad {
           }
         }
       })
+      return
+    }
+
+    case 'W48S12':{
+
       return
     }
 

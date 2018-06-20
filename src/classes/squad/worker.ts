@@ -58,7 +58,10 @@ export class WorkerSquad extends Squad {
       max = 2
     }
     else if (this.room_name == 'W48S19') {
-      max = 6
+      max = 3
+    }
+    else if (this.room_name == 'W48S12') {
+      max = 10
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -84,7 +87,7 @@ export class WorkerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    if ((this.creeps.size < 3) && (energy_available >= 200)) {
+    if ((this.creeps.size < 2) && (energy_available >= 200)) {
       return true
     }
 
@@ -151,9 +154,18 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if ((this.room_name == 'W49S26') || (this.room_name == 'W48S19')) {
-        creep.memory.let_thy_die = false
+      if ((room.name == 'W48S12') && room.attacked && room.controller && room.controller.my && (room.controller.level < 3)) {
+        creep.drop(RESOURCE_ENERGY)
+        if (creep.moveToRoom('W47S12') == ActionResult.IN_PROGRESS) {
+          creep.say(`wRUN`)
+          continue
+        }
+        continue
       }
+
+      // if ((room.name == 'W48S12')) {
+      //   creep.memory.let_thy_die = false
+      // }
 
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 

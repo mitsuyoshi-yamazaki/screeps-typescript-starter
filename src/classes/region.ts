@@ -346,14 +346,14 @@ export class Region {
           { id: '59f19fed82100e1594f35c46', room_name: 'W49S27' },  // right
         ]
         this.room_names = [this.room.name]
-        rooms_need_scout = ['W49S27']
+        rooms_need_scout = ['W49S27']//, 'W49S18']
         break
 
       case 'W48S19':
         this.room_names = [this.room.name]
         break
 
-      case 'W47S16':
+      case 'W48S12':
         this.room_names = [this.room.name]
         break
 
@@ -941,8 +941,8 @@ export class Region {
           if (this.room.storage && (this.room.storage.store.energy > 500000)) {
             hits_max = 300000
           }
-          else if ((this.room.name == 'W46S33') || (this.room.name == 'W49S34')) {
-            hits_max = 100000
+          else if ((this.room.name == 'W51S29')) {
+            hits_max = 400000
           }
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
             filter: (structure) => {
@@ -1097,9 +1097,9 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      if (this.room.name == 'W47S16') {
-        this.room.createConstructionSite(35, 42, STRUCTURE_SPAWN)
-      }
+      // if (this.room.name == 'W47S16') {
+      //   this.room.createConstructionSite(35, 42, STRUCTURE_SPAWN)
+      // }
     })()
 
     // ErrorMapper.wrapLoop(() => {
@@ -1126,7 +1126,12 @@ export class Region {
       return
     }
     if (this.room.controller && (this.room.controller.level < 4)) {
-      return
+      if (this.room.name == 'W48S12') {
+        // activate safemode if needed
+      }
+      else {
+        return
+      }
     }
     if (this.room.spawns.length == 0) {
       return

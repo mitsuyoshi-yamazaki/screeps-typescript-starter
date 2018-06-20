@@ -208,6 +208,10 @@ export function init() {
       this.moveTo(49, 28)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W49S12') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 37)
+      return ActionResult.IN_PROGRESS
+    }
     else if ((this.room.name == 'W49S48') && (exit == TOP) && (this.getActiveBodyparts(ATTACK) > 0)) { // @fixme: temp code
       this.moveTo(24, 0)
       return ActionResult.IN_PROGRESS
