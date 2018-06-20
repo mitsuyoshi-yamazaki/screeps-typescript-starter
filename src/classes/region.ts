@@ -347,6 +347,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = ['W49S27']//, 'W49S18']
+        rooms_need_to_be_defended = ['W49S27']
         break
 
       case 'W48S19':
@@ -354,6 +355,23 @@ export class Region {
         break
 
       case 'W48S12':
+        lightweight_harvester_targets = [
+          { id: '59f19ffb82100e1594f35d92', room_name: 'W48S12' },  // left
+          { id: '59f19fec82100e1594f35c18', room_name: 'W49S12' },
+          { id: '59f1a00a82100e1594f35f16', room_name: 'W47S12' },
+        ]
+        rooms_need_scout = [
+          'W49S12',
+          'W47S12',
+        ]
+        rooms_need_to_be_defended = [
+          'W49S12',
+          'W47S12',
+        ]
+        this.room_names = [this.room.name]
+        break
+
+      case 'W49S19':
         this.room_names = [this.room.name]
         break
 
@@ -943,6 +961,9 @@ export class Region {
           }
           else if ((this.room.name == 'W51S29')) {
             hits_max = 400000
+          }
+          else if ((this.room.name == 'W49S26')) {
+            hits_max = 100000
           }
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
             filter: (structure) => {

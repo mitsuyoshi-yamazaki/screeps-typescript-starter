@@ -3,7 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 export class TempSquad extends Squad {
-  private target_room_name: string
+  private target_room_name: string | undefined
   private harvesters: Creep[] = []
   private workers: Creep[] = []
 
@@ -28,19 +28,18 @@ export class TempSquad extends Squad {
 
     switch (this.room_name) {
       case 'W51S29':
-        this.target_room_name = 'W49S26'
+        // this.target_room_name = 'W49S26'
         break
 
       case 'W49S26':
-        this.target_room_name = 'W48S19' //'W47S16'
+        // this.target_room_name = 'W48S19' //'W47S16'
         break
 
       case 'W48S19':
-        this.target_room_name = 'W48S12'
+        this.target_room_name = 'W49S19'
         break
 
       default:
-        this.target_room_name = 'W49S26'
         break
     }
   }
@@ -59,6 +58,10 @@ export class TempSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    if (!this.target_room_name) {
+      return SpawnPriority.NONE
+    }
+
     const room = Game.rooms[this.target_room_name]
 
     if (room && room.controller && room.controller.my) {
@@ -104,13 +107,18 @@ export class TempSquad extends Squad {
   }
 
   public run():void {
+    if (!this.target_room_name) {
+      this.say(`ERR`)
+      return
+    }
+    const target_room_name = this.target_room_name
 
     this.creeps.forEach((creep) => {
-      if (creep.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
+      if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
         return
       }
 
-      creep.claim(this.target_room_name, true)
+      creep.claim(target_room_name, true)
     })
   }
 

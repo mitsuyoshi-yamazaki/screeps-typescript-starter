@@ -72,12 +72,34 @@ export class Empire {
       })
 
       grand_child_region2.delegated_squads = squads
-      console.log(`DELEGATED ${grand_child_region3.name} to ${grand_child_region2.name}`)
-    }
-    else {
-      console.log(`!DELEGATED`)
     }
 
+    const set_delegate = (base_region_name: string, colony_region_name: string) => {
+      const base_region = this.regions.get(base_region_name)
+      const colony_region = this.regions.get(colony_region_name)
+
+      if (!base_region || !colony_region) {
+        const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
+        console.log(message)
+        Game.notify(message)
+        return
+      }
+
+      if ((colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 4)) {
+        const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+          return (squad.type != SquadType.ATTACKER)
+            && (squad.type != SquadType.SCOUT)
+            && (squad.type != SquadType.TEMP)
+        })
+
+        base_region.delegated_squads = squads
+      }
+    }
+
+    const w49s19 = 'W49S19'
+    const w48s19 = 'W48S19'
+
+    set_delegate(w48s19, w49s19)
   }
 
   public say(message: string): void {

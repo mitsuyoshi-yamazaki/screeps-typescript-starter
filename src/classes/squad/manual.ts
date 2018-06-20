@@ -397,97 +397,68 @@ export class ManualSquad extends Squad {
       }
 
     case 'W49S26':{
+      const base_room_name = this.original_room_name
+      const target_room_name = 'W49S27'
+
       this.creeps.forEach((creep) => {
-        if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
-          creep.memory.status = CreepStatus.HARVEST
-        }
+        if ((creep.room.name == 'W51S29') && (creep.carry.energy  == 0)) {
+          const room = Game.rooms['W51S29']
 
-        if (creep.memory.status == CreepStatus.HARVEST) {
-          if (creep.carry.energy > 0) {
-            creep.memory.status = CreepStatus.CHARGE
-          }
-          else if (creep.room.name == 'W51S29') {
-            const room = Game.rooms['W51S29']
-
-            if (creep.withdraw(room.terminal!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(room.terminal!)
-              return
-            }
+          if (creep.withdraw(room.terminal!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(room.terminal!)
             return
           }
-          else {
-            const target_room_name = 'W49S27'
-            if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-              return
-            }
-            const target_room = Game.rooms[target_room_name]
-
-            if (!target_room || !target_room.storage) {
-              creep.say(`NOSTR`)
-              return
-            }
-
-            const withdraw_result = creep.withdraw(target_room.storage, RESOURCE_ENERGY)
-            if (withdraw_result == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target_room.storage)
-              return
-            }
-            else if (withdraw_result != OK) {
-              creep.say(`E${withdraw_result}`)
-            }
-            else {
-              creep.memory.status = CreepStatus.CHARGE
-            }
-          }
-        }
-
-        if (creep.memory.status == CreepStatus.CHARGE) {
-          if (creep.carry.energy == 0) {
-            creep.memory.status = CreepStatus.HARVEST
-            return
-          }
-          const home_room = 'W49S26'
-
-          if (creep.moveToRoom(home_room) == ActionResult.IN_PROGRESS) {
-            return
-          }
-
-          const charge_target = creep.find_charge_target()
-          if (charge_target) {
-            if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(charge_target)
-            }
-            return
-          }
-
-          if (creep.room.controller && creep.room.controller.my && creep.room.storage) {
-            if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(creep.room.storage)
-            }
-            return
-          }
-
-          const x = 7
-          const y = 38
-
-          creep.moveTo(x, y)
-          if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.drop(RESOURCE_ENERGY)
-            creep.memory.status = CreepStatus.HARVEST
-            return
-          }
+          return
         }
       })
+
+      this.stealEnergyFrom(base_room_name, target_room_name, 7, 38)
       return
     }
-      case 'W48S19':
-        this.dismantle('W47S16')
+      case 'W48S19': {
+        const worker_squad_name = 'worker71825555'
+
+        // if (!this.any_creep) {
+        //   return
+        // }
+
+        // const memory = this.any_creep.memory as ManualMemory
+
+        // if (memory.target_id) {
+        //   const specified_target = Game.getObjectById(memory.target_id) as Structure | undefined
+
+        //   if (specified_target && (specified_target as Structure).structureType) {
+        //     if (this.any_creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
+        //       this.any_creep.moveTo((specified_target as Structure))
+        //     }
+        //     return
+        //   }
+        //   else {
+        //     this.any_creep.say(`NO T`)
+        //   }
+        // }
+
+        if (this.dismantle('W49S19') == ActionResult.IN_PROGRESS) {
+          return
+        }
+        this.creeps.forEach((creep) => {
+          creep.memory.squad_name = worker_squad_name
+        })
         return
+      }
 
-    case 'W48S12':{
+      case 'W48S12':{
+        // this.dismantle('')
+        return
+      }
 
-      return
-    }
+      case 'W49S19': {
+        const base_room_name = this.original_room_name
+        const target_room_name = 'W49S18'
+
+        this.stealEnergyFrom(base_room_name, target_room_name, 20, 33)
+        return
+      }
 
       default:
         return
@@ -1106,6 +1077,76 @@ export class ManualSquad extends Squad {
     })
   }
 
+  private stealEnergyFrom(base_room_name: string, target_room_name: string, x: number, y: number): void {
+    this.creeps.forEach((creep) => {
+      if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
+        creep.memory.status = CreepStatus.HARVEST
+      }
+
+      if (creep.memory.status == CreepStatus.HARVEST) {
+        if (creep.carry.energy > 0) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else {
+          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+            return
+          }
+          const target_room = Game.rooms[target_room_name]
+
+          if (!target_room || !target_room.storage) {
+            creep.say(`NOSTR`)
+            return
+          }
+
+          const withdraw_result = creep.withdraw(target_room.storage, RESOURCE_ENERGY)
+          if (withdraw_result == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target_room.storage)
+            return
+          }
+          else if (withdraw_result != OK) {
+            creep.say(`E${withdraw_result}`)
+          }
+          else {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+        }
+      }
+
+      if (creep.memory.status == CreepStatus.CHARGE) {
+        if (creep.carry.energy == 0) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        if (creep.moveToRoom(base_room_name) == ActionResult.IN_PROGRESS) {
+          return
+        }
+
+        const charge_target = creep.find_charge_target()
+        if (charge_target) {
+          if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(charge_target)
+          }
+          return
+        }
+
+        if (creep.room.controller && creep.room.controller.my && creep.room.storage) {
+          if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.storage)
+          }
+          return
+        }
+
+        creep.moveTo(x, y)
+        if ((creep.pos.x == x) && (creep.pos.y == y)) {
+          creep.drop(RESOURCE_ENERGY)
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+      }
+    })
+  }
+
   // private chargeLab(): void {
   //   // It's in room W44S42
   //   // const resource = RESOURCE_UTRIUM_ACID
@@ -1179,8 +1220,10 @@ export class ManualSquad extends Squad {
   //   })
   // }
 
-  private dismantle(target_room_name: string, include_wall?: boolean): void {
-    this.creeps.forEach((creep, _) => {
+  private dismantle(target_room_name: string, include_wall?: boolean): ActionResult {
+    let result_sum: ActionResult = ActionResult.DONE
+
+    this.creeps.forEach((creep) => {
       let specified_target: Structure | undefined
 
       if (creep.room.name == target_room_name) {
@@ -1193,6 +1236,7 @@ export class ManualSquad extends Squad {
             if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
               creep.moveTo((specified_target as Structure))
             }
+            result_sum = ActionResult.IN_PROGRESS
             return
           }
           else {
@@ -1203,8 +1247,13 @@ export class ManualSquad extends Squad {
         }
       }
 
-      creep.dismantleObjects(target_room_name, specified_target, include_wall)
-    })
+      const result = creep.dismantleObjects(target_room_name, specified_target, include_wall)
+
+      if (result == ActionResult.IN_PROGRESS) {
+        result_sum = ActionResult.IN_PROGRESS
+      }
+    });
+    return result_sum
   }
 
   private attack(): void {

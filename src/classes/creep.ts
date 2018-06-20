@@ -156,6 +156,9 @@ export function init() {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W44S46'  // @fixme: this is waypoint
     }
+    else if ((destination_room_name == 'W48S12') && (Number(this.room.name.slice(4,6)) > 15) && (Number(this.room.name.slice(1,3)) == 50)) {
+      destination_room_name = 'W50S15'  // @fixme: this is waypoint
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)
@@ -210,6 +213,10 @@ export function init() {
     }
     else if ((this.room.name == 'W49S12') && (exit == RIGHT)) { // @fixme: temp code
       this.moveTo(49, 37)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W49S27') && (exit == TOP)) { // @fixme: temp code
+      this.moveTo(31, 0)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S48') && (exit == TOP) && (this.getActiveBodyparts(ATTACK) > 0)) { // @fixme: temp code
@@ -732,24 +739,37 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19')) {
-        // To not pickup harvesters drop
-        const drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4)[0] as Resource | undefined
-        if (drop) {
-          if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-            this.moveTo(drop)
-            return
+        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19') || (this.room.name == 'W49S19')) {
+          // To not pickup harvesters drop
+          let drop: Resource | undefined
+          const opt = {
+            filter: (resource: Resource) => {
+              return resource.resourceType == RESOURCE_ENERGY
+            }
           }
-        }
-        const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {
-          filter: (t: Tombstone) => t.store.energy > 0
-        })[0]
-        if (tomb) {
-          if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(tomb)
-            return
+
+          if (this.room.name == 'W49S19') {
+            drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
           }
-        }
+          else {
+            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4, opt)[0] as Resource | undefined
+          }
+
+          if (drop) {
+            if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
+              this.moveTo(drop)
+              return
+            }
+          }
+          const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {
+            filter: (t: Tombstone) => t.store.energy > 0
+          })[0]
+          if (tomb) {
+            if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(tomb)
+              return
+            }
+          }
         }
 
         let link: StructureLink | undefined
