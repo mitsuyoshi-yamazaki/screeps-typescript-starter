@@ -480,6 +480,9 @@ export class ManualSquad extends Squad {
       })
       return
     }
+      case 'W48S19':
+        this.dismantle('W47S16')
+        return
 
     case 'W48S12':{
 
@@ -1186,7 +1189,7 @@ export class ManualSquad extends Squad {
         if (memory.target_id) {
           specified_target = Game.getObjectById(memory.target_id) as Structure | undefined
 
-          if ((specified_target as Structure).structureType) {
+          if (specified_target && (specified_target as Structure).structureType) {
             if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
               creep.moveTo((specified_target as Structure))
             }
