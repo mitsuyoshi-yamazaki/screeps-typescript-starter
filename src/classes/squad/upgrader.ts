@@ -32,7 +32,7 @@ export class UpgraderSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    if (room && room.storage) {
+    if (room && room.storage && room.storage.my) {
       const energy = room.storage!.store.energy
       let available = (energy - 400000)
 

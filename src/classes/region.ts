@@ -60,8 +60,8 @@ export class Region {
     })
 
     // --- Initialize variables ---
-    const storage = this.room.storage
-    const terminal = this.room.terminal
+    const storage = (this.room.storage && this.room.storage.my) ? this.room.storage : undefined
+    const terminal = (this.room.terminal && this.room.terminal.my) ? this.room.terminal : undefined
     // const spawn = this.room.spawns[0]
 
     // const container = this.room.find(FIND_STRUCTURES, {
@@ -412,11 +412,51 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
           { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
+          { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
+          { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
+          { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
+          { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
+          'W49S6',
+          'W48S5',
         ]
-          rooms_need_to_be_defended = [
+        rooms_need_to_be_defended = [
+          // 'W49S6',
+          'W48S5',
+        ]
+        break
+
+      case 'W38S7':
+        lightweight_harvester_targets = [
+          { id: '59f1a09782100e1594f36de0', room_name: 'W38S7' },
+          { id: '59f1a09782100e1594f36de2', room_name: 'W38S8' },
+          { id: '59f1a0a782100e1594f36f6d', room_name: 'W37S7' },
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W38S8',
+          'W37S7',
+        ]
+        rooms_need_to_be_defended = [
+          'W38S8',
+          'W37S7',
+        ]
+        break
+
+      case 'W33S7':
+        lightweight_harvester_targets = [
+          { id: '59f1a0e782100e1594f377af', room_name: 'W33S7' }, // top right
+          { id: '59f1a0e782100e1594f377b0', room_name: 'W33S7' }, // bottom left
+          { id: '59f1a0f782100e1594f37935', room_name: 'W32S7' },
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W32S7',
+        ]
+        rooms_need_to_be_defended = [
+          'W32S7',
         ]
         break
 
@@ -1153,12 +1193,12 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      if (this.room.name == 'W44S7') {
-        this.room.createConstructionSite(18, 42, STRUCTURE_SPAWN)
+      if (this.room.name == 'W38S7') {
+        this.room.createConstructionSite(25, 9, STRUCTURE_TOWER)
       }
-      else if (this.room.name == 'W44S7') {
-        this.room.createConstructionSite(34, 22, STRUCTURE_SPAWN)
-      }
+      // else if (this.room.name == 'W48S6') {
+      //   this.room.createConstructionSite(34, 22, STRUCTURE_TOWER)
+      // }
     })()
 
     // ErrorMapper.wrapLoop(() => {
@@ -1354,22 +1394,9 @@ export class Region {
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
     switch(this.room.name) {
-      case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-        break
 
-      case 'W48S47':
-        break
-
-      case 'W49S47':
-        pos = {x: 21, y: 30}
-        break
-
-      case 'W49S48':
-        pos = {x: 23, y: 30}
-        break
-
-      case 'W49S34':
-        pos = {x: 1, y: 21}
+      case 'W49S19':
+        pos = {x: 27, y: 24}
         break
 
       default:

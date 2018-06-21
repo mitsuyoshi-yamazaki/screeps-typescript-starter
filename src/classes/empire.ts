@@ -51,26 +51,28 @@ export class Empire {
     }
 
     const w51s29 = 'W51S29'
-    const w49s26 = 'W49S26'
+    // const w49s26 = 'W49S26'
     const w49s19 = 'W49S19'
-    const w48s12 = 'W48S12'
     const w44s7 = 'W44S7'
     const w48s6 = 'W48S6'
+    const w38s7 = 'W38S7'
+    const w33s7 = 'W33S7'
 
     if ((Game.time % 2) == 0) {
-      set_delegate(w51s29, w49s26)
+      // set_delegate(w51s29, w49s26)
     }
     else {
     }
 
     if ((Game.time % 5) == 0) {
-      set_delegate(w49s26, w49s19)
+      set_delegate(w38s7, w33s7)
     }
     else if ((Game.time % 5) == 1) {
-      set_delegate(w48s12, w44s7)
+      set_delegate(w44s7, w38s7)
+      // set_delegate(w49s26, w44s7)
     }
     else if ((Game.time % 5) == 2) {
-      set_delegate(w48s12, w48s6)
+      // set_delegate(w49s26, w48s6)
     }
     else {
     }

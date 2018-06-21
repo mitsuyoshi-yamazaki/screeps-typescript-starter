@@ -43,16 +43,22 @@ export class WorkerSquad extends Squad {
       max = 5
     }
     else if (this.room_name == 'W48S12') {
-      max = 10
+      max = 6
     }
     else if (this.room_name == 'W49S26') {
-      max = 3
+      max = 6
     }
     else if (this.room_name == 'W44S7') {
       max = 8
     }
     else if (this.room_name == 'W48S6') {
       max = 8
+    }
+    else if (this.room_name == 'W38S7') {
+      max = 8
+    }
+    else if (this.room_name == 'W33S7') {
+      max = 10
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -131,6 +137,7 @@ export class WorkerSquad extends Squad {
     const storage = (room.storage && (room.storage.store.energy > 400)) ? room.storage : undefined
     const terminal = (room.terminal && (room.terminal.store.energy > 400)) ? room.terminal : undefined
 
+    // If enemy storage | terminal is covered with a rampart, withdraw() throws error and workers stop moving
     const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
     let containers: StructureContainer[] = []
 
@@ -164,6 +171,14 @@ export class WorkerSquad extends Squad {
       case 'W44S7':
         room_to_escape = 'W44S8'
         break
+
+      case 'W38S7':
+        room_to_escape = 'W37S7'
+        break
+
+      case 'W33S7':
+        room_to_escape = 'W32S7'
+        break
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
@@ -179,9 +194,11 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      // if ((room.name == 'W48S12')) {
-      //   creep.memory.let_thy_die = false
-      // }
+      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7')) {
+        if (creep.hits > 1500) {
+          creep.memory.let_thy_die = false
+        }
+      }
 
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 

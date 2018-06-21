@@ -31,6 +31,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
       creep.say(`NO SQD`)
+
+      // creep.memory.squad_name = 'worker72397335'
     }
   }
 

@@ -61,7 +61,13 @@ export class LightWeightHarvesterSquad extends Squad {
       return this.creeps.size > 1 ? SpawnPriority.NONE : SpawnPriority.LOW
     }
 
-    return this.creeps.size > 0 ? SpawnPriority.NONE : SpawnPriority.LOW
+    let max = 1
+
+    if (this.energy_capacity < 1350) {
+      max = 1
+    }
+
+    return this.creeps.size < max ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
@@ -102,6 +108,12 @@ export class LightWeightHarvesterSquad extends Squad {
       if (this.source_info.room_name == 'W49S27') {
         creep.memory.let_thy_die = false
       }
+      if ((creep.room.name == 'W44S7') || (creep.room.name == 'W48S6')) {
+        if (creep.hits > 1500) {
+          creep.memory.let_thy_die = false
+        }
+      }
+
 
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']

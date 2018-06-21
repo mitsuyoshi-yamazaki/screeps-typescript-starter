@@ -168,6 +168,15 @@ export function init() {
     else if ((destination_room_name == 'W48S2') && (Number(this.room.name.slice(4,6)) > 3) && ((Number(this.room.name.slice(1,3)) == 48) || (Number(this.room.name.slice(1,3)) == 49) || (Number(this.room.name.slice(1,3)) == 50))) {
       destination_room_name = 'W50S3'
     }
+    else if (((destination_room_name == 'W48S6') || (destination_room_name == 'W44S7')) && (Number(this.room.name.slice(4,6)) > 12) && ((Number(this.room.name.slice(1,3)) == 48) || (Number(this.room.name.slice(1,3)) == 49) || (Number(this.room.name.slice(1,3)) == 50))) {
+      destination_room_name = 'W50S12'
+    }
+    else if ((destination_room_name == 'W44S7') && (Number(this.room.name.slice(1,3)) > 47)) {
+      destination_room_name = 'W47S10'
+    }
+    else if ((destination_room_name == 'W33S7') && (Number(this.room.name.slice(1,3)) > 36)) {
+      destination_room_name = 'W36S6'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28)
@@ -278,6 +287,22 @@ export function init() {
     }
     else if ((this.room.name == 'W47S22') && (exit == TOP)) { // @fixme: temp code
       this.moveTo(32, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W37S6') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 26)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W36S6') && (exit == RIGHT) && (this.pos.x > 35) && (this.pos.y > 39)) { // @fixme: temp code
+      this.moveTo(49, 43)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W36S6') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 20)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W36S7') && (destination_room_name == 'W33S7' && (exit == TOP))) { // @fixme: temp code
+      this.moveTo(38, 0)
       return ActionResult.IN_PROGRESS
     }
 
@@ -691,7 +716,7 @@ export function init() {
 
     let debug_say = false
 
-    // if (this.room.name == 'W48S47') {
+    // if (this.room.name == 'W33S7') {
     //   debug_say = true
     // }
 
@@ -751,7 +776,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19') || (this.room.name == 'W49S19')) {
+        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19') || (this.room.name == 'W49S19') || (this.room.name == 'W38S7')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
