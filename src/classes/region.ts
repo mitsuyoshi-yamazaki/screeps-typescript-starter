@@ -1044,9 +1044,9 @@ export class Region {
             hits_max = 300000
           }
           else if ((this.room.name == 'W51S29')) {
-            hits_max = 400000
+            hits_max = 500000
           }
-          else if ((this.room.name == 'W49S26')) {
+          else if ((this.room.name == 'W38S7')) {
             hits_max = 100000
           }
           const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
@@ -1193,8 +1193,8 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      if (this.room.name == 'W38S7') {
-        this.room.createConstructionSite(25, 9, STRUCTURE_TOWER)
+      if (this.room.name == 'W33S7') {
+        this.room.createConstructionSite(38, 36, STRUCTURE_TOWER)
       }
       // else if (this.room.name == 'W48S6') {
       //   this.room.createConstructionSite(34, 22, STRUCTURE_TOWER)
