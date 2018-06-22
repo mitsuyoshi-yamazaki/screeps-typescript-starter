@@ -188,7 +188,8 @@ export class ManualSquad extends Squad {
         return energy_available >= 1050
 
       case 'W33S7':
-        return energy_available >= 1200
+        const energy = (capacity >= 1700) ? 1700 : 1200
+        return energy_available >= energy
 
       default:
         return false
@@ -262,12 +263,27 @@ export class ManualSquad extends Squad {
       }
 
       case 'W33S7': {
-        const body: BodyPartConstant[] = [
+        const energy = (energy_available >= 1700) ? 1700 : 1200
+
+        let body: BodyPartConstant[] = [
           CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,
           MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
         ]
+
+        if (energy_available >= 1700) {
+          body = [
+            CARRY, CARRY, CARRY, CARRY, CARRY,
+            CARRY, CARRY, CARRY, CARRY, CARRY,
+            CARRY, CARRY, CARRY, CARRY, CARRY,
+            CARRY, CARRY,
+            MOVE, MOVE, MOVE, MOVE, MOVE,
+            MOVE, MOVE, MOVE, MOVE, MOVE,
+            MOVE, MOVE, MOVE, MOVE, MOVE,
+            MOVE, MOVE,
+          ]
+        }
         this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
         return
       }
