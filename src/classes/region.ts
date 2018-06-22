@@ -393,6 +393,7 @@ export class Region {
       case 'W44S7':
         harvester_targets = [
           { id: '59f1a03882100e1594f36569', room_name: 'W44S7' } , // top
+          { id: '59f1a03882100e1594f3656b', room_name: 'W44S7' } , // bottom
         ]
         lightweight_harvester_targets = [
           { id: '59f1a04682100e1594f3673d', room_name: 'W43S7' }, // left

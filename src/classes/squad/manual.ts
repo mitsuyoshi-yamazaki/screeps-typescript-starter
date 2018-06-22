@@ -529,12 +529,25 @@ export class ManualSquad extends Squad {
             Game.notify(message)
           }
 
-          if (_.sum(creep.carry) == 0) {
+          if (_.sum(creep.carry) < creep.carryCapacity) {
             if (creep.room.name == destination_room.name) {
               creep.say(`DONE`)
               creep.memory.squad_name = 'manual486'//'harvester72598561'
               return
             }
+            const drop = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+              filter: (resource) => {
+                return (resource.resourceType != RESOURCE_ENERGY) && (resource.amount >= 100)
+              }
+            })
+
+            if (drop) {
+              if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(drop)
+              }
+              return
+            }
+
             if (!target) {
               creep.say(`NO TGT`)
               console.log(`${this.name} no target ${target}`)
