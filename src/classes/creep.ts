@@ -110,6 +110,8 @@ export function init() {
 
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
+    this.say(destination_room_name)
+
     if (this.room.name == destination_room_name) {
       if (this.pos.x == 0) {
         if (this.move(RIGHT) == OK) {
@@ -176,6 +178,18 @@ export function init() {
     }
     else if ((destination_room_name == 'W33S7') && (Number(this.room.name.slice(1,3)) > 36)) {
       destination_room_name = 'W36S6'
+    }
+    else if ((destination_room_name == 'W44S7') && (Number(this.room.name.slice(1,3)) < 34)) {
+      destination_room_name = 'W34S10'
+    }
+    else if ((destination_room_name == 'W44S7') && (Number(this.room.name.slice(1,3)) < 40)) {
+      destination_room_name = 'W40S10'
+    }
+    else if ((destination_room_name == 'W43S2') && (Number(this.room.name.slice(4,6)) > 5)) {
+      destination_room_name = 'W44S5'
+    }
+    else if ((destination_room_name == 'W43S2') && (Number(this.room.name.slice(4,6)) == 5)) {
+      destination_room_name = 'W42S4'
     }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
@@ -305,6 +319,14 @@ export function init() {
       this.moveTo(38, 0)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W44S5') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 18)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W43S5') && (exit == RIGHT)) { // @fixme: temp code
+      this.moveTo(49, 8)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
@@ -345,7 +367,6 @@ export function init() {
       // } as MoveToOpts)
     }
 
-    this.say(destination_room_name)
     return ActionResult.IN_PROGRESS
   }
 
@@ -776,7 +797,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W49S26') || (this.room.name == 'W48S19') || (this.room.name == 'W49S19') || (this.room.name == 'W38S7')) {
+        if ((this.room.name != 'W51S29')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {

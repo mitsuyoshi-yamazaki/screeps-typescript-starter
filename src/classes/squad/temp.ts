@@ -5,7 +5,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export class TempSquad extends Squad {
   private target_room_name: string | undefined
 
-  constructor(readonly name: string, readonly room_name: string) {
+  constructor(readonly name: string, readonly room_name: string, readonly energy_capacity: number) {
     super(name)
 
     switch (this.room_name) {
@@ -27,11 +27,11 @@ export class TempSquad extends Squad {
         break
 
       case 'W44S7':
-        // this.target_room_name = 'W38S7'
+        this.target_room_name = 'W43S5'
         break
 
       case 'W38S7':
-        this.target_room_name = 'W33S7'
+        // this.target_room_name = 'W33S7'
         break
 
       default:
@@ -69,7 +69,8 @@ export class TempSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    return energy_available >= 750
+    const energy = (capacity >= 850) ? 850 : 750
+    return energy_available >= energy
 
     // if (this.workers.length < 10) {
     //   return energy_available >= 1500
@@ -85,7 +86,7 @@ export class TempSquad extends Squad {
   }
 
   private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const body: BodyPartConstant[] = [MOVE, MOVE, MOVE, CLAIM]
+    const body: BodyPartConstant[] = (energyAvailable >= 850) ? [MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM] : [MOVE, MOVE, MOVE, CLAIM]
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,
@@ -225,6 +226,11 @@ export class TempSquad extends Squad {
       // }
       // creep.moveTo(31, 42)
     })
+  }
+
+  public description(): string {
+    const addition = this.creeps.size > 0 ? `, ${Array.from(this.creeps.values())[0].pos}` : ''
+    return `${super.description()} ${addition}`
   }
 
   // ----

@@ -24,7 +24,7 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.URGENT
     }
 
-    let max = 4
+    let max = 8
     const room = Game.rooms[this.room_name]
 
     // if (room && room.controller) {
@@ -49,16 +49,19 @@ export class WorkerSquad extends Squad {
       max = 6
     }
     else if (this.room_name == 'W44S7') {
-      max = 8
+      max = 4
     }
     else if (this.room_name == 'W48S6') {
-      max = 8
+      max = 5
     }
     else if (this.room_name == 'W38S7') {
       max = 8
     }
     else if (this.room_name == 'W33S7') {
-      max = 10
+      max = 6
+    }
+    else if (this.room_name == 'W49S19') {
+      max = 1
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -134,8 +137,8 @@ export class WorkerSquad extends Squad {
 
   public run(): void {
     const room: Room | undefined = Game.rooms[this.room_name]
-    const storage = (room.storage && (room.storage.store.energy > 400)) ? room.storage : undefined
-    const terminal = (room.terminal && (room.terminal.store.energy > 400)) ? room.terminal : undefined
+    const storage = (room.storage && (room.storage.store.energy > 0)) ? room.storage : undefined
+    const terminal = (room.terminal && (room.terminal.store.energy > 0)) ? room.terminal : undefined
 
     // If enemy storage | terminal is covered with a rampart, withdraw() throws error and workers stop moving
     const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
@@ -179,6 +182,14 @@ export class WorkerSquad extends Squad {
       case 'W33S7':
         room_to_escape = 'W32S7'
         break
+
+      case 'W43S2':
+        room_to_escape = 'W43S3'
+        break
+
+      case 'W43S5':
+        room_to_escape = 'W42S5'
+        break
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
@@ -194,9 +205,13 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7')) {
+      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7') || (room.name == 'W43S2') || (room.name == 'W42S5')) {
         if (creep.hits > 1500) {
           creep.memory.let_thy_die = false
+        }
+
+        if (room.controller && room.controller.my && (room.controller.level >= 4)) {
+          creep.memory.let_thy_die = true
         }
       }
 

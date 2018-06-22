@@ -190,7 +190,11 @@ export class AttackerSquad extends Squad {
               break
 
             case 'W38S7':
-              attacker.moveTo(30, 13)
+              attacker.moveTo(10, 1)
+              break
+
+            case 'W33S7':
+              attacker.moveTo(35, 30)
               break
 
             default:

@@ -391,20 +391,28 @@ export class Region {
         break
 
       case 'W44S7':
+        harvester_targets = [
+          { id: '59f1a03882100e1594f36569', room_name: 'W44S7' } , // top
+        ]
         lightweight_harvester_targets = [
-          { id: '59f1a03882100e1594f36569', room_name: 'W44S7' },
           { id: '59f1a04682100e1594f3673d', room_name: 'W43S7' }, // left
           { id: '59f1a04682100e1594f3673e', room_name: 'W43S7' }, // bottom
           { id: '59f1a02a82100e1594f36330', room_name: 'W45S7' },
+          { id: '59f1a04682100e1594f3673a', room_name: 'W43S6' }, // bottom left
+          { id: '59f1a02a82100e1594f36333', room_name: 'W45S8' },
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
           'W43S7',
           'W45S7',
+          'W43S6',
+          'W45S8',
         ]
         rooms_need_to_be_defended = [
           'W43S7',
           'W45S7',
+          'W43S6',
+          'W45S8',
         ]
         break
 
@@ -449,15 +457,35 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f1a0e782100e1594f377af', room_name: 'W33S7' }, // top right
           { id: '59f1a0e782100e1594f377b0', room_name: 'W33S7' }, // bottom left
-          { id: '59f1a0f782100e1594f37935', room_name: 'W32S7' },
+          // { id: '59f1a0f782100e1594f37935', room_name: 'W32S7' },
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
-          'W32S7',
+          // 'W32S7',
         ]
         rooms_need_to_be_defended = [
-          'W32S7',
+          // 'W32S7',
         ]
+        break
+
+      case 'W43S2':
+        lightweight_harvester_targets = [
+          { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
+          { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W42S5',
+          'W43S4',
+        ]
+        rooms_need_to_be_defended = [
+          'W42S5',
+          'W43S4',
+        ]
+        break
+
+      case 'W43S5':
+        this.room_names = [this.room.name]
         break
 
       default:
@@ -498,6 +526,7 @@ export class Region {
     let upgrader_squad: UpgraderSquad | null = null
     let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
+    let temp_squad: TempSquad | null = null
     let invader_squad: InvaderSquad | null = null
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
@@ -611,8 +640,9 @@ export class Region {
         break
       }
       case SquadType.TEMP: {
-        const squad = new TempSquad(squad_memory.name, this.room.name)
+        const squad = new TempSquad(squad_memory.name, this.room.name, energy_capacity)
 
+        temp_squad = squad
         this.squads.set(squad.name, squad)
         break
       }
@@ -872,20 +902,36 @@ export class Region {
     // }
 
     // Manual
-    // if (!this.manual_squad) {
-    //   const name = ManualSquad.generateNewName()
-    //   const squad = new ManualSquad(name, this.room.name)
+    if (!this.manual_squad) {
+      const name = ManualSquad.generateNewName()
+      const squad = new ManualSquad(name, this.room.name)
 
-    //   this.manual_squad = squad
-    //   this.squads.set(squad.name, squad)
+      this.manual_squad = squad
+      this.squads.set(squad.name, squad)
 
-    //   const memory = {
-    //     name: squad.name,
-    //     type: squad.type,
-    //     owner_name: this.name,
-    //   }
-    //   Memory.squads.push(memory)
-    // }
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+    }
+
+    // Temp
+    if (!temp_squad) {
+      const name = TempSquad.generateNewName()
+      const squad = new TempSquad(name, this.room.name, energy_capacity)
+
+      temp_squad = squad
+      this.squads.set(squad.name, squad)
+
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+      }
+      Memory.squads[squad.name] = memory
+    }
 
     // --- Construction site ---
     for (const flag_name in Game.flags) {
@@ -1194,11 +1240,21 @@ export class Region {
 
     ErrorMapper.wrapLoop(() => {
       if (this.room.name == 'W33S7') {
-        this.room.createConstructionSite(38, 36, STRUCTURE_TOWER)
+        this.room.createConstructionSite(40, 37, STRUCTURE_STORAGE)
+
+        if (this.room.storage && !this.room.storage.my && (this.room.storage.store.energy == 0)) {
+          this.room.storage.destroy()
+        }
       }
-      // else if (this.room.name == 'W48S6') {
-      //   this.room.createConstructionSite(34, 22, STRUCTURE_TOWER)
-      // }
+      else if (this.room.name == 'W48S6') {
+        this.room.createConstructionSite(34, 21, STRUCTURE_STORAGE)
+      }
+      else if (this.room.name == 'W43S2') {
+        this.room.createConstructionSite(24, 31, STRUCTURE_TOWER)
+      }
+      else if (this.room.name == 'W43S5') {
+        this.room.createConstructionSite(18, 16, STRUCTURE_SPAWN)
+      }
     })()
 
     // ErrorMapper.wrapLoop(() => {
@@ -1397,6 +1453,10 @@ export class Region {
 
       case 'W49S19':
         pos = {x: 27, y: 24}
+        break
+
+      case 'W44S7':
+        pos = {x: 25, y: 0}
         break
 
       default:

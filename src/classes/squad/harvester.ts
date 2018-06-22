@@ -287,9 +287,9 @@ export class HarvesterSquad extends Squad {
     if ((this.source_info.id == '59f19ff082100e1594f35c83') && room && room.attacked) {  // W49S48 top energy
       return SpawnPriority.NONE
     }
-    if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') {  // W51S29 Lemergium
-      return SpawnPriority.NONE
-    }
+    // if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') {  // W51S29 Lemergium
+    //   return SpawnPriority.NONE
+    // }
     if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // W48S47 Oxygen
       return SpawnPriority.NONE
     }
@@ -798,9 +798,13 @@ export class HarvesterSquad extends Squad {
         else if (this.container) {
           const withdraw_result = creep.withdraw(this.container!, this.resource_type!)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
-            creep.moveTo(this.container!, {
-              // avoid: [new RoomPosition(this.source!.pos.x + 1, this.source!.pos.y + 1, this.source!.room.name)] // @fixme: temp code
-            } as MoveToOpts)
+            let ops: MoveToOpts = {}
+            if ((this.source_info.id == '59f1a03882100e1594f36569')) {  // W44S7
+              ops = {
+                avoid: [new RoomPosition(13, 13, 'W44S7')] // @fixme: temp code
+              }
+            }
+            creep.moveTo(this.container!, ops)
           }
           else if ((withdraw_result == OK) && (this.container) && (this.container.structureType == STRUCTURE_LINK)) {
             // When the carrier withdrow from link, it should be located next to storage
@@ -816,6 +820,19 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
+        if ((this.source_info.id == '59f1a03882100e1594f36569') && !this.destination) {  // W44S7
+          const x = 20
+          const y = 40
+          if ((creep.pos.x == x) && (creep.pos.y == y)) {
+            creep.drop(RESOURCE_ENERGY)
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else {
+            creep.moveTo(x, y)
+          }
+          return
+        }
+
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
         const destination = (has_mineral && !(!this.destination_storage)) ? this.destination_storage : this.destination
 
