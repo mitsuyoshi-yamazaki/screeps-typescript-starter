@@ -21,7 +21,7 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (['W46S33', 'W51S29'].indexOf(this.room_name) >= 0) {
+    if (['W51S29'].indexOf(this.room_name) >= 0) {
       return SpawnPriority.NONE
     }
 

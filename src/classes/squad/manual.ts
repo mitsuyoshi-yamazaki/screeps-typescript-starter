@@ -318,10 +318,34 @@ export class ManualSquad extends Squad {
             obstacle.move(LEFT)
           }
         }
+        const storage = this.any_creep.room.storage
 
         this.any_creep.moveTo(24, 21)
-        this.any_creep.withdraw(link, RESOURCE_ENERGY)
-        this.any_creep.transfer(this.any_creep.room.storage, RESOURCE_ENERGY)
+
+        if (link.energy > 0) {
+          this.any_creep.withdraw(link, RESOURCE_ENERGY)
+        }
+        else if ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0) {
+          this.any_creep.withdrawResources(storage, {exclude: [RESOURCE_ENERGY, RESOURCE_LEMERGIUM]})
+        }
+
+        if ((_.sum(this.any_creep.carry) - this.any_creep.carry.energy) == 0) {
+          const target = this.any_creep.find_charge_target()
+          if (target) {
+            if (this.any_creep.transfer(target, RESOURCE_ENERGY) == OK) {
+              return
+            }
+          }
+          this.any_creep.transfer(storage, RESOURCE_ENERGY)
+        }
+        else {
+          if (this.any_creep.room.terminal) {
+            this.any_creep.transferResources(this.any_creep.room.terminal)
+          }
+          else {
+            this.any_creep.transferResources(storage)
+          }
+        }
         return
       }
 
@@ -441,7 +465,7 @@ export class ManualSquad extends Squad {
               return
             }
 
-            if (creep.withdrawResources(target, false) == ERR_NOT_IN_RANGE) {
+            if (creep.withdrawResources(target, {exclude: [RESOURCE_ENERGY]}) == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
             }
             return
@@ -518,7 +542,7 @@ export class ManualSquad extends Squad {
               return
             }
 
-            const result = creep.withdrawResources(target, false)
+            const result = creep.withdrawResources(target, {exclude: [RESOURCE_ENERGY]})
             if (result == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
             }

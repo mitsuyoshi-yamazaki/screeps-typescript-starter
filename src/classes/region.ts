@@ -469,24 +469,36 @@ export class Region {
         break
 
       case 'W43S2':
-        lightweight_harvester_targets = [
-          { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
-          { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
-        ]
-        this.room_names = [this.room.name]
-        rooms_need_scout = [
-          'W42S5',
-          'W43S4',
-        ]
-        rooms_need_to_be_defended = [
-          'W42S5',
-          'W43S4',
-        ]
+      lightweight_harvester_targets = [
+        { id: '59f1a04582100e1594f36730', room_name: 'W43S3' },
+        { id: '59f1a03782100e1594f36548', room_name: 'W44S2' },
+      ]
+      this.room_names = [this.room.name]
+      rooms_need_scout = [
+        'W43S3',
+        'W44S2',
+      ]
+      rooms_need_to_be_defended = [
+        'W43S3',
+        'W44S2',
+      ]
         break
 
       case 'W43S5':
-        this.room_names = [this.room.name]
-        break
+      lightweight_harvester_targets = [
+        { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
+        { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
+      ]
+      this.room_names = [this.room.name]
+      rooms_need_scout = [
+        'W42S5',
+        'W43S4',
+      ]
+      rooms_need_to_be_defended = [
+        'W42S5',
+        'W43S4',
+      ]
+      break
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)

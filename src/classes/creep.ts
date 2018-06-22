@@ -40,6 +40,11 @@ export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
   ignore_source_keeper?: boolean
 }
 
+export interface CreepTransferOption {
+  include?: ResourceConstant[]
+  exclude?: ResourceConstant[]
+}
+
 declare global {
   interface Creep {
     squad: Squad
@@ -53,8 +58,8 @@ declare global {
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
     find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
-    transferResources(target: {store: StoreDefinition}): ScreepsReturnCode
-    withdrawResources(target: {store: StoreDefinition}, include_energy?: Boolean): ScreepsReturnCode
+    transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
+    withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
 
     // Worker tasks
@@ -486,10 +491,23 @@ export function init() {
     }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
   }
 
-  Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal): ScreepsReturnCode {
+  Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, opt?: CreepTransferOption): ScreepsReturnCode {
+    opt = opt || {}
+
     let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(this.carry)) {
       const resource_type = key as ResourceConstant
+      if (opt.include) {
+        if (opt.include.indexOf(resource_type) < 0) {
+          continue
+        }
+      }
+      else if (opt.exclude) {
+        if (opt.exclude.indexOf(resource_type) >= 0) {
+          continue
+        }
+      }
+
       if (this.carry[resource_type] == 0) {
         continue
       }
@@ -501,13 +519,23 @@ export function init() {
     return return_code
   }
 
-  Creep.prototype.withdrawResources = function(target: StructureContainer | StructureStorage | StructureTerminal, include_energy?: Boolean): ScreepsReturnCode {
+  Creep.prototype.withdrawResources = function(target: StructureContainer | StructureStorage | StructureTerminal, opt?: CreepTransferOption): ScreepsReturnCode {
+    opt = opt || {}
+
     let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(target.store)) {
       const resource_type = key as ResourceConstant
-      if ((resource_type == RESOURCE_ENERGY) && !include_energy) {
-        continue
+      if (opt.include) {
+        if (opt.include.indexOf(resource_type) < 0) {
+          continue
+        }
       }
+      else if (opt.exclude) {
+        if (opt.exclude.indexOf(resource_type) >= 0) {
+          continue
+        }
+      }
+
       if (this.carry[resource_type] == 0) {
         continue
       }
@@ -549,7 +577,13 @@ export function init() {
     else {
       const structure = this.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
         filter: (structure) => {
-          return structure.structureType != STRUCTURE_CONTROLLER
+          if (structure.structureType == STRUCTURE_CONTROLLER) {
+            return false
+          }
+          else if (structure.structureType == STRUCTURE_STORAGE) {
+            return _.sum((structure as StructureStorage).store) < 1000
+          }
+          return true
         }
       })
       if (structure) {
@@ -1014,7 +1048,7 @@ export function init() {
 
 
       let should_upgrade = true
-      if (['W48S47', 'W49S47', 'W51S29'].indexOf(this.room.name) >= 0) {
+      if (['dummy'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {

@@ -56,7 +56,6 @@ export class Empire {
     const w44s7 = 'W44S7'
     const w48s6 = 'W48S6'
     // const w38s7 = 'W38S7'
-    const w33s7 = 'W33S7'
     const w43s2 = 'W43S2'
     const w43s5 = 'W43S5'
 

@@ -63,6 +63,9 @@ export class WorkerSquad extends Squad {
     else if (this.room_name == 'W49S19') {
       max = 1
     }
+    else if (this.room_name == 'W43S5') {
+      max = 5
+    }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
