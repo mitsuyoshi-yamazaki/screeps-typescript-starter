@@ -546,6 +546,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43S2':
+        this.dismantle('W42N3')
         return
 
       case 'W43S5':

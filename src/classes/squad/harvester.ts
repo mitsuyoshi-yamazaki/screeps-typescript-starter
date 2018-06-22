@@ -521,18 +521,18 @@ export class HarvesterSquad extends Squad {
     }
 
     let max_energy = 1200
-    if (this.source_info.id == '59f19fff82100e1594f35dec') {
-      max_energy = 600
-    }
-    else if (this.source_info.id = '59f19fee82100e1594f35c5b') {  // W49S34 bottom
-      max_energy = 1600
-    }
-    else if (this.source_info.id = '59f19ff082100e1594f35c8b') {  // W49S49
-      max_energy = 1600
-    }
-    else if (this.source_info.room_name == 'W51S29') {
-      max_energy = 800
-    }
+    // if (this.source_info.id == '59f19fff82100e1594f35dec') {
+    //   max_energy = 600
+    // }
+    // else if (this.source_info.id = '59f19fee82100e1594f35c5b') {  // W49S34 bottom
+    //   max_energy = 1600
+    // }
+    // else if (this.source_info.id = '59f19ff082100e1594f35c8b') {  // W49S49
+    //   max_energy = 1600
+    // }
+    // else if (this.source_info.room_name == 'W51S29') {
+    //   max_energy = 800
+    // }
 
     energyAvailable = Math.min(energyAvailable, max_energy)
 

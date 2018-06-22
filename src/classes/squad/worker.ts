@@ -205,8 +205,8 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7') || (room.name == 'W43S2') || (room.name == 'W42S5')) {
-        if (creep.hits > 1500) {
+      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7') || (room.name == 'W43S2') || (room.name == 'W42S5') || (room.name == 'W43S5')) {
+        if (creep.hits >= 1500) {
           creep.memory.let_thy_die = false
         }
 
@@ -218,6 +218,9 @@ export class WorkerSquad extends Squad {
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 
       if (creep.room.name != this.room_name) {
+        if (creep.carry.energy > 0) {
+          creep.drop(RESOURCE_ENERGY)
+        }
         creep.moveToRoom(this.room_name)
         continue
       }

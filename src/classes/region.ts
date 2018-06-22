@@ -1240,11 +1240,11 @@ export class Region {
 
     ErrorMapper.wrapLoop(() => {
       if (this.room.name == 'W33S7') {
-        this.room.createConstructionSite(40, 37, STRUCTURE_STORAGE)
+        // this.room.createConstructionSite(40, 37, STRUCTURE_STORAGE)
 
-        if (this.room.storage && !this.room.storage.my && (this.room.storage.store.energy == 0)) {
-          this.room.storage.destroy()
-        }
+        // if (this.room.storage && !this.room.storage.my && (this.room.storage.store.energy == 0)) {
+        //   this.room.storage.destroy()
+        // }
       }
       else if (this.room.name == 'W48S6') {
         this.room.createConstructionSite(34, 21, STRUCTURE_STORAGE)

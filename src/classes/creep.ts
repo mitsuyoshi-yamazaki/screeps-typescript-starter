@@ -327,6 +327,14 @@ export function init() {
       this.moveTo(49, 8)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W43S2') && (exit == TOP)) { // @fixme: temp code
+      this.moveTo(49, 5)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W42S1') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(49, 24)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
