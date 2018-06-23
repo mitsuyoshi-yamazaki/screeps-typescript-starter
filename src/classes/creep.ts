@@ -45,6 +45,10 @@ export interface CreepTransferOption {
   exclude?: ResourceConstant[]
 }
 
+export interface CreepChargeTargetOption {
+  should_fully_charged?: boolean
+}
+
 declare global {
   interface Creep {
     squad: Squad
@@ -57,7 +61,7 @@ declare global {
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn): ActionResult
     makeShell(): ActionResult
-    find_charge_target(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
+    find_charge_target(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
@@ -340,6 +344,10 @@ export function init() {
       this.moveTo(49, 24)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W42N2') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(30, 0)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
@@ -454,7 +462,8 @@ export function init() {
     // }
   }
 
-  Creep.prototype.find_charge_target = function(): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
+  Creep.prototype.find_charge_target = function(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
+    const options = opt || {}
     const is_attacked = this.room.attacked
 
     return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
@@ -463,11 +472,13 @@ export function init() {
           return (structure.energy < structure.energyCapacity)
         }
         else if (structure.structureType == STRUCTURE_SPAWN) {
-          return structure.energy < (structure.energyCapacity - 50)
+          const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - 50)
+          return structure.energy < capacity
         }
         else if (structure.structureType == STRUCTURE_TOWER) {
           let margin = this.room.attacked ? 100 : 200
-          return structure.energy < (structure.energyCapacity - margin)
+          const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
+          return structure.energy < capacity
         }
         else if (!is_attacked) {
           if (structure.structureType == STRUCTURE_POWER_SPAWN) {

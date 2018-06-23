@@ -493,6 +493,9 @@ export class Region {
         { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
         { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
       ]
+      harvester_targets = [
+        { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
+      ]
       this.room_names = [this.room.name]
       rooms_need_scout = [
         'W42S5',
@@ -505,8 +508,23 @@ export class Region {
       break
 
       case 'W42N1':
-      this.room_names = [this.room.name]
-      break
+        lightweight_harvester_targets = [
+          { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
+          { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
+        ]
+        harvester_targets = [
+          { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W42N2',
+          // 'W42N3',
+        ]
+        rooms_need_to_be_defended = [
+          'W42N2',
+          // 'W42N3',
+        ]
+        break
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
@@ -1266,22 +1284,8 @@ export class Region {
         //   this.room.storage.destroy()
         // }
       }
-      else if (this.room.name == 'W48S6') {
-        this.room.createConstructionSite(34, 21, STRUCTURE_STORAGE)
-      }
-      else if (this.room.name == 'W43S2') {
-        this.room.createConstructionSite(24, 31, STRUCTURE_TOWER)
-      }
-      else if (this.room.name == 'W43S5') {
-        this.room.createConstructionSite(18, 16, STRUCTURE_SPAWN)
-      }
       else if (this.room.name == 'W42N1') {
-        const spawn = this.room.spawns[0]
-
-        if (spawn && !spawn.my) {
-          spawn.destroy()
-        }
-        this.room.createConstructionSite(24, 28, STRUCTURE_SPAWN)
+        this.room.createConstructionSite(25, 28, STRUCTURE_TOWER)
       }
     })()
 

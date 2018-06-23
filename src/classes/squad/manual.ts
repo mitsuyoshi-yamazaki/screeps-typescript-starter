@@ -125,7 +125,7 @@ export class ManualSquad extends Squad {
         if ((_.sum(terminal.store) == 0)) {
           return SpawnPriority.NONE
         }
-        return SpawnPriority.LOW
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
 
       case 'W33S7': {
         const room = Game.rooms[this.original_room_name]
@@ -157,6 +157,18 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
         return this.creeps.size < 12 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
+
+      case 'W42N1': {
+        // const target_room_name = 'W42N3'
+        // const room = Game.rooms[target_room_name]
+        // if (!room || !room.storage || (room.storage.store.energy < 800)) {
+        //   return SpawnPriority.NONE
+        // }
+
+        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+
+        return SpawnPriority.NONE
       }
 
       default:
@@ -207,6 +219,9 @@ export class ManualSquad extends Squad {
       case 'W33S7':
         const energy = (capacity >= 1700) ? 1700 : 1200
         return energy_available >= energy
+
+      case 'W42N1':
+        return energy_available >= 700
 
       default:
         return false
@@ -314,6 +329,18 @@ export class ManualSquad extends Squad {
         return
       }
 
+      case 'W42N1': {
+        // 700
+        const body: BodyPartConstant[] = [
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+        return
+      }
+
       default:
         return
     }
@@ -348,15 +375,20 @@ export class ManualSquad extends Squad {
 
         this.any_creep.moveTo(24, 21)
 
-        if (link.energy > 0) {
-          this.any_creep.withdraw(link, RESOURCE_ENERGY)
-        }
-        else if ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0) {
-          this.any_creep.withdrawResources(storage, {exclude: [RESOURCE_ENERGY, RESOURCE_LEMERGIUM]})
+        if ((this.any_creep.ticksToLive || 0) > 2) {
+          if (link.energy > 0) {
+            this.any_creep.withdraw(link, RESOURCE_ENERGY)
+          }
+          else if ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0) {
+            this.any_creep.withdrawResources(storage, {exclude: [RESOURCE_ENERGY, RESOURCE_LEMERGIUM]})
+          }
+          else {
+            this.any_creep.withdraw(storage, RESOURCE_ENERGY)
+          }
         }
 
         if ((_.sum(this.any_creep.carry) - this.any_creep.carry.energy) == 0) {
-          const target = this.any_creep.find_charge_target()
+          const target = this.any_creep.find_charge_target({should_fully_charged: true})
           if (target) {
             if (this.any_creep.transfer(target, RESOURCE_ENERGY) == OK) {
               return
@@ -465,10 +497,6 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        if (!this.any_creep) {
-          return
-        }
-
         const room = Game.rooms[this.original_room_name]
         if (!room || !room.terminal || room.terminal.my || !room.storage || !room.storage.my) {
           return
@@ -477,20 +505,22 @@ export class ManualSquad extends Squad {
         const terminal = room.terminal
         const storage = room.storage
 
+        this.creeps.forEach((creep) => {
+          if (_.sum(creep.carry) == 0) {
+            if (creep.withdrawResources(terminal) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(terminal)
+            }
+          }
+          else {
+            if (creep.transferResources(storage) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(storage)
+            }
+          }
+        })
+
         if ((_.sum(terminal.store) == 0)) {
           this.say(`DONE`)
           return
-        }
-
-        if (_.sum(this.any_creep.carry) == 0) {
-          if (this.any_creep.withdrawResources(terminal) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(terminal)
-          }
-        }
-        else {
-          if (this.any_creep.transferResources(storage) == ERR_NOT_IN_RANGE) {
-            this.any_creep.moveTo(storage)
-          }
         }
 
         // const room = Game.rooms[this.original_room_name]
@@ -637,11 +667,19 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43S2':
-        this.dismantle('W42N3')
+        // this.dismantle('W42N3')
         return
 
       case 'W43S5':
         return
+
+      case 'W42N1': {
+        const target_room_name = 'W42N3'
+        if (this.stealEnergyFrom(this.original_room_name, target_room_name, 22, 28, false) == ActionResult.IN_PROGRESS) {
+          return
+        }
+        return
+      }
 
       default:
         if (this.creeps.size > 0) {

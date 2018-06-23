@@ -64,7 +64,10 @@ export class WorkerSquad extends Squad {
       max = 1
     }
     else if (this.room_name == 'W43S5') {
-      max = 5
+      max = 4
+    }
+    else if (this.room_name == 'W43S2') {
+      max = 6
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -193,6 +196,10 @@ export class WorkerSquad extends Squad {
       case 'W43S5':
         room_to_escape = 'W42S5'
         break
+
+      case 'W42N1':
+        room_to_escape = 'W42N2'
+        break
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {
@@ -228,7 +235,7 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if (this.room_name == 'W51S29') {
+      if (this.room_name == 'W43S5') {
         if (room && room.storage && (room.storage.store.energy > 300)) {
 
         }

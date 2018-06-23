@@ -72,7 +72,9 @@ export class HarvesterSquad extends Squad {
     const is_alive = (this.energy_capacity > 300)
 
     if (!this.destination && is_alive) {
-      console.log(`HarvesterSquad destination not specified ${this.name}`)
+      if (((Game.time + 3) % 7) == 0) {
+        console.log(`HarvesterSquad destination not specified ${this.name}`)
+      }
     }
 
     this.harvesters = []
@@ -403,6 +405,14 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.room_name == 'W49S34') {
       number_of_carriers = 1
     }
+    else if ((this.source_info.room_name == 'W43S5')) {
+      if (room && room.storage) {
+
+      }
+      else {
+        number_of_carriers = 0
+      }
+    }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {
       return SpawnPriority.NORMAL
@@ -421,7 +431,7 @@ export class HarvesterSquad extends Squad {
       }
 
       const energy_unit = 550
-      const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), energy_unit * 2)
+      const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), energy_unit * 2) // (energy_unit * 2) is the maximum
       return energyAvailable >= energy_needed
     }
     else {
@@ -458,6 +468,9 @@ export class HarvesterSquad extends Squad {
 
   // Private
   private addHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const room = Game.rooms[this.source_info.room_name]
+    const minimum_body = !(!room) && !(!room.controller) && !(!room.controller.my) && (room.controller.level > 3)
+
     const body_unit: BodyPartConstant[] = [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE]
     const energy_unit = 550
 
@@ -472,8 +485,18 @@ export class HarvesterSquad extends Squad {
       let_thy_die: true,
     }
 
-    if (energyAvailable >= (energy_unit * 2)) {
-      body = body.concat(body_unit)
+    if (minimum_body && (energyAvailable >= 850)) {
+      body = [
+        WORK, WORK, WORK,
+        WORK, WORK, WORK,
+        CARRY, CARRY,
+        MOVE, MOVE, MOVE,
+      ]
+    }
+    else {
+      if (energyAvailable >= (energy_unit * 2)) {  // (energy_unit * 2) is the maximum
+        body = body.concat(body_unit)
+      }
     }
 
     const result = spawnFunc(body, name, {
@@ -482,9 +505,12 @@ export class HarvesterSquad extends Squad {
   }
 
   private addCarrier(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const body_unit: BodyPartConstant[] = [CARRY, MOVE]
-    const energy_unit = 100
-    let let_thy_die = false
+    const room = Game.rooms[this.source_info.room_name]
+    const minimum_body = !(!room) && !(!room.controller) && !(!room.controller.my) && (room.controller.level > 3)
+
+    const body_unit: BodyPartConstant[] = minimum_body ? [CARRY, CARRY, MOVE] : [CARRY, MOVE]
+    const energy_unit = minimum_body ? 150 : 100
+    let let_thy_die = (energyAvailable >= 1200) ? false : true
 
     if (this.source_info.room_name == 'W49S34') {
       if (this.source_info.id != '59f1c0ce7d0b3d79de5f01d5') {  // Keanium
@@ -506,7 +532,7 @@ export class HarvesterSquad extends Squad {
       let_thy_die: let_thy_die,
     }
 
-    let max_energy = 1200
+    let max_energy = minimum_body ? 900 : 1200
     // if (this.source_info.id == '59f19fff82100e1594f35dec') {
     //   max_energy = 600
     // }
@@ -741,7 +767,7 @@ export class HarvesterSquad extends Squad {
 
       if (!creep.room.attacked && (creep.room.resourceful_tombstones.length > 0)) {
         const target = creep.room.resourceful_tombstones[0]
-        const resource_amount = _.sum(target.store)
+        const resource_amount = _.sum(target.store) - target.store.energy
         if (resource_amount > 0) {
           const vacancy = creep.carryCapacity - _.sum(creep.carry)
           if (vacancy < resource_amount) {
@@ -750,6 +776,9 @@ export class HarvesterSquad extends Squad {
 
           let resource_type: ResourceConstant | undefined
           for (const type of Object.keys(target.store)) {
+            if (resource_type == RESOURCE_ENERGY) {
+              continue
+            }
             resource_type = type as ResourceConstant
           }
           if (resource_type) {
