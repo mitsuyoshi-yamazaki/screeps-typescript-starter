@@ -400,6 +400,7 @@ export class Region {
           { id: '59f1a04682100e1594f3673e', room_name: 'W43S7' }, // bottom
           { id: '59f1a02a82100e1594f36330', room_name: 'W45S7' },
           { id: '59f1a04682100e1594f3673a', room_name: 'W43S6' }, // bottom left
+          { id: '59f1a04682100e1594f36739', room_name: 'W43S6' }, // center
           { id: '59f1a02a82100e1594f36333', room_name: 'W45S8' },
         ]
         this.room_names = [this.room.name]
@@ -419,12 +420,14 @@ export class Region {
 
       case 'W48S6':
         lightweight_harvester_targets = [
-          { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
-          { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
           { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
           { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
           { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
+        ]
+        harvester_targets = [
+          { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
+          { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -499,6 +502,10 @@ export class Region {
         'W42S5',
         'W43S4',
       ]
+      break
+
+      case 'W42N1':
+      this.room_names = [this.room.name]
       break
 
       default:
@@ -1102,8 +1109,8 @@ export class Region {
           if (this.room.storage && (this.room.storage.store.energy > 500000)) {
             hits_max = 300000
           }
-          else if ((this.room.name == 'W51S29')) {
-            hits_max = 500000
+          if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
+            hits_max = 600000
           }
           else if ((this.room.name == 'W38S7')) {
             hits_max = 100000
@@ -1267,6 +1274,14 @@ export class Region {
       }
       else if (this.room.name == 'W43S5') {
         this.room.createConstructionSite(18, 16, STRUCTURE_SPAWN)
+      }
+      else if (this.room.name == 'W42N1') {
+        const spawn = this.room.spawns[0]
+
+        if (spawn && !spawn.my) {
+          spawn.destroy()
+        }
+        this.room.createConstructionSite(24, 28, STRUCTURE_SPAWN)
       }
     })()
 

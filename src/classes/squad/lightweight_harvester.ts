@@ -105,16 +105,6 @@ export class LightWeightHarvesterSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      if (this.source_info.room_name == 'W49S27') {
-        creep.memory.let_thy_die = false
-      }
-      if ((creep.room.name == 'W44S7') || (creep.room.name == 'W48S6')) {
-        if (creep.hits > 1500) {
-          creep.memory.let_thy_die = false
-        }
-      }
-
-
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']
 

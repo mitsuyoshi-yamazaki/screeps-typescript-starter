@@ -213,19 +213,6 @@ export class HarvesterSquad extends Squad {
         Game.notify(message)
       }
     }
-    // else if ((this.source_info.id == '59f19ff082100e1594f35c84') && (this.carriers.length > 0)) {  // W49S47 right
-    //   const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
-    //     filter: (structure) => {
-    //       return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 300))
-    //         || ((structure.id == '5af1900395fe4569eddba9da') && ((structure as StructureLink).energy > 0)) // link
-    //     }
-    //   }) as StructureContainer | StructureLink
-
-    //   if (target) {
-    //     this.container = target
-    //     console.log(`FUGA`)
-    //   }
-    // }
     else if ((this.source_info.id == '59f19fff82100e1594f35dec') && (this.carriers.length > 0)) {  // W48S39 left
       const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers and link
         filter: (structure) => {
@@ -254,18 +241,17 @@ export class HarvesterSquad extends Squad {
         this.container = target
       }
     }
-    // else if ((this.source_info.id == '59f19fd382100e1594f35a4c') && (this.carriers.length > 0)) {  // W51S29 bottom right
-    //   const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, {
-    //     filter: (structure) => {
-    //       return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 400))
-    //         && (structure.id != this.destination.id)
-    //     }
-    //   }) as StructureContainer | StructureLink
+    else if ((this.source_info.id == '59f1a03882100e1594f3656b') && (this.carriers.length > 0)) {  // W44S7 bottom
+      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers
+        filter: (structure) => {
+          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 500))
+        }
+      }) as StructureContainer | undefined
 
-    //   if (target) {
-    //     this.container = target
-    //   }
-    // }
+      if (target) {
+        this.container = target
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -786,7 +772,11 @@ export class HarvesterSquad extends Squad {
 
       // Harvest
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (_.sum(creep.carry) == creep.carryCapacity) {
+        const carry_amount = _.sum(creep.carry)
+        if (carry_amount == creep.carryCapacity) {
+          creep.memory.status = CreepStatus.CHARGE
+        }
+        else if ((carry_amount > 0) && (this.harvesters.length == 0)) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else if (creep.room.attacked && (_.sum(creep.carry) > 0) && ((!creep.room.controller || !creep.room.controller.my))) { // If there's no creep in the room, there's no way to know the room is under attack
