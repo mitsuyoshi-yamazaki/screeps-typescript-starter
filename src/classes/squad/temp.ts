@@ -48,7 +48,7 @@ export class TempSquad extends Squad {
   }
 
   public static generateNewName(): string {
-    return UID(SquadType.TEMP)
+    return UID('T')
   }
 
   public generateNewName(): string {

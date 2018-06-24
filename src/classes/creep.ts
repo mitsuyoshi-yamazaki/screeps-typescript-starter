@@ -352,7 +352,31 @@ export function init() {
       this.moveTo(0, 23)
       return ActionResult.IN_PROGRESS
     }
-
+    else if ((this.room.name == 'W46N2') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(0, 18)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W47N2') && (this.room.name == 'W43S2')) {
+      this.moveTo(49, 11)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W47N2') && (this.room.name == 'W42S2')) {
+      if ((Game.time % 3) == 0) {
+        this.moveTo(10, 0)
+      }
+      else {
+        this.move(TOP_RIGHT)
+      }
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W47N2') && (this.room.name == 'W41S1')) {
+      this.moveTo(12, 0)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W43S6') && (this.room.name == 'W44S7')) {
+      this.moveTo(49, 26)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint

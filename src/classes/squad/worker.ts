@@ -37,31 +37,13 @@ export class WorkerSquad extends Squad {
     // }
 
     if (this.room_name == 'W51S29') {
-      max = 4
-    }
-    else if (this.room_name == 'W48S19') {
       max = 5
-    }
-    else if (this.room_name == 'W48S12') {
-      max = 6
-    }
-    else if (this.room_name == 'W49S26') {
-      max = 6
     }
     else if (this.room_name == 'W44S7') {
       max = 3
     }
     else if (this.room_name == 'W48S6') {
       max = 2
-    }
-    else if (this.room_name == 'W38S7') {
-      max = 8
-    }
-    else if (this.room_name == 'W33S7') {
-      max = 6
-    }
-    else if (this.room_name == 'W49S19') {
-      max = 1
     }
     else if (this.room_name == 'W43S5') {
       max = 3
@@ -218,14 +200,11 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if ((room.name == 'W44S7') || (room.name == 'W48S6') || (room.name == 'W38S7') || (room.name == 'W33S7') || (room.name == 'W43S2') || (room.name == 'W42S5') || (room.name == 'W43S5')) {
-        if (creep.hits >= 1500) {
-          creep.memory.let_thy_die = false
-        }
-
-        if (room.controller && room.controller.my && (room.controller.level >= 4)) {
-          creep.memory.let_thy_die = true
-        }
+      if (room.controller && room.controller.my && (room.controller.level < 4) && (creep.hits >= 1500)) {
+        creep.memory.let_thy_die = false
+      }
+      else {
+        creep.memory.let_thy_die = true
       }
 
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global

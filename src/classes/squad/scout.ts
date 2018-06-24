@@ -85,9 +85,15 @@ export class ScoutSquad extends Squad {
         return
       }
 
-      if (creep.room.name == 'W51S21') {
-        Game.notify(`Arrived W51S21 with ${creep.ticksToLive}`)
+      if (creep.room.controller && (creep.moveTo(creep.room.controller) == OK)) {
+        const emoji = ['😆', '😄', '😐', '😴', '🤔', '🙃']
+        const index = (Number(creep.room.name.slice(1,3)) + Number(creep.room.name.slice(4,6))) % emoji.length
+        const sign = emoji[index]
+        creep.signController(creep.room.controller, sign)
+
+        return
       }
+
       if (creep.pos.x == 1) {
         if (creep.move(RIGHT) == OK) {
           return

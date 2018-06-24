@@ -159,12 +159,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
-    // else if (this.source_info.id == '59f19ff082100e1594f35c83') {
-    //   const link = Game.getObjectById('5b0ad3efc5612c1429e7e715') as StructureLink | undefined
-    //   if (link && (link.energy < link.energyCapacity)) {
-    //     this.store = link
-    //   }
-    // }
+    else if (this.source_info.id == '59f1a03882100e1594f36569') { // W44S7
+      const link = Game.getObjectById('5b2e84e6a426a6424452130c') as StructureLink | undefined
+      if (link && (link.energy < link.energyCapacity)) {
+        this.store = link
+      }
+    }
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
@@ -412,6 +412,10 @@ export class HarvesterSquad extends Squad {
       else {
         number_of_carriers = 0
       }
+    }
+
+    if (this.store && ((this.store as StructureLink).structureType == STRUCTURE_LINK)) {
+      number_of_carriers = 0
     }
 
     if ((this.store) && (this.carriers.length < number_of_carriers)) {

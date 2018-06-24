@@ -436,6 +436,7 @@ export class Region {
           { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
           { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
+          { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top left
         ]
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
@@ -488,15 +489,18 @@ export class Region {
       lightweight_harvester_targets = [
         { id: '59f1a04582100e1594f36730', room_name: 'W43S3' },
         { id: '59f1a03782100e1594f36548', room_name: 'W44S2' },
+        // { id: '59f1a05982100e1594f368b3', room_name: 'W42S2' }, // left  // Owned
       ]
       this.room_names = [this.room.name]
       rooms_need_scout = [
         'W43S3',
         'W44S2',
+        // 'W42S2',
       ]
       rooms_need_to_be_defended = [
         'W43S3',
         'W44S2',
+        // 'W42S2',
       ]
         break
 
@@ -526,6 +530,7 @@ export class Region {
           { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
           { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
           { id: '59f1a06782100e1594f36a36', room_name: 'W41N1' },
+          { id: '59f1a06782100e1594f36a32', room_name: 'W41N2' },
         ]
         harvester_targets = [
           { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
@@ -535,10 +540,14 @@ export class Region {
         rooms_need_scout = [
           'W42N2',
           'W42N3',
+          'W41N2',
+          'W41N1',
         ]
         rooms_need_to_be_defended = [
           'W42N2',
           'W42N3',
+          'W41N2',
+          'W41N1',
         ]
         break
 
@@ -1146,7 +1155,7 @@ export class Region {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-            hits_max = 600000
+            hits_max = 700000
           }
           else if ((this.room.name == 'W38S7')) {
             hits_max = 100000
@@ -1215,20 +1224,12 @@ export class Region {
     let destination_id: string | undefined
 
     switch (this.room.name) {
-     case 'W49S47':
-        destination_id = '5af1900395fe4569eddba9da'
-        break
-
-      case 'W48S39':
-        destination_id = '5b0a2b654e8c62672f3191fb'
-        break
-
-      case 'W49S48':
-        destination_id = '5b0a45f2f30cc0671dc1e8e1'
-        break
-
       case 'W51S29':
         destination_id = '5b1f028bb08a2b269fba0f6e'
+        break
+
+      case 'W44S7':
+        destination_id = '5b2e775359615412454b065e'
         break
 
       default:
