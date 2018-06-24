@@ -50,6 +50,9 @@ export class LightWeightHarvesterSquad extends Squad {
     if ((this.energy_capacity < 450) && (this.source_info.room_name != 'W49S27')) {
       return SpawnPriority.NONE
     }
+    else if (this.source_info.room_name == 'W45S5') {
+      return SpawnPriority.NONE
+    }
 
     const room = Game.rooms[this.source_info.room_name]
 
@@ -261,9 +264,8 @@ export class LightWeightHarvesterSquad extends Squad {
               default: {
                 const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
                 if (construction_site) {
-                  if (creep.build(construction_site) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(construction_site)
-                  }
+                  creep.build(construction_site)
+                  creep.moveTo(construction_site)
                 }
                 else if (this.region.room.controller && this.region.room.controller.my) {
                   creep.upgradeController(this.region.room.controller)

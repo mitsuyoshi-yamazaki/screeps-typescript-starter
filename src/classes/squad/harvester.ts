@@ -851,6 +851,18 @@ export class HarvesterSquad extends Squad {
           }
           return
         }
+        else if ((this.source_info.room_name == 'W42N1') && !this.destination) {  // W42N1
+          const x = 23
+          const y = 27
+          if ((creep.pos.x == x) && (creep.pos.y == y)) {
+            creep.drop(RESOURCE_ENERGY)
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else {
+            creep.moveTo(x, y)
+          }
+          return
+        }
 
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
         const destination = (has_mineral && !(!this.destination_storage)) ? this.destination_storage : this.destination

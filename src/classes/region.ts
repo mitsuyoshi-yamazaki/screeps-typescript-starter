@@ -402,6 +402,11 @@ export class Region {
           { id: '59f1a04682100e1594f3673a', room_name: 'W43S6' }, // bottom left
           { id: '59f1a04682100e1594f36739', room_name: 'W43S6' }, // center
           { id: '59f1a02a82100e1594f36333', room_name: 'W45S8' },
+          { id: '59f1a01a82100e1594f360fa', room_name: 'W46S7' },
+          { id: '59f1a03882100e1594f3656d', room_name: 'W44S8' }, // left
+          { id: '59f1a03882100e1594f3656f', room_name: 'W44S8' }, // bottom
+          { id: '59f1a05a82100e1594f368c7', room_name: 'W42S7' }, // bottom
+          { id: '59f1a05a82100e1594f368c6', room_name: 'W42S7' }, // bottom right
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -409,12 +414,18 @@ export class Region {
           'W45S7',
           'W43S6',
           'W45S8',
+          'W46S7',
+          'W44S8',
+          'W42S7',
         ]
         rooms_need_to_be_defended = [
           'W43S7',
           'W45S7',
           'W43S6',
           'W45S8',
+          'W46S7',
+          'W44S8',
+          'W42S7',
         ]
         break
 
@@ -424,6 +435,7 @@ export class Region {
           { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
           { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
+          { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
         ]
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
@@ -492,6 +504,7 @@ export class Region {
       lightweight_harvester_targets = [
         { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
         { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
+        // { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
       ]
       harvester_targets = [
         { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
@@ -500,6 +513,7 @@ export class Region {
       rooms_need_scout = [
         'W42S5',
         'W43S4',
+        // 'W45S5',
       ]
       rooms_need_to_be_defended = [
         'W42S5',
@@ -511,18 +525,20 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
           { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
+          { id: '59f1a06782100e1594f36a36', room_name: 'W41N1' },
         ]
         harvester_targets = [
           { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
+          { id: '59f1a05882100e1594f368aa', room_name: 'W42N1' }, // bottom
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
           'W42N2',
-          // 'W42N3',
+          'W42N3',
         ]
         rooms_need_to_be_defended = [
           'W42N2',
-          // 'W42N3',
+          'W42N3',
         ]
         break
 
@@ -941,7 +957,8 @@ export class Region {
 
     // Manual
     if (!this.manual_squad) {
-      const name = ManualSquad.generateNewName()
+      // const name = ManualSquad.generateNewName()
+      const name = `manual${this.room.name.toLowerCase()}`
       const squad = new ManualSquad(name, this.room.name)
 
       this.manual_squad = squad
@@ -957,7 +974,8 @@ export class Region {
 
     // Temp
     if (!temp_squad) {
-      const name = TempSquad.generateNewName()
+      // const name = TempSquad.generateNewName()
+      const name = `temp${this.room.name.toLowerCase()}`
       const squad = new TempSquad(name, this.room.name, energy_capacity)
 
       temp_squad = squad
@@ -1497,7 +1515,7 @@ export class Region {
 
     let lines: string[] = [
       `${this.name} in ${this.room.name}`,
-      `  Rooms: ${this.room_names}`,
+      `  Rooms: ${this.room_names}, Capacity: ${this.room.energyCapacityAvailable}`,
       `  Squads: ${this.squads.size}, Creeps: ${_.sum(Array.from(this.squads.values()).map(s=>s.creeps.size))}`,
     ]
 
