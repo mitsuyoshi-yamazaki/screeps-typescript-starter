@@ -55,68 +55,16 @@ export class ManualSquad extends Squad {
     }
 
     switch (this.original_room_name) {
-      case 'W49S34': {
-        // const target_room_name = 'W46S39'
-        // const room = Game.rooms[target_room_name]
-        // const observer = Game.getObjectById('5b1e1041c359e26f06c000c1') as StructureObserver | undefined
-
-        // if (observer) {
-        //   observer.observeRoom(target_room_name)
-        // }
-        // if (room && (room.find(FIND_HOSTILE_SPAWNS).length == 0)) {
-        //   return SpawnPriority.NONE
-        // }
-
-        // if (this.attackers.length == 0) {
-        //   return SpawnPriority.LOW
-        // }
-        // else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
-        //   return SpawnPriority.NORMAL
-        // }
-
-        // if (this.workers.length == 0) {
-        //   return SpawnPriority.LOW
-        // }
-        // else if ((this.workers.length < 2) && !this.workers[0].spawning && ((this.workers[0].ticksToLive || 1000) < 550)) {
-        //   return SpawnPriority.LOW
-        // }
-        return SpawnPriority.NONE
-      }
-
-      case 'W49S48':
-        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
-
-      case 'W48S47':
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-        // return SpawnPriority.NONE
-
-      case 'W49S47':
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-        // return SpawnPriority.NONE
-
       case 'W51S29':
         // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
         return SpawnPriority.NONE
 
-      case 'W49S26': {
-        // const target_room_name = 'W49S27'
-        // const room = Game.rooms[target_room_name]
-        // if (!room || !room.storage || (room.storage.store.energy < 800)) {
-        //   return SpawnPriority.NONE
-        // }
-
-        // return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
-
-        return SpawnPriority.NONE
-      }
-
       case 'W44S7': {
-        if (Game.time > 7357634) {
-          return SpawnPriority.NONE
-        }
-        // return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
         return SpawnPriority.NONE
       }
+
+      case 'W43S5':
+        return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
 
       case 'W48S6':
         const room = Game.rooms[this.original_room_name]
@@ -129,50 +77,27 @@ export class ManualSquad extends Squad {
         }
         return this.creeps.size < 5 ? SpawnPriority.LOW : SpawnPriority.NONE
 
-      case 'W33S7': {
-        const room = Game.rooms[this.original_room_name]
-        const destination_room = Game.rooms['W44S7']
-        if (!room || !destination_room || !destination_room.storage) {
-          return SpawnPriority.NONE
-        }
-
-        if (!room.controller) {
-          return SpawnPriority.NONE
-        }
-
-        if ((room.controller.safeMode || 0) < 1600) {
-          return SpawnPriority.NONE
-        }
-
-        let resources = 0
-
-        if (room.terminal) {
-          resources += (_.sum(room.terminal.store) - room.terminal.store.energy)
-        }
-
-        // const nuker = Game.getObjectById('5a4cb2317bf91b447bc814fa') as StructureNuker | undefined
-        // if (nuker) {
-        //   resources += nuker.ghodium
-        // }
-
-        if (resources == 0) {
-          return SpawnPriority.NONE
-        }
-        return this.creeps.size < 12 ? SpawnPriority.LOW : SpawnPriority.NONE
-      }
-
       case 'W43S2': {
         return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       case 'W42N1': {
-        const target_room_name = 'W42N3'
-        const room = Game.rooms[target_room_name]
-        if (!room || !room.storage || (room.storage.store.energy < 800)) {
+        const energy_room_name = 'W42N3'
+        const energy_room = Game.rooms[energy_room_name]
+        if (!energy_room || !energy_room.storage || (energy_room.storage.store.energy < 800)) {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        const colony_room_name = 'W47N2'
+        const colony_room = Game.rooms[colony_room_name]
+        if (!colony_room || !colony_room.storage || colony_room.storage.my) {
+          return SpawnPriority.NONE
+        }
+        if ((_.sum(colony_room.storage.store) == 0)) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 5 ? SpawnPriority.LOW : SpawnPriority.NONE
 
         // return SpawnPriority.NONE
       }
@@ -217,6 +142,9 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
+        return false
+
+      case 'W43S5':
         return energy_available >= 50
 
       case 'W48S6':
@@ -227,7 +155,7 @@ export class ManualSquad extends Squad {
         return energy_available >= energy
 
       case 'W42N1':
-        return energy_available >= 700
+        return energy_available >= 1600
 
       default:
         return false
@@ -244,11 +172,11 @@ export class ManualSquad extends Squad {
           MOVE, MOVE, HEAL, HEAL
         ]
         if (this.attackers.length == 0) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, false)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
           return
         }
         else if ((this.attackers.length < 2) && !this.attackers[0].spawning && ((this.attackers[0].ticksToLive || 1000) < 550)) {
-          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER, false)
+          this.addGeneralCreep(spawn_func, attacker_body, CreepType.ATTACKER)
           return
         }
         const worker_body: BodyPartConstant[] = [
@@ -256,7 +184,7 @@ export class ManualSquad extends Squad {
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
           WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE,
         ]
-        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER, false)
+        this.addGeneralCreep(spawn_func, worker_body, CreepType.WORKER)
         return
       }
 
@@ -303,6 +231,9 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
+      }
+
+      case 'W43S5': {
         this.addGeneralCreep(spawn_func, [MOVE, MOVE], CreepType.SCOUT)
         return
       }
@@ -326,14 +257,18 @@ export class ManualSquad extends Squad {
       }
 
       case 'W42N1': {
-        // 700
+        // 1600
         const body: BodyPartConstant[] = [
           CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY,
           MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE,
         ]
-        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER, true)
         return
       }
 
@@ -411,7 +346,11 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const target_room_name = 'W44S6'
+        return
+      }
+
+      case 'W43S5': {
+        const target_room_name = 'W44S5'
 
         const callback = function(room_name: string): boolean | CostMatrix {
           const room = Game.rooms[room_name]
@@ -456,7 +395,11 @@ export class ManualSquad extends Squad {
           })
 
           if (path.path.length > 0) {
-            creep.moveByPath(path.path)
+            const result = creep.moveByPath(path.path)
+
+            if (result != OK) {
+              creep.say(`E${result}`)
+            }
           }
         })
         return
@@ -584,14 +527,124 @@ export class ManualSquad extends Squad {
         return
       }
 
-      case 'W43S5':
-        return
-
       case 'W42N1': {
-        const target_room_name = 'W42N3'
-        if (this.stealEnergyFrom(this.original_room_name, target_room_name, 22, 28, false) == ActionResult.IN_PROGRESS) {
-          return
-        }
+        const energy_room_name = 'W42N3'
+        const colony_room_name = 'W47N2'
+        const main_room_name = 'W42N1'
+
+        this.creeps.forEach((creep) => {
+          if ([CreepStatus.HARVEST, CreepStatus.CHARGE, CreepStatus.WAITING_FOR_RENEW].indexOf(creep.memory.status) < 0) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+
+          if (creep.memory.status == CreepStatus.HARVEST) {
+            if (_.sum(creep.carry) == creep.carryCapacity) {
+              creep.memory.status = CreepStatus.CHARGE
+            }
+            else {
+              if ((creep.room.name == colony_room_name) || (creep.room.name == main_room_name)) {
+                if (((creep.ticksToLive || 0) < 600) && creep.room.spawns[0]) {
+                  creep.goToRenew(creep.room.spawns[0])
+                  return
+                }
+              }
+
+              let target: StructureStorage | StructureTerminal | undefined
+
+              if (creep.room.name == colony_room_name) {
+                if (creep.room.storage && (_.sum(creep.room.storage.store) > 0)) {
+                  target = creep.room.storage
+                }
+                else if (creep.room.terminal && (_.sum(creep.room.terminal.store) > 0)) {
+                  target = creep.room.terminal
+                }
+                else {
+                  creep.say(`DONE55`)
+                  return
+                }
+              }
+              else {
+                if (creep.moveToRoom(energy_room_name) == ActionResult.IN_PROGRESS) {
+                  return
+                }
+
+                if (creep.room.storage && (_.sum(creep.room.storage.store) > 0)) {
+                  target = creep.room.storage
+                }
+                else {
+                  creep.say(`DONE71`)
+                  return
+                }
+              }
+
+              const withdraw_result = creep.withdrawResources(target)
+              if (withdraw_result == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target)
+              }
+            }
+          }
+
+          if (creep.memory.status == CreepStatus.CHARGE) {
+            if (_.sum(creep.carry) == 0) {
+              creep.memory.status = CreepStatus.HARVEST
+              return
+            }
+
+            let destination: string
+
+            if (creep.carry.energy > 0) {
+              destination = colony_room_name
+            }
+            else {
+              destination = main_room_name
+            }
+
+            if (creep.moveToRoom(destination) == ActionResult.IN_PROGRESS) {
+              return
+            }
+
+            if (creep.room.storage && creep.room.storage.my) {
+              const transfer_result = creep.transferResources(creep.room.storage)
+              if (transfer_result == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.storage)
+              }
+              else if (transfer_result != OK) {
+                creep.say(`E${transfer_result}`)
+              }
+              return
+            }
+
+            if (creep.room.name == colony_room_name) {
+              if (creep.carry.energy > 0) {
+                const charge_target = creep.find_charge_target()
+
+                if (charge_target) {
+                  if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(charge_target)
+                  }
+                }
+
+                const x = 15
+                const y = 11
+                if ((creep.pos.x == x) && (creep.pos.y == y)) {
+                  creep.drop(RESOURCE_ENERGY)
+                }
+                else {
+                  creep.moveTo(x, y)
+                }
+              }
+            }
+            else {
+              creep.say(`WTF`)
+              console.log(`ManualSquad ${this.name} unknown error ${creep.name} at ${creep.pos}`)
+            }
+          }
+        })
+
+        // const target_room_name = 'W42N3'
+        // if (this.stealEnergyFrom(this.original_room_name, target_room_name, 22, 28, false) == ActionResult.IN_PROGRESS) {
+        //   return
+        // }
         return
       }
 

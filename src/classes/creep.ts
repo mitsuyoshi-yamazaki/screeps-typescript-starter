@@ -64,6 +64,7 @@ declare global {
     find_charge_target(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
+    dropResources(opt?: CreepTransferOption): ScreepsReturnCode
     dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
     transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}): void
 
@@ -120,8 +121,6 @@ export function init() {
 
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
-    this.say(destination_room_name)
-
     if (this.room.name == destination_room_name) {
       if (this.pos.x == 0) {
         if (this.move(RIGHT) == OK) {
@@ -145,6 +144,8 @@ export function init() {
       }
       return ActionResult.DONE
     }
+
+    this.say(destination_room_name)
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
@@ -580,10 +581,38 @@ export function init() {
         }
       }
 
-      if (this.carry[resource_type] == 0) {
+      if (target.store[resource_type] == 0) {
         continue
       }
       return_code = this.withdraw(target, resource_type)
+      if (return_code != OK) {
+        return return_code
+      }
+    }
+    return return_code
+  }
+
+  Creep.prototype.dropResources = function(opt?: CreepTransferOption): ScreepsReturnCode {
+    opt = opt || {}
+
+    let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
+    for (const key of Object.keys(this.carry)) {
+      const resource_type = key as ResourceConstant
+      if (opt.include) {
+        if (opt.include.indexOf(resource_type) < 0) {
+          continue
+        }
+      }
+      else if (opt.exclude) {
+        if (opt.exclude.indexOf(resource_type) >= 0) {
+          continue
+        }
+      }
+
+      if (this.carry[resource_type] == 0) {
+        continue
+      }
+      return_code = this.drop(resource_type)
       if (return_code != OK) {
         return return_code
       }

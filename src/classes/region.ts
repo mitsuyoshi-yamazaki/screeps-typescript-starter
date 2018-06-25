@@ -487,6 +487,8 @@ export class Region {
           { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
           { id: '59f1a06782100e1594f36a36', room_name: 'W41N1' },
           { id: '59f1a06782100e1594f36a32', room_name: 'W41N2' },
+          { id: '59f1a05882100e1594f368a2', room_name: 'W42N3' }, // bottom left
+          { id: '59f1a05882100e1594f368a1', room_name: 'W42N3' }, // bottom center
         ]
         harvester_targets = [
           { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
@@ -1294,8 +1296,8 @@ export class Region {
         //   this.room.storage.destroy()
         // }
       }
-      else if (this.room.name == 'W42N1') {
-        this.room.createConstructionSite(25, 28, STRUCTURE_TOWER)
+      else if (this.room.name == 'W47N2') {
+        this.room.createConstructionSite(17, 9, STRUCTURE_STORAGE)
       }
     })()
 

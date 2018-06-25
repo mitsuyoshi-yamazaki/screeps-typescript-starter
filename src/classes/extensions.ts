@@ -21,6 +21,7 @@ declare global {
   interface RoomMemory {
     keeper_squad_name?: string
     harvesting_source_ids: string[]
+    cost_matrix?: number[] | undefined
   }
 
   interface Room {
@@ -31,6 +32,8 @@ declare global {
     heavyly_attacked: boolean
     resourceful_tombstones: Tombstone[]
     attacker_info: AttackerInfo
+    is_keeperroom: boolean
+    cost_matrix: CostMatrix | undefined
 
     initialize(): void
   }
@@ -106,6 +109,82 @@ export function init() {
 
     if (!this.resourceful_tombstones) {
       this.resourceful_tombstones = []
+    }
+
+    const prefix = ((Number(this.name.slice(1,3)) - 4) % 10) <= 2
+    const suffix = ((Number(this.name.slice(4,6)) - 4) % 10) <= 2
+    this.is_keeperroom = prefix && suffix
+
+    if (this.is_keeperroom) {
+      let memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
+
+      if (!memory) {
+        memory = {
+          harvesting_source_ids: []
+        }
+
+        Memory.rooms[this.name] = memory
+      }
+
+      if (memory.cost_matrix) {
+        this.cost_matrix = PathFinder.CostMatrix.deserialize(memory.cost_matrix)
+      }
+      else {
+        this.cost_matrix = new PathFinder.CostMatrix;
+        const margin = 5
+
+        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+          return structure.structureType == STRUCTURE_KEEPER_LAIR
+        }).forEach((structure: Structure) => {
+          for (let i = (structure.pos.x - margin); i <= (structure.pos.x + margin); i++) {
+            if ((i < 0) || (i > 49)) {
+              continue
+            }
+
+            for (let j = (structure.pos.y - margin); j <= (structure.pos.y + margin); j++) {
+              if ((j < 0) || (j > 49)) {
+                continue
+              }
+
+              this.cost_matrix.set(i, j, 0xff)
+            }
+          }
+        })
+
+        this.find(FIND_SOURCES).forEach((source: Source) => {
+          for (let i = (source.pos.x - margin); i <= (source.pos.x + margin); i++) {
+            if ((i < 0) || (i > 49)) {
+              continue
+            }
+
+            for (let j = (source.pos.y - margin); j <= (source.pos.y + margin); j++) {
+              if ((j < 0) || (j > 49)) {
+                continue
+              }
+
+              this.cost_matrix.set(i, j, 0xff)
+            }
+          }
+        })
+
+        this.find(FIND_MINERALS).forEach((minearl: Mineral) => {
+          for (let i = (minearl.pos.x - margin); i <= (minearl.pos.x + margin); i++) {
+            if ((i < 0) || (i > 49)) {
+              continue
+            }
+
+            for (let j = (minearl.pos.y - margin); j <= (minearl.pos.y + margin); j++) {
+              if ((j < 0) || (j > 49)) {
+                continue
+              }
+
+              this.cost_matrix.set(i, j, 0xff)
+            }
+          }
+        })
+
+        memory.cost_matrix = this.cost_matrix.serialize()
+      }
     }
   }
 

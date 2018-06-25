@@ -420,7 +420,7 @@ export class HarvesterSquad extends Squad {
       }
     }
 
-    if (this.store && ((this.store as StructureLink).structureType == STRUCTURE_LINK)) {
+    if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
       number_of_carriers = 0
     }
 
@@ -631,7 +631,7 @@ export class HarvesterSquad extends Squad {
         const energy_amount = (this.store as StructureContainer).store[this.resource_type!] || 0
         has_capacity = (energy_amount < capacity)
       }
-      else if ((this.store as StructureLink).energy) {
+      else if (this.store.structureType == STRUCTURE_LINK) {
         const capacity = (this.store as StructureLink).energyCapacity
         const energy_amount = (this.store as StructureLink).energy
         has_capacity = (energy_amount < capacity)
@@ -763,6 +763,10 @@ export class HarvesterSquad extends Squad {
 
   private carry(): void {
     this.carriers.forEach((creep) => {
+      if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
+        creep.memory.let_thy_die = true
+      }
+
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
 
       if (needs_renew) {
@@ -853,7 +857,7 @@ export class HarvesterSquad extends Squad {
           const x = 20
           const y = 40
           if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.drop(RESOURCE_ENERGY)
+            creep.dropResources()
             creep.memory.status = CreepStatus.HARVEST
           }
           else {
@@ -865,7 +869,7 @@ export class HarvesterSquad extends Squad {
           const x = 23
           const y = 27
           if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.drop(RESOURCE_ENERGY)
+            creep.dropResources()
             creep.memory.status = CreepStatus.HARVEST
           }
           else {
