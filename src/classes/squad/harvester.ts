@@ -165,6 +165,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a05882100e1594f368a8') { // W42N1
+      const link = Game.getObjectById('5b306e8992a8bd27bf54c8ac') as StructureLink | undefined
+      if (link && (link.energy < link.energyCapacity)) {
+        this.store = link
+      }
+    }
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
@@ -288,7 +294,7 @@ export class HarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    if (this.energy_capacity < 550) {
+    if ((this.energy_capacity < 550) && (this.source_info.room_name != 'W47N2')) {
       return SpawnPriority.NONE
     }
 
@@ -858,6 +864,18 @@ export class HarvesterSquad extends Squad {
         else if ((this.source_info.room_name == 'W42N1') && !this.destination) {  // W42N1
           const x = 23
           const y = 27
+          if ((creep.pos.x == x) && (creep.pos.y == y)) {
+            creep.drop(RESOURCE_ENERGY)
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else {
+            creep.moveTo(x, y)
+          }
+          return
+        }
+        else if ((this.source_info.room_name == 'W47N2') && !this.destination) {
+          const x = 15
+          const y = 11
           if ((creep.pos.x == x) && (creep.pos.y == y)) {
             creep.drop(RESOURCE_ENERGY)
             creep.memory.status = CreepStatus.HARVEST

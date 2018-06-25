@@ -51,17 +51,15 @@ export class Empire {
     }
 
     const w51s29 = 'W51S29'
-    // const w49s26 = 'W49S26'
-    const w49s19 = 'W49S19'
     const w44s7 = 'W44S7'
     const w48s6 = 'W48S6'
-    // const w38s7 = 'W38S7'
     const w43s2 = 'W43S2'
     const w43s5 = 'W43S5'
     const w42n1 = 'W42N1'
+    const w47n2 = 'W47N2'
 
     if ((Game.time % 2) == 0) {
-
+      set_delegate(w42n1, w47n2)
     }
     else {
     }

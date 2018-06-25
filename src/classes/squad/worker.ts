@@ -17,6 +17,12 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
+    const room = Game.rooms[this.room_name]
+
+    if ((this.room_name == 'W47N2') && room && room.controller && (room.controller.level < 4) && ((Game.time % 2) == 1)) {
+      return SpawnPriority.NONE
+    }
+
     // return SpawnPriority.NONE // @fixme: for debugging upgrader
     const size = this.room_name == 'W49S34' ? this.creeps.size : Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
 
@@ -25,7 +31,6 @@ export class WorkerSquad extends Squad {
     }
 
     let max = 8
-    const room = Game.rooms[this.room_name]
 
     // if (room && room.controller) {
     //   if ((room.controller.level < 3)) {
@@ -37,7 +42,7 @@ export class WorkerSquad extends Squad {
     // }
 
     if (this.room_name == 'W51S29') {
-      max = 5
+      max = 4
     }
     else if (this.room_name == 'W44S7') {
       max = 3
@@ -53,6 +58,9 @@ export class WorkerSquad extends Squad {
     }
     else if (this.room_name == 'W42N1') {
       max = 4
+    }
+    else if (this.room_name == 'W47N2') {
+      max = 6
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -184,6 +192,10 @@ export class WorkerSquad extends Squad {
 
       case 'W42N1':
         room_to_escape = 'W42N2'
+        break
+
+      case 'W47N2':
+        room_to_escape = 'W46N2'
         break
     }
 

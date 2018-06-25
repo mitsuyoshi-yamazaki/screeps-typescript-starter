@@ -14,6 +14,7 @@ import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
 import { GuardSquad } from "./squad/guard";
+import { ChargerSquad } from './squad/charger';
 
 export class Region {
   // Public
@@ -28,6 +29,7 @@ export class Region {
 
   // Private
   private squads = new Map<string, Squad>()
+  private destination_link_id: string | undefined
   worker_squad: WorkerSquad
   private upgrader_squad: UpgraderSquad
   private manual_squad: ManualSquad | undefined
@@ -79,6 +81,7 @@ export class Region {
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
     const energy_capacity = this.room.energyCapacityAvailable - 50
+    let charger_position: {x: number, y: number} | undefined
 
     switch (this.room.name) {
       case 'W48S47': {
@@ -338,6 +341,7 @@ export class Region {
           }
           return target
         })
+        this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         break
 
       case 'W49S26':
@@ -427,6 +431,7 @@ export class Region {
           'W44S8',
           'W42S7',
         ]
+        this.destination_link_id = '5b2e775359615412454b065e'
         break
 
       case 'W48S6':
@@ -450,38 +455,6 @@ export class Region {
         rooms_need_to_be_defended = [
           // 'W49S6',
           'W48S5',
-        ]
-        break
-
-      case 'W38S7':
-        lightweight_harvester_targets = [
-          { id: '59f1a09782100e1594f36de0', room_name: 'W38S7' },
-          { id: '59f1a09782100e1594f36de2', room_name: 'W38S8' },
-          { id: '59f1a0a782100e1594f36f6d', room_name: 'W37S7' },
-        ]
-        this.room_names = [this.room.name]
-        rooms_need_scout = [
-          'W38S8',
-          'W37S7',
-        ]
-        rooms_need_to_be_defended = [
-          'W38S8',
-          'W37S7',
-        ]
-        break
-
-      case 'W33S7':
-        lightweight_harvester_targets = [
-          { id: '59f1a0e782100e1594f377af', room_name: 'W33S7' }, // top right
-          { id: '59f1a0e782100e1594f377b0', room_name: 'W33S7' }, // bottom left
-          // { id: '59f1a0f782100e1594f37935', room_name: 'W32S7' },
-        ]
-        this.room_names = [this.room.name]
-        rooms_need_scout = [
-          // 'W32S7',
-        ]
-        rooms_need_to_be_defended = [
-          // 'W32S7',
         ]
         break
 
@@ -542,6 +515,7 @@ export class Region {
           'W42N3',
           'W41N2',
           'W41N1',
+          // 'W47N2',  // fixme: temp
         ]
         rooms_need_to_be_defended = [
           'W42N2',
@@ -549,12 +523,48 @@ export class Region {
           'W41N2',
           'W41N1',
         ]
+        this.destination_link_id = '5b306805ad2c2c3e2216de40'
+        charger_position = {x: 24, y: 29}
+        break
+
+      case 'W47N2':
+        lightweight_harvester_targets = [
+          { id: '59f1a01882100e1594f360cd', room_name: 'W46N2' },
+          { id: '59f1a00882100e1594f35ee7', room_name: 'W47N3' }, // bottom
+          { id: '59f1a00882100e1594f35ee6', room_name: 'W47N3' }, // top
+          { id: '59f1a00882100e1594f35ee3', room_name: 'W47N4' },
+          { id: '59f1a02882100e1594f36304', room_name: 'W45N2' },
+          { id: '59f1a01882100e1594f360d0', room_name: 'W46N1' },
+          { id: '59f1a00882100e1594f35eee', room_name: 'W47N1' },
+        ]
+        harvester_targets = [
+          { id: '59f1a00882100e1594f35eeb', room_name: 'W47N2' }, // left
+          { id: '59f1a00882100e1594f35eec', room_name: 'W47N2' }, // right
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W46N2',
+          'W47N3',
+          'W47N4',
+          'W45N2',
+          'W46N1',
+          'W47N1',
+        ]
+        rooms_need_to_be_defended = [
+          'W46N2',
+          'W47N3',
+          'W47N4',
+          'W45N2',
+          'W46N1',
+          'W47N1',
+        ]
         break
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
     }
+
 
     research_input_targets = []
     research_output_targets = []
@@ -629,6 +639,20 @@ export class Region {
       case SquadType.UPGRADER: {
         const squad = new UpgraderSquad(squad_memory.name, this.room.name, upgrader_source_ids)
         upgrader_squad = squad
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.CHARGER: {
+        if (!charger_position) {
+          const message = `Region charger_position for room ${this.room.name} is not provided`
+          console.log(message)
+          Game.notify(message)
+          break
+        }
+
+        const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+        const squad = new ChargerSquad(squad_memory.name, this.room.name, link, charger_position)
+
         this.squads.set(squad.name, squad)
         break
       }
@@ -1221,26 +1245,10 @@ export class Region {
       })()
     })
 
-    let destination_id: string | undefined
+    ErrorMapper.wrapLoop(() => {
+      this.transferLinks()
+    })()
 
-    switch (this.room.name) {
-      case 'W51S29':
-        destination_id = '5b1f028bb08a2b269fba0f6e'
-        break
-
-      case 'W44S7':
-        destination_id = '5b2e775359615412454b065e'
-        break
-
-      default:
-        break
-    }
-
-    if (destination_id) {
-      ErrorMapper.wrapLoop(() => {
-        this.transferLinks(destination_id!)
-      })()
-    }
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
     })()
@@ -1426,13 +1434,24 @@ export class Region {
     }
   }
 
-  private transferLinks(destination_id: string) {
-
-    let destination: StructureLink = Game.getObjectById(destination_id) as StructureLink
-    if (!destination) {
-      console.log(`Region.transferLinks no destination found ${this.name}`)
+  private transferLinks() {
+    if (!this.destination_link_id) {
       return
     }
+
+    const destination = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+
+    if (!destination) {
+      console.log(`Region.transferLinks no destination found ${this.name} for ${this.destination_link_id}`)
+      return
+    }
+    if (destination.room.name != this.room.name) {
+      const message = `Region.transferLinks the specified link is not in the room ${destination.pos}, ${this.room}`
+      console.log(message)
+      Game.notify(message)
+      return
+    }
+
     if (destination.energy > (destination.energyCapacity / 2)) {
       return
     }
@@ -1507,7 +1526,11 @@ export class Region {
         break
 
       case 'W44S7':
-        pos = {x: 25, y: 0}
+        pos = {x: 25, y: 1}
+        break
+
+      case 'W47N2':
+        pos = {x: 1, y: 26}
         break
 
       default:

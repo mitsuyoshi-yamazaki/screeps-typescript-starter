@@ -65,6 +65,7 @@ declare global {
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
+    transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}): void
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -377,6 +378,10 @@ export function init() {
       this.moveTo(49, 26)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W47N2') && (this.room.name == 'W45N3')) {
+      this.moveTo(11, 49)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
@@ -663,6 +668,72 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
+  Creep.prototype.transferLinkToStorage = function(link: StructureLink | undefined, pos: {x: number, y: number}): void {
+    if (!this.room.storage) {
+      this.say(`ERR`)
+      console.log(`Creep.transferLinkToStorage no storage in ${this.pos}, ${this}`)
+      return
+    }
+
+    if ((this.spawning == false) && (this.pos.x != pos.x) && (this.pos.y != pos.y)) {
+      const obstacle = this.room.find(FIND_MY_CREEPS, {
+        filter: (creep) => {
+          return (creep.pos.x == pos.x) && (creep.pos.y == pos.y)
+        }
+      })[0]
+
+      if (obstacle && obstacle.room.controller) {
+        obstacle.moveTo(obstacle.room.controller)
+      }
+    }
+    const storage = this.room.storage
+
+    this.moveTo(pos.x, pos.y)
+
+    if ((this.ticksToLive || 0) > 2) {
+      if (link && (link.energy > 0)) {
+        const withdraw_result = this.withdraw(link, RESOURCE_ENERGY)
+        if (withdraw_result != OK) {
+          this.say(`E${withdraw_result}`)
+        }
+      }
+      else if ((this.room.terminal) && ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0)) {
+        const excludes = [
+          RESOURCE_ENERGY,
+          RESOURCE_HYDROGEN,
+          RESOURCE_OXYGEN,
+          RESOURCE_UTRIUM,
+          RESOURCE_KEANIUM,
+          RESOURCE_ZYNTHIUM,
+          RESOURCE_LEMERGIUM,
+          RESOURCE_CATALYST,
+        ]
+        this.withdrawResources(storage, {exclude: excludes})
+      }
+      else {
+        this.withdraw(storage, RESOURCE_ENERGY)
+      }
+    }
+
+    if ((_.sum(this.carry) - this.carry.energy) == 0) {
+      const target = this.find_charge_target({should_fully_charged: true})
+      if (target) {
+        if (this.transfer(target, RESOURCE_ENERGY) == OK) {
+          return
+        }
+      }
+      this.transfer(storage, RESOURCE_ENERGY)
+    }
+    else {
+      if (this.room.terminal) {
+        this.transferResources(this.room.terminal)
+      }
+      else {
+        this.transferResources(storage)
+      }
+    }
+  }
+
 
   // --- Worker tasks ---
   Creep.prototype.harvestFrom = function(source: Source): ActionResult {
@@ -887,7 +958,7 @@ export function init() {
             }
           }
 
-          if (this.room.name == 'W49S19') {
+          if (this.room.name == 'W47N2') {
             drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
           }
           else {

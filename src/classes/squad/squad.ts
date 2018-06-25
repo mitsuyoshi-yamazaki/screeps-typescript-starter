@@ -1,5 +1,5 @@
 import { UID } from "classes/utils"
-import { CreepStatus, ActionResult } from "classes/creep"
+import { CreepStatus, CreepType, ActionResult } from "classes/creep"
 
 export enum SpawnPriority {
   URGENT = 0,
@@ -13,6 +13,7 @@ export enum SquadType {
   CONTROLLER_KEEPER = "controller_keeper",
   WORKER            = "worker",
   UPGRADER          = "upgrader",
+  CHARGER           = "charger",
   BOOSTED_UPGRADER  = "boosted_upgrader",
   HARVESTER         = "harvester",
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
@@ -82,6 +83,23 @@ export abstract class Squad {
   public say(message: string): void {
     this.creeps.forEach((creep, _) => {
       creep.say(message)
+    })
+  }
+
+  // --- Utility
+  public addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, should_notify_attack?: boolean): void {
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: type,
+      should_notify_attack: !(!should_notify_attack),
+      let_thy_die: true,
+    }
+
+    const result = spawn_func(body, name, {
+      memory: memory
     })
   }
 }

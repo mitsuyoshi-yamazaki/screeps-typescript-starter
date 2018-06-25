@@ -342,8 +342,11 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
 
       case 'W51S29': {
+        if (!this.any_creep) {
+          return
+        }
         const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
-        this.transferLinkToStorage(link, {x: 24, y: 21})
+        this.any_creep.transferLinkToStorage(link, {x: 24, y: 21})
         return
       }
 
@@ -403,8 +406,11 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
+        if (!this.any_creep) {
+          return
+        }
         const link = Game.getObjectById('5b2e775359615412454b065e') as StructureLink | undefined
-        this.transferLinkToStorage(link, {x: 19, y: 42})
+        this.any_creep.transferLinkToStorage(link, {x: 19, y: 42})
         return
       }
 
@@ -486,12 +492,13 @@ export class ManualSquad extends Squad {
         return
       }
 
-      case 'W43S2': {
+      case 'W47N2': {
         const target_room_name = 'W47N2'
         const target_room = Game.rooms['target_room_name']
         const target_ids = [
           '5abdf5820ddc2c47d1438f51', // bottom
           '5abe1b06e574217fca8bae23', // right
+          '5abe1c4cfa53b34bc11eb870', // top
         ]
         let target: StructureWall | StructureRampart | undefined
 
@@ -555,22 +562,6 @@ export class ManualSquad extends Squad {
 
 
   // --- Private ---
-  private addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, should_notify_attack?: boolean): void {
-    const name = this.generateNewName()
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: type,
-      should_notify_attack: !(!should_notify_attack),
-      let_thy_die: true,
-    }
-
-    const result = spawn_func(body, name, {
-      memory: memory
-    })
-  }
-
   private addWorker(energy_available: number, spawn_func: SpawnFunction): void {
     const energy_unit = 200
     let body_unit: BodyPartConstant[] = [WORK, CARRY, MOVE]
@@ -759,72 +750,6 @@ export class ManualSquad extends Squad {
 
 
   // ---
-  private transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}): void {
-    if (this.creeps.size > 1) {
-      console.log(`ManualSquad too many creeps: ${this.creeps.size}, ${Array.from(this.creeps.values()).map(c=>c.pos)}`)
-      this.say(`ERR`)
-    }
-
-    if (!this.any_creep || !this.any_creep.room.storage) {
-      return
-    }
-
-    if ((this.any_creep.spawning == false) && (this.any_creep.pos.x != pos.x) && (this.any_creep.pos.y != pos.y)) {
-      const obstacle = this.any_creep.room.find(FIND_MY_CREEPS, {
-        filter: (creep) => {
-          return (creep.pos.x == pos.x) && (creep.pos.y == pos.y)
-        }
-      })[0]
-
-      if (obstacle) {
-        obstacle.move(LEFT)
-      }
-    }
-    const storage = this.any_creep.room.storage
-
-    this.any_creep.moveTo(pos.x, pos.y)
-
-    if ((this.any_creep.ticksToLive || 0) > 2) {
-      if (link && (link.energy > 0)) {
-        this.any_creep.withdraw(link, RESOURCE_ENERGY)
-      }
-      else if ((this.any_creep.room.terminal) && ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0)) {
-        const excludes = [
-          RESOURCE_ENERGY,
-          RESOURCE_HYDROGEN,
-          RESOURCE_OXYGEN,
-          RESOURCE_UTRIUM,
-          RESOURCE_KEANIUM,
-          RESOURCE_ZYNTHIUM,
-          RESOURCE_LEMERGIUM,
-          RESOURCE_CATALYST,
-        ]
-        this.any_creep.withdrawResources(storage, {exclude: excludes})
-      }
-      else {
-        this.any_creep.withdraw(storage, RESOURCE_ENERGY)
-      }
-    }
-
-    if ((_.sum(this.any_creep.carry) - this.any_creep.carry.energy) == 0) {
-      const target = this.any_creep.find_charge_target({should_fully_charged: true})
-      if (target) {
-        if (this.any_creep.transfer(target, RESOURCE_ENERGY) == OK) {
-          return
-        }
-      }
-      this.any_creep.transfer(storage, RESOURCE_ENERGY)
-    }
-    else {
-      if (this.any_creep.room.terminal) {
-        this.any_creep.transferResources(this.any_creep.room.terminal)
-      }
-      else {
-        this.any_creep.transferResources(storage)
-      }
-    }
-  }
-
   private renewIfNeeded(): void {
     this.creeps.forEach((creep) => {
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 350) && (creep.carry.energy > (creep.carryCapacity * 0.8))))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
