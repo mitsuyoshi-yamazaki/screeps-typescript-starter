@@ -110,9 +110,13 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
       }
 
-      case 'W44S7':
-        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+      case 'W44S7': {
+        if (Game.time > 7357634) {
+          return SpawnPriority.NONE
+        }
+        // return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
         return SpawnPriority.NONE
+      }
 
       case 'W48S6':
         const room = Game.rooms[this.original_room_name]
@@ -213,7 +217,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        return energy_available >= 150
+        return energy_available >= 50
 
       case 'W48S6':
         return energy_available >= 1200
@@ -299,7 +303,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        this.addGeneralCreep(spawn_func, [MOVE, CARRY, CARRY], CreepType.CARRIER)
+        this.addGeneralCreep(spawn_func, [MOVE, MOVE], CreepType.SCOUT)
         return
       }
 
@@ -407,11 +411,54 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        // if (!this.any_creep) {
-        //   return
-        // }
-        // const link = Game.getObjectById('5b2e775359615412454b065e') as StructureLink | undefined
-        // this.any_creep.transferLinkToStorage(link, {x: 19, y: 42})
+        const target_room_name = 'W44S6'
+
+        const callback = function(room_name: string): boolean | CostMatrix {
+          const room = Game.rooms[room_name]
+          if (!room) {
+            return false
+          }
+
+          let matrix = new PathFinder.CostMatrix;
+
+          room.find(FIND_HOSTILE_CREEPS).forEach((creep) => {
+            for (let i = (creep.pos.x - 4); i <= (creep.pos.x + 4); i++) {
+              if ((i < 0) || (i > 49)) {
+                continue
+              }
+
+              for (let j = (creep.pos.y - 4); j <= (creep.pos.y + 4); j++) {
+                if ((j < 0) || (j > 49)) {
+                  continue
+                }
+
+                matrix.set(i, j, 0xff)
+              }
+            }
+          })
+
+          return matrix
+        }
+
+        this.creeps.forEach((creep) => {
+          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+            return
+          }
+
+          const memory = (creep.memory as ManualMemory)
+          const x = memory.target_x || 25
+          const y = memory.target_y || 25
+
+          const goal_position = new RoomPosition(x, y, target_room_name)
+          const goal = { pos: goal_position, range: 2 }
+          const path = PathFinder.search(creep.pos, goal, {
+            roomCallback: callback
+          })
+
+          if (path.path.length > 0) {
+            creep.moveByPath(path.path)
+          }
+        })
         return
       }
 
