@@ -95,7 +95,8 @@ export class ManualSquad extends Squad {
         // return SpawnPriority.NONE
 
       case 'W51S29':
-        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        return SpawnPriority.NONE
 
       case 'W49S26': {
         // const target_room_name = 'W49S27'
@@ -110,8 +111,8 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7':
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-        // return SpawnPriority.NONE
+        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return SpawnPriority.NONE
 
       case 'W48S6':
         const room = Game.rooms[this.original_room_name]
@@ -342,11 +343,11 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
 
       case 'W51S29': {
-        if (!this.any_creep) {
-          return
-        }
-        const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
-        this.any_creep.transferLinkToStorage(link, {x: 24, y: 21})
+        // if (!this.any_creep) {
+        //   return
+        // }
+        // const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
+        // this.any_creep.transferLinkToStorage(link, {x: 24, y: 21})
         return
       }
 
@@ -406,11 +407,11 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        if (!this.any_creep) {
-          return
-        }
-        const link = Game.getObjectById('5b2e775359615412454b065e') as StructureLink | undefined
-        this.any_creep.transferLinkToStorage(link, {x: 19, y: 42})
+        // if (!this.any_creep) {
+        //   return
+        // }
+        // const link = Game.getObjectById('5b2e775359615412454b065e') as StructureLink | undefined
+        // this.any_creep.transferLinkToStorage(link, {x: 19, y: 42})
         return
       }
 

@@ -342,6 +342,7 @@ export class Region {
           return target
         })
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
+        charger_position = {x: 24, y: 21}
         break
 
       case 'W49S26':
@@ -432,6 +433,7 @@ export class Region {
           'W42S7',
         ]
         this.destination_link_id = '5b2e775359615412454b065e'
+        charger_position = {x: 19, y: 42}
         break
 
       case 'W48S6':
@@ -456,25 +458,6 @@ export class Region {
           // 'W49S6',
           'W48S5',
         ]
-        break
-
-      case 'W43S2':
-      lightweight_harvester_targets = [
-        { id: '59f1a04582100e1594f36730', room_name: 'W43S3' },
-        { id: '59f1a03782100e1594f36548', room_name: 'W44S2' },
-        // { id: '59f1a05982100e1594f368b3', room_name: 'W42S2' }, // left  // Owned
-      ]
-      this.room_names = [this.room.name]
-      rooms_need_scout = [
-        'W43S3',
-        'W44S2',
-        // 'W42S2',
-      ]
-      rooms_need_to_be_defended = [
-        'W43S3',
-        'W44S2',
-        // 'W42S2',
-      ]
         break
 
       case 'W43S5':
