@@ -97,7 +97,7 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 5 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
 
         // return SpawnPriority.NONE
       }
@@ -352,32 +352,32 @@ export class ManualSquad extends Squad {
       case 'W43S5': {
         const target_room_name = 'W44S5'
 
-        const callback = function(room_name: string): boolean | CostMatrix {
-          const room = Game.rooms[room_name]
-          if (!room) {
-            return false
-          }
+        // const callback = function(room_name: string): boolean | CostMatrix {
+        //   const room = Game.rooms[room_name]
+        //   if (!room) {
+        //     return false
+        //   }
 
-          let matrix = new PathFinder.CostMatrix;
+        //   let matrix = new PathFinder.CostMatrix;
 
-          room.find(FIND_HOSTILE_CREEPS).forEach((creep) => {
-            for (let i = (creep.pos.x - 4); i <= (creep.pos.x + 4); i++) {
-              if ((i < 0) || (i > 49)) {
-                continue
-              }
+        //   room.find(FIND_HOSTILE_CREEPS).forEach((creep) => {
+        //     for (let i = (creep.pos.x - 4); i <= (creep.pos.x + 4); i++) {
+        //       if ((i < 0) || (i > 49)) {
+        //         continue
+        //       }
 
-              for (let j = (creep.pos.y - 4); j <= (creep.pos.y + 4); j++) {
-                if ((j < 0) || (j > 49)) {
-                  continue
-                }
+        //       for (let j = (creep.pos.y - 4); j <= (creep.pos.y + 4); j++) {
+        //         if ((j < 0) || (j > 49)) {
+        //           continue
+        //         }
 
-                matrix.set(i, j, 0xff)
-              }
-            }
-          })
+        //         matrix.set(i, j, 0xff)
+        //       }
+        //     }
+        //   })
 
-          return matrix
-        }
+        //   return matrix
+        // }
 
         this.creeps.forEach((creep) => {
           if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
@@ -388,10 +388,17 @@ export class ManualSquad extends Squad {
           const x = memory.target_x || 25
           const y = memory.target_y || 25
 
+          const callback = function(room_name: string): boolean | CostMatrix {
+            if ((creep.room.name == room_name) && creep.room.cost_matrix) {
+              return creep.room.cost_matrix
+            }
+            return false
+          }
+
           const goal_position = new RoomPosition(x, y, target_room_name)
           const goal = { pos: goal_position, range: 2 }
           const path = PathFinder.search(creep.pos, goal, {
-            roomCallback: callback
+            roomCallback: callback,
           })
 
           if (path.path.length > 0) {
@@ -543,7 +550,7 @@ export class ManualSquad extends Squad {
             }
             else {
               if ((creep.room.name == colony_room_name) || (creep.room.name == main_room_name)) {
-                if (((creep.ticksToLive || 0) < 600) && creep.room.spawns[0]) {
+                if (!creep.spawning && ((creep.ticksToLive || 0) < 600) && creep.room.spawns[0]) {
                   creep.goToRenew(creep.room.spawns[0])
                   return
                 }
