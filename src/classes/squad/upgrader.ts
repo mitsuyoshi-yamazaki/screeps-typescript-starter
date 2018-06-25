@@ -47,7 +47,7 @@ export class UpgraderSquad extends Squad {
       }
 
       if (available > 0) {
-        max = Math.floor(available / 150000)
+        max = Math.floor(available / 100000)
       }
     }
 

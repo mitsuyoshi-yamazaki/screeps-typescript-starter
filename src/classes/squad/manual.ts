@@ -97,7 +97,7 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 9 ? SpawnPriority.LOW : SpawnPriority.NONE
 
         // return SpawnPriority.NONE
       }
@@ -549,8 +549,12 @@ export class ManualSquad extends Squad {
               creep.memory.status = CreepStatus.CHARGE
             }
             else {
-              if ((creep.room.name == colony_room_name) || (creep.room.name == main_room_name)) {
-                if (!creep.spawning && ((creep.ticksToLive || 0) < 600) && creep.room.spawns[0]) {
+              // if ((creep.room.name == colony_room_name) || (creep.room.name == main_room_name)) {
+              if ((creep.room.name == main_room_name)) {
+                if ((creep.ticksToLive || 0) > 1400) {
+                  creep.memory.status = CreepStatus.HARVEST
+                }
+                else if (!creep.spawning && ((creep.ticksToLive || 0) < 1000) && creep.room.spawns[0]) {
                   creep.goToRenew(creep.room.spawns[0])
                   return
                 }

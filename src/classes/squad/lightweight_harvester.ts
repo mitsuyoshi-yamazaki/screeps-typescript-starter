@@ -262,17 +262,26 @@ export class LightWeightHarvesterSquad extends Squad {
                 break
 
               default: {
-                const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
-                if (construction_site) {
-                  creep.build(construction_site)
-                  creep.moveTo(construction_site)
-                }
-                else if (this.region.room.controller && this.region.room.controller.my) {
-                  creep.upgradeController(this.region.room.controller)
-                  creep.moveTo(this.region.room.controller)
+                const charge_target = creep.find_charge_target()
+
+                if (charge_target) {
+                  if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(charge_target)
+                  }
                 }
                 else {
-                  console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
+                  const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
+                  if (construction_site) {
+                    creep.build(construction_site)
+                    creep.moveTo(construction_site)
+                  }
+                  else if (this.region.room.controller && this.region.room.controller.my) {
+                    creep.upgradeController(this.region.room.controller)
+                    creep.moveTo(this.region.room.controller)
+                  }
+                  else {
+                    console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
+                  }
                 }
               }
             }
