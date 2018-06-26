@@ -399,6 +399,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a03882100e1594f36569', room_name: 'W44S7' } , // top
           { id: '59f1a03882100e1594f3656b', room_name: 'W44S7' } , // bottom
+          { id: '59f1c0cf7d0b3d79de5f037c', room_name: 'W44S7' } , // hydrogen
         ]
         lightweight_harvester_targets = [
           { id: '59f1a04682100e1594f3673d', room_name: 'W43S7' }, // left
@@ -479,6 +480,8 @@ export class Region {
         'W42S5',
         'W43S4',
       ]
+      this.destination_link_id = '5b317f135c9e085b93bedf0c'
+      charger_position = {x: 19, y: 16}
       break
 
       case 'W42N1':
@@ -543,6 +546,10 @@ export class Region {
           'W46N1',
           'W47N1',
         ]
+        break
+
+      case 'W43N5':
+        this.room_names = [this.room.name]
         break
 
       default:
@@ -1166,6 +1173,9 @@ export class Region {
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
             hits_max = 700000
           }
+          else if ((this.room.name == 'W44S7')) {
+            hits_max = 300000
+          }
           else if ((this.room.name == 'W38S7')) {
             hits_max = 100000
           }
@@ -1297,7 +1307,16 @@ export class Region {
         // }
       }
       else if (this.room.name == 'W47N2') {
+        if (this.room.storage && !this.room.storage.my && ((_.sum(this.room.storage.store) == 0))) {
+          this.room.storage.destroy()
+        }
         this.room.createConstructionSite(17, 9, STRUCTURE_STORAGE)
+      }
+      else if (this.room.name == 'W44S7') {
+        this.room.createConstructionSite(19, 43, STRUCTURE_TERMINAL)
+      }
+      else if (this.room.name == 'W43N5') {
+        this.room.createConstructionSite(27, 222, STRUCTURE_TOWER)
       }
     })()
 

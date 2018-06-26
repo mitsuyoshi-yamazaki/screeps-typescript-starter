@@ -36,9 +36,11 @@ export class AttackerSquad extends Squad {
         this.destination_room_name = memory.target_room_name
       }
     }
-    else {
-      this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined
+
+    if (!this.destination_room_name) {
+      this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined;
     }
+    (Memory.squads[this.name] as AttackerSquadMemory).target_room_name = this.destination_room_name
 
     const attacker = Array.from(this.creeps.values())[0]
 
@@ -195,6 +197,10 @@ export class AttackerSquad extends Squad {
 
             case 'W42N1':
               attacker.moveTo(35, 23)
+              break
+
+            case 'W47N2':
+              attacker.moveTo(27, 8)
               break
 
             default:

@@ -126,6 +126,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') { // W51S29 lemergium
       this.resource_type = RESOURCE_LEMERGIUM
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f037c') { // W44S7 Hydrogen
+      this.resource_type = RESOURCE_HYDROGEN
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -167,6 +170,12 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f1a05882100e1594f368a8') { // W42N1
       const link = Game.getObjectById('5b306e8992a8bd27bf54c8ac') as StructureLink | undefined
+      if (link && (link.energy < link.energyCapacity)) {
+        this.store = link
+      }
+    }
+    else if (this.source_info.id == '59f1a04682100e1594f36736') { // W43S5
+      const link = Game.getObjectById('5b318a5682c736408cf8a54e') as StructureLink | undefined
       if (link && (link.energy < link.energyCapacity)) {
         this.store = link
       }
@@ -300,6 +309,9 @@ export class HarvesterSquad extends Squad {
 
     if (this.needs_harvester) {
       if (room && room.heavyly_attacked && (this.resource_type != RESOURCE_ENERGY)) {
+        this.creeps.forEach((creep) => {
+          creep.memory.let_thy_die = true
+        })
         return SpawnPriority.NONE
       }
 
@@ -410,6 +422,9 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.room_name == 'W49S34') {
       number_of_carriers = 1
+    }
+    else if (this.source_info.room_name == 'W47N2') {
+      number_of_carriers = 2
     }
     else if ((this.source_info.room_name == 'W43S5')) {
       if (room && room.storage) {

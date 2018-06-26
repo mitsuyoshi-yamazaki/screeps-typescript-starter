@@ -21,7 +21,7 @@ export class ChargerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {

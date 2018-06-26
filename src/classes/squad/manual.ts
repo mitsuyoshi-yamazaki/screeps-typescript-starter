@@ -97,10 +97,13 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 9 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return this.creeps.size < 6 ? SpawnPriority.LOW : SpawnPriority.NONE
 
-        // return SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
+
+      case 'W47N2':
+        return this.creeps.size < 6 ? SpawnPriority.LOW : SpawnPriority.NONE
 
       default:
         return SpawnPriority.NONE
@@ -156,6 +159,9 @@ export class ManualSquad extends Squad {
 
       case 'W42N1':
         return energy_available >= 1600
+
+      case 'W47N2':
+        return energy_available >= 1200
 
       default:
         return false
@@ -267,6 +273,22 @@ export class ManualSquad extends Squad {
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER, true)
+        return
+      }
+
+      case 'W47N2': {
+        // 1200
+        const body: BodyPartConstant[] = [
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
+          CARRY, CARRY, MOVE,
         ]
         this.addGeneralCreep(spawn_func, body, CreepType.CARRIER, true)
         return
@@ -491,47 +513,79 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N2': {
-        const target_room_name = 'W47N2'
-        const target_room = Game.rooms['target_room_name']
-        const target_ids = [
-          '5abdf5820ddc2c47d1438f51', // bottom
-          '5abe1b06e574217fca8bae23', // right
-          '5abe1c4cfa53b34bc11eb870', // top
-        ]
-        let target: StructureWall | StructureRampart | undefined
-
-        for (const id of target_ids) {
-          target = Game.getObjectById(id) as StructureWall | StructureRampart | undefined
-
-          if (target) {
-            break
-          }
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.storage) {
+          return
         }
+
+        const drop = room.find(FIND_DROPPED_RESOURCES, {
+          filter: (resource) => {
+            return (resource.resourceType != RESOURCE_ENERGY) && (resource.amount > 0)
+          }
+        })[0]
 
         this.creeps.forEach((creep) => {
-          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+          if (!drop) {
+            const harvester_squad_name = 'harvester73492211'
+            creep.memory.squad_name = harvester_squad_name
             return
           }
 
-          if (target) {
-            if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target)
+          if ((_.sum(creep.carry) > 0) && creep.room.storage) {
+            if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.storage)
             }
-            if ((creep.room.name == 'W47N2') && (creep.pos.y == 48) && (creep.pos.x > 35)) {
-              creep.move(LEFT)
+          }
+          else {
+            if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(drop)
             }
-            return
           }
         })
-        if (!target) {
-          if (this.dismantleSpawnsAndExtensions(target_room_name) == ActionResult.IN_PROGRESS) {
-            return
-          }
-        }
-        if (target_room && !target) {
-          (Memory.squads[this.name] as ManualSquadMemory).stop_spawming = true
-        }
-        return
+
+
+
+        // const target_room_name = 'W47N2'
+        // const target_room = Game.rooms['target_room_name']
+        // const target_ids = [
+        //   '5abdf5820ddc2c47d1438f51', // bottom
+        //   '5abe1b06e574217fca8bae23', // right
+        //   '5abe1c4cfa53b34bc11eb870', // top
+        // ]
+        // let target: StructureWall | StructureRampart | undefined
+
+        // for (const id of target_ids) {
+        //   target = Game.getObjectById(id) as StructureWall | StructureRampart | undefined
+
+        //   if (target) {
+        //     break
+        //   }
+        // }
+
+        // this.creeps.forEach((creep) => {
+        //   if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+        //     return
+        //   }
+
+        //   if (target) {
+        //     if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
+        //       creep.moveTo(target)
+        //     }
+        //     if ((creep.room.name == 'W47N2') && (creep.pos.y == 48) && (creep.pos.x > 35)) {
+        //       creep.move(LEFT)
+        //     }
+        //     return
+        //   }
+        // })
+        // if (!target) {
+        //   if (this.dismantleSpawnsAndExtensions(target_room_name) == ActionResult.IN_PROGRESS) {
+        //     return
+        //   }
+        // }
+        // if (target_room && !target) {
+        //   (Memory.squads[this.name] as ManualSquadMemory).stop_spawming = true
+        // }
+        // return
       }
 
       case 'W42N1': {
@@ -540,8 +594,19 @@ export class ManualSquad extends Squad {
         const main_room_name = 'W42N1'
 
         this.creeps.forEach((creep) => {
+          if ((creep.ticksToLive || 0) > 1400) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+
           if ([CreepStatus.HARVEST, CreepStatus.CHARGE, CreepStatus.WAITING_FOR_RENEW].indexOf(creep.memory.status) < 0) {
             creep.memory.status = CreepStatus.HARVEST
+          }
+
+          if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+            if (!creep.spawning && creep.room.spawns[0]) {
+              creep.goToRenew(creep.room.spawns[0])
+              return
+            }
           }
 
           if (creep.memory.status == CreepStatus.HARVEST) {
@@ -549,12 +614,15 @@ export class ManualSquad extends Squad {
               creep.memory.status = CreepStatus.CHARGE
             }
             else {
-              // if ((creep.room.name == colony_room_name) || (creep.room.name == main_room_name)) {
+              if ((creep.room.name == colony_room_name) && (_.sum(creep.carry) == 0)) {
+                // creep.memory.squad_name = 'harvester73492211'
+                creep.memory.squad_name = 'manualw47n2'
+                return
+              }
+
+
               if ((creep.room.name == main_room_name)) {
-                if ((creep.ticksToLive || 0) > 1400) {
-                  creep.memory.status = CreepStatus.HARVEST
-                }
-                else if (!creep.spawning && ((creep.ticksToLive || 0) < 1000) && creep.room.spawns[0]) {
+                if (!creep.spawning && ((creep.ticksToLive || 0) < 1000) && creep.room.spawns[0]) {
                   creep.goToRenew(creep.room.spawns[0])
                   return
                 }

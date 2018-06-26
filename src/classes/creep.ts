@@ -430,10 +430,6 @@ export function init() {
       this.memory.status = CreepStatus.NONE
       return ActionResult.DONE
     }
-    else if ((this.room.name == 'W49S34') && (this.room.energyAvailable < 10) && ((this.ticksToLive || 0) >= 1200)) {
-      this.memory.status = CreepStatus.NONE
-      return ActionResult.DONE
-    }
 
     if (this.memory.let_thy_die) {
       console.log(`Creep.goToRenew unexpectedly found let_thy_die is true ${this.name}`)
@@ -441,8 +437,12 @@ export function init() {
     }
 
     this.memory.status = CreepStatus.WAITING_FOR_RENEW
-    this.moveTo(spawn)
+    const move_result = this.moveTo(spawn)
     this.transfer(spawn, RESOURCE_ENERGY)
+
+    if (move_result != OK) {
+      this.say(`E${move_result}`)
+    }
 
     return ActionResult.IN_PROGRESS
   }
@@ -711,40 +711,77 @@ export function init() {
         }
       })[0]
 
-      if (obstacle && obstacle.room.controller) {
-        obstacle.moveTo(obstacle.room.controller)
+      if (obstacle) {
+        obstacle.moveTo(this)
       }
     }
     const storage = this.room.storage
 
     this.moveTo(pos.x, pos.y)
 
+    // withdraw
     if ((this.ticksToLive || 0) > 2) {
+      let withdrawn = false
+
       if (link && (link.energy > 0)) {
         const withdraw_result = this.withdraw(link, RESOURCE_ENERGY)
-        if (withdraw_result != OK) {
+        if (withdraw_result == OK) {
+          withdrawn = true
+        }
+        else {
           this.say(`E${withdraw_result}`)
         }
       }
-      else if ((this.room.terminal) && ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0)) {
-        const excludes = [
-          RESOURCE_ENERGY,
-          RESOURCE_HYDROGEN,
-          RESOURCE_OXYGEN,
-          RESOURCE_UTRIUM,
-          RESOURCE_KEANIUM,
-          RESOURCE_ZYNTHIUM,
-          RESOURCE_LEMERGIUM,
-          RESOURCE_CATALYST,
-        ]
-        this.withdrawResources(storage, {exclude: excludes})
+      else if (this.room.terminal) {
+        for (const raw_type of Object.keys(this.room.terminal.store)) {
+          const resource_type = raw_type as ResourceConstant
+
+          if (resource_type == RESOURCE_ENERGY) {
+            continue
+          }
+
+          const amount = (this.room.terminal.store[resource_type] || 0)
+          if ((amount < 10000) && ((storage.store[resource_type] || 0) > 0)) {
+            this.withdraw(storage, resource_type)
+            withdrawn = true
+            break
+          }
+          else if (amount > 12000) {
+            this.withdraw(this.room.terminal, resource_type)
+            withdrawn = true
+            break
+          }
+          else {
+            continue
+          }
+        }
       }
-      else {
+
+      if (!withdrawn) {
         this.withdraw(storage, RESOURCE_ENERGY)
       }
+
+      // else if ((this.room.terminal) && ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0)) {
+      //   const excludes = [
+      //     RESOURCE_ENERGY,
+      //     RESOURCE_HYDROGEN,
+      //     RESOURCE_OXYGEN,
+      //     RESOURCE_UTRIUM,
+      //     RESOURCE_KEANIUM,
+      //     RESOURCE_ZYNTHIUM,
+      //     RESOURCE_LEMERGIUM,
+      //     RESOURCE_CATALYST,
+      //   ]
+      //   this.withdrawResources(storage, {exclude: excludes})
+      // }
+      // else {
+      //   this.withdraw(storage, RESOURCE_ENERGY)
+      // }
     }
 
+    // transfer
     if ((_.sum(this.carry) - this.carry.energy) == 0) {
+      // only have energy
       const target = this.find_charge_target({should_fully_charged: true})
       if (target) {
         if (this.transfer(target, RESOURCE_ENERGY) == OK) {
@@ -754,8 +791,15 @@ export function init() {
       this.transfer(storage, RESOURCE_ENERGY)
     }
     else {
-      if (this.room.terminal) {
-        this.transferResources(this.room.terminal)
+      if (this.room.terminal && this.carrying_resources[0]) {
+        const amount = this.room.terminal.store[this.carrying_resources[0]] || 0
+
+        if (amount < 10000) {
+          this.transferResources(this.room.terminal)
+        }
+        else {
+          this.transferResources(storage)
+        }
       }
       else {
         this.transferResources(storage)
@@ -1208,9 +1252,6 @@ export function init() {
         }
       }
 
-      if (this.room.name == 'W48S39') {
-        should_upgrade = false
-      }
 
       if (!target) {
         if (should_upgrade) {
@@ -1701,7 +1742,9 @@ export function init() {
         return ActionResult.IN_PROGRESS
 
       case ERR_NOT_IN_RANGE:
-        this.moveTo(target)
+        this.moveTo(target, {
+          maxRooms: 1,
+        })
         return ActionResult.IN_PROGRESS
 
       case ERR_GCL_NOT_ENOUGH:
