@@ -465,7 +465,7 @@ export class Region {
       lightweight_harvester_targets = [
         { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
         { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
-        // { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
+        { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
       ]
       harvester_targets = [
         { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
@@ -474,7 +474,7 @@ export class Region {
       rooms_need_scout = [
         'W42S5',
         'W43S4',
-        // 'W45S5',
+        'W45S5',
       ]
       rooms_need_to_be_defended = [
         'W42S5',
@@ -549,7 +549,25 @@ export class Region {
         break
 
       case 'W43N5':
+        lightweight_harvester_targets = [
+          { id: '59f1a04482100e1594f36710', room_name: 'W43N6' },
+          { id: '59f1a05782100e1594f36898', room_name: 'W42N6' }, // left
+          { id: '59f1a05782100e1594f3689b', room_name: 'W42N5' },
+          { id: '59f1a04582100e1594f36717', room_name: 'W43N4' },
+        ]
         this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W43N6',
+          'W42N6',
+          'W42N5',
+          'W43N4',
+        ]
+        rooms_need_to_be_defended = [
+          'W43N6',
+          'W42N6',
+          'W42N5',
+          'W43N4',
+        ]
         break
 
       default:
@@ -1316,7 +1334,7 @@ export class Region {
         this.room.createConstructionSite(19, 43, STRUCTURE_TERMINAL)
       }
       else if (this.room.name == 'W43N5') {
-        this.room.createConstructionSite(27, 222, STRUCTURE_TOWER)
+        this.room.createConstructionSite(27, 22, STRUCTURE_TOWER)
       }
     })()
 

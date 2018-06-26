@@ -50,9 +50,9 @@ export class LightWeightHarvesterSquad extends Squad {
     if ((this.energy_capacity < 450) && (this.source_info.room_name != 'W49S27')) {
       return SpawnPriority.NONE
     }
-    else if (this.source_info.room_name == 'W45S5') {
-      return SpawnPriority.NONE
-    }
+    // else if (this.source_info.room_name == 'W45S5') {
+    //   return SpawnPriority.NONE
+    // }
 
     const room = Game.rooms[this.source_info.room_name]
 
@@ -174,7 +174,7 @@ export class LightWeightHarvesterSquad extends Squad {
             creep.memory.status = CreepStatus.CHARGE
           }
           else {
-            if (creep.room.heavyly_attacked) {
+            if (creep.room.heavyly_attacked && !creep.room.is_keeperroom) {
               const closest_hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
                 filter: (hostile_creep) => {
                   return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0

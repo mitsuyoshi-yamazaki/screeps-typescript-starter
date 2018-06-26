@@ -389,7 +389,28 @@ export function init() {
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
     }
 
-    if (this.moveTo(closest_exit) == ERR_NO_PATH) {
+    let opt: MoveToOpts = {}
+
+    if (this.room.is_keeperroom) {
+      const callback = (room_name: string): boolean | CostMatrix => {
+        if ((this.room.name == room_name) && this.room.cost_matrix) {
+          return this.room.cost_matrix
+        }
+        return false
+      }
+
+      opt = {
+        costCallback: callback,
+        visualizePathStyle: {
+          fill: 'transparent',
+          stroke: '#ff0000',
+          lineStyle: 'dashed',
+          opacity: 0.8
+        },
+      }
+    }
+
+    if (this.moveTo(closest_exit, opt) == ERR_NO_PATH) {
       this.say('NOPATH')
         // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 1) {
@@ -720,7 +741,7 @@ export function init() {
     this.moveTo(pos.x, pos.y)
 
     // withdraw
-    if ((this.ticksToLive || 0) > 2) {
+    if ((_.sum(this.carry) == 0) && (this.ticksToLive || 0) > 2) {
       let withdrawn = false
 
       if (link && (link.energy > 0)) {
@@ -733,8 +754,8 @@ export function init() {
         }
       }
       else if (this.room.terminal) {
-        for (const raw_type of Object.keys(this.room.terminal.store)) {
-          const resource_type = raw_type as ResourceConstant
+        for (const resource_type of RESOURCES_ALL) {
+          // const resource_type = raw_type as ResourceConstant
 
           if (resource_type == RESOURCE_ENERGY) {
             continue
@@ -760,49 +781,35 @@ export function init() {
       if (!withdrawn) {
         this.withdraw(storage, RESOURCE_ENERGY)
       }
-
-      // else if ((this.room.terminal) && ((_.sum(storage.store) - storage.store.energy - (storage.store[RESOURCE_LEMERGIUM] || 0)) > 0)) {
-      //   const excludes = [
-      //     RESOURCE_ENERGY,
-      //     RESOURCE_HYDROGEN,
-      //     RESOURCE_OXYGEN,
-      //     RESOURCE_UTRIUM,
-      //     RESOURCE_KEANIUM,
-      //     RESOURCE_ZYNTHIUM,
-      //     RESOURCE_LEMERGIUM,
-      //     RESOURCE_CATALYST,
-      //   ]
-      //   this.withdrawResources(storage, {exclude: excludes})
-      // }
-      // else {
-      //   this.withdraw(storage, RESOURCE_ENERGY)
-      // }
     }
 
     // transfer
-    if ((_.sum(this.carry) - this.carry.energy) == 0) {
-      // only have energy
-      const target = this.find_charge_target({should_fully_charged: true})
-      if (target) {
-        if (this.transfer(target, RESOURCE_ENERGY) == OK) {
-          return
+    const carry_amount = _.sum(this.carry)
+    if (carry_amount > 0) {
+      if ((carry_amount - this.carry.energy) == 0) {
+        // only have energy
+        const target = this.find_charge_target({should_fully_charged: true})
+        if (target) {
+          if (this.transfer(target, RESOURCE_ENERGY) == OK) {
+            return
+          }
         }
+        this.transfer(storage, RESOURCE_ENERGY)
       }
-      this.transfer(storage, RESOURCE_ENERGY)
-    }
-    else {
-      if (this.room.terminal && this.carrying_resources[0]) {
-        const amount = this.room.terminal.store[this.carrying_resources[0]] || 0
+      else {
+        if (this.room.terminal && this.carrying_resources[0]) {
+          const amount = this.room.terminal.store[this.carrying_resources[0]] || 0
 
-        if (amount < 10000) {
-          this.transferResources(this.room.terminal)
+          if (amount < 10000) {
+            this.transferResources(this.room.terminal)
+          }
+          else {
+            this.transferResources(storage)
+          }
         }
         else {
           this.transferResources(storage)
         }
-      }
-      else {
-        this.transferResources(storage)
       }
     }
   }

@@ -51,7 +51,7 @@ export class WorkerSquad extends Squad {
       max = 2
     }
     else if (this.room_name == 'W43S5') {
-      max = 3
+      max = 2
     }
     else if (this.room_name == 'W43S2') {
       max = 6
@@ -157,32 +157,12 @@ export class WorkerSquad extends Squad {
     let room_to_escape: string | undefined
 
     switch (this.room_name) {
-      case 'W48S12':
-        room_to_escape = 'W47S12'
-        break
-
-      case 'W49S19':
-        room_to_escape = 'W49S18'
-        break
-
-      case 'W48S19':
-        room_to_escape = 'W49S18'
-        break
-
       case 'W48S6':
         room_to_escape = 'W48S7'
         break
 
       case 'W44S7':
         room_to_escape = 'W44S8'
-        break
-
-      case 'W38S7':
-        room_to_escape = 'W37S7'
-        break
-
-      case 'W33S7':
-        room_to_escape = 'W32S7'
         break
 
       case 'W43S2':

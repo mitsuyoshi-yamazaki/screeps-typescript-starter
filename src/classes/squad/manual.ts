@@ -105,14 +105,16 @@ export class ManualSquad extends Squad {
       case 'W47N2': {
         const room = Game.rooms[this.original_room_name]
         if (!room || !room.storage || !room.terminal || room.terminal.my) {
+          this.creeps.forEach(c=>c.memory.let_thy_die=true)
           return SpawnPriority.NONE
         }
-        if (_.sum(room.terminal.store) > 0) {
+        if (_.sum(room.terminal.store) == 0) {
+          this.creeps.forEach(c=>c.memory.let_thy_die=true)
           return SpawnPriority.NONE
         }
 
-        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-        return SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return SpawnPriority.NONE
       }
 
       default:
@@ -524,22 +526,24 @@ export class ManualSquad extends Squad {
 
       case 'W47N2': {
         this.creeps.forEach((creep) => {
-          // koko
-          // if (!creep.room.storage || !creep.room.terminal) {
-          //   creep.say(`ERR`)
-          //   return
-          // }
+          if (creep.moveToRoom(this.original_room_name) == ActionResult.IN_PROGRESS) {
+            return
+          }
+          if (!creep.room.storage || !creep.room.terminal) {
+            creep.say(`ERR`)
+            return
+          }
 
-          // if ((_.sum(creep.carry) > 0)) {
-          //   if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
-          //     creep.moveTo(creep.room.storage)
-          //   }
-          // }
-          // else {
-          //   if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
-          //     creep.moveTo(drop)
-          //   }
-          // }
+          if ((_.sum(creep.carry) > 0)) {
+            if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.storage)
+            }
+          }
+          else {
+            if (creep.withdrawResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.terminal)
+            }
+          }
         })
 
 
@@ -584,7 +588,7 @@ export class ManualSquad extends Squad {
         // if (target_room && !target) {
         //   (Memory.squads[this.name] as ManualSquadMemory).stop_spawming = true
         // }
-        // return
+        return
       }
 
       case 'W42N1': {
