@@ -102,8 +102,18 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
       }
 
-      case 'W47N2':
-        return this.creeps.size < 6 ? SpawnPriority.LOW : SpawnPriority.NONE
+      case 'W47N2': {
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.storage || !room.terminal || room.terminal.my) {
+          return SpawnPriority.NONE
+        }
+        if (_.sum(room.terminal.store) > 0) {
+          return SpawnPriority.NONE
+        }
+
+        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return SpawnPriority.NONE
+      }
 
       default:
         return SpawnPriority.NONE
@@ -513,34 +523,23 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N2': {
-        const room = Game.rooms[this.original_room_name]
-        if (!room || !room.storage) {
-          return
-        }
-
-        const drop = room.find(FIND_DROPPED_RESOURCES, {
-          filter: (resource) => {
-            return (resource.resourceType != RESOURCE_ENERGY) && (resource.amount > 0)
-          }
-        })[0]
-
         this.creeps.forEach((creep) => {
-          if (!drop) {
-            const harvester_squad_name = 'harvester73492211'
-            creep.memory.squad_name = harvester_squad_name
-            return
-          }
+          // koko
+          // if (!creep.room.storage || !creep.room.terminal) {
+          //   creep.say(`ERR`)
+          //   return
+          // }
 
-          if ((_.sum(creep.carry) > 0) && creep.room.storage) {
-            if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(creep.room.storage)
-            }
-          }
-          else {
-            if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(drop)
-            }
-          }
+          // if ((_.sum(creep.carry) > 0)) {
+          //   if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
+          //     creep.moveTo(creep.room.storage)
+          //   }
+          // }
+          // else {
+          //   if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+          //     creep.moveTo(drop)
+          //   }
+          // }
         })
 
 
