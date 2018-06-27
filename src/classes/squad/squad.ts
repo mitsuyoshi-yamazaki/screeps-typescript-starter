@@ -16,6 +16,7 @@ export enum SquadType {
   CHARGER           = "charger",
   BOOSTED_UPGRADER  = "boosted_upgrader",
   HARVESTER         = "harvester",
+  REMOET_HARVESTER  = "remote_harvester",
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
   MANUAL            = "manual",

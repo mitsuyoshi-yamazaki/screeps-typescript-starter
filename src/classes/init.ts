@@ -11,6 +11,7 @@ const keys = [
 ]
 
 export function init() {
+  Game.version = '2.2.4'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -29,6 +30,13 @@ export function init() {
   //   }
   // }
   Memory.last_tick = now
+
+  if (!Memory.versions) {
+    Memory.versions = []
+  }
+  if (Memory.versions.indexOf(Game.version) < 0) {
+    Memory.versions.push(Game.version)
+  }
 
   if (Memory.squads == null) {
     Memory.squads = {}

@@ -12,7 +12,7 @@ export class HarvesterSquad extends Squad {
   private harvesters: Creep[]
   private carriers: Creep[]
   private source: Source | Mineral | undefined  // A source that the harvester harvests energy
-  private store: StructureContainer | StructureLink | undefined // A store that the harvester stores energy
+  private store: StructureContainer | StructureLink | StructureStorage | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage | undefined
 
@@ -91,7 +91,7 @@ export class HarvesterSquad extends Squad {
           break
 
         default:
-          console.log(`Unexpected creep type ${creep.memory.type}, ${this.name}`)
+          console.log(`HarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}`)
           break
       }
     })
@@ -186,7 +186,14 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a04482100e1594f36715') { // W43N5
+      const storage = Game.getObjectById('5b33832c9ea3e436baf9f9c1') as StructureStorage | undefined
+      if (storage) {
+        this.store = storage
+      }
+    }
 
+    // --
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer
       if (oxygen_container && (this.carriers.length > 0) && (this.carriers[0].carry.energy == 0) && ((oxygen_container.store[RESOURCE_OXYGEN] || 0) > 400)) {
@@ -259,17 +266,6 @@ export class HarvesterSquad extends Squad {
           return ((structure as StructureContainer).store.energy > 300)
         }
       }) as StructureContainer | StructureLink
-
-      if (target) {
-        this.container = target
-      }
-    }
-    else if ((this.source_info.id == '59f1a03882100e1594f3656b') && (this.carriers.length > 0)) {  // W44S7 bottom
-      const target = this.carriers[0].pos.findClosestByPath(FIND_STRUCTURES, { // Harvest from harvester containers
-        filter: (structure) => {
-          return ((structure.structureType == STRUCTURE_CONTAINER) && ((structure as StructureContainer).store.energy > 500))
-        }
-      }) as StructureContainer | undefined
 
       if (target) {
         this.container = target
@@ -419,6 +415,13 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1a01e82100e1594f36174') { // W46S33 bottom left
       number_of_carriers = 2
     }
+    else if (this.source_info.id == '59f1a04482100e1594f36715') { // W43N5 right
+      number_of_carriers = 0
+    }
+    else if (this.source_info.id == '59f1a03882100e1594f36569') { // W44S7 top
+      number_of_carriers = 0
+    }
+
 
     if (this.source_info.room_name == 'W47S49') {
       number_of_carriers = 3
@@ -721,7 +724,7 @@ export class HarvesterSquad extends Squad {
           return
         }
         else {
-          let store: StructureContainer | StructureLink | undefined = this.store
+          let store: StructureContainer | StructureLink | StructureStorage | undefined = this.store
 
           const transfer_result = harvester.transfer(store, this.resource_type!)
           switch (transfer_result) {

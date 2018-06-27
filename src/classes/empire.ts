@@ -58,9 +58,10 @@ export class Empire {
     const w42n1 = 'W42N1'
     const w47n2 = 'W47N2'
     const w43n5 = 'W43N5'
+    const w44n3 = 'W44N3'
 
     if ((Game.time % 2) == 0) {
-      set_delegate(w42n1, w43n5)
+      // set_delegate(w47n2, w44n3)
     }
     else {
     }

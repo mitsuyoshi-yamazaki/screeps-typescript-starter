@@ -147,14 +147,14 @@ export class ResearcherSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    const energy_unit = 100
+    const energy_unit = 150
     const energy_needed = Math.min(Math.floor(capacity / energy_unit) * energy_unit, 1000)
     return energy_available >= energy_needed
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    const body_unit: BodyPartConstant[] = [CARRY, MOVE]
-    const energy_unit = 100
+    const body_unit: BodyPartConstant[] = [CARRY, CARRY, MOVE]
+    const energy_unit = 150
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -167,7 +167,7 @@ export class ResearcherSquad extends Squad {
       let_thy_die: false,
     }
 
-    energy_available = Math.min(energy_available, 1000)
+    energy_available = Math.min(energy_available, 900)
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)

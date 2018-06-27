@@ -318,29 +318,29 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = []//['W51S21']
-        // research_input_targets = [
-        //   {
-        //     id: '5b2552233deea0034025a183', // 30, 18
-        //     resource_type: RESOURCE_LEMERGIUM,
-        //   },
-        //   {
-        //     id: '5b2585544218cc4736554b87', // 31, 17
-        //     resource_type: RESOURCE_OXYGEN,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_LEMERGIUM_OXIDE,  // this is output
-        //   }
-        //   return target
-        // })
+        research_input_targets = [
+          {
+            id: '5b2552233deea0034025a183', // 30, 18
+            resource_type: RESOURCE_OXYGEN,
+          },
+          {
+            id: '5b2585544218cc4736554b87', // 31, 17
+            resource_type: RESOURCE_HYDROGEN,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_HYDROXIDE,  // this is output
+          }
+          return target
+        })
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
         break
@@ -577,8 +577,13 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f1a04482100e1594f36710', room_name: 'W43N6' },
           { id: '59f1a05782100e1594f36898', room_name: 'W42N6' }, // left
+          { id: '59f1a05782100e1594f36896', room_name: 'W42N6' }, // right
           { id: '59f1a05782100e1594f3689b', room_name: 'W42N5' },
           { id: '59f1a04582100e1594f36717', room_name: 'W43N4' },
+        ]
+        harvester_targets = [
+          { id: '59f1a04482100e1594f36714', room_name: 'W43N5' }, // left
+          { id: '59f1a04482100e1594f36715', room_name: 'W43N5' }, // right
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -593,6 +598,10 @@ export class Region {
           'W42N5',
           'W43N4',
         ]
+        break
+
+      case 'W44N3':
+        this.room_names = [this.room.name]
         break
 
       default:
@@ -1210,7 +1219,7 @@ export class Region {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-            hits_max = 700000
+            hits_max = 800000
           }
           else if ((this.room.name == 'W44S7')) {
             hits_max = 300000
@@ -1572,12 +1581,20 @@ export class Region {
         pos = {x: 25, y: 1}
         break
 
+      case 'W43S5':
+        pos = {x: 25, y: 25}
+        break
+
       case 'W47N2':
         pos = {x: 1, y: 26}
         break
 
       case 'W43N5':
         pos = {x: 2, y: 28}
+        break
+
+      case 'W42N1':
+        pos = {x: 28, y: 1}
         break
 
       default:

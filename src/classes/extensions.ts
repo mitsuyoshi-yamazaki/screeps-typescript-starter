@@ -11,11 +11,16 @@ export interface AttackerInfo  {
 }
 
 declare global {
+  interface Game {
+    version: string
+  }
+
   interface Memory {
     last_tick: number
     squads: {[index: string]: SquadMemory}
     temp_squads: SquadMemory[]
     debug_last_tick: any
+    versions: string[]
   }
 
   interface RoomMemory {

@@ -6,6 +6,7 @@ import * as Initializer from "classes/init"
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
+
   Initializer.init()
 
   const spawns = new Map<string, StructureSpawn>()
@@ -32,7 +33,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
       creep.say(`NO SQD`)
 
-      // creep.memory.squad_name = 'worker734834525'
+      // creep.memory.let_thy_die = true
+      // creep.memory.squad_name = 'worker72214031'  // W44S7
     }
   }
 

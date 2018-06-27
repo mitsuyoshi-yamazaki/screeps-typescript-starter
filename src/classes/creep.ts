@@ -1356,6 +1356,11 @@ export function init() {
       }
       else {
         this.upgradeController(room.controller!)
+        if (((Game.time % 13) == 0) && room.controller) {
+          if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
+            this.signController(room.controller, Game.version)
+          }
+        }
         this.moveTo(room.controller!)
         return
       }
