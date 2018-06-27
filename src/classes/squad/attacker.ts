@@ -203,6 +203,10 @@ export class AttackerSquad extends Squad {
               attacker.moveTo(27, 8)
               break
 
+            case 'W43N5':
+              attacker.moveTo(21, 16)
+              break
+
             default:
               console.log(`Attacker unexpected waiting room ${attacker.room}, ${attacker.name}, ${this.name}`)
               break

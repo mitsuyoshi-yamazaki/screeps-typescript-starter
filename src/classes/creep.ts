@@ -145,7 +145,7 @@ export function init() {
       return ActionResult.DONE
     }
 
-    this.say(destination_room_name)
+    this.say(`${this.room.is_keeperroom ? 's' : ''}${destination_room_name}`)
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
@@ -330,10 +330,10 @@ export function init() {
       this.moveTo(38, 0)
       return ActionResult.IN_PROGRESS
     }
-    else if ((this.room.name == 'W44S5') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 18)
-      return ActionResult.IN_PROGRESS
-    }
+    // else if ((this.room.name == 'W44S5') && (exit == RIGHT)) { // @fixme: temp code
+    //   this.moveTo(49, 18)
+    //   return ActionResult.IN_PROGRESS
+    // }
     else if ((this.room.name == 'W43S5') && (exit == RIGHT)) { // @fixme: temp code
       this.moveTo(49, 8)
       return ActionResult.IN_PROGRESS
@@ -383,13 +383,17 @@ export function init() {
       this.moveTo(11, 49)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W45S8') && (this.room.name == 'W44S7')) {
+      this.moveTo(6, 49)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
     }
 
-    let opt: MoveToOpts = {}
+    let opt: MoveToOpts | undefined
 
     if (this.room.is_keeperroom) {
       const callback = (room_name: string): boolean | CostMatrix => {
@@ -401,6 +405,7 @@ export function init() {
 
       opt = {
         costCallback: callback,
+        reusePath: 5,
         visualizePathStyle: {
           fill: 'transparent',
           stroke: '#ff0000',
@@ -410,25 +415,30 @@ export function init() {
       }
     }
 
-    if (this.moveTo(closest_exit, opt) == ERR_NO_PATH) {
+    if (this.moveTo(closest_exit, opt) == ERR_NO_PATH) { // When too close to source in source keeper's room
+      // if (opt) {
+      //   this.moveTo(closest_exit, {
+      //     costCallback: (room_name: string) => new PathFinder.CostMatrix(), // Reset cached CostMatrix
+      //   })
+      // }
       this.say('NOPATH')
         // To avoid ERR_NO_PATH on room borders
-      if (this.pos.x <= 1) {
+      if (this.pos.x <= 0) {
         if (this.move(RIGHT) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
-      if (this.pos.x >= 48) {
+      if (this.pos.x >= 49) {
         if (this.move(LEFT) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
-      if (this.pos.y <= 1) {
+      if (this.pos.y <= 0) {
         if (this.move(BOTTOM) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
-      if (this.pos.y >= 48) {
+      if (this.pos.y >= 49) {
         if (this.move(TOP) == OK) {
           return ActionResult.IN_PROGRESS
         }
@@ -436,6 +446,21 @@ export function init() {
       if (this.room.name == 'W46S42') {
         this.moveTo(30, 44)
         return ActionResult.IN_PROGRESS
+      }
+
+      if (this.room.name == 'W45S7') {
+        this.moveTo(36, 22)
+        return ActionResult.IN_PROGRESS
+      }
+
+      if (this.room.controller) {
+        const result = this.moveTo(this.room.controller, {
+          maxRooms: 0,
+        })
+        this.say(`E${result}`)
+      }
+      else {
+        console.log(`HOGE ${this.room} ${this.room.controller} ${this.pos}`)
       }
       // this.moveTo(closest_exit, {
       //   // swampCost: 1,

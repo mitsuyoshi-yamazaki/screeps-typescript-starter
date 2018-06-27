@@ -189,7 +189,9 @@ export class WorkerSquad extends Squad {
       const creep = this.creeps.get(creep_name)!
 
       if (room_to_escape && room.attacked && room.controller && room.controller.my && (room.controller.level <= 3)) {
-        creep.drop(RESOURCE_ENERGY)
+        if (creep.memory.type == CreepType.WORKER) {
+          creep.drop(RESOURCE_ENERGY)
+        }
         if (creep.moveToRoom(room_to_escape) == ActionResult.IN_PROGRESS) {
           creep.say(`wRUN`)
           continue
@@ -208,7 +210,7 @@ export class WorkerSquad extends Squad {
       let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
 
       if (creep.room.name != this.room_name) {
-        if (creep.carry.energy > 0) {
+        if ((creep.carry.energy > 0) && (creep.memory.type == CreepType.WORKER)) {
           creep.drop(RESOURCE_ENERGY)
         }
         creep.moveToRoom(this.room_name)

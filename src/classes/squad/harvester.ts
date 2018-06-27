@@ -180,6 +180,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a00882100e1594f35eeb') { // W47N2
+      const link = Game.getObjectById('5b334e132d6e4e7d3f58a2ea') as StructureLink | undefined
+      if (link && (link.energy < link.energyCapacity)) {
+        this.store = link
+      }
+    }
 
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
       const oxygen_container = Game.getObjectById('5af19724b0db053c306cbd30') as StructureContainer

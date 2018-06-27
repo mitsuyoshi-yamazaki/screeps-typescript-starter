@@ -70,6 +70,10 @@ export class LightWeightHarvesterSquad extends Squad {
       max = 1
     }
 
+    if (this.source_info.id == '59f1a02982100e1594f36321') {  // W45S5
+      max = 1//3
+    }
+
     return this.creeps.size < max ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
@@ -111,11 +115,7 @@ export class LightWeightHarvesterSquad extends Squad {
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']
 
-      if (((room && room.heavyly_attacked) || (creep.hits < creep.hitsMax)) && this.region.worker_squad) {
-        creep.memory.squad_name = this.region.worker_squad.name
-        return
-      }
-      else if (((!w45s42 || w45s42.heavyly_attacked) || (creep.hits < creep.hitsMax)) && (['W45S41', 'W45S42', 'W45S43', 'W46S42', 'W46S43', 'W44S43'].indexOf(this.source_info.room_name) >= 0)) {
+      if (((room && !room.is_keeperroom && room.heavyly_attacked) || (creep.hits < creep.hitsMax)) && this.region.worker_squad) {
         creep.memory.squad_name = this.region.worker_squad.name
         return
       }
@@ -182,6 +182,9 @@ export class LightWeightHarvesterSquad extends Squad {
               })
               if (closest_hostile && (creep.pos.getRangeTo(closest_hostile) < 8)) {
                 creep.say('RUN')
+                if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
+                  return
+                }
                 creep.moveTo(this.destination)
                 creep.memory.status = CreepStatus.CHARGE
                 return
@@ -258,6 +261,9 @@ export class LightWeightHarvesterSquad extends Squad {
             const result = creep.transfer(this.destination, resource_type as ResourceConstant)
             switch (result) {
               case ERR_NOT_IN_RANGE:
+                if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
+                  return
+                }
                 creep.moveTo(this.destination)
                 break
 

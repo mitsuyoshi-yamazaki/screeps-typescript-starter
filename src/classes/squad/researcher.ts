@@ -16,16 +16,30 @@ export class ResearcherSquad extends Squad {
 
     const room = Game.rooms[this.room_name]
 
+    let debug = false
+    // if (this.room_name == 'W44S7') {
+    //   debug = true
+    // }
+
     if (!room || (room.spawns.length == 0)) {
       this.needs_research = false
+      if (debug) {
+        console.log(`ResearchSquad needs_research: ${this.needs_research}, no room`)
+      }
       return
     }
 
     if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
       this.needs_research = false
+      if (debug) {
+        console.log(`ResearchSquad needs_research: ${this.needs_research}, no targets, inputs: ${this.input_targets.length}, outputs: ${this.output_targets.length}`)
+      }
     }
     else if (this.output_targets.map(t=>Game.getObjectById(t.id) as StructureLab).filter(l=>l.mineralAmount > 100).length > 0) {
       this.needs_research = true
+      if (debug) {
+        console.log(`ResearchSquad needs_research: ${this.needs_research}, has output compounds`)
+      }
     }
     else {
       let room_resource: ResourceConstant | undefined // @fixme: temp code
@@ -54,6 +68,10 @@ export class ResearcherSquad extends Squad {
           room_resource = RESOURCE_LEMERGIUM
           break
 
+        case 'W44S7':
+          room_resource = RESOURCE_HYDROGEN
+          break
+
         default:
           break
       }
@@ -63,6 +81,9 @@ export class ResearcherSquad extends Squad {
         console.log(message)
         Game.notify(message)
         this.needs_research = false
+        if (debug) {
+          console.log(`ResearchSquad needs_research: ${this.needs_research}, room_resource not defined`)
+        }
       }
       else {
         const room = Game.rooms[this.room_name]!
@@ -71,6 +92,9 @@ export class ResearcherSquad extends Squad {
 
         if (terminal_needs_resource && storage_has_resource) {
           this.needs_research = true
+          if (debug) {
+            console.log(`ResearchSquad needs_research: ${this.needs_research}, terminal nor storage has resource`)
+          }
         }
         else {
           let needs = true
@@ -88,7 +112,7 @@ export class ResearcherSquad extends Squad {
       }
     }
 
-    this.needs_research = false // fixme
+    // this.needs_research = false // fixme
 
     // if (this.room_name == 'W48S47') {
     //   this.needs_research = false // somehow it's true in W48S47
@@ -202,6 +226,11 @@ export class ResearcherSquad extends Squad {
           case 'W51S29':
             room_resource = RESOURCE_LEMERGIUM
             break
+
+          case 'W44S7':
+            room_resource = RESOURCE_HYDROGEN
+            break
+
         }
 
         if (!room_resource) {

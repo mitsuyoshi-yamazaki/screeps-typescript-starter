@@ -318,29 +318,29 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = []//['W51S21']
-        research_input_targets = [
-          {
-            id: '5b2552233deea0034025a183', // 30, 18
-            resource_type: RESOURCE_LEMERGIUM,
-          },
-          {
-            id: '5b2585544218cc4736554b87', // 31, 17
-            resource_type: RESOURCE_OXYGEN,
-          },
-        ]
-        research_output_targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            let input_target_ids = research_input_targets.map(t=>t.id)
-            return (structure.structureType == STRUCTURE_LAB)
-              && (input_target_ids.indexOf(structure.id) < 0)
-          }
-        }).map((lab) => {
-          const target: ResearchTarget = {
-            id: lab.id,
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,  // this is output
-          }
-          return target
-        })
+        // research_input_targets = [
+        //   {
+        //     id: '5b2552233deea0034025a183', // 30, 18
+        //     resource_type: RESOURCE_LEMERGIUM,
+        //   },
+        //   {
+        //     id: '5b2585544218cc4736554b87', // 31, 17
+        //     resource_type: RESOURCE_OXYGEN,
+        //   },
+        // ]
+        // research_output_targets = this.room.find(FIND_STRUCTURES, {
+        //   filter: (structure) => {
+        //     let input_target_ids = research_input_targets.map(t=>t.id)
+        //     return (structure.structureType == STRUCTURE_LAB)
+        //       && (input_target_ids.indexOf(structure.id) < 0)
+        //   }
+        // }).map((lab) => {
+        //   const target: ResearchTarget = {
+        //     id: lab.id,
+        //     resource_type: RESOURCE_LEMERGIUM_OXIDE,  // this is output
+        //   }
+        //   return target
+        // })
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
         break
@@ -435,6 +435,29 @@ export class Region {
         ]
         this.destination_link_id = '5b2e775359615412454b065e'
         charger_position = {x: 19, y: 42}
+        research_input_targets = [
+          {
+            id: '5b32880e2ffd7a7b7f47e643', // 18, 34
+            resource_type: RESOURCE_HYDROGEN,
+          },
+          {
+            id: '5b32af23c3f6e64781782851', // 17, 33
+            resource_type: RESOURCE_OXYGEN,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_HYDROXIDE,  // this is output
+          }
+          return target
+        })
         break
 
       case 'W48S6':
@@ -546,6 +569,8 @@ export class Region {
           'W46N1',
           'W47N1',
         ]
+        this.destination_link_id = '5b33369c91f5f036a9375bda'
+        charger_position = {x: 16, y: 8}
         break
 
       case 'W43N5':
@@ -574,10 +599,6 @@ export class Region {
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
     }
-
-
-    research_input_targets = []
-    research_output_targets = []
 
     // --
     this.attacked_rooms = this.room_names.map((room_name) => {
@@ -1553,6 +1574,10 @@ export class Region {
 
       case 'W47N2':
         pos = {x: 1, y: 26}
+        break
+
+      case 'W43N5':
+        pos = {x: 2, y: 28}
         break
 
       default:

@@ -111,9 +111,9 @@ export function init() {
       this.resourceful_tombstones = []
     }
 
-    const prefix = ((Number(this.name.slice(1,3)) - 4) % 10) <= 2
-    const suffix = ((Number(this.name.slice(4,6)) - 4) % 10) <= 2
-    this.is_keeperroom = prefix && suffix
+    const prefix = (Number(this.name.slice(1,3)) - 4) % 10
+    const suffix = (Number(this.name.slice(4,6)) - 4) % 10
+    this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
 
     if (this.is_keeperroom) {
       let memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
@@ -132,6 +132,7 @@ export function init() {
       else {
         this.cost_matrix = new PathFinder.CostMatrix;
         const margin = 5
+        const cost = 5
 
         this.find(FIND_STRUCTURES).filter((structure: Structure) => {
           return structure.structureType == STRUCTURE_KEEPER_LAIR
@@ -146,7 +147,7 @@ export function init() {
                 continue
               }
 
-              this.cost_matrix.set(i, j, 0xff)
+              this.cost_matrix.set(i, j, cost)
             }
           }
         })
@@ -162,7 +163,7 @@ export function init() {
                 continue
               }
 
-              this.cost_matrix.set(i, j, 0xff)
+              this.cost_matrix.set(i, j, cost)
             }
           }
         })
@@ -178,7 +179,7 @@ export function init() {
                 continue
               }
 
-              this.cost_matrix.set(i, j, 0xff)
+              this.cost_matrix.set(i, j, cost)
             }
           }
         })
