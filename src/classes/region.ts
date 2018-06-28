@@ -322,11 +322,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b2552233deea0034025a183', // 30, 18
-            resource_type: RESOURCE_LEMERGIUM,
+            resource_type: RESOURCE_LEMERGIUM_OXIDE,
           },
           {
             id: '5b2585544218cc4736554b87', // 31, 17
-            resource_type: RESOURCE_UTRIUM,
+            resource_type: RESOURCE_HYDROXIDE,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -338,7 +338,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_UTRIUM_LEMERGITE,  // this is output
+            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,  // this is output
           }
           return target
         })
@@ -439,11 +439,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b32880e2ffd7a7b7f47e643', // 18, 34
-            resource_type: RESOURCE_ZYNTHIUM,
+            resource_type: RESOURCE_ZYNTHIUM_KEANITE,
           },
           {
             id: '5b32af23c3f6e64781782851', // 17, 33
-            resource_type: RESOURCE_KEANIUM,
+            resource_type: RESOURCE_UTRIUM_LEMERGITE,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -455,7 +455,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_ZYNTHIUM_KEANITE,  // this is output
+            resource_type: RESOURCE_GHODIUM,  // this is output
           }
           return target
         })
@@ -474,6 +474,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
           { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
+          // { id: '', room_name: 'W48S6' }, // hydrogen
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -543,6 +544,29 @@ export class Region {
         ]
         this.destination_link_id = '5b306805ad2c2c3e2216de40'
         charger_position = {x: 24, y: 29}
+        research_input_targets = [
+          {
+            id: '5b3537ffee165b475d3234f2', // 18, 33
+            resource_type: RESOURCE_ZYNTHIUM_ACID,
+          },
+          {
+            id: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
+            resource_type: RESOURCE_CATALYST,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_CATALYZED_ZYNTHIUM_ACID,  // this is output
+          }
+          return target
+        })
         break
 
       case 'W47N2':
