@@ -16,27 +16,32 @@ export const loop = ErrorMapper.wrapLoop(() => {
     spawns.set(spawnName, spawn)
   }
 
-  const empire = new Empire("Mitsuyoshi", spawns)
+  ErrorMapper.wrapLoop(() => {
+    const empire = new Empire("Mitsuyoshi", spawns)
+    empire.run()
+  })()
 
-  empire.run()
+  ErrorMapper.wrapLoop(() => {
+    if (((Game.time + 3) % 11) == 0) {
+      for (const creep_name in Game.creeps) {
+        const creep = Game.creeps[creep_name]
 
-  if (((Game.time + 3) % 11) == 0) {
-    for (const creep_name in Game.creeps) {
-      const creep = Game.creeps[creep_name]
+        creep.notifyWhenAttacked(!(!creep.memory.should_notify_attack))
 
-      creep.notifyWhenAttacked(!(!creep.memory.should_notify_attack))
+        if (creep.squad || creep.spawning) {
+          continue
+        }
 
-      if (creep.squad || creep.spawning) {
-        continue
+        console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
+        creep.say(`NO SQD`)
+
+        // creep.memory.let_thy_die = true
+        // creep.memory.squad_name = 'worker72214031'  // W44S7
       }
-
-      console.log(`Creep missing squad ${creep.name}, squad name: ${creep.memory.squad_name}, ${creep.memory.status}, ${creep.memory.type}, at ${creep.pos}`)
-      creep.say(`NO SQD`)
-
-      // creep.memory.let_thy_die = true
-      // creep.memory.squad_name = 'worker72214031'  // W44S7
     }
-  }
+  })()
+
+  ErrorMapper.wrapLoop(() => {
 
   // const first_room_name = 'W48S47'  // O
   // const second_room_name = 'W49S47' // U
@@ -78,6 +83,19 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     })
   }
+  })()
+
+  ErrorMapper.wrapLoop(() => {
+    for (const creep_name in Game.creeps) {
+      const creep = Game.creeps[creep_name]
+
+      if (!creep.memory.debug) {
+        continue
+      }
+
+      creep.say(creep.memory.status)
+    }
+  })()
 })
 
 /**

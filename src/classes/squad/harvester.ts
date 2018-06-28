@@ -129,6 +129,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f037c') { // W44S7 Hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f043e') { // W42N1 Catalyst
+      this.resource_type = RESOURCE_CATALYST
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -192,6 +195,26 @@ export class HarvesterSquad extends Squad {
         this.store = storage
       }
     }
+    else if (this.source_info.id == '59f1a05882100e1594f368aa') { // W42N1 bottom
+      const link = Game.getObjectById('5b34d57a244ab464e470dbe8') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
+    else if (this.source_info.id == '59f19ffa82100e1594f35d81') { // W48S6 top
+      const link = Game.getObjectById('5b34eee144286f7b91f90f2e') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
+    else if (this.source_info.id == '59f19ffa82100e1594f35d82') { // W48S6 bottom
+      const link = Game.getObjectById('5b34f78197be977d39dbf57e') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
+
+
 
     // --
     if ((this.source_info.id == '59f19fff82100e1594f35e06') && (this.carriers.length > 0)) {  // W48S47 top right
@@ -689,7 +712,7 @@ export class HarvesterSquad extends Squad {
       }
 
       const carrying_energy = harvester.carry[this.resource_type!] || 0
-      if ((harvester.memory.status == CreepStatus.HARVEST) && (carrying_energy > 0) && ((carrying_energy == harvester.carryCapacity) || ((harvester.ticksToLive || 0) < 5))) {
+      if ((harvester.memory.status == CreepStatus.HARVEST) && (carrying_energy > 0) && ((carrying_energy > (harvester.carryCapacity - (harvester.getActiveBodyparts(WORK) * HARVEST_POWER))) || ((harvester.ticksToLive || 0) < 5))) {
         harvester.memory.status = CreepStatus.CHARGE
       }
 

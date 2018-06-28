@@ -28,10 +28,10 @@ export class UpgraderSquad extends Squad {
     let max = 0
     const room = Game.rooms[this.room_name]
 
-    if ((this.room_name == 'W48S6') && room && room.storage && (room.storage.store.energy > 10000)) {
-      const max = Math.floor(room.storage.store.energy / 10000)
-      return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
-    }
+    // if ((this.room_name == 'W48S6') && room && room.storage && (room.storage.store.energy > 10000)) {
+    //   const max = Math.floor(room.storage.store.energy / 10000)
+    //   return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
+    // }
 
     if (!room || !room.controller || !room.controller.my || (room.controller.level == 8)) {
       return SpawnPriority.NONE

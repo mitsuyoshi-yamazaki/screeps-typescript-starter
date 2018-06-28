@@ -24,6 +24,7 @@ interface SourceInfo {
 
 export class RemoteHarvesterSquad extends Squad {
   private scout: Creep | undefined
+  private builder: Creep | undefined
   // private keeper: Creep | undefined  // not yet
   private source_info = new Map<string, SourceInfo>()
   private carriers: Creep[] = []
@@ -32,6 +33,8 @@ export class RemoteHarvesterSquad extends Squad {
 
   constructor(readonly name: string, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination) {
     super(name)
+
+    const room = Game.rooms[this.room_name] as Room | undefined
 
     this.source_ids.forEach((id) => {
       const info: SourceInfo = {
@@ -71,11 +74,10 @@ export class RemoteHarvesterSquad extends Squad {
       }
     })
 
-    // @fixme: uncomment
-    // if (!this.scout) {
-    //   this.next_creep = CreepType.SCOUT
-    // }
-    // else {
+    if (!this.scout) {
+      this.next_creep = CreepType.SCOUT
+    }
+    else {
       const harvester_max = 1 // @todo:
       let needs_harvester = false
 
@@ -88,9 +90,14 @@ export class RemoteHarvesterSquad extends Squad {
       if (needs_harvester) {
         this.next_creep = CreepType.HARVESTER
       }
-    // }
-    else if (this.carriers.length < 3) {
-      this.next_creep = CreepType.CARRIER
+    }
+
+    if (!this.next_creep && room) {
+
+    }
+
+    if (!this.next_creep && (this.carriers.length < 3)) {
+      // this.next_creep = CreepType.CARRIER  // @fixme: uncomment
     }
   }
 
@@ -204,12 +211,18 @@ export class RemoteHarvesterSquad extends Squad {
       return
     }
 
+    // const body_unit: BodyPartConstant[] = [
+    //   WORK, WORK, WORK,
+    //   WORK, WORK, WORK,
+    //   CARRY,
+    //   MOVE, MOVE, MOVE,
+    // ]
     const body_unit: BodyPartConstant[] = [
-      WORK, WORK, WORK,
-      WORK, WORK, //WORK,
-      CARRY, CARRY,
+      WORK, WORK, WORK, WORK,
+      CARRY, CARRY, CARRY, CARRY,
       MOVE, MOVE, MOVE, MOVE,
     ]
+
     const energy_unit = 800
 
     const name = this.generateNewName()
@@ -317,7 +330,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
 
         if (creep.memory.status == CreepStatus.HARVEST) {
-          if (creep.carry.energy > (creep.carryCapacity - (creep.getActiveBodyparts(WORK) * 2))) {
+          if (creep.carry.energy > (creep.carryCapacity - (creep.getActiveBodyparts(WORK) * HARVEST_POWER))) {
             creep.memory.status = CreepStatus.CHARGE
           }
           else {

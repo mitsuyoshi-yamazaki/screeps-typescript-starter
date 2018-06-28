@@ -91,6 +91,7 @@ declare global {
     should_silent?: boolean
     should_notify_attack: boolean
     let_thy_die: boolean
+    debug?: boolean
   }
 }
 
@@ -122,23 +123,25 @@ export function init() {
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
     if (this.room.name == destination_room_name) {
+      const index = (Game.time % 3)
+
       if (this.pos.x == 0) {
-        if (this.move(RIGHT) == OK) {
+        if (this.move([RIGHT, TOP_RIGHT, BOTTOM_RIGHT][index]) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.x == 49) {
-        if (this.move(LEFT) == OK) {
+        if (this.move([LEFT, TOP_LEFT, BOTTOM_LEFT][index]) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.y == 0) {
-        if (this.move(BOTTOM) == OK) {
+        if (this.move([BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT][index]) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.y == 49) {
-        if (this.move(TOP) == OK) {
+        if (this.move([TOP, TOP_LEFT, TOP_RIGHT][index]) == OK) {
           return ActionResult.IN_PROGRESS
         }
       }

@@ -322,11 +322,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b2552233deea0034025a183', // 30, 18
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_LEMERGIUM,
           },
           {
             id: '5b2585544218cc4736554b87', // 31, 17
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_UTRIUM,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -338,7 +338,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_HYDROXIDE,  // this is output
+            resource_type: RESOURCE_UTRIUM_LEMERGITE,  // this is output
           }
           return target
         })
@@ -439,11 +439,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b32880e2ffd7a7b7f47e643', // 18, 34
-            resource_type: RESOURCE_HYDROGEN,
+            resource_type: RESOURCE_ZYNTHIUM,
           },
           {
             id: '5b32af23c3f6e64781782851', // 17, 33
-            resource_type: RESOURCE_OXYGEN,
+            resource_type: RESOURCE_KEANIUM,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -455,7 +455,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_HYDROXIDE,  // this is output
+            resource_type: RESOURCE_ZYNTHIUM_KEANITE,  // this is output
           }
           return target
         })
@@ -468,7 +468,8 @@ export class Region {
           { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
           { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
-          { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top left
+          { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top right
+          { id: '59f19feb82100e1594f35c01', room_name: 'W49S5' }, // center
         ]
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
@@ -478,11 +479,15 @@ export class Region {
         rooms_need_scout = [
           'W49S6',
           'W48S5',
+          'W48S7',
         ]
         rooms_need_to_be_defended = [
           // 'W49S6',
           'W48S5',
+          'W48S7',
         ]
+        charger_position = {x: 35, y: 22}
+        this.destination_link_id = '5b34e943bb6c0934e8274579'
         break
 
       case 'W43S5':
@@ -520,6 +525,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
           { id: '59f1a05882100e1594f368aa', room_name: 'W42N1' }, // bottom
+          { id: '59f1c0cf7d0b3d79de5f043e', room_name: 'W42N1' }, // catalyst
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -1227,7 +1233,7 @@ export class Region {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-            hits_max = 800000
+            hits_max = 900000
           }
           else if ((this.room.name == 'W44S7')) {
             hits_max = 300000
@@ -1355,25 +1361,11 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      if (this.room.name == 'W33S7') {
-        // this.room.createConstructionSite(40, 37, STRUCTURE_STORAGE)
-
-        // if (this.room.storage && !this.room.storage.my && (this.room.storage.store.energy == 0)) {
-        //   this.room.storage.destroy()
-        // }
-      }
-      else if (this.room.name == 'W47N2') {
-        if (this.room.storage && !this.room.storage.my && ((_.sum(this.room.storage.store) == 0))) {
-          this.room.storage.destroy()
-        }
-        this.room.createConstructionSite(17, 9, STRUCTURE_STORAGE)
-      }
-      else if (this.room.name == 'W44S7') {
-        this.room.createConstructionSite(19, 43, STRUCTURE_TERMINAL)
-      }
-      else if (this.room.name == 'W43N5') {
-        this.room.createConstructionSite(27, 22, STRUCTURE_TOWER)
-      }
+      // if ((Game.time % 23) == 3) {
+      //   if ((this.room.name == 'W42N1') && !this.room.terminal && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
+      //     this.room.createConstructionSite(24, 30, STRUCTURE_TERMINAL)
+      //   }
+      // }
     })()
 
     // ErrorMapper.wrapLoop(() => {

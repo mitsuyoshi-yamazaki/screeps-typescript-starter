@@ -380,6 +380,16 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
+        const wall = Game.getObjectById('5a648a9b4251253056b361a1') as StructureWall | undefined
+
+        this.creeps.forEach((creep) => {
+          if (wall) {
+            creep.dismantleObjects('W43S7', wall)
+          }
+          else {
+            creep.memory.squad_name = 'worker72214031'
+          }
+        })
         return
       }
 
