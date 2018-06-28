@@ -15,6 +15,7 @@ import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
 import { GuardSquad } from "./squad/guard";
 import { ChargerSquad } from './squad/charger';
+import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 
 export class Region {
   // Public
@@ -711,6 +712,13 @@ export class Region {
         }
 
         const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.REMOET_HARVESTER: {
+        const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
+
+        const squad = new RemoteHarvesterSquad(squad_memory.name, remote_harvester_squad_memory.room_name, remote_harvester_squad_memory.source_ids, harvester_destination)
         this.squads.set(squad.name, squad)
         break
       }

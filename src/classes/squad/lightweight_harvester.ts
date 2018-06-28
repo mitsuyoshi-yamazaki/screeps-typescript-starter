@@ -262,6 +262,23 @@ export class LightWeightHarvesterSquad extends Squad {
             switch (result) {
               case ERR_NOT_IN_RANGE:
                 if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
+                  const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+                    filter: (structure: AnyStructure) => {
+                      if (structure.hits > (structure.hitsMax * 0.5)) {
+                        return false
+                      }
+                      if (structure.structureType == STRUCTURE_ROAD) {
+                        return true
+                      }
+                      if (structure.structureType == STRUCTURE_CONTAINER) {
+                        return true
+                      }
+                      return false
+                    }
+                  })[0]
+                  if (damaged_structure) {
+                    creep.repair(damaged_structure)
+                  }
                   return
                 }
                 creep.moveTo(this.destination)

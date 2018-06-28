@@ -6,15 +6,20 @@ export type HarvesterDestination = StructureContainer | StructureTerminal | Stru
 
 export interface RemoteHarvesterMemory extends CreepMemory {
   source_id: string
+  room_contains_construction_sites: string[]
 }
 
 export interface RemoteHarvesterSquadMemory extends SquadMemory {
+  room_name: string
+  source_ids: string[]
   stop_spawming?: boolean
 }
 
 interface SourceInfo {
   id: string
+  target: Source | Mineral | undefined
   harvesters: Creep[]
+  store: StructureContainer | undefined
 }
 
 export class RemoteHarvesterSquad extends Squad {
@@ -31,7 +36,9 @@ export class RemoteHarvesterSquad extends Squad {
     this.source_ids.forEach((id) => {
       const info: SourceInfo = {
         id,
+        target: Game.getObjectById(id) as Source | Mineral | undefined,
         harvesters: [],
+        store: undefined, // @todo: 入れる
       }
       this.source_info.set(id, info)
     })
@@ -40,7 +47,7 @@ export class RemoteHarvesterSquad extends Squad {
       const memory = creep.memory as RemoteHarvesterMemory
 
       switch (creep.memory.type) {
-        case CreepType.HARVESTER:
+        case CreepType.HARVESTER: {
           const info = this.source_info.get(memory.source_id)
           if (!info) {
             console.log(`RemoteHarvesterSquad specified source_id not exists ${this.name}, ${creep.name}, ${memory.source_id}, ${this.source_ids}`)
@@ -48,6 +55,7 @@ export class RemoteHarvesterSquad extends Squad {
           }
           info.harvesters.push(creep)
           break
+        }
 
         case CreepType.CARRIER:
           this.carriers.push(creep)
@@ -63,11 +71,12 @@ export class RemoteHarvesterSquad extends Squad {
       }
     })
 
-    if (!this.scout) {
-      this.next_creep = CreepType.SCOUT
-    }
-    else {
-      const harvester_max = 1
+    // @fixme: uncomment
+    // if (!this.scout) {
+    //   this.next_creep = CreepType.SCOUT
+    // }
+    // else {
+      const harvester_max = 1 // @todo:
       let needs_harvester = false
 
       this.source_info.forEach((info) => {
@@ -79,6 +88,9 @@ export class RemoteHarvesterSquad extends Squad {
       if (needs_harvester) {
         this.next_creep = CreepType.HARVESTER
       }
+    // }
+    else if (this.carriers.length < 3) {
+      this.next_creep = CreepType.CARRIER
     }
   }
 
@@ -96,6 +108,11 @@ export class RemoteHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+    if (memory.stop_spawming) {
+      return SpawnPriority.NONE
+    }
+
     if (!this.next_creep) {
       return SpawnPriority.NONE
     }
@@ -112,12 +129,12 @@ export class RemoteHarvesterSquad extends Squad {
         return energy_available >= 50
 
       case CreepType.HARVESTER:
-        max = 1600
         energy_unit = 800
+        max = energy_unit * 2
         break
 
       case CreepType.CARRIER:
-        return false
+        return false  // @todo:
 
       case CreepType.CONTROLLER_KEEPER:
         return false
@@ -132,9 +149,9 @@ export class RemoteHarvesterSquad extends Squad {
       return false
     }
 
-    capacity = Math.min(capacity, max)
+    capacity = Math.min((capacity - 50), max)
 
-    const energy_needed = (Math.floor((capacity - 50) / energy_unit) * energy_unit)
+    const energy_needed = (Math.floor(capacity / energy_unit) * energy_unit)
     return energy_available >= energy_needed
   }
 
@@ -149,6 +166,7 @@ export class RemoteHarvesterSquad extends Squad {
         return
 
       case CreepType.CARRIER:
+        this.addCarrier(energy_available, spawn_func)
         return
 
       case CreepType.CONTROLLER_KEEPER:
@@ -163,6 +181,7 @@ export class RemoteHarvesterSquad extends Squad {
   public run(): void {
     this.runScout()
     this.runHarvester()
+    this.runCarrier()
   }
 
   public description(): string {
@@ -187,9 +206,9 @@ export class RemoteHarvesterSquad extends Squad {
 
     const body_unit: BodyPartConstant[] = [
       WORK, WORK, WORK,
-      WORK, WORK, WORK,
-      CARRY,
-      MOVE, MOVE, MOVE,
+      WORK, WORK, //WORK,
+      CARRY, CARRY,
+      MOVE, MOVE, MOVE, MOVE,
     ]
     const energy_unit = 800
 
@@ -203,9 +222,10 @@ export class RemoteHarvesterSquad extends Squad {
       should_notify_attack: false,
       let_thy_die: true,
       source_id,
+      room_contains_construction_sites: [],
     }
 
-    energy_available = Math.min(energy_available, 1600)
+    energy_available = Math.min(energy_available, energy_unit * 2)
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
       energy_available -= energy_unit
@@ -215,6 +235,45 @@ export class RemoteHarvesterSquad extends Squad {
       memory: memory
     })
   }
+
+  private addCarrier(energy_available: number, spawn_func: SpawnFunction): void {
+    const source_id = this.source_ids[0]
+
+    if (!source_id) {
+      console.log(`RemoteRoomHarvesterSquad.addCarrier no source ${this.source_ids}, ${this.name}`)
+      return
+    }
+
+    const body_unit: BodyPartConstant[] = [
+      CARRY, CARRY, MOVE
+    ]
+    const energy_unit = 150
+
+    const name = this.generateNewName()
+    let body: BodyPartConstant[] = []
+    const memory: RemoteHarvesterMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.HARVESTER,
+      should_notify_attack: false,
+      let_thy_die: true,
+      source_id,
+      room_contains_construction_sites: [],
+    }
+
+    energy_available = Math.min(energy_available, (energy_unit * 8) + 100)
+    while (energy_available >= energy_unit) {
+      body = body.concat(body_unit)
+      energy_available -= energy_unit
+    }
+    body = body.concat([WORK])
+
+    const result = spawn_func(body, name, {
+      memory: memory
+    })
+  }
+
 
   // --
   private runScout() {
@@ -235,9 +294,96 @@ export class RemoteHarvesterSquad extends Squad {
 
       return
     }
+
+    this.scout.moveTo(25, 25)
   }
 
   private runHarvester() {
+
+    this.source_info.forEach((info) => {
+      info.harvesters.forEach((creep) => {
+        const memory = creep.memory as RemoteHarvesterMemory
+
+        if ([CreepStatus.HARVEST, CreepStatus.CHARGE, CreepStatus.BUILD].indexOf(creep.memory.status) < 0) {
+          creep.memory.status = CreepStatus.HARVEST
+        }
+
+        if (((Game.time % 19) == 3) && (memory.room_contains_construction_sites.indexOf(creep.room.name) < 0)) {
+          const has_construction_site = creep.room.find(FIND_MY_CONSTRUCTION_SITES).length > 0
+
+          if (has_construction_site) {
+            (creep.memory as RemoteHarvesterMemory).room_contains_construction_sites.push(creep.room.name)
+          }
+        }
+
+        if (creep.memory.status == CreepStatus.HARVEST) {
+          if (creep.carry.energy > (creep.carryCapacity - (creep.getActiveBodyparts(WORK) * 2))) {
+            creep.memory.status = CreepStatus.CHARGE
+          }
+          else {
+            if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+
+            if (!info.target) {
+              const message = `RemoteHarvesterSquad.runHarvester no target found for ${info.id} in ${this.room_name}, ${this.name}`
+              console.log(message)
+              Game.notify(message)
+              return
+            }
+
+            if (creep.harvest(info.target) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(info.target)
+            }
+          }
+        }
+
+        if (creep.memory.status == CreepStatus.CHARGE) {
+          if (creep.carry.energy == 0) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else if (memory.room_contains_construction_sites.indexOf(creep.room.name) >= 0) {
+            creep.memory.status = CreepStatus.BUILD
+          }
+          else if (memory.room_contains_construction_sites[0]) {
+            creep.moveToRoom(memory.room_contains_construction_sites[0])
+          }
+          else {
+            // charge
+          }
+        }
+
+        if (creep.memory.status == CreepStatus.BUILD) {
+          if (creep.carry.energy == 0) {
+            creep.memory.status = CreepStatus.HARVEST
+          }
+          else {
+            const construction_site = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES)
+
+            if (!construction_site) {
+              const index = memory.room_contains_construction_sites.indexOf(creep.room.name)
+
+              if (index >= 0) {
+                (creep.memory as RemoteHarvesterMemory).room_contains_construction_sites.splice(index, 1)
+              }
+
+              creep.memory.status = CreepStatus.HARVEST
+              return
+            }
+
+            creep.build(construction_site)
+            creep.moveTo(construction_site)
+          }
+        }
+      })
+    })
+  }
+
+  private runCarrier(): void {
+    this.carriers.forEach((creep) => {
+
+    })
+
     // @todo
   }
 }
