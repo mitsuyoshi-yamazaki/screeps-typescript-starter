@@ -204,7 +204,7 @@ export class AttackerSquad extends Squad {
               break
 
             case 'W43N5':
-              attacker.moveTo(21, 16)
+              attacker.moveTo(17, 19)
               break
 
             case 'W43S5':

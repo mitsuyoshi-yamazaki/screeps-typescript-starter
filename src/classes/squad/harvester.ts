@@ -132,6 +132,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f043e') { // W42N1 Catalyst
       this.resource_type = RESOURCE_CATALYST
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0228') { // W48S6 Hydrogen
+      this.resource_type = RESOURCE_HYDROGEN
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -843,9 +846,13 @@ export class HarvesterSquad extends Squad {
             resource_type = type as ResourceConstant
           }
           if (resource_type) {
-            if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
+            const withdraw_result = creep.withdraw(target, resource_type)
+            if (withdraw_result == ERR_NOT_IN_RANGE) {
               creep.moveTo(target)
               creep.say(`${target.pos.x}, ${target.pos.y}`)
+            }
+            else if (withdraw_result != OK) {
+              creep.say(`E${withdraw_result}`)
             }
             return
           }

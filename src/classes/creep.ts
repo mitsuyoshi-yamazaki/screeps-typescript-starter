@@ -753,13 +753,16 @@ export function init() {
       return
     }
 
-    if ((this.spawning == false) && (this.pos.x != pos.x) && (this.pos.y != pos.y)) {
+    // console.log(`HOGE ${this.spawning}, ${this.pos}, ${pos.x}, ${pos.y}`)
+
+    if (!this.spawning && (this.pos.x != pos.x) && (this.pos.y != pos.y)) {
       const obstacle = this.room.find(FIND_MY_CREEPS, {
         filter: (creep) => {
           return (creep.pos.x == pos.x) && (creep.pos.y == pos.y)
         }
       })[0]
 
+      // console.log(`obstacle: ${obstacle}`)
       if (obstacle) {
         obstacle.moveTo(this)
       }

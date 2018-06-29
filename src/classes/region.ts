@@ -322,11 +322,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b2552233deea0034025a183', // 30, 18
-            resource_type: RESOURCE_LEMERGIUM_OXIDE,
+            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
           },
           {
             id: '5b2585544218cc4736554b87', // 31, 17
-            resource_type: RESOURCE_HYDROXIDE,
+            resource_type: RESOURCE_CATALYST,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -338,7 +338,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,  // this is output
+            resource_type: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE,  // this is output
           }
           return target
         })
@@ -439,11 +439,11 @@ export class Region {
         research_input_targets = [
           {
             id: '5b32880e2ffd7a7b7f47e643', // 18, 34
-            resource_type: RESOURCE_ZYNTHIUM_KEANITE,
+            resource_type: RESOURCE_GHODIUM,
           },
           {
             id: '5b32af23c3f6e64781782851', // 17, 33
-            resource_type: RESOURCE_UTRIUM_LEMERGITE,
+            resource_type: RESOURCE_HYDROGEN,
           },
         ]
         research_output_targets = this.room.find(FIND_STRUCTURES, {
@@ -455,7 +455,7 @@ export class Region {
         }).map((lab) => {
           const target: ResearchTarget = {
             id: lab.id,
-            resource_type: RESOURCE_GHODIUM,  // this is output
+            resource_type: RESOURCE_GHODIUM_HYDRIDE,  // this is output
           }
           return target
         })
@@ -474,7 +474,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
           { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
-          // { id: '', room_name: 'W48S6' }, // hydrogen
+          { id: '59f1c0ce7d0b3d79de5f0228', room_name: 'W48S6' }, // hydrogen
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -489,6 +489,29 @@ export class Region {
         ]
         charger_position = {x: 35, y: 22}
         this.destination_link_id = '5b34e943bb6c0934e8274579'
+        research_input_targets = [
+          {
+            id: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
+            resource_type: RESOURCE_HYDROXIDE,
+          },
+          {
+            id: '5b358e1d24c2d964cdd22578', // 41, 22
+            resource_type: RESOURCE_GHODIUM_OXIDE,
+          },
+        ]
+        research_output_targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            let input_target_ids = research_input_targets.map(t=>t.id)
+            return (structure.structureType == STRUCTURE_LAB)
+              && (input_target_ids.indexOf(structure.id) < 0)
+          }
+        }).map((lab) => {
+          const target: ResearchTarget = {
+            id: lab.id,
+            resource_type: RESOURCE_GHODIUM_ALKALIDE,  // this is output
+          }
+          return target
+        })
         break
 
       case 'W43S5':
@@ -611,6 +634,7 @@ export class Region {
           { id: '59f1a05782100e1594f36896', room_name: 'W42N6' }, // right
           { id: '59f1a05782100e1594f3689b', room_name: 'W42N5' },
           { id: '59f1a04582100e1594f36717', room_name: 'W43N4' },
+          { id: '59f1a06782100e1594f36a28', room_name: 'W41N5' },
         ]
         harvester_targets = [
           { id: '59f1a04482100e1594f36714', room_name: 'W43N5' }, // left
@@ -622,12 +646,14 @@ export class Region {
           'W42N6',
           'W42N5',
           'W43N4',
+          'W41N5',
         ]
         rooms_need_to_be_defended = [
           'W43N6',
           'W42N6',
           'W42N5',
           'W43N4',
+          'W41N5',
         ]
         break
 
@@ -1171,7 +1197,7 @@ export class Region {
 
     this.towers.forEach((tower) => {
       if ((!is_safemode_active)) {// && (this.room.name != 'W49S47')) {
-        if ((this.room.attacker_info.heal <= 20) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 2)) {
+        if ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 2)) {
           // const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
           //   filter: (creep: Creep) => {
           //     return creep.getActiveBodyparts(HEAL) > 0
@@ -1207,7 +1233,7 @@ export class Region {
           else {
             const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
               filter: (creep: Creep) => {
-                return creep.getActiveBodyparts(ATTACK) > 0
+                return true//creep.getActiveBodyparts(ATTACK) > 0
               }
             })
             if(closestHostile) {

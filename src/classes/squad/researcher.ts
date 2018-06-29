@@ -76,6 +76,10 @@ export class ResearcherSquad extends Squad {
           room_resource = RESOURCE_CATALYST
           break
 
+        case 'W48S6':
+          room_resource = RESOURCE_HYDROGEN
+          break
+
         default:
           break
       }
@@ -237,6 +241,10 @@ export class ResearcherSquad extends Squad {
 
           case 'W42N1':
             room_resource = RESOURCE_CATALYST
+            break
+
+          case 'W48S6':
+            room_resource = RESOURCE_HYDROGEN
             break
         }
 
