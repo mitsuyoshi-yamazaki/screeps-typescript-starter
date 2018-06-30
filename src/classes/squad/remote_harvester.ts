@@ -235,6 +235,9 @@ export class RemoteHarvesterSquad extends Squad {
       case CreepType.CONTROLLER_KEEPER:
         return SpawnPriority.HIGH
 
+      case CreepType.CARRIER:
+        return SpawnPriority.NORMAL
+
       default:
         return SpawnPriority.LOW
     }
@@ -660,6 +663,15 @@ export class RemoteHarvesterSquad extends Squad {
 
             if (creep.pos.getRangeTo(container) > 1) {
               creep.moveTo(container, {maxRooms: 0})
+            }
+          }
+          else {
+            const destination = creep.pos.findClosestByPath(creep.room.sources)
+
+            if (destination) {
+              if (creep.pos.getRangeTo(destination) > 2) {
+                creep.moveTo(destination, {maxRooms: 0})
+              }
             }
           }
         }
