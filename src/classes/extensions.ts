@@ -1,4 +1,5 @@
 import { SquadMemory } from "./squad/squad";
+import { RegionMemory } from "./region"
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
 
 export interface AttackerInfo  {
@@ -13,6 +14,7 @@ export interface AttackerInfo  {
 declare global {
   interface Game {
     version: string
+    reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
   }
 
   interface Memory {
@@ -21,6 +23,7 @@ declare global {
     temp_squads: SquadMemory[]
     debug_last_tick: any
     versions: string[]
+    regions: {[index: string]: RegionMemory}
   }
 
   interface RoomMemory {

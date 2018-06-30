@@ -231,7 +231,13 @@ export class RemoteHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    return this.debug ? SpawnPriority.HIGH : SpawnPriority.LOW
+    switch (this.next_creep) {
+      case CreepType.CONTROLLER_KEEPER:
+        return SpawnPriority.HIGH
+
+      default:
+        return SpawnPriority.LOW
+    }
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {

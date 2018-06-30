@@ -11,7 +11,7 @@ const keys = [
 ]
 
 export function init() {
-  Game.version = '2.5.9'
+  Game.version = '2.6.3'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -46,6 +46,10 @@ export function init() {
     Memory.rooms = {}
   }
 
+  if (!Memory.regions) {
+    Memory.regions = {}
+  }
+
   keys.forEach((key) => {
     if (Memory[key] == null) {
       Memory[key] = new Map<string, any>()
@@ -55,6 +59,29 @@ export function init() {
   WorldInitializer.init()
   SpawnInitializer.init()
   CreepInitializer.init()
+
+  Game.reactions = {}
+
+  for (const resource_type of Object.keys(REACTIONS)) {
+    const reactions = REACTIONS[resource_type]
+
+    for (const ingredient_type of Object.keys(reactions)) {
+      const compound_type = reactions[ingredient_type]
+      Game.reactions[compound_type] = {
+        lhs: resource_type as ResourceConstant,
+        rhs: ingredient_type as ResourceConstant,
+      }
+    }
+  }
+
+  // if ((Game.time % 13) == 5) {
+  //   console.log(Object.keys(Game.reactions))
+
+  //   for (const rt of Object.keys(Game.reactions)) {
+  //     const aa = Game.reactions[rt]
+  //     console.log(`${rt}: ${aa.lhs}, ${aa.rhs}`)
+  //   }
+  // }
 }
 
 /**
