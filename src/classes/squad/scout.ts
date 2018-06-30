@@ -81,15 +81,22 @@ export class ScoutSquad extends Squad {
 
   public run(): void {
     this.creep_for_room.forEach((creep, room_name) => {
+      if (creep.memory.stop) {
+        return
+      }
+
       if (creep.moveToRoom(room_name) == ActionResult.IN_PROGRESS) {
         return
       }
 
-      if (creep.room.controller && (creep.moveTo(creep.room.controller) == OK)) {
+      if (creep.room.controller && (creep.moveTo(creep.room.controller, {maxRooms: 0}) == OK)) {
         const emoji = ['😆', '😄', '😐', '😴', '🤔', '🙃', '😃']
         const index = (Number(creep.room.name.slice(1,3)) + Number(creep.room.name.slice(4,6))) % emoji.length
         const sign = emoji[index]
-        creep.signController(creep.room.controller, sign)
+
+        if (creep.signController(creep.room.controller, sign) == OK) {
+          creep.memory.stop = true
+        }
 
         return
       }
@@ -115,7 +122,7 @@ export class ScoutSquad extends Squad {
         }
       }
 
-      creep.moveTo(25, 25)
+      creep.moveTo(25, 25, {maxRooms: 0})
     })
   }
 

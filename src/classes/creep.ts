@@ -92,6 +92,7 @@ declare global {
     should_notify_attack: boolean
     let_thy_die: boolean
     debug?: boolean
+    stop?: boolean
   }
 }
 
@@ -396,7 +397,9 @@ export function init() {
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
     }
 
-    let opt: MoveToOpts | undefined
+    let opt: MoveToOpts = {
+      maxRooms: 0,
+    }
 
     if (this.room.is_keeperroom) {
       const callback = (room_name: string): boolean | CostMatrix => {
@@ -415,6 +418,7 @@ export function init() {
           lineStyle: 'dashed',
           opacity: 0.8
         },
+        maxRooms: 0,
       }
     }
 
@@ -819,7 +823,7 @@ export function init() {
     if (carry_amount > 0) {
       if ((carry_amount - this.carry.energy) == 0) {
         // only have energy
-        const target = this.find_charge_target({should_fully_charged: true})
+        const target = this.find_charge_target()
         if (target) {
           if (this.transfer(target, RESOURCE_ENERGY) == OK) {
             return

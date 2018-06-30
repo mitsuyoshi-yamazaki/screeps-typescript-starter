@@ -28,6 +28,13 @@ export enum SquadType {
   TEMP              = "temp",
 }
 
+export enum SquadStatus {
+  NONE    = 'none',
+  BUILD   = 'build',
+  HARVEST = 'harvest',
+  ESCAPE  = 'escape',
+}
+
 export interface SpawnFunction {
   (body: BodyPartConstant[], name: string, opts?: { memory?: CreepMemory, energyStructures?: Array<(StructureSpawn | StructureExtension)>, dryRun?: boolean }): ScreepsReturnCode
 }
@@ -36,6 +43,7 @@ export interface SquadMemory {
   name: string
   type: SquadType
   owner_name: string  // Spawn name
+  stop_spawming?: boolean
 }
 
 /**
@@ -78,7 +86,8 @@ export abstract class Squad {
   }
 
   public description(): string {
-    return `${this.name} ${this.creeps.size} crp, pri: ${this.spawnPriority}`
+    const priority = Memory.squads[this.name].stop_spawming ? 'stop' : `${this.spawnPriority}`
+    return `${this.name} ${this.creeps.size} crp, pri: ${priority}`
   }
 
   public say(message: string): void {

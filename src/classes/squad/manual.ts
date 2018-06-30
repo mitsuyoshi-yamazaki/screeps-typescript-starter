@@ -14,7 +14,6 @@ interface ManualMemory extends CreepMemory {
 
 interface ManualSquadMemory extends SquadMemory {
   claimer_last_spawned?: number
-  stop_spawming?: boolean
 }
 
 type MineralContainer = StructureTerminal | StructureStorage | StructureContainer

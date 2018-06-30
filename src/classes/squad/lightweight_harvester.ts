@@ -46,6 +46,10 @@ export class LightWeightHarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const memory = Memory.squads[this.name]
+    if (memory.stop_spawming) {
+      return SpawnPriority.NONE
+    }
 
     if ((this.energy_capacity < 450) && (this.source_info.room_name != 'W49S27')) {
       return SpawnPriority.NONE
@@ -212,6 +216,9 @@ export class LightWeightHarvesterSquad extends Squad {
                   return
                 }
               }
+            }
+            else if ((_.sum(creep.carry) - creep.carry.energy) > 0) {
+              creep.memory.status = CreepStatus.CHARGE
             }
 
             if (this.source) {

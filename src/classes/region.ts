@@ -417,7 +417,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
-          'W43S7',
+          // 'W43S7',
           'W45S7',
           'W43S6',
           'W45S8',
@@ -479,7 +479,7 @@ export class Region {
         this.room_names = [this.room.name]
         rooms_need_scout = [
           'W49S6',
-          'W48S5',
+          // 'W48S5',
           'W48S7',
         ]
         rooms_need_to_be_defended = [
@@ -774,7 +774,7 @@ export class Region {
       case SquadType.REMOET_HARVESTER: {
         const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
 
-        const squad = new RemoteHarvesterSquad(squad_memory.name, remote_harvester_squad_memory.room_name, remote_harvester_squad_memory.source_ids, harvester_destination)
+        const squad = new RemoteHarvesterSquad(squad_memory.name, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
         this.squads.set(squad.name, squad)
         break
       }
@@ -1283,7 +1283,7 @@ export class Region {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-            hits_max = 900000
+            hits_max = 1000000
           }
           else if ((this.room.name == 'W44S7')) {
             hits_max = 300000

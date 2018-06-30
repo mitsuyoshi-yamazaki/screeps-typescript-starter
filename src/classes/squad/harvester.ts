@@ -377,6 +377,11 @@ export class HarvesterSquad extends Squad {
       const source = Game.getObjectById(this.source_info.id) as Source | Mineral
       // Using (source as Mineral).mineralType because (source as Mineral).mineralAmount when it's 0 value, it's considered as false
       if (room && (source as Mineral).mineralType && ((source as Mineral).mineralAmount == 0) && ((source.ticksToRegeneration || 0) > 100)) {
+        if ((Game.time % 23) == 5) {
+          this.creeps.forEach((creep) => {
+            creep.memory.let_thy_die = true
+          })
+        }
         return SpawnPriority.NONE
       }
       return SpawnPriority.HIGH
@@ -654,162 +659,13 @@ export class HarvesterSquad extends Squad {
   }
 
   private harvest(): void {
-    this.harvesters.forEach((harvester) => {
-      const needs_renew = !harvester.memory.let_thy_die && ((harvester.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((harvester.ticksToLive || 0) < 300))
-
-      if (needs_renew) {
-        if ((harvester.room.spawns.length > 0) && ((harvester.room.energyAvailable > 40) || ((harvester.ticksToLive || 0) < 500)) && !harvester.room.spawns[0].spawning) {
-          harvester.goToRenew(harvester.room.spawns[0])
-          return
-        }
-        else if (harvester.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-          harvester.memory.status = CreepStatus.HARVEST
-        }
-      }
-
-      if ((harvester.memory.status == CreepStatus.NONE) || ((harvester.carry[this.resource_type!] || 0) == 0)) {
-        harvester.memory.status = CreepStatus.HARVEST
-      }
-
-      // Harvest
-      let has_capacity = false
-      if (!this.store) {
-        // Does nothing
-      }
-      else if (this.resource_type && (this.store as StructureContainer).store) {
-        const capacity = (this.store as StructureContainer).storeCapacity
-        const energy_amount = (this.store as StructureContainer).store[this.resource_type!] || 0
-        has_capacity = (energy_amount < capacity)
-      }
-      else if (this.store.structureType == STRUCTURE_LINK) {
-        const capacity = (this.store as StructureLink).energyCapacity
-        const energy_amount = (this.store as StructureLink).energy
-        has_capacity = (energy_amount < capacity)
-      }
-
-      if ((harvester.memory.status == CreepStatus.HARVEST) && ((harvester.carry[this.resource_type!] || 0) == 0) && this.store && has_capacity) {
-        const objects = harvester.room.lookAt(harvester)
-        const dropped_object = objects.filter((obj) => {
-          return (obj.type == 'resource')
-            && ((obj.resource!.resourceType == this.resource_type))
-        })[0]
-
-        if (dropped_object) {
-          const energy = dropped_object.resource!
-          const pickup_result = harvester.pickup(energy)  // @fixme: 位置につく前にpickupするとそこから動かなくなる
-          switch (pickup_result) {
-            case OK:
-            case ERR_FULL:
-              break
-
-            default:
-              console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${harvester.name}, ${this.name}`)
-              break
-          }
-        }
-        else if (this.container && this.store && (this.container.id != this.store.id) && (this.container.structureType == STRUCTURE_CONTAINER) && (this.container.store.energy > 0)) {
-          if (harvester.withdraw(this.container, RESOURCE_ENERGY) == OK) {
-            return
-          }
-        }
-      }
-
-      const carrying_energy = harvester.carry[this.resource_type!] || 0
-      if ((harvester.memory.status == CreepStatus.HARVEST) && (carrying_energy > 0) && ((carrying_energy > (harvester.carryCapacity - (harvester.getActiveBodyparts(WORK) * HARVEST_POWER))) || ((harvester.ticksToLive || 0) < 5))) {
-        harvester.memory.status = CreepStatus.CHARGE
-      }
-
-      if (harvester.memory.status == CreepStatus.HARVEST) {
-        if (this.source) {
-          if (harvester.harvest(this.source!) == ERR_NOT_IN_RANGE) {
-            const ignoreCreeps = ((Game.time % 3) == 0) ? false : harvester.pos.getRangeTo(this.source!) <= 2  // If the blocking creep is next to the source, ignore
-
-            harvester.moveTo(this.source!, {
-              ignoreCreeps: ignoreCreeps,
-            })
-            return
-          }
-        }
-        else {
-          harvester.moveToRoom(this.source_info.room_name)
-          return
-        }
-      }
-
-      // Charge
-      if (harvester.memory.status == CreepStatus.CHARGE) {
-        if (!this.store) {
-          harvester.memory.status = CreepStatus.BUILD
-        }
-        else if ((this.resource_type == RESOURCE_ENERGY) && harvester.room.controller && harvester.room.controller.my && (this.store!.hits < (this.store!.hitsMax * 0.6))) {
-          harvester.repair(this.store!)
-          return
-        }
-        else if ((this.resource_type == RESOURCE_ENERGY) && (harvester.room.controller && !harvester.room.controller.my) && (this.store!.hits < this.store!.hitsMax)) {
-          harvester.repair(this.store!)
-          return
-        }
-        else {
-          let store: StructureContainer | StructureLink | StructureStorage | undefined = this.store
-
-          const transfer_result = harvester.transfer(store, this.resource_type!)
-          switch (transfer_result) {
-            case ERR_NOT_IN_RANGE:
-              harvester.moveTo(store)
-              return
-
-            case ERR_FULL:
-              if (harvester.carry.energy > 0) {
-                harvester.drop(RESOURCE_ENERGY) // To NOT drop minerals
-              }
-              break
-
-            case OK:
-            case ERR_BUSY:  // @fixme: The creep is still being spawned.
-              break
-
-            default:
-              console.log(`HarvesterSquad.harvest() unexpected transfer result1: ${transfer_result}, ${this.resource_type}, ${harvester.name}, ${this.name}, ${this.source_info.room_name}`)
-              break
-          }
-          harvester.memory.status = CreepStatus.HARVEST
-          return
-        }
-      }
-
-      // Build
-      if (harvester.memory.status == CreepStatus.BUILD) {
-        const target = harvester.pos.findInRange(FIND_CONSTRUCTION_SITES, 2)[0] as ConstructionSite
-
-        if (target) {
-          const result = harvester.build(target)
-          if (result != OK) {
-            console.log(`HarvesterSquad.harvest build failed ${result}, ${this.name}`)
-            return
-          }
-        }
-        else {
-          if (this.source) {
-            const x_diff = harvester.pos.x - this.source.pos.x
-            const y_diff = harvester.pos.y - this.source.pos.y
-            const pos = {
-              x: harvester.pos.x + x_diff,
-              y: harvester.pos.y + y_diff,
-            }
-
-            const result = harvester.room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
-            console.log(`HarvesterSquad place container on ${pos} at ${harvester.room.name}, ${this.name}`)
-            harvester.memory.status = CreepStatus.HARVEST // @todo: more optimized way
-            return
-          }
-          else {
-            console.log(`HarvesterSquad.harvest no target source ${this.source_info.id}, ${this.name}, ${harvester.name} at ${harvester.pos}`)
-            return
-          }
-        }
-      }
+    this.harvesters.forEach((creep) => {
+      runHarvester(creep, this.source_info.room_name, this.source, this.store, this.container, {
+        resource_type: this.resource_type
+      })
     })
   }
+
 
   private carry(): void {
     this.carriers.forEach((creep) => {
@@ -984,5 +840,178 @@ export class HarvesterSquad extends Squad {
         }
       }
     })
+  }
+}
+
+export interface RunHarvesterOptions {
+  resource_type?: ResourceConstant
+}
+
+export function runHarvester(creep: Creep, room_name: string, source: Source | Mineral | undefined, store: StructureContainer | StructureLink | StructureStorage | undefined, container: StructureContainer | StructureLink | undefined, opt?: RunHarvesterOptions): void {
+  const options = opt || {}
+  const resource_type = options.resource_type || RESOURCE_ENERGY
+
+  if (!options.resource_type) {
+    options.resource_type = resource_type
+  }
+
+  const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))
+
+  if (needs_renew) {
+    if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) < 500)) && !creep.room.spawns[0].spawning) {
+      creep.goToRenew(creep.room.spawns[0])
+      return
+    }
+    else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      creep.memory.status = CreepStatus.HARVEST
+    }
+  }
+
+  if ((creep.memory.status == CreepStatus.NONE) || ((creep.carry[resource_type] || 0) == 0)) {
+    creep.memory.status = CreepStatus.HARVEST
+  }
+
+  // Harvest
+  let has_capacity = false
+  if (!store) {
+    // Does nothing
+  }
+  else if (resource_type && (store as StructureContainer).store) {
+    const capacity = (store as StructureContainer).storeCapacity
+    const energy_amount = (store as StructureContainer).store[resource_type] || 0
+    has_capacity = (energy_amount < capacity)
+  }
+  else if (store.structureType == STRUCTURE_LINK) {
+    const capacity = (store as StructureLink).energyCapacity
+    const energy_amount = (store as StructureLink).energy
+    has_capacity = (energy_amount < capacity)
+  }
+
+  if ((creep.memory.status == CreepStatus.HARVEST) && ((creep.carry[resource_type] || 0) == 0) && store && has_capacity) {
+    const objects = creep.room.lookAt(creep)
+    const dropped_object = objects.filter((obj) => {
+      return (obj.type == 'resource')
+        && ((obj.resource!.resourceType == resource_type))
+    })[0]
+
+    if (dropped_object) {
+      const energy = dropped_object.resource!
+      const pickup_result = creep.pickup(energy)  // @fixme: 位置につく前にpickupするとそこから動かなくなる
+      switch (pickup_result) {
+        case OK:
+        case ERR_FULL:
+          break
+
+        default:
+          console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${creep.name}, ${creep.pos}, ${room_name}`)
+          break
+      }
+    }
+    else if (container && store && (container.id != store.id) && (container.structureType == STRUCTURE_CONTAINER) && (container.store.energy > 0)) {
+      if (creep.withdraw(container, RESOURCE_ENERGY) == OK) {
+        return
+      }
+    }
+  }
+
+  const carrying_energy = creep.carry[resource_type] || 0
+  if ((creep.memory.status == CreepStatus.HARVEST) && (carrying_energy > 0) && ((carrying_energy > (creep.carryCapacity - (creep.getActiveBodyparts(WORK) * HARVEST_POWER))) || ((creep.ticksToLive || 0) < 5))) {
+    creep.memory.status = CreepStatus.CHARGE
+  }
+
+  if (creep.memory.status == CreepStatus.HARVEST) {
+    if (creep.room.is_keeperroom && (creep.moveToRoom(room_name) == ActionResult.IN_PROGRESS)) {
+      return
+    }
+    if (source) {
+      if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+        const ignoreCreeps = ((Game.time % 3) == 0) ? false : creep.pos.getRangeTo(source) <= 2  // If the blocking creep is next to the source, ignore
+
+        creep.moveTo(source, {
+          ignoreCreeps: ignoreCreeps,
+        })
+        return
+      }
+    }
+    else {
+      creep.moveToRoom(room_name)
+      return
+    }
+  }
+
+  // Charge
+  if (creep.memory.status == CreepStatus.CHARGE) {
+    if (!store) {
+      if (creep.memory.debug) {
+        creep.say(`NO store`)
+      }
+      creep.memory.status = CreepStatus.BUILD
+    }
+    else if ((resource_type == RESOURCE_ENERGY) && creep.room.controller && creep.room.controller.my && (store.hits < (store.hitsMax * 0.6))) {
+      creep.repair(store)
+      return
+    }
+    else if ((resource_type == RESOURCE_ENERGY) && (creep.room.controller && !creep.room.controller.my) && (store.hits < store.hitsMax)) {
+      creep.repair(store)
+      return
+    }
+    else {
+      let local_store: StructureContainer | StructureLink | StructureStorage | undefined = store
+
+      const transfer_result = creep.transfer(local_store, resource_type)
+      switch (transfer_result) {
+        case ERR_NOT_IN_RANGE:
+        creep.moveTo(store)
+          return
+
+        case ERR_FULL:
+          if (creep.carry.energy > 0) {
+            creep.drop(RESOURCE_ENERGY) // To NOT drop minerals
+          }
+          break
+
+        case OK:
+        case ERR_BUSY:  // @fixme: The creep is still being spawned.
+          break
+
+        default:
+          console.log(`HarvesterSquad.harvest() unexpected transfer result1: ${transfer_result}, ${resource_type}, ${creep.name}, ${creep.pos}, ${room_name}`)
+          break
+      }
+      creep.memory.status = CreepStatus.HARVEST
+      return
+    }
+  }
+
+  // Build
+  if (creep.memory.status == CreepStatus.BUILD) {
+    const target = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 2)[0] as ConstructionSite
+
+    if (target) {
+      const result = creep.build(target)
+      if (result != OK) {
+        console.log(`HarvesterSquad.harvest build failed ${result}, ${creep.name}, ${room_name}`)
+        return
+      }
+    }
+    else {
+      if (source) {
+        const x_diff = creep.pos.x - source.pos.x
+        const y_diff = creep.pos.y - source.pos.y
+        const pos = {
+          x: creep.pos.x,// + x_diff,
+          y: creep.pos.y,// + y_diff,
+        }
+
+        const result = creep.room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+        console.log(`HarvesterSquad place container on ${pos} at ${creep.room.name}, ${room_name}`)
+        creep.memory.status = CreepStatus.HARVEST // @todo: more optimized way
+        return
+      }
+      else {
+        console.log(`HarvesterSquad.harvest no target source ${creep.name} at ${creep.pos} ${room_name}`)
+        return
+      }
+    }
   }
 }
