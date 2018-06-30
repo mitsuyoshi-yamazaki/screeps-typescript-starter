@@ -422,6 +422,10 @@ export class Region {
         ]
         this.destination_link_id = '5b33369c91f5f036a9375bda'
         charger_position = {x: 16, y: 8}
+        input_lab_ids = {
+          lhs: '5b378bd089b8230740d3f5dd', // 7, 14
+          rhs: '5b376efd21b80f301e67dd92', // 8, 15
+        }
         break
 
       case 'W43N5':
