@@ -513,7 +513,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if (((Game.time % 19) == 5) && (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0)) {
+    if (((Game.time % 19) == 5) && (!creep.room.controller || !creep.room.controller.my) && (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0)) {
       const has_construction_site = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: construction_site_filter
       }).length > 0

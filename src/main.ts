@@ -50,12 +50,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // const fifth_room_name = 'W46S33'  // Z
   // const sixth_room_name = 'W51S29'  // L
   const hydrogen_first_room_name = 'W44S7'  // H
+  const hydrogen_second_room_name = 'W48S6'  // H
+  const hydrogen_third_room_name = 'W47N2'  // H
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    // { from: first_room_name, to: second_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+    { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+    { from: hydrogen_third_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
   ]
 
-  if ((Game.time % 13) == 0) {
+  if ((Game.time % 13) == 11) {
     transports.forEach((transport) => {
       const from_room = Game.rooms[transport.from]
       const to_room = Game.rooms[transport.to]
