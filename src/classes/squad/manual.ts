@@ -59,7 +59,23 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
 
       case 'W44S7': {
-        return SpawnPriority.NONE
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.storage || (room.storage.store.energy < 200000)) {
+          return SpawnPriority.NONE
+        }
+
+        const lab_id = '5b329651244d2334f4d0a50e'
+        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+        if (!lab) {
+          this.say(`NO LAB`)
+          console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
+          return SpawnPriority.NONE
+        }
+        if ((lab.mineralType != RESOURCE_GHODIUM_ACID) || (lab.mineralAmount < 600)) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       case 'W43S5':
@@ -156,7 +172,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        return false
+        return energy_available >= 2300
 
       case 'W43S5':
         return energy_available >= 50
@@ -248,6 +264,8 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
+        this.addUpgrader(energy_available, spawn_func)
+        return
       }
 
       case 'W43S5': {
@@ -379,15 +397,40 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const wall = Game.getObjectById('5a648a9b4251253056b361a1') as StructureWall | undefined
+        const lab_id = '5b329651244d2334f4d0a50e'
+        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+        if (!lab) {
+          this.say(`NO LAB`)
+          console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
+          return
+        }
 
         this.creeps.forEach((creep) => {
-          if (wall) {
-            creep.dismantleObjects('W43S7', wall)
+          if (!creep.boosted && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 600)) {
+            if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(lab)
+            }
+            return
           }
-          else {
-            creep.memory.squad_name = 'worker72214031'
+
+          const x = 21
+          const y = 40
+
+          if ((creep.pos.x != x) || (creep.pos.y != y)) {
+            creep.moveTo(x, y)
           }
+
+          if (!creep.room.storage) {
+            creep.say(`NO SRC`)
+            return
+          }
+          if (!creep.room.controller || !creep.room.controller.my) {
+            creep.say(`NO CTR`)
+            return
+          }
+
+          creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+          creep.upgradeController(creep.room.controller)
         })
         return
       }

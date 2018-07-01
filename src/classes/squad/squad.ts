@@ -116,4 +116,39 @@ export abstract class Squad {
       memory: memory
     })
   }
+
+  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    // capacity: 2300
+    // 8 units, 2C, 16W, 9M
+
+    energyAvailable = Math.min(energyAvailable, 2300)
+
+    const move: BodyPartConstant[] = [MOVE]
+    const work: BodyPartConstant[] = [WORK, WORK]
+    const energy_unit = 250
+
+    energyAvailable -= 150
+    const header: BodyPartConstant[] = [CARRY, CARRY]
+    let body: BodyPartConstant[] = [MOVE]
+    const name = this.generateNewName()
+    const memory: CreepMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.WORKER,
+      should_notify_attack: false,
+      let_thy_die: true,
+    }
+
+    while (energyAvailable >= energy_unit) {
+      body = move.concat(body)
+      body = body.concat(work)
+      energyAvailable -= energy_unit
+    }
+    body = header.concat(body)
+
+    const result = spawnFunc(body, name, {
+      memory: memory
+    })
+  }
 }

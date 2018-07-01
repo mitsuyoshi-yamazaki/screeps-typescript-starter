@@ -206,7 +206,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
-          // 'W43S7',
+          'W43S7',
           'W45S7',
           'W43S6',
           'W45S8',
@@ -404,6 +404,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a00882100e1594f35eeb', room_name: 'W47N2' }, // left
           { id: '59f1a00882100e1594f35eec', room_name: 'W47N2' }, // right
+          { id: '59f1c0ce7d0b3d79de5f028d', room_name: 'W47N2' }, // hydrogen
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
