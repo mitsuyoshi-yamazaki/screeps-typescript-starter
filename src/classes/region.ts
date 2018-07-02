@@ -262,8 +262,8 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
           { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
-          { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
-          { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
+          // { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
+          // { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
           { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
           { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top right
           { id: '59f19feb82100e1594f35c01', room_name: 'W49S5' }, // center
@@ -339,6 +339,10 @@ export class Region {
         ]
         this.destination_link_id = '5b317f135c9e085b93bedf0c'
         charger_position = {x: 19, y: 16}
+        input_lab_ids = {
+          lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
+          rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
+        }
         break
 
       case 'W42N1':
@@ -469,6 +473,7 @@ export class Region {
           'W43N4',
           'W41N5',
         ]
+        charger_position = {x: 27, y: 21}
         break
 
       case 'W44N3':
@@ -1171,9 +1176,12 @@ export class Region {
           // else {
           let hits_max = 150000
           if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-            hits_max = 400000
+            hits_max = 500000
           }
           else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+            hits_max = 400000
+          }
+          else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {

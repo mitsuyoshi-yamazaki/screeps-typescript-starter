@@ -136,7 +136,7 @@ export class LightWeightHarvesterSquad extends Squad {
         }
       }
 
-      if ((creep.memory.status == CreepStatus.NONE) || (creep.memory.status == CreepStatus.BUILD) || (creep.memory.status == CreepStatus.UPGRADE)) {
+      if ((creep.memory.status == CreepStatus.NONE) || (creep.memory.status == CreepStatus.BUILD)) {
         creep.memory.status = CreepStatus.CHARGE
       }
 
@@ -258,14 +258,29 @@ export class LightWeightHarvesterSquad extends Squad {
           //   creep.moveTo(creep.room.controller)
           //   return
           // }
+          const has_minerals = _.sum(creep.carry) > creep.carry.energy
 
-          for (const resource_type of Object.keys(creep.carry)) {
-            const amount = creep.carry[resource_type as ResourceConstant]
-            if (amount == 0) {
-              continue
+          if (!has_minerals && this.destination.room.storage && (_.sum(this.destination.room.storage.store) > (this.destination.room.storage.storeCapacity * 0.9)) && (this.region.room.controller && this.region.room.controller.my)) {
+            creep.moveTo(this.region.room.controller)
+            creep.memory.status = CreepStatus.UPGRADE
+            return
+          }
+
+          if ((this.destination.structureType == STRUCTURE_LINK) || (this.destination.structureType == STRUCTURE_SPAWN)) {
+            if (has_minerals && this.destination.room.storage) {
+              if (creep.transferResources(this.destination.room.storage) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(this.destination)
+              }
             }
+            else {
+              if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(this.destination)
+              }
+            }
+            return
+          }
 
-            const result = creep.transfer(this.destination, resource_type as ResourceConstant)
+            const result = creep.transferResources(this.destination)
             switch (result) {
               case ERR_NOT_IN_RANGE:
                 if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
@@ -289,7 +304,7 @@ export class LightWeightHarvesterSquad extends Squad {
                   return
                 }
                 creep.moveTo(this.destination)
-                break
+                return
 
               case OK:
                 break
@@ -309,17 +324,28 @@ export class LightWeightHarvesterSquad extends Squad {
                     creep.moveTo(construction_site)
                   }
                   else if (this.region.room.controller && this.region.room.controller.my) {
-                    creep.upgradeController(this.region.room.controller)
                     creep.moveTo(this.region.room.controller)
+                    creep.memory.status = CreepStatus.UPGRADE
+                    return
                   }
                   else {
                     console.log(`LightweightHarvesterSquad.run unexpectedly found no my controller on ${this.region.room}`)
                   }
                 }
+                return
               }
             }
-          }
         }
+      }
+
+      if (creep.memory.status == CreepStatus.UPGRADE) {
+        if ((creep.carry.energy == 0) || !this.region.room.controller || !this.region.room.controller.my) {
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
+
+        creep.upgradeController(this.region.room.controller)
+        creep.moveTo(this.region.room.controller)
       }
     })
   }

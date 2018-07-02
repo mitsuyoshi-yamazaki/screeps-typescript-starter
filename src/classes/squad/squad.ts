@@ -117,11 +117,21 @@ export abstract class Squad {
     })
   }
 
-  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction): void {
+  public hasEnoughEnergyForUpgrader(energyAvailable: number, capacity: number): boolean {
+    capacity = Math.min(capacity, 2300)
+
+    const energy_unit = 250
+    const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
+    return energyAvailable >= energyNeeded
+  }
+
+  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, max_energy?: number): void {
     // capacity: 2300
     // 8 units, 2C, 16W, 9M
 
-    energyAvailable = Math.min(energyAvailable, 2300)
+    max_energy = max_energy || 2300
+
+    energyAvailable = Math.min(energyAvailable, max_energy)
 
     const move: BodyPartConstant[] = [MOVE]
     const work: BodyPartConstant[] = [WORK, WORK]

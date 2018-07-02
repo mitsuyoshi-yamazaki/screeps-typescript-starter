@@ -30,6 +30,7 @@ declare global {
     keeper_squad_name?: string
     harvesting_source_ids: string[]
     cost_matrix?: number[] | undefined
+    attacked_time?: number
   }
 
   interface Room {
@@ -53,6 +54,15 @@ declare global {
 
 export function init() {
   Room.prototype.initialize = function() {
+    let memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
+
+    if (!memory) {
+      memory = {
+        harvesting_source_ids: []
+      }
+      Memory.rooms[this.name] = memory
+    }
+
     this.sources = this.find(FIND_SOURCES)
 
     const attacker_info: AttackerInfo = {
@@ -77,6 +87,13 @@ export function init() {
       attacker_info.work = creep.getActiveBodyparts(WORK)
     })
     this.attacker_info = attacker_info
+
+    if (this.attacker_info.hostile_creeps.length > 0) {
+      (Memory.rooms[this.name] as RoomMemory).attacked_time = Game.time
+    }
+    else {
+      (Memory.rooms[this.name] as RoomMemory).attacked_time = undefined
+    }
 
     const hostiles = this.find(FIND_HOSTILE_CREEPS, {
       // filter: function(creep: Creep): boolean {
@@ -124,16 +141,6 @@ export function init() {
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
 
     if (this.is_keeperroom) {
-      let memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
-
-      if (!memory) {
-        memory = {
-          harvesting_source_ids: []
-        }
-
-        Memory.rooms[this.name] = memory
-      }
-
       if (memory.cost_matrix) {
         this.cost_matrix = PathFinder.CostMatrix.deserialize(memory.cost_matrix)
       }

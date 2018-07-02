@@ -45,10 +45,13 @@ export class ChargerSquad extends Squad {
           charge_link
         ]
       }
+      else {
+        console.log(`NO charge link ${this.name} ${this.room_name}`)
+      }
     }
 
     this.creeps.forEach((creep) => {
-      creep.transferLinkToStorage(this.link, this.creep_position)
+      creep.transferLinkToStorage(this.link, this.creep_position, opt)
     })
   }
 }

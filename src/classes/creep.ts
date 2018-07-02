@@ -395,6 +395,15 @@ export function init() {
       this.moveTo(6, 49)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W45S7') && (this.room.name == 'W44S7')) {
+      if (this.memory.type == CreepType.SCOUT) {
+        this.moveTo(0, 26)
+      }
+      else {
+        this.moveTo(0, 42)
+      }
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
@@ -460,7 +469,7 @@ export function init() {
       }
 
       if (this.room.name == 'W45S7') {
-        this.moveTo(36, 22)
+        this.moveTo(36, 22, {maxRooms: 0})
         return ActionResult.IN_PROGRESS
       }
 
@@ -596,6 +605,15 @@ export function init() {
   Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, opt?: CreepTransferOption): ScreepsReturnCode {
     opt = opt || {}
 
+    if (!target) {
+      if ((Game.time % 29) == 3) {
+        const message = `Creep.withdrawResources unexpectedly find null target ${this.name} ${this.pos}`
+        console.log(message)
+        Game.notify(message)
+      }
+      return ERR_INVALID_ARGS
+    }
+
     let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(this.carry)) {
       const resource_type = key as ResourceConstant
@@ -623,6 +641,15 @@ export function init() {
 
   Creep.prototype.withdrawResources = function(target: StructureContainer | StructureStorage | StructureTerminal, opt?: CreepTransferOption): ScreepsReturnCode {
     opt = opt || {}
+
+    if (!target) {
+      if ((Game.time % 29) == 3) {
+        const message = `Creep.withdrawResources unexpectedly find null target ${this.name} ${this.pos}`
+        console.log(message)
+        Game.notify(message)
+      }
+      return ERR_INVALID_ARGS
+    }
 
     let return_code: ScreepsReturnCode = ERR_NOT_ENOUGH_RESOURCES
     for (const key of Object.keys(target.store)) {
@@ -763,8 +790,6 @@ export function init() {
       console.log(`Creep.transferLinkToStorage no storage in ${this.pos}, ${this}`)
       return
     }
-
-    // console.log(`HOGE ${this.spawning}, ${this.pos}, ${pos.x}, ${pos.y}`)
 
     if (!this.spawning && (this.pos.x != pos.x) && (this.pos.y != pos.y)) {
       const obstacle = this.room.find(FIND_MY_CREEPS, {

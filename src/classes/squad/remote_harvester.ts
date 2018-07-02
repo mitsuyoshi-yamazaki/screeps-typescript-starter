@@ -371,10 +371,10 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     const body_unit: BodyPartConstant[] = [
-      WORK, WORK, WORK,
-      WORK, WORK, WORK,
-      CARRY, CARRY,
       MOVE, MOVE, MOVE,
+      CARRY, CARRY,
+      WORK, WORK, WORK,
+      WORK, WORK, WORK,
     ]
     const energy_unit = 800
 
@@ -625,6 +625,16 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
+      if (((Game.time + creep.memory.birth_time) % 5) == 3) {
+        const tombstone = creep.room.resourceful_tombstones[0]
+        if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
+          if (creep.withdrawResources(tombstone) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(tombstone, {maxRooms: 0})
+          }
+          return
+        }
+      }
+
       if (creep.memory.status == CreepStatus.HARVEST) {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
@@ -677,8 +687,10 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
+      const has_minerals = ((_.sum(creep.carry) - creep.carry.energy) > 0)
+
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry.energy < (creep.carryCapacity * 0.5)) {
+        if (!has_minerals && (creep.carry.energy < (creep.carryCapacity * 0.5))) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }
@@ -705,8 +717,15 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.destination)
+        if (has_minerals || !this.destination.room.storage) {
+          if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.destination)
+          }
+        }
+        else {
+          if (creep.transferResources(this.destination.room.storage) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.destination)
+          }
         }
       }
     })

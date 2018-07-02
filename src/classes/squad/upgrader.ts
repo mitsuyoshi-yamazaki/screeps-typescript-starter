@@ -41,13 +41,13 @@ export class UpgraderSquad extends Squad {
       const energy = room.storage!.store.energy
       let available = (energy - 200000)
 
-      if (room.terminal && (room.terminal.store.energy > 120000)) {
+      if (room.terminal && (room.terminal.store.energy > 200000)) {
         available = Math.max(available, 0)
         available += room.terminal.store.energy
       }
 
       if (available > 0) {
-        max = Math.floor(available / 100000)
+        max = Math.floor(available / 200000)
       }
     }
 
