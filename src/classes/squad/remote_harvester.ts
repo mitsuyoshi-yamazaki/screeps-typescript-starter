@@ -493,14 +493,14 @@ export class RemoteHarvesterSquad extends Squad {
     }
     const room = this.scout.room
 
-    if (room.controller && (this.scout.moveTo(room.controller) == OK)) {
-      const emoji = ['😆', '😄', '😐', '😴', '🤔', '🙃', '😃']
-      const index = (Number(room.name.slice(1,3)) + Number(room.name.slice(4,6))) % emoji.length
-      const sign = emoji[index]
-      this.scout.signController(room.controller, sign)
+    // if (room.controller && (this.scout.moveTo(room.controller) == OK)) {
+    //   const emoji = ['😆', '😄', '😐', '😴', '🤔', '🙃', '😃']
+    //   const index = (Number(room.name.slice(1,3)) + Number(room.name.slice(4,6))) % emoji.length
+    //   const sign = emoji[index]
+    //   this.scout.signController(room.controller, sign)
 
-      return
-    }
+    //   return
+    // }
 
     this.scout.moveTo(25, 25)
   }
