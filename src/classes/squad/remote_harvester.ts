@@ -13,7 +13,7 @@ export interface RemoteHarvesterMemory extends CreepMemory {
 export interface RemoteHarvesterSquadMemory extends SquadMemory {
   status: SquadStatus
   room_name: string
-  sources: {[index: string]: {container_id: string | undefined}}
+  sources: {[index: string]: {container_id?: string}}
   room_contains_construction_sites: string[]
   carrier_max?: number
 }
