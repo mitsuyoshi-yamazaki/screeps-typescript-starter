@@ -75,7 +75,7 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
       }
 
       case 'W43S5':
@@ -779,6 +779,15 @@ export class ManualSquad extends Squad {
         // if (this.stealEnergyFrom(this.original_room_name, target_room_name, 22, 28, false) == ActionResult.IN_PROGRESS) {
         //   return
         // }
+        return
+      }
+
+      case 'W43N5': {
+        // @todo:
+
+        this.creeps.forEach((creep) => {
+
+        })
         return
       }
 

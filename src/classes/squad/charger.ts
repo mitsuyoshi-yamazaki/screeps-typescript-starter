@@ -1,6 +1,6 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType } from "classes/creep"
 
 export class ChargerSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string, readonly link: StructureLink | undefined, readonly creep_position: {x: number, y: number}) {
@@ -33,6 +33,20 @@ export class ChargerSquad extends Squad {
   }
 
   public run(): void {
+    let link: StructureLink | undefined = this.link
+    let opt: CreepTransferLinkToStorageOption = {}
+
+    if (this.room_name == 'W43N5') {
+      link = undefined
+
+      const charge_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
+      if (charge_link) {
+        opt.additional_targets = [
+          charge_link
+        ]
+      }
+    }
+
     this.creeps.forEach((creep) => {
       creep.transferLinkToStorage(this.link, this.creep_position)
     })

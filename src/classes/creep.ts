@@ -49,6 +49,10 @@ export interface CreepChargeTargetOption {
   should_fully_charged?: boolean
 }
 
+export interface CreepTransferLinkToStorageOption {
+  additional_targets?: StructureLink[]
+}
+
 declare global {
   interface Creep {
     squad: Squad
@@ -66,7 +70,7 @@ declare global {
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dropResources(opt?: CreepTransferOption): ScreepsReturnCode
     dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
-    transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}): void
+    transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}, opt?: CreepTransferLinkToStorageOption): void
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
@@ -750,7 +754,10 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.transferLinkToStorage = function(link: StructureLink | undefined, pos: {x: number, y: number}): void {
+  Creep.prototype.transferLinkToStorage = function(link: StructureLink | undefined, pos: {x: number, y: number}, opt?: CreepTransferLinkToStorageOption): void {
+    opt = opt || {}
+    const additional_target = (opt.additional_targets || [])[0]
+
     if (!this.room.storage) {
       this.say(`ERR`)
       console.log(`Creep.transferLinkToStorage no storage in ${this.pos}, ${this}`)
@@ -829,6 +836,13 @@ export function init() {
             return
           }
         }
+
+        if (additional_target) {
+          if (this.transfer(additional_target, RESOURCE_ENERGY) == OK) {
+            return
+          }
+        }
+
         this.transfer(storage, RESOURCE_ENERGY)
       }
       else {

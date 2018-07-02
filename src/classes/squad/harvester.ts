@@ -138,6 +138,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f028d') { // W47N2 Hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03d7') { // W43S5 Utrium
+      this.resource_type = RESOURCE_UTRIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -679,6 +682,10 @@ export class HarvesterSquad extends Squad {
     this.carriers.forEach((creep) => {
       if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
         creep.memory.let_thy_die = true
+      }
+
+      if ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) && ((creep.ticksToLive || 0) > 1400)) {
+        creep.memory.status = CreepStatus.HARVEST
       }
 
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))

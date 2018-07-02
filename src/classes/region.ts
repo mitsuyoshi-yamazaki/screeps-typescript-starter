@@ -108,29 +108,33 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = []//['W51S21']
-        research_input_targets = [
-          {
-            id: '5b2552233deea0034025a183', // 30, 18
-            resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
-          },
-          {
-            id: '5b2585544218cc4736554b87', // 31, 17
-            resource_type: RESOURCE_CATALYST,
-          },
-        ]
-        research_output_targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            let input_target_ids = research_input_targets.map(t=>t.id)
-            return (structure.structureType == STRUCTURE_LAB)
-              && (input_target_ids.indexOf(structure.id) < 0)
-          }
-        }).map((lab) => {
-          const target: ResearchTarget = {
-            id: lab.id,
-            resource_type: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE,  // this is output
-          }
-          return target
-        })
+        input_lab_ids = {
+          lhs: '5b2552233deea0034025a183', // 30, 18
+          rhs: '5b2585544218cc4736554b87', // 31, 17
+        }
+        // research_input_targets = [
+        //   {
+        //     id: '5b2552233deea0034025a183', // 30, 18
+        //     resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
+        //   },
+        //   {
+        //     id: '5b2585544218cc4736554b87', // 31, 17
+        //     resource_type: RESOURCE_CATALYST,
+        //   },
+        // ]
+        // research_output_targets = this.room.find(FIND_STRUCTURES, {
+        //   filter: (structure) => {
+        //     let input_target_ids = research_input_targets.map(t=>t.id)
+        //     return (structure.structureType == STRUCTURE_LAB)
+        //       && (input_target_ids.indexOf(structure.id) < 0)
+        //   }
+        // }).map((lab) => {
+        //   const target: ResearchTarget = {
+        //     id: lab.id,
+        //     resource_type: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE,  // this is output
+        //   }
+        //   return target
+        // })
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
         break
@@ -314,27 +318,28 @@ export class Region {
         break
 
       case 'W43S5':
-      lightweight_harvester_targets = [
-        { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
-        { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
-        { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
-      ]
-      harvester_targets = [
-        { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
-      ]
-      this.room_names = [this.room.name]
-      rooms_need_scout = [
-        'W42S5',
-        'W43S4',
-        'W45S5',
-      ]
-      rooms_need_to_be_defended = [
-        'W42S5',
-        'W43S4',
-      ]
-      this.destination_link_id = '5b317f135c9e085b93bedf0c'
-      charger_position = {x: 19, y: 16}
-      break
+        lightweight_harvester_targets = [
+          { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
+          { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
+          { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
+        ]
+        harvester_targets = [
+          { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
+          { id: '59f1c0cf7d0b3d79de5f03d7', room_name: 'W43S5' }, // utrium
+        ]
+        this.room_names = [this.room.name]
+        rooms_need_scout = [
+          'W42S5',
+          'W43S4',
+          'W45S5',
+        ]
+        rooms_need_to_be_defended = [
+          'W42S5',
+          'W43S4',
+        ]
+        this.destination_link_id = '5b317f135c9e085b93bedf0c'
+        charger_position = {x: 19, y: 16}
+        break
 
       case 'W42N1':
         lightweight_harvester_targets = [
@@ -366,29 +371,34 @@ export class Region {
         ]
         this.destination_link_id = '5b306805ad2c2c3e2216de40'
         charger_position = {x: 24, y: 29}
-        research_input_targets = [
-          {
-            id: '5b3537ffee165b475d3234f2', // 18, 33
-            resource_type: RESOURCE_ZYNTHIUM_ACID,
-          },
-          {
-            id: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
-            resource_type: RESOURCE_CATALYST,
-          },
-        ]
-        research_output_targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            let input_target_ids = research_input_targets.map(t=>t.id)
-            return (structure.structureType == STRUCTURE_LAB)
-              && (input_target_ids.indexOf(structure.id) < 0)
-          }
-        }).map((lab) => {
-          const target: ResearchTarget = {
-            id: lab.id,
-            resource_type: RESOURCE_CATALYZED_ZYNTHIUM_ACID,  // this is output
-          }
-          return target
-        })
+        input_lab_ids = {
+          lhs: '5b3537ffee165b475d3234f2', // 18, 33
+          rhs: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
+        }
+
+        // research_input_targets = [
+        //   {
+        //     id: '5b3537ffee165b475d3234f2', // 18, 33
+        //     resource_type: RESOURCE_ZYNTHIUM_ACID,
+        //   },
+        //   {
+        //     id: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
+        //     resource_type: RESOURCE_CATALYST,
+        //   },
+        // ]
+        // research_output_targets = this.room.find(FIND_STRUCTURES, {
+        //   filter: (structure) => {
+        //     let input_target_ids = research_input_targets.map(t=>t.id)
+        //     return (structure.structureType == STRUCTURE_LAB)
+        //       && (input_target_ids.indexOf(structure.id) < 0)
+        //   }
+        // }).map((lab) => {
+        //   const target: ResearchTarget = {
+        //     id: lab.id,
+        //     resource_type: RESOURCE_CATALYZED_ZYNTHIUM_ACID,  // this is output
+        //   }
+        //   return target
+        // })
         break
 
       case 'W47N2':
@@ -1160,7 +1170,10 @@ export class Region {
 
           // else {
           let hits_max = 150000
-          if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+          if (this.room.storage && (this.room.storage.store.energy > 700000)) {
+            hits_max = 400000
+          }
+          else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
             hits_max = 300000
           }
           if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
