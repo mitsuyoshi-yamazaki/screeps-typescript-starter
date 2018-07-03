@@ -700,33 +700,26 @@ export class HarvesterSquad extends Squad {
         }
       }
 
-      if (!creep.room.attacked && (creep.room.resourceful_tombstones.length > 0)) {
+      const carry_amount = _.sum(creep.carry)
+
+      if (!creep.room.attacked && (creep.room.resourceful_tombstones.length > 0) && ((carry_amount - creep.carry.energy) < (creep.carryCapacity - 100))) {
         const target = creep.room.resourceful_tombstones[0]
         const resource_amount = _.sum(target.store) - target.store.energy
         if (resource_amount > 0) {
-          const vacancy = creep.carryCapacity - _.sum(creep.carry)
+          const vacancy = creep.carryCapacity - carry_amount
           if (vacancy < resource_amount) {
             creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
           }
 
-          let resource_type: ResourceConstant | undefined
-          for (const type of Object.keys(target.store)) {
-            if (resource_type == RESOURCE_ENERGY) {
-              continue
-            }
-            resource_type = type as ResourceConstant
+          const withdraw_result = creep.withdrawResources(target, {exclude: [RESOURCE_ENERGY]})
+          if (withdraw_result == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target)
+            creep.say(`${target.pos.x}, ${target.pos.y}`)
           }
-          if (resource_type) {
-            const withdraw_result = creep.withdraw(target, resource_type)
-            if (withdraw_result == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target)
-              creep.say(`${target.pos.x}, ${target.pos.y}`)
-            }
-            else if (withdraw_result != OK) {
-              creep.say(`E${withdraw_result}`)
-            }
-            return
+          else if (withdraw_result != OK) {
+            creep.say(`E${withdraw_result}`)
           }
+          return
         }
         else if ((creep.ticksToLive || 0) < 300) {
           creep.memory.status = CreepStatus.CHARGE
@@ -740,7 +733,6 @@ export class HarvesterSquad extends Squad {
 
       // Harvest
       if (creep.memory.status == CreepStatus.HARVEST) {
-        const carry_amount = _.sum(creep.carry)
         if (carry_amount == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
@@ -868,6 +860,10 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
 
   if (!options.resource_type) {
     options.resource_type = resource_type
+  }
+
+  if (((creep.ticksToLive || 0) < 3) && store && (store.structureType != STRUCTURE_LINK)) {
+    creep.transferResources(store)
   }
 
   const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))

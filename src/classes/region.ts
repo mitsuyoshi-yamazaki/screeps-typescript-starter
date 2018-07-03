@@ -494,20 +494,22 @@ export class Region {
         if (ingredients) {
           let finished = false
 
-          let input_lab_l = Game.getObjectById(input_lab_ids.lhs) as StructureLab | undefined
-          let input_lab_r = Game.getObjectById(input_lab_ids.rhs) as StructureLab | undefined
-          const minimum_amount = 100
+          if (((Game.time % 101) == 0)) {// && (region_memory.reaction_outputs.length > 1)) {
+            let input_lab_l = Game.getObjectById(input_lab_ids.lhs) as StructureLab | undefined
+            let input_lab_r = Game.getObjectById(input_lab_ids.rhs) as StructureLab | undefined
+            const minimum_amount = 100
 
-          if (input_lab_l && (ingredients.lhs == input_lab_l.mineralType)) {
-            const amount = (this.room.terminal.store[ingredients.lhs] || 0) + input_lab_l.mineralAmount
-            if ((amount < minimum_amount)) {
-              finished = true
+            if (input_lab_l && (ingredients.lhs == input_lab_l.mineralType)) {
+              const amount = (this.room.terminal.store[ingredients.lhs] || 0) + input_lab_l.mineralAmount
+              if ((amount < minimum_amount)) {
+                finished = true
+              }
             }
-          }
-          if (input_lab_r && (ingredients.rhs == input_lab_r.mineralType)) {
-            const amount = (this.room.terminal.store[ingredients.rhs] || 0) + input_lab_r.mineralAmount
-            if ((amount < minimum_amount)) {
-              finished = true
+            if (input_lab_r && (ingredients.rhs == input_lab_r.mineralType)) {
+              const amount = (this.room.terminal.store[ingredients.rhs] || 0) + input_lab_r.mineralAmount
+              if ((amount < minimum_amount)) {
+                finished = true
+              }
             }
           }
 

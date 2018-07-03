@@ -522,6 +522,9 @@ export class ResearcherSquad extends Squad {
         if ((this.room_name == 'W44S7') && (lab.mineralType == RESOURCE_GHODIUM_ACID)) {
           has_output = (lab.mineralAmount > 1500)
         }
+        else if ((this.room_name == 'W51S29') && (lab.mineralType == RESOURCE_LEMERGIUM_HYDRIDE)) {
+          has_output = (lab.mineralAmount > 1500)
+        }
 
         const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)
         if (has_output || has_micellaous) {

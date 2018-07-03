@@ -54,9 +54,28 @@ export class ManualSquad extends Squad {
     }
 
     switch (this.original_room_name) {
-      case 'W51S29':
-        // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
-        return SpawnPriority.NONE
+      case 'W51S29': {
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.storage || (room.storage.store.energy < 200000)) {
+          return SpawnPriority.NONE
+        }
+
+        const lab_id = '5b258a00a84f8b52880bff57'
+        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+        const link = Game.getObjectById('5b25ad0900c9b15f092dfa9c') as StructureLink | undefined
+
+        if (!lab || !link) {
+          this.say(`NO LAB`)
+          console.log(`ManualSquad.run no lab nor link for ${lab_id} ${this.name} ${this.original_room_name} `)
+          return SpawnPriority.NONE
+        }
+        if ((lab.mineralType != RESOURCE_LEMERGIUM_HYDRIDE) || (lab.mineralAmount < 300)) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return SpawnPriority.NONE
+      }
 
       case 'W44S7': {
         const room = Game.rooms[this.original_room_name]
@@ -137,7 +156,7 @@ export class ManualSquad extends Squad {
         if (!room || !room.storage) {
           return SpawnPriority.NONE
         }
-        if (room.storage.store.energy < 400000) {
+        if (room.storage.store.energy < 500000) {
           return SpawnPriority.NONE
         }
 
@@ -179,7 +198,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 200
 
       case 'W51S29':
-        return energy_available >= 150
+        return energy_available >= 1150
 
       case 'W49S26':
         return energy_available >= 1600
@@ -250,9 +269,10 @@ export class ManualSquad extends Squad {
         this.addGeneralCreep(spawn_func, [MOVE, MOVE, CARRY, CARRY], CreepType.CARRIER)
         return
 
-      case 'W51S29':
-        this.addGeneralCreep(spawn_func, [MOVE, CARRY, CARRY], CreepType.CARRIER)
+      case 'W51S29': {
+        this.addUpgrader(energy_available, spawn_func, 1150)
         return
+      }
 
       case 'W49S26': {
         const body: BodyPartConstant[] = [
@@ -355,11 +375,75 @@ export class ManualSquad extends Squad {
     switch (this.original_room_name) {
 
       case 'W51S29': {
-        // if (!this.any_creep) {
-        //   return
-        // }
-        // const link = Game.getObjectById('5b1f028bb08a2b269fba0f6e') as StructureLink | undefined
-        // this.any_creep.transferLinkToStorage(link, {x: 24, y: 21})
+        const lab_id = '5b258a00a84f8b52880bff57'
+        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+
+        const link = Game.getObjectById('5b25ad0900c9b15f092dfa9c') as StructureLink | undefined
+
+        this.creeps.forEach((creep) => {
+          const memory = creep.memory as ManualMemory
+
+          if (!creep.boosted && lab && (lab.mineralType == RESOURCE_LEMERGIUM_HYDRIDE) && (lab.mineralAmount >= 300)) {
+            if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(lab)
+            }
+            return
+          }
+
+          const x = 14
+          const y = 20
+
+          if (!creep.memory.stop) {
+            creep.moveTo(x, y)
+          }
+          if ((creep.pos.x != x) || (creep.pos.y != y)) {
+            return
+          }
+
+          if (!link) {
+            creep.say(`NO LNK`)
+            return
+          }
+
+          const withdraw_result = creep.withdraw(link, RESOURCE_ENERGY)
+
+          let target: StructureWall | StructureRampart | undefined
+
+          if (memory.target_id && ((Game.time % 29) != 7)) {
+            target = Game.getObjectById(memory.target_id) as StructureWall | StructureRampart | undefined
+          }
+
+          if (!target) {
+            const walls = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+              filter: (structure: Structure) => {
+                return (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+              }
+            }) as (StructureWall | StructureRampart)[]
+
+            target = walls.sort(((lhs, rhs) => {
+              const l_hits = Math.floor(lhs.hits / 100000)
+              const r_hits = Math.floor(rhs.hits / 100000)
+              if (l_hits < r_hits) return -1
+              else if (l_hits > r_hits) return 1
+              else return 0
+            }))[0]
+          }
+
+          if (!target) {
+            creep.say(`NO TGT`)
+            return
+          }
+
+          (creep.memory as ManualMemory).target_id = target.id
+
+          const repair_result = creep.repair(target)
+          if (repair_result != OK) {
+            creep.say(`E${repair_result}`)
+          }
+          else {
+            creep.say(`${Math.floor(target.hits / 1000)}k`)
+          }
+        })
         return
       }
 

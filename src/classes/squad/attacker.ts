@@ -8,9 +8,9 @@ interface AttackerSquadMemory extends SquadMemory {
 
 export class AttackerSquad extends Squad {
   private destination_room_name: string | undefined
-  private energy_unit = 330
+  private energy_unit = 80
   private fix_part_energy = 120
-  private max_energy = 1930
+  private max_energy = 970
 
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
@@ -66,10 +66,7 @@ export class AttackerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.base_room.name == 'W49S47') {
-      return SpawnPriority.NONE
-    }
-    if (this.energy_capacity < this.energy_unit) {
+    if (this.energy_capacity < 280) {
       return SpawnPriority.NONE
     }
     if (!this.destination_room_name) {
@@ -85,7 +82,7 @@ export class AttackerSquad extends Squad {
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     if (capacity < (this.fix_part_energy + this.energy_unit)) {
-      if (energyAvailable >= 260) {
+      if (energyAvailable >= 280) {
         return true
       }
     }
@@ -97,9 +94,9 @@ export class AttackerSquad extends Squad {
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE]
-    const move: BodyPartConstant[] = [MOVE, MOVE]
-    const attack: BodyPartConstant[] = [RANGED_ATTACK, ATTACK]
+    const front_part: BodyPartConstant[] = [TOUGH, TOUGH]
+    const move: BodyPartConstant[] = [MOVE]
+    const attack: BodyPartConstant[] = [ATTACK]
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -113,20 +110,20 @@ export class AttackerSquad extends Squad {
     }
 
     if (energyAvailable < (this.fix_part_energy + this.energy_unit)) {
-      body = [TOUGH, MOVE, MOVE, RANGED_ATTACK]
+      body = [MOVE, ATTACK, RANGED_ATTACK]
     }
     else {
       energyAvailable = Math.min(energyAvailable, this.max_energy)
       energyAvailable -= this.fix_part_energy
 
       while(energyAvailable >= this.energy_unit) {
-        body = move.concat(body)
-        body = body.concat(attack)
+        body = attack.concat(body)
+        body = body.concat(move)
 
         energyAvailable -= this.energy_unit
       }
       body = front_part.concat(body)
-      body.push(MOVE)
+      body = body.concat([RANGED_ATTACK, MOVE, MOVE, MOVE])
     }
 
     const result = spawnFunc(body, name, {
