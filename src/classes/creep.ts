@@ -405,6 +405,10 @@ export function init() {
       }
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W42S4') && (this.room.name == 'W42S5')) {
+      this.moveTo(36, 0)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint

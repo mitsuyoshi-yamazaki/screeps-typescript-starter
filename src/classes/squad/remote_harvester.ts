@@ -148,7 +148,7 @@ export class RemoteHarvesterSquad extends Squad {
     const room = Game.rooms[this.room_name] as Room | undefined
     const room_memory = Memory.rooms[this.room_name]
 
-    if ((room && room.attacked) || (room_memory && room_memory.attacked_time)) {
+    if ((room && (room.attacked && !room.is_keeperroom)) || (room_memory && room_memory.attacked_time)) {
       if ((Game.time % 2) == 1) {
         console.log(`RemoteHarvesterSquad.setNextCreep room ${this.room_name} is under attack ${this.name}`)
       }
@@ -168,16 +168,11 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
-    if (squad_memory.room_contains_construction_sites.length > 0) {
+    if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
       const builder_max = 2
       if (this.builders.length < builder_max) {
         this.next_creep = CreepType.WORKER
-      }
-      else {
-        if (this.debug) {
-          console.log(`RemoteHarvesterSquad.setNextCreep builder reach max`)
-        }
       }
       return
     }
@@ -555,6 +550,19 @@ export class RemoteHarvesterSquad extends Squad {
             return
           }
 
+          const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 300)
+            }
+          })
+
+          if (container) {
+            if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(container)
+            }
+            return
+          }
+
           let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
           if (source) {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
@@ -660,7 +668,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) > 0) && creep.room.attacked) {
+      if ((_.sum(creep.carry) > 0) && (creep.room.attacked && !creep.room.is_keeperroom)) {
         creep.memory.status = CreepStatus.CHARGE
       }
 

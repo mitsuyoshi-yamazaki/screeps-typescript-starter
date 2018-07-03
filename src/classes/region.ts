@@ -169,8 +169,8 @@ export class Region {
           // { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           // { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
           { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
-          { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top right
-          { id: '59f19feb82100e1594f35c01', room_name: 'W49S5' }, // center
+          // { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top right
+          // { id: '59f19feb82100e1594f35c01', room_name: 'W49S5' }, // center
         ]
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
@@ -202,7 +202,8 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
           // { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
-          { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
+          // { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
+          { id: '59f1a05982100e1594f368bb', room_name: 'W42S4' }, // bottom
         ]
         harvester_targets = [
           { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
@@ -213,10 +214,12 @@ export class Region {
           'W42S5',
           'W43S4',
           'W45S5',
+          'W42S4',
         ]
         rooms_need_to_be_defended = [
           'W42S5',
           'W43S4',
+          'W42S4',
         ]
         this.destination_link_id = '5b317f135c9e085b93bedf0c'
         charger_position = {x: 19, y: 16}

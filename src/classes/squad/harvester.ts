@@ -902,26 +902,30 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
   }
 
   if ((creep.memory.status == CreepStatus.HARVEST) && ((creep.carry[resource_type] || 0) == 0) && store && has_capacity) {
-    const objects = creep.room.lookAt(creep)
-    const dropped_object = objects.filter((obj) => {
-      return (obj.type == 'resource')
-        && ((obj.resource!.resourceType == resource_type))
-    })[0]
+    if (source && (creep.pos.getRangeTo(source) <= 1)) {
 
-    if (dropped_object) {
-      const energy = dropped_object.resource!
-      const pickup_result = creep.pickup(energy)  // @fixme: 位置につく前にpickupするとそこから動かなくなる
-      switch (pickup_result) {
-        case OK:
-        case ERR_FULL:
-          break
+      const dropped_object = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+        filter: (resource: Resource) => {
+          return (resource.resourceType == resource_type)
+        }
+      })[0]
 
-        default:
-          console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${creep.name}, ${creep.pos}, ${room_name}`)
-          break
+      if (dropped_object) {
+        const pickup_result = creep.pickup(dropped_object)
+        switch (pickup_result) {
+          case OK:
+          case ERR_FULL:
+            break
+
+          default:
+            console.log(`HarvesterSquad.harvest() unexpected pickup result: ${pickup_result}, ${creep.name}, ${creep.pos}, ${room_name}`)
+            break
+        }
+        return
       }
     }
-    else if (container && store && (container.id != store.id) && (container.structureType == STRUCTURE_CONTAINER) && (container.store.energy > 0)) {
+
+    if (container && store && (container.id != store.id) && (container.structureType == STRUCTURE_CONTAINER) && (container.store.energy > 0)) {
       if (creep.withdraw(container, RESOURCE_ENERGY) == OK) {
         return
       }
