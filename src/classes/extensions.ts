@@ -147,7 +147,8 @@ export function init() {
       else {
         this.cost_matrix = new PathFinder.CostMatrix;
         const margin = 5
-        const cost = 5
+        const cost = 3
+        const road_cost = 1
 
         this.find(FIND_STRUCTURES).filter((structure: Structure) => {
           return structure.structureType == STRUCTURE_KEEPER_LAIR
@@ -197,6 +198,12 @@ export function init() {
               this.cost_matrix.set(i, j, cost)
             }
           }
+        })
+
+        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+          return structure.structureType == STRUCTURE_ROAD
+        }).forEach((structure: Structure) => {
+          this.cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
         })
 
         memory.cost_matrix = this.cost_matrix.serialize()
