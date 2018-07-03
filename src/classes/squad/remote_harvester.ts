@@ -641,10 +641,6 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
-      if (creep.room.memory.attacked_time) {
-
-      }
-
       if (((Game.time + creep.memory.birth_time) % 5) == 3) {
         const tombstone = creep.room.resourceful_tombstones[0]
         if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
@@ -668,8 +664,16 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) > 0) && (creep.room.attacked && !creep.room.is_keeperroom)) {
+      const target_room_memory = Memory.rooms[this.room_name]
+
+      const should_escape = (creep.room.attacked && !creep.room.is_keeperroom) || (target_room_memory && target_room_memory.attacked_time)
+      if (should_escape) {
         creep.memory.status = CreepStatus.CHARGE
+
+        if ((_.sum(creep.carry) == 0) && (creep.room.name == this.base_room.name)) {
+          creep.moveTo(25, 25)
+          return
+        }
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
@@ -727,7 +731,7 @@ export class RemoteHarvesterSquad extends Squad {
       const has_minerals = ((_.sum(creep.carry) - creep.carry.energy) > 0)
 
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (!has_minerals && (creep.carry.energy < (creep.carryCapacity * 0.5))) {
+        if (!has_minerals && (creep.carry.energy < (creep.carryCapacity * 0.5)) && !should_escape) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }

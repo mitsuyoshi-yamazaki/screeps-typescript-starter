@@ -1090,7 +1090,9 @@ export class Region {
               break
 
             default:
-              console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}, ${output_lab.pos}`)
+              if ((Game.time % 23) == 11) {
+                console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}, ${output_lab.pos}`)
+              }
               break
           }
         })
