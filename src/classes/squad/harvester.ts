@@ -141,6 +141,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03d7') { // W43S5 Utrium
       this.resource_type = RESOURCE_UTRIUM
     }
+    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03ce') { // W43N5 Zynthium
+      this.resource_type = RESOURCE_ZYNTHIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }

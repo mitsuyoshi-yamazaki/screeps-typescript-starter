@@ -8,9 +8,9 @@ interface AttackerSquadMemory extends SquadMemory {
 
 export class AttackerSquad extends Squad {
   private destination_room_name: string | undefined
-  private energy_unit = 80
+  private energy_unit = 130
   private fix_part_energy = 120
-  private max_energy = 970
+  private max_energy = 1100
 
   constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
@@ -94,7 +94,7 @@ export class AttackerSquad extends Squad {
   }
 
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const front_part: BodyPartConstant[] = [TOUGH, TOUGH]
+    const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE, MOVE]
     const move: BodyPartConstant[] = [MOVE]
     const attack: BodyPartConstant[] = [ATTACK]
 
@@ -117,13 +117,13 @@ export class AttackerSquad extends Squad {
       energyAvailable -= this.fix_part_energy
 
       while(energyAvailable >= this.energy_unit) {
-        body = attack.concat(body)
-        body = body.concat(move)
+        body = move.concat(body)
+        body = body.concat(attack)
 
         energyAvailable -= this.energy_unit
       }
       body = front_part.concat(body)
-      body = body.concat([RANGED_ATTACK, MOVE, MOVE, MOVE])
+      body = body.concat([RANGED_ATTACK, MOVE])
     }
 
     const result = spawnFunc(body, name, {
@@ -201,7 +201,7 @@ export class AttackerSquad extends Squad {
               break
 
             case 'W43N5':
-              attacker.moveTo(17, 19)
+              attacker.moveTo(35, 19)
               break
 
             case 'W43S5':

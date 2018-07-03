@@ -55,9 +55,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const utrium_first_room_name = 'W43S5'
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
-    { from: hydrogen_third_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
-    { from: utrium_first_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
+    // { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+    // { from: hydrogen_third_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+    // { from: utrium_first_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
   ]
 
   if ((Game.time % 13) == 11) {

@@ -36,7 +36,7 @@ export class RemoteHarvesterSquad extends Squad {
   private debug = false
   private next_creep: CreepType | undefined
 
-  constructor(readonly name: string, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
+  constructor(readonly name: string, readonly base_room: Room, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
     super(name)
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
@@ -146,6 +146,14 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     const room = Game.rooms[this.room_name] as Room | undefined
+    const room_memory = Memory.rooms[this.room_name]
+
+    if ((room && room.attacked) || (room_memory && room_memory.attacked_time)) {
+      if ((Game.time % 2) == 1) {
+        console.log(`RemoteHarvesterSquad.setNextCreep room ${this.room_name} is under attack ${this.name}`)
+      }
+      return
+    }
 
     if (!room) {
       if (!this.scout) {
@@ -174,7 +182,7 @@ export class RemoteHarvesterSquad extends Squad {
       return
     }
 
-    if (!this.keeper && room.controller) {
+    if (!this.keeper && !room.attacked && room.controller) {
       if (!room.controller.reservation || (room.controller.reservation.ticksToEnd < 4000)) {
         this.next_creep = CreepType.CONTROLLER_KEEPER
         return
@@ -625,6 +633,10 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
+      if (creep.room.memory.attacked_time) {
+
+      }
+
       if (((Game.time + creep.memory.birth_time) % 5) == 3) {
         const tombstone = creep.room.resourceful_tombstones[0]
         if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
@@ -633,6 +645,23 @@ export class RemoteHarvesterSquad extends Squad {
           }
           return
         }
+      }
+      else if ((_.sum(creep.carry) < creep.carryCapacity)) {
+        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
+          filter: (d: Resource) => {
+            return d.resourceType == RESOURCE_ENERGY
+          }
+        })[0]
+        if (drop) {
+          if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(drop)
+          }
+          return
+        }
+      }
+
+      if ((_.sum(creep.carry) > 0) && creep.room.attacked) {
+        creep.memory.status = CreepStatus.CHARGE
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {

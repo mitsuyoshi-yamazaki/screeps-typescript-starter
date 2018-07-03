@@ -112,81 +112,8 @@ export class Region {
           lhs: '5b2552233deea0034025a183', // 30, 18
           rhs: '5b2585544218cc4736554b87', // 31, 17
         }
-        // research_input_targets = [
-        //   {
-        //     id: '5b2552233deea0034025a183', // 30, 18
-        //     resource_type: RESOURCE_LEMERGIUM_ALKALIDE,
-        //   },
-        //   {
-        //     id: '5b2585544218cc4736554b87', // 31, 17
-        //     resource_type: RESOURCE_CATALYST,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE,  // this is output
-        //   }
-        //   return target
-        // })
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
-        break
-
-      case 'W49S26':
-        lightweight_harvester_targets = [
-          { id: '59f19fed82100e1594f35c45', room_name: 'W49S27' },  // top
-          { id: '59f19fed82100e1594f35c46', room_name: 'W49S27' },  // right
-          { id: '59f19fed82100e1594f35c42', room_name: 'W49S26' }
-        ]
-        this.room_names = [this.room.name]
-        rooms_need_scout = ['W49S27']//, 'W49S18']
-        rooms_need_to_be_defended = ['W49S27']
-        break
-
-      case 'W48S19':
-        this.room_names = [this.room.name]
-        break
-
-      case 'W48S12':
-        lightweight_harvester_targets = [
-          { id: '59f19ffb82100e1594f35d92', room_name: 'W48S12' },  // left
-          { id: '59f19fec82100e1594f35c18', room_name: 'W49S12' },
-          { id: '59f1a00a82100e1594f35f16', room_name: 'W47S12' },
-          { id: '59f19fec82100e1594f35c1a', room_name: 'W49S13' },
-        ]
-        rooms_need_scout = [
-          'W49S12',
-          'W47S12',
-          'W49S13',
-        ]
-        rooms_need_to_be_defended = [
-          'W49S12',
-          'W47S12',
-          'W49S13',
-        ]
-        this.room_names = [this.room.name]
-        break
-
-      case 'W49S19':
-        lightweight_harvester_targets = [
-          // { id: '59f19fec82100e1594f35c2a', room_name: 'W49S18' }, // The room is under enemy's control
-          { id: '59f19fec82100e1594f35c2c', room_name: 'W49S19' },
-          { id: '59f19ffc82100e1594f35daa', room_name: 'W48S19' },
-        ]
-        this.room_names = [this.room.name]
-        rooms_need_scout = [
-          'W49S18'
-        ]
-        rooms_need_to_be_defended = [
-          'W49S18'
-        ]
         break
 
       case 'W44S7':
@@ -233,29 +160,6 @@ export class Region {
           lhs: '5b32880e2ffd7a7b7f47e643', // 18, 34
           rhs: '5b32af23c3f6e64781782851', // 17, 33
         }
-        // research_input_targets = [
-        //   {
-        //     id: '5b32880e2ffd7a7b7f47e643', // 18, 34
-        //     resource_type: RESOURCE_GHODIUM,
-        //   },
-        //   {
-        //     id: '5b32af23c3f6e64781782851', // 17, 33
-        //     resource_type: RESOURCE_HYDROGEN,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_GHODIUM_HYDRIDE,  // this is output
-        //   }
-        //   return target
-        // })
         break
 
       case 'W48S6':
@@ -292,29 +196,6 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-      // research_input_targets = [
-        //   {
-        //     id: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
-        //     resource_type: RESOURCE_HYDROXIDE,
-        //   },
-        //   {
-        //     id: '5b358e1d24c2d964cdd22578', // 41, 22
-        //     resource_type: RESOURCE_GHODIUM_OXIDE,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_GHODIUM_ALKALIDE,  // this is output
-        //   }
-        //   return target
-        // })
         break
 
       case 'W43S5':
@@ -379,30 +260,6 @@ export class Region {
           lhs: '5b3537ffee165b475d3234f2', // 18, 33
           rhs: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
         }
-
-        // research_input_targets = [
-        //   {
-        //     id: '5b3537ffee165b475d3234f2', // 18, 33
-        //     resource_type: RESOURCE_ZYNTHIUM_ACID,
-        //   },
-        //   {
-        //     id: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
-        //     resource_type: RESOURCE_CATALYST,
-        //   },
-        // ]
-        // research_output_targets = this.room.find(FIND_STRUCTURES, {
-        //   filter: (structure) => {
-        //     let input_target_ids = research_input_targets.map(t=>t.id)
-        //     return (structure.structureType == STRUCTURE_LAB)
-        //       && (input_target_ids.indexOf(structure.id) < 0)
-        //   }
-        // }).map((lab) => {
-        //   const target: ResearchTarget = {
-        //     id: lab.id,
-        //     resource_type: RESOURCE_CATALYZED_ZYNTHIUM_ACID,  // this is output
-        //   }
-        //   return target
-        // })
         break
 
       case 'W47N2':
@@ -457,6 +314,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a04482100e1594f36714', room_name: 'W43N5' }, // left
           { id: '59f1a04482100e1594f36715', room_name: 'W43N5' }, // right
+          { id: '59f1c0cf7d0b3d79de5f03ce', room_name: 'W43N5' }, // zynthium
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -672,7 +530,7 @@ export class Region {
       case SquadType.REMOET_HARVESTER: {
         const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
 
-        const squad = new RemoteHarvesterSquad(squad_memory.name, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
+        const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
         this.squads.set(squad.name, squad)
         break
       }
@@ -1073,10 +931,13 @@ export class Region {
       const number_of_workers = this.worker_squad.creeps.size
 
       if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4) && (squad.creeps.size == 0)) {
-        worker_harvester.memory.squad_name = squad.name
-        worker_harvester.memory.status = CreepStatus.CHARGE
-        // console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
-        return false
+        const room = Game.rooms[(squad as LightWeightHarvesterSquad).source_info.room_name]
+        if (room && !room.attacked) {
+          worker_harvester.memory.squad_name = squad.name
+          worker_harvester.memory.status = CreepStatus.CHARGE
+          // console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
+          return false
+        }
       }
 
       return (squad.spawnPriority == highest_priority)
@@ -1523,6 +1384,8 @@ export class Region {
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
+    const region_memory = Memory.regions[this.name] as RegionMemory
+
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
     switch(this.room.name) {
@@ -1557,7 +1420,7 @@ export class Region {
 
     let lines: string[] = [
       `${this.name} in ${this.room.name}`,
-      `  Rooms: ${this.room_names}, Capacity: ${this.room.energyCapacityAvailable}, Reaction: ${this.current_reaction_target}`,
+      `  Rooms: ${this.room_names}, Capacity: ${this.room.energyCapacityAvailable}, Reaction: ${region_memory.reaction_outputs}`,
       `  Squads: ${this.squads.size}, Creeps: ${_.sum(Array.from(this.squads.values()).map(s=>s.creeps.size))}`,
     ]
 

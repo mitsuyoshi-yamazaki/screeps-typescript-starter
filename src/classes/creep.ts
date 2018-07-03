@@ -10,6 +10,7 @@ export enum CreepStatus {  // @todo: add "meta" info to status and keep it on me
   UPGRADE = "upgrade",
   BREAK   = "break",
   ATTACK  = "attack",
+  ESCAPE  = "escape",
   WAITING_FOR_RENEW = "waiting_for_renew",
 }
 
@@ -1129,7 +1130,7 @@ export function init() {
             filter: (t: Tombstone) => t.store.energy > 0
           })[0]
           if (tomb) {
-            if (this.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            if (this.withdrawResources(tomb) == ERR_NOT_IN_RANGE) {
               this.moveTo(tomb)
               return
             }
