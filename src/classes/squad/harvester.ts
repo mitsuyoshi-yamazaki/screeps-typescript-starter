@@ -865,6 +865,27 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
     options.resource_type = resource_type
   }
 
+  if (creep.getActiveBodyparts(CARRY) == 0) {
+    if (creep.room.is_keeperroom && (creep.moveToRoom(room_name) == ActionResult.IN_PROGRESS)) {
+      return
+    }
+    if (source) {
+      if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+        const ignoreCreeps = ((Game.time % 3) == 0) ? false : creep.pos.getRangeTo(source) <= 2  // If the blocking creep is next to the source, ignore
+
+        creep.moveTo(source, {
+          ignoreCreeps: ignoreCreeps,
+        })
+        return
+      }
+    }
+    else {
+      creep.moveToRoom(room_name)
+      return
+    }
+    return
+  }
+
   if (((creep.ticksToLive || 0) < 3) && store && (store.structureType != STRUCTURE_LINK)) {
     creep.transferResources(store)
   }

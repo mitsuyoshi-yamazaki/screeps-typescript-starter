@@ -637,6 +637,10 @@ export class RemoteHarvesterSquad extends Squad {
 
   private runCarrier(): void {
     this.carriers.forEach((creep) => {
+      if ((creep.room.name == 'W45S5') && (creep.carry.energy > (creep.carryCapacity * 0.9))) {
+        creep.memory.status = CreepStatus.CHARGE
+      }
+
       if ([CreepStatus.HARVEST, CreepStatus.CHARGE].indexOf(creep.memory.status) < 0) {
         creep.memory.status = CreepStatus.HARVEST
       }
@@ -650,7 +654,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
       }
-      else if ((_.sum(creep.carry) < creep.carryCapacity)) {
+      else if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY

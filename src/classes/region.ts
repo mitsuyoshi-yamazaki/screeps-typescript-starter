@@ -335,6 +335,10 @@ export class Region {
           'W41N5',
         ]
         charger_position = {x: 27, y: 21}
+        input_lab_ids = {
+          lhs: '5b3be4cc58a02e70ebaa4bdd', // 37, 23
+          rhs: '5b3c0baabd00f26bbb6f9aa8', // 36, 24
+        }
         break
 
       case 'W44N3':
@@ -1380,7 +1384,7 @@ export class Region {
         squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
           const result = spawn.spawnCreep(body, name, ops)
           if (result != OK) {
-            console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}`)
+            console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}`)
           }
           return result
         })
