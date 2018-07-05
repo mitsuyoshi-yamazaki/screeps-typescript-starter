@@ -43,7 +43,7 @@ export class Region {
   private room_names: string[] = []
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
-  private attacked_rooms: Room[] = []
+  private attacked_rooms: string[] = []
   private current_reaction_target: ResourceConstant | undefined
 
   constructor(readonly controller: StructureController) {
@@ -359,18 +359,18 @@ export class Region {
         if (ingredients) {
           let finished = false
 
-          if (((Game.time % 101) == 0)) {// && (region_memory.reaction_outputs.length > 1)) {
+          if (((Game.time % 101) == 0)) {
             let input_lab_l = Game.getObjectById(input_lab_ids.lhs) as StructureLab | undefined
             let input_lab_r = Game.getObjectById(input_lab_ids.rhs) as StructureLab | undefined
             const minimum_amount = 100
 
-            if (input_lab_l && (ingredients.lhs == input_lab_l.mineralType)) {
+            if (input_lab_l && (!input_lab_l.mineralType || (ingredients.lhs == input_lab_l.mineralType))) {
               const amount = (this.room.terminal.store[ingredients.lhs] || 0) + input_lab_l.mineralAmount
               if ((amount < minimum_amount)) {
                 finished = true
               }
             }
-            if (input_lab_r && (ingredients.rhs == input_lab_r.mineralType)) {
+            if (input_lab_r && (!input_lab_r.mineralType || (ingredients.rhs == input_lab_r.mineralType))) {
               const amount = (this.room.terminal.store[ingredients.rhs] || 0) + input_lab_r.mineralAmount
               if ((amount < minimum_amount)) {
                 finished = true
@@ -431,20 +431,24 @@ export class Region {
 
     // --
     this.attacked_rooms = this.room_names.map((room_name) => {
-      return Game.rooms[room_name]
-    }).filter((room) => {
-      return !(!room)
-    }).filter((room) => {
-      return room.attacked
-    })
+      const room_memory = Memory.rooms[room_name]
+      if (room_memory && room_memory.attacked_time) {
+        return room_name
+      }
+      return null
+    }).filter((room_name) => {
+      return !(!room_name)
+    }) as string[]
 
     const attacked = rooms_need_to_be_defended.map((room_name) => {
-      return Game.rooms[room_name]
-    }).filter((room) => {
-      return !(!room)
-    }).filter((room) => {
-      return room.attacked && !room.heavyly_attacked
-    })
+      const room_memory = Memory.rooms[room_name]
+      if (room_memory && room_memory.attacked_time) {
+        return room_name
+      }
+      return null
+    }).filter((room_name) => {
+      return !(!room_name)
+    }) as string[]
 
     this.attacked_rooms = this.attacked_rooms.concat(attacked)
 

@@ -993,39 +993,27 @@ export function init() {
       return ActionResult.DONE
     }
 
-    if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
+    if (([CreepStatus.HARVEST, CreepStatus.UPGRADE].indexOf(this.memory.status) < 0) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
 
-    // Withdraw
-    if (this.memory.status == CreepStatus.HARVEST) {
+    if (this.carry.energy < (this.carryCapacity * 0.7)) {
       const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: source_filter
       })
 
       if (!target) {
         this.say('NO Src')
-        return ActionResult.DONE
-      }
-      else if (this.carry.energy == this.carryCapacity) {
-        this.memory.status = CreepStatus.UPGRADE
       }
       else if (this.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         this.moveTo(target)
-        return ActionResult.IN_PROGRESS
       }
     }
+    else {
+      this.moveTo(this.room.controller)
+    }
+    this.upgradeController(this.room.controller)
 
-    // Upgrade
-    if (this.memory.status == CreepStatus.UPGRADE) {
-      if (this.carry.energy == 0) {
-        this.memory.status = CreepStatus.HARVEST
-      }
-      else {
-        this.upgradeController(this.room.controller)
-        this.moveTo(this.room.controller)
-      }
-    }
     return ActionResult.IN_PROGRESS
   }
 

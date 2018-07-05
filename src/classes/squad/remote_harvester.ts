@@ -16,6 +16,7 @@ export interface RemoteHarvesterSquadMemory extends SquadMemory {
   sources: {[index: string]: {container_id?: string}}
   room_contains_construction_sites: string[]
   carrier_max?: number
+  destination_id?: string
 }
 
 interface SourceInfo {
@@ -41,6 +42,28 @@ export class RemoteHarvesterSquad extends Squad {
     super(name)
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+
+    if (squad_memory.destination_id) {
+      const specified_destination = Game.getObjectById(squad_memory.destination_id) as HarvesterDestination | undefined
+
+      if (specified_destination) {
+        const ok = specified_destination && (
+          (specified_destination.structureType == STRUCTURE_CONTAINER)
+          || (specified_destination.structureType == STRUCTURE_TERMINAL)
+          || (specified_destination.structureType == STRUCTURE_STORAGE)
+          || (specified_destination.structureType == STRUCTURE_LINK)
+        )
+
+        if (ok) {
+          this.destination = specified_destination
+        }
+        else {
+          const message = `RemoteHarvesterSquad specified destination id is wrong ${squad_memory.destination_id}, ${specified_destination}, ${this.name}, ${this.room_name}`
+          console.log(message)
+          Game.notify(message)
+        }
+      }
+    }
 
     this.source_ids.forEach((id) => {
       let container: StructureContainer | undefined
@@ -652,16 +675,15 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
-      if (((Game.time + creep.memory.birth_time) % 5) == 3) {
-        const tombstone = creep.room.resourceful_tombstones[0]
-        if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
-          if (creep.withdrawResources(tombstone) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(tombstone, {maxRooms: 0})
-          }
-          return
+      const tombstone = creep.room.resourceful_tombstones[0]
+      if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
+        if (creep.withdrawResources(tombstone) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(tombstone, {maxRooms: 0})
         }
+        return
       }
-      else if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
+
+      if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 2, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY

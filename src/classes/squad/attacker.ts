@@ -12,12 +12,12 @@ export class AttackerSquad extends Squad {
   private fix_part_energy = 120
   private max_energy = 1100
 
-  constructor(readonly name: string, readonly rooms_to_defend: Room[], readonly base_room: Room, readonly energy_capacity: number) {
+  constructor(readonly name: string, readonly rooms_to_defend: string[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
 
     const memory = (Memory.squads[this.name] as AttackerSquadMemory)
 
-    if ((this.rooms_to_defend.indexOf(this.base_room) >= 0)) {
+    if ((this.rooms_to_defend.indexOf(this.base_room.name) >= 0)) {
       this.destination_room_name = this.base_room.name
     }
     else if (memory.target_room_name) {
@@ -29,7 +29,7 @@ export class AttackerSquad extends Squad {
         }
         else {
           (Memory.squads[this.name] as AttackerSquadMemory).target_room_name = undefined
-          this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined
+          this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0] : undefined
         }
       }
       else {
@@ -38,7 +38,7 @@ export class AttackerSquad extends Squad {
     }
 
     if (!this.destination_room_name) {
-      this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0].name : undefined;
+      this.destination_room_name = rooms_to_defend[0] ? rooms_to_defend[0] : undefined;
     }
     (Memory.squads[this.name] as AttackerSquadMemory).target_room_name = this.destination_room_name
 

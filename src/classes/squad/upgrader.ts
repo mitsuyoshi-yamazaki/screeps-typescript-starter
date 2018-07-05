@@ -76,48 +76,6 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
-      // const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 400))
-
-      // if (needs_renew) {
-      //   if ((creep.room.spawns.length > 0) && (creep.room.energyAvailable > 0)) {
-      //     creep.goToRenew(creep.room.spawns[0])
-      //     return
-      //   }
-      //   else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-      //     creep.memory.status = CreepStatus.HARVEST
-      //   }
-      // }
-
-      // if ((creep.boosted == false) && (creep.room.name == 'W48S47')) {
-      //   const lab = Game.getObjectById('5af458a11ad10d5415bba8f2') as StructureLab
-      //   if ((lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount > 500)) {
-      //     creep.say('🔥')
-      //     if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(lab)
-      //     }
-      //     return
-      //   }
-      // }
-
-      if (this.room_name == 'W49S47') {
-        if (!creep.boosted) {
-          const lab = Game.getObjectById('5b084be5a284705c62daabaa') as StructureLab | undefined
-
-          if (lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 480)) {
-            if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(lab)
-            }
-            return
-          }
-        }
-        creep.moveTo(43, 24)
-        if ((creep.ticksToLive || 0) > 4) {
-          creep.withdraw(creep.room.storage!, RESOURCE_ENERGY)
-        }
-        creep.upgradeController(creep.room.controller!)
-        return
-      }
-
       creep.upgrade((structure) => {
         // If source is storage and it contains less energy, wait for charge
         if (structure.structureType == STRUCTURE_STORAGE) {
