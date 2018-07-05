@@ -35,6 +35,7 @@ export class RemoteHarvesterSquad extends Squad {
 
   private debug = false
   private next_creep: CreepType | undefined
+  private harvester_energy_unit = 850
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
     super(name)
@@ -133,8 +134,7 @@ export class RemoteHarvesterSquad extends Squad {
         break
     }
 
-    const least_energy = 800
-    if (least_energy <= capacity) {
+    if (this.harvester_energy_unit <= capacity) {
       this.setNextCreep()
     }
   }
@@ -147,6 +147,11 @@ export class RemoteHarvesterSquad extends Squad {
 
     const room = Game.rooms[this.room_name] as Room | undefined
     const room_memory = Memory.rooms[this.room_name]
+
+    if ((this.creeps.size == 1) && this.scout && (this.scout.room.name != this.room_name)) {
+      // Don't spawn creep before the scout arrives the room
+      return
+    }
 
     if ((room && (room.attacked && !room.is_keeperroom)) || (room_memory && room_memory.attacked_time)) {
       if ((Game.time % 2) == 1) {
@@ -265,7 +270,7 @@ export class RemoteHarvesterSquad extends Squad {
         break
 
       case CreepType.HARVESTER:
-        energy_unit = 800
+        energy_unit = this.harvester_energy_unit
         max = energy_unit
         break
 
@@ -379,7 +384,7 @@ export class RemoteHarvesterSquad extends Squad {
       WORK, WORK, WORK,
       WORK, WORK, WORK,
     ]
-    const energy_unit = 800
+    const energy_unit = this.harvester_energy_unit
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
