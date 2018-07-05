@@ -31,7 +31,7 @@ export class WorkerSquad extends Squad {
     // return SpawnPriority.NONE // @fixme: for debugging upgrader
     const size = this.room_name == 'W49S34' ? this.creeps.size : Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
 
-    if (size < 2) {
+    if (size < 1) {
       return SpawnPriority.URGENT
     }
 
@@ -93,7 +93,7 @@ export class WorkerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    if ((this.creeps.size < 2) && (energy_available >= 200)) {
+    if ((this.creeps.size < 1) && (energy_available >= 200)) {
       return true
     }
 
