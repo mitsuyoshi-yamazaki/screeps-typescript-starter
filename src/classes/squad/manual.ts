@@ -91,10 +91,10 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
-        // const no_gh2o = (room.storage.store[RESOURCE_GHODIUM_ACID] || 0) < 400
+        // const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
+        const no_gh2o = (room.storage.store[RESOURCE_GHODIUM_ACID] || 0) < 400
 
-        if (no_xgh2o) {
+        if (no_gh2o) {
           return SpawnPriority.NONE
         }
 
@@ -522,7 +522,7 @@ export class ManualSquad extends Squad {
           return
         }
 
-        const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+        const resource_type = RESOURCE_GHODIUM_ACID
 
         this.creeps.forEach((creep) => {
           if (!creep.room.terminal) {
