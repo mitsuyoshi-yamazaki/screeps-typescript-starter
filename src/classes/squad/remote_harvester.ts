@@ -718,10 +718,10 @@ export class RemoteHarvesterSquad extends Squad {
             const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
               filter: (structure: AnyStructure) => {
                 if (structure.structureType == STRUCTURE_ROAD) {
-                  return structure.hits < structure.hitsMax
+                  return structure.hits < (structure.hitsMax * 0.9)
                 }
                 if (structure.structureType == STRUCTURE_CONTAINER) {
-                  return structure.hits < structure.hitsMax
+                  return structure.hits < (structure.hitsMax * 0.9)
                 }
                 return false
               }
@@ -778,10 +778,10 @@ export class RemoteHarvesterSquad extends Squad {
           const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
             filter: (structure: AnyStructure) => {
               if (structure.structureType == STRUCTURE_ROAD) {
-                return structure.hits < (structure.hitsMax * 0.8)
+                return structure.hits < (structure.hitsMax * 0.9)
               }
               if (structure.structureType == STRUCTURE_CONTAINER) {
-                return structure.hits < (structure.hitsMax * 0.8)
+                return structure.hits < (structure.hitsMax * 0.9)
               }
               return false
             }
@@ -824,7 +824,7 @@ const construction_site_filter = (site: ConstructionSite): boolean => {
     return true
   }
   if (site.structureType == STRUCTURE_CONTAINER) {
-    return true
+    return false
   }
   return false
 }
