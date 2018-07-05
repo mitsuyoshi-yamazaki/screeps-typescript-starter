@@ -231,8 +231,8 @@ export class Region {
 
       case 'W42N1':
         lightweight_harvester_targets = [
-          { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
-          { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
+          // { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
+          // { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
           { id: '59f1a06782100e1594f36a36', room_name: 'W41N1' },
           { id: '59f1a06782100e1594f36a32', room_name: 'W41N2' },
           { id: '59f1a05882100e1594f368a2', room_name: 'W42N3' }, // bottom left

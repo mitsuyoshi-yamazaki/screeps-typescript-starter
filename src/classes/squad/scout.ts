@@ -96,6 +96,11 @@ export class ScoutSquad extends Squad {
 
         if (creep.signController(creep.room.controller, sign) == OK) {
           creep.memory.stop = true
+
+          const x = (creep.pos.x - creep.room.controller.pos.x) + creep.pos.x
+          const y = (creep.pos.y - creep.room.controller.pos.y) + creep.pos.y
+
+          creep.moveTo(x, y)
         }
 
         return

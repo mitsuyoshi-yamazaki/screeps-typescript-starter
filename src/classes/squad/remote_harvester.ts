@@ -462,6 +462,8 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     energy_available = Math.min(energy_available, (energy_unit * 8) + 150)
+    energy_available -= 150
+
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
       energy_available -= energy_unit
