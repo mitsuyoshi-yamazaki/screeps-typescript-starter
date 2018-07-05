@@ -527,10 +527,9 @@ export class ResearcherSquad extends Squad {
         }
 
         let has_output = (lab.mineralType == target.resource_type) && (lab.mineralAmount > 300)
-        if ((this.room_name == 'W44S7') && (lab.mineralType == RESOURCE_GHODIUM_ACID)) {
-          has_output = (lab.mineralAmount > 1500)
-        }
-        else if ((this.room_name == 'W51S29') && (lab.mineralType == RESOURCE_LEMERGIUM_HYDRIDE)) {
+        const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
+
+        if (lab.mineralType && boost_compounds.indexOf(lab.mineralType) >= 0) {
           has_output = (lab.mineralAmount > 1500)
         }
 

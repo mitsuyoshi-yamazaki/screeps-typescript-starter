@@ -231,6 +231,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a04482100e1594f36714') { // W43N5 left
+      const link = Game.getObjectById('5b3d93b2ff170f5958e795cd') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
 
 
     // --
@@ -476,9 +482,6 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.room_name == 'W49S34') {
       number_of_carriers = 1
-    }
-    else if (this.source_info.room_name == 'W47N2') {
-      number_of_carriers = 2
     }
     else if ((this.source_info.room_name == 'W43S5')) {
       if (room && room.storage) {

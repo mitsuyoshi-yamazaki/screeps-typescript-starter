@@ -79,7 +79,7 @@ export class ManualSquad extends Squad {
 
       case 'W44S7': {
         const room = Game.rooms[this.original_room_name]
-        if (!room || !room.storage || (room.storage.store.energy < 200000)) {
+        if (!room || !room.terminal || !room.storage) {
           return SpawnPriority.NONE
         }
 
@@ -90,15 +90,24 @@ export class ManualSquad extends Squad {
           console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
           return SpawnPriority.NONE
         }
-        if ((lab.mineralType != RESOURCE_GHODIUM_ACID) || (lab.mineralAmount < 600)) {
+
+        const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
+        // const no_gh2o = (room.storage.store[RESOURCE_GHODIUM_ACID] || 0) < 400
+
+        if (no_xgh2o) {
           return SpawnPriority.NONE
         }
 
         return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
       }
 
-      case 'W43S5':
-        return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+      case 'W43S5': {
+        const target_room_memory = Memory.rooms['W45S5']
+        if (target_room_memory && target_room_memory.attacked_time) {
+          return SpawnPriority.NONE
+        }
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
 
       case 'W48S6':
         const room = Game.rooms[this.original_room_name]
@@ -204,10 +213,11 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        return energy_available >= 2300
+        // return energy_available >= 2300
+        return energy_available >= 150
 
       case 'W43S5':
-        return energy_available >= 50
+        return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
 
       case 'W48S6':
         return energy_available >= 1200
@@ -301,12 +311,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        this.addUpgrader(energy_available, spawn_func)
+        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
+        // this.addUpgrader(energy_available, spawn_func)
         return
       }
 
       case 'W43S5': {
-        this.addGeneralCreep(spawn_func, [MOVE, MOVE], CreepType.SCOUT)
+        this.addLightWeightHarvester(energy_available, spawn_func)
         return
       }
 
@@ -511,96 +522,116 @@ export class ManualSquad extends Squad {
           return
         }
 
+        const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+
         this.creeps.forEach((creep) => {
-          if (!creep.boosted && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 600)) {
-            if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+          if (!creep.room.terminal) {
+            creep.say(`ERR`)
+            return
+          }
+
+          if (lab.mineralType && (lab.mineralType != resource_type)) {
+            if (_.sum(creep.carry) == 0) {
+              if (creep.withdraw(lab, lab.mineralType) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(lab)
+              }
+            }
+            else {
+              if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.terminal)
+              }
+            }
+
+            return
+          }
+
+          if (_.sum(creep.carry) == 0) {
+            if (creep.withdraw(creep.room.terminal, resource_type) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.terminal)
+            }
+          }
+          else {
+            if ((creep.carry[resource_type] || 0) == 0) {
+              if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.terminal)
+              }
+              return
+            }
+            if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
               creep.moveTo(lab)
             }
-            return
           }
 
-          const x = 21
-          const y = 40
+          // if (!creep.boosted && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 600)) {
+          //   if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+          //     creep.moveTo(lab)
+          //   }
+          //   return
+          // }
 
-          if ((creep.pos.x != x) || (creep.pos.y != y)) {
-            creep.moveTo(x, y)
-          }
+          // const x = 21
+          // const y = 40
 
-          if (!creep.room.storage) {
-            creep.say(`NO SRC`)
-            return
-          }
-          if (!creep.room.controller || !creep.room.controller.my) {
-            creep.say(`NO CTR`)
-            return
-          }
+          // if ((creep.pos.x != x) || (creep.pos.y != y)) {
+          //   creep.moveTo(x, y)
+          // }
 
-          creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
-          creep.upgradeController(creep.room.controller)
+          // if (!creep.room.storage) {
+          //   creep.say(`NO SRC`)
+          //   return
+          // }
+          // if (!creep.room.controller || !creep.room.controller.my) {
+          //   creep.say(`NO CTR`)
+          //   return
+          // }
+
+          // creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+          // creep.upgradeController(creep.room.controller)
         })
         return
       }
 
       case 'W43S5': {
-        const target_room_name = 'W44S5'
+        const target_room_name = 'W45S5'
+        const room = Game.rooms[this.original_room_name]
+        const mineral = Game.getObjectById('59f1c265a5165f24b259a4b8') as Mineral | undefined
+        const resource_type = RESOURCE_KEANIUM
 
-        // const callback = function(room_name: string): boolean | CostMatrix {
-        //   const room = Game.rooms[room_name]
-        //   if (!room) {
-        //     return false
-        //   }
+        const target_room_memory = Memory.rooms[target_room_name]
+        const is_under_attack = !(!target_room_memory) && target_room_memory.attacked_time
 
-        //   let matrix = new PathFinder.CostMatrix;
-
-        //   room.find(FIND_HOSTILE_CREEPS).forEach((creep) => {
-        //     for (let i = (creep.pos.x - 4); i <= (creep.pos.x + 4); i++) {
-        //       if ((i < 0) || (i > 49)) {
-        //         continue
-        //       }
-
-        //       for (let j = (creep.pos.y - 4); j <= (creep.pos.y + 4); j++) {
-        //         if ((j < 0) || (j > 49)) {
-        //           continue
-        //         }
-
-        //         matrix.set(i, j, 0xff)
-        //       }
-        //     }
-        //   })
-
-        //   return matrix
-        // }
+        let move_to_opt: MoveToOpts = {
+          maxRooms: 0,
+          reusePath: 10,
+          maxOps: 1000,
+        }
 
         this.creeps.forEach((creep) => {
-          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+          if (!room || !room.storage || !mineral) {
+            creep.say(`ERR`)
             return
           }
 
-          const memory = (creep.memory as ManualMemory)
-          const x = memory.target_x || 25
-          const y = memory.target_y || 25
-
-          const callback = function(room_name: string): boolean | CostMatrix {
-            if ((creep.room.name == room_name) && creep.room.cost_matrix) {
-              return creep.room.cost_matrix
+          if ((_.sum(creep.carry) < creep.carryCapacity) && !is_under_attack && ((creep.ticksToLive || 0) > 130)) {
+            if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+              return
             }
-            return false
+
+            if (creep.harvest(mineral) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(mineral, move_to_opt)
+            }
           }
+          else {
+            if (creep.moveToRoom(this.original_room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
 
-          const goal_position = new RoomPosition(x, y, target_room_name)
-          const goal = { pos: goal_position, range: 2 }
-          const path = PathFinder.search(creep.pos, goal, {
-            roomCallback: callback,
-          })
-
-          if (path.path.length > 0) {
-            const result = creep.moveByPath(path.path)
-
-            if (result != OK) {
-              creep.say(`E${result}`)
+            if (creep.transfer(room.storage, resource_type) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(room.storage, move_to_opt)
             }
           }
         })
+
         return
       }
 

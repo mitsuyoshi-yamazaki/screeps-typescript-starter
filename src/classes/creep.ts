@@ -154,6 +154,12 @@ export function init() {
       return ActionResult.DONE
     }
 
+    let opt: MoveToOpts = {
+      maxRooms: 0,
+      reusePath: 5,
+      maxOps: 1000,
+    }
+
     this.say(`${this.room.is_keeperroom ? 's' : ''}${destination_room_name}`)
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
@@ -213,12 +219,12 @@ export function init() {
     }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
-      this.moveTo(0, 28)
+      this.moveTo(0, 28, opt)
       return ActionResult.IN_PROGRESS
     }
 
     if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
-      this.moveTo(25, 49)
+      this.moveTo(25, 49, opt)
       return ActionResult.IN_PROGRESS
     }
 
@@ -237,106 +243,106 @@ export function init() {
     }
 
     if ((this.room.name == 'W51S29') && (destination_room_name != this.room.name)) { // @fixme: temp code
-      this.moveTo(21, 49)
+      this.moveTo(21, 49, opt)
       return ActionResult.IN_PROGRESS
     }
 
     const closest_exit = this.pos.findClosestByPath(exit)
 
     if ((this.room.name == 'W48S34') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 17)
+      this.moveTo(49, 17, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S34') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 7)
+      this.moveTo(49, 7, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W46S45') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(27, 0)
+      this.moveTo(27, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S39') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 10)
+      this.moveTo(49, 10, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S46') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 28)
+      this.moveTo(49, 28, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S12') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 37)
+      this.moveTo(49, 37, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S27') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(31, 0)
+      this.moveTo(31, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S48') && (exit == TOP) && (this.getActiveBodyparts(ATTACK) > 0)) { // @fixme: temp code
-      this.moveTo(24, 0)
+      this.moveTo(24, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if (((this.room.name == 'W50S29') || (this.room.name == 'W50S28') || (this.room.name == 'W50S27')) && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26'))) { // @fixme: temp code
-      this.moveTo(18, 0)
+      this.moveTo(18, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W51S30') && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26') || (destination_room_name == 'W49S27'))) { // @fixme: temp code
-      this.moveTo(49, 8)
+      this.moveTo(49, 8, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W50S30') && ((destination_room_name == 'W51S21') || (destination_room_name == 'W49S26'))) { // @fixme: temp code
-      this.moveTo(20, 0)
+      this.moveTo(20, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S26') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(41, 0)
+      this.moveTo(41, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W49S25') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(49, 35)
+      this.moveTo(49, 35, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W48S25') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(33, 0)
+      this.moveTo(33, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W48S24') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(35, 0)
+      this.moveTo(35, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W48S23') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(49, 23)
+      this.moveTo(49, 23, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S23') && ((destination_room_name == 'W48S19'))) { // @fixme: temp code
-      this.moveTo(9, 0)
+      this.moveTo(9, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S17') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(19, 0)
+      this.moveTo(19, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S20') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(16, 0)
+      this.moveTo(16, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W47S22') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(32, 0)
+      this.moveTo(32, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W37S6') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 26)
+      this.moveTo(49, 26, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W36S6') && (exit == RIGHT) && (this.pos.x > 35) && (this.pos.y > 39)) { // @fixme: temp code
-      this.moveTo(49, 43)
+      this.moveTo(49, 43, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W36S6') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 20)
+      this.moveTo(49, 20, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W36S7') && (destination_room_name == 'W33S7' && (exit == TOP))) { // @fixme: temp code
-      this.moveTo(38, 0)
+      this.moveTo(38, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     // else if ((this.room.name == 'W44S5') && (exit == RIGHT)) { // @fixme: temp code
@@ -344,36 +350,36 @@ export function init() {
     //   return ActionResult.IN_PROGRESS
     // }
     else if ((this.room.name == 'W43S5') && (exit == RIGHT)) { // @fixme: temp code
-      this.moveTo(49, 8)
+      this.moveTo(49, 8, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W43S2') && (exit == TOP)) { // @fixme: temp code
-      this.moveTo(49, 5)
+      this.moveTo(49, 5, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W42S1') && (exit == LEFT)) { // @fixme: temp code
-      this.moveTo(49, 24)
+      this.moveTo(49, 24, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W42N2') && (exit == LEFT)) { // @fixme: temp code
-      this.moveTo(30, 0)
+      this.moveTo(30, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W44S7') && (destination_room_name == 'W46S7') && (exit == LEFT)) { // @fixme: temp code
-      this.moveTo(0, 23)
+      this.moveTo(0, 23, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W46N2') && (exit == LEFT)) { // @fixme: temp code
-      this.moveTo(0, 18)
+      this.moveTo(0, 18, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W43S2')) {
-      this.moveTo(49, 11)
+      this.moveTo(49, 11, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W42S2')) {
       if ((Game.time % 3) == 0) {
-        this.moveTo(10, 0)
+        this.moveTo(10, 0, opt)
       }
       else {
         this.move(TOP_RIGHT)
@@ -381,42 +387,38 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W41S1')) {
-      this.moveTo(12, 0)
+      this.moveTo(12, 0, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W43S6') && (this.room.name == 'W44S7')) {
-      this.moveTo(49, 26)
+      this.moveTo(49, 26, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W45N3')) {
-      this.moveTo(11, 49)
+      this.moveTo(11, 49, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W45S8') && (this.room.name == 'W44S7')) {
-      this.moveTo(6, 49)
+      this.moveTo(6, 49, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W45S7') && (this.room.name == 'W44S7')) {
       if (this.memory.type == CreepType.SCOUT) {
-        this.moveTo(0, 26)
+        this.moveTo(0, 26, opt)
       }
       else {
-        this.moveTo(0, 42)
+        this.moveTo(0, 42, opt)
       }
       return ActionResult.IN_PROGRESS
     }
     else if ((destination_room_name == 'W42S4') && (this.room.name == 'W42S5')) {
-      this.moveTo(36, 0)
+      this.moveTo(36, 0, opt)
       return ActionResult.IN_PROGRESS
     }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
-    }
-
-    let opt: MoveToOpts = {
-      maxRooms: 0,
     }
 
     if (this.room.is_keeperroom) {
@@ -1023,13 +1025,15 @@ export function init() {
       console.log(`Creep.work room not specified ${this.name}`)
     }
 
-    // if ((this.room.name == 'W49S48') && ((this.memory.status == CreepStatus.BUILD) || (this.memory.status == CreepStatus.CHARGE)) && this.room.controller && this.room.controller.my && (this.room.controller.level < 3)) {
-    //   this.memory.status = CreepStatus.UPGRADE
-    // }
+    let move_to_opt: MoveToOpts = {
+      maxRooms: 0,
+      reusePath: 2,
+      maxOps: 1000,
+    }
 
     if ((_.sum(this.carry) > this.carry.energy) && this.room.storage) {
       if (this.transferResources(this.room.storage) == ERR_NOT_IN_RANGE) {
-        this.moveTo(this.room.storage)
+        this.moveTo(this.room.storage, move_to_opt)
         return
       }
     }
@@ -1096,7 +1100,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name != 'W51S29')) {
+        if ((this.room.name == 'dummy')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
@@ -1105,16 +1109,16 @@ export function init() {
             }
           }
 
-          if (this.room.name == 'W47N2') {
-            drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
-          }
-          else {
+          // if (this.room.name == 'W47N2') {
+          //   drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
+          // }
+          // else {
             drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4, opt)[0] as Resource | undefined
-          }
+          // }
 
           if (drop) {
             if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
-              this.moveTo(drop)
+              this.moveTo(drop, move_to_opt)
               return
             }
           }
@@ -1123,7 +1127,7 @@ export function init() {
           })[0]
           if (tomb) {
             if (this.withdrawResources(tomb) == ERR_NOT_IN_RANGE) {
-              this.moveTo(tomb)
+              this.moveTo(tomb, move_to_opt)
               return
             }
           }
@@ -1154,7 +1158,7 @@ export function init() {
 
         if (link && (link.energy > 0)) {
           if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(link)
+            this.moveTo(link, move_to_opt)
             return
           }
           else if (this.room.storage) {
@@ -1166,7 +1170,7 @@ export function init() {
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(source!)
+            this.moveTo(source!, move_to_opt)
             return
           }
         }
@@ -1192,14 +1196,14 @@ export function init() {
 
           if (target) {
             if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-              this.moveTo(target)
+              this.moveTo(target, move_to_opt)
               return
             }
           }
           else {
             const target = this.pos.findClosestByPath(FIND_SOURCES)
             if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-              this.moveTo(target)
+              this.moveTo(target, move_to_opt)
               return
             }
           }
@@ -1247,7 +1251,7 @@ export function init() {
         }
     }
       else if (this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        this.moveTo(target)
+        this.moveTo(target, move_to_opt)
         return
       }
     }
@@ -1356,7 +1360,7 @@ export function init() {
       }
       else {
         this.build(target)
-        this.moveTo(target)
+        this.moveTo(target, move_to_opt)
         return
       }
     }
@@ -1403,7 +1407,7 @@ export function init() {
             this.signController(room.controller, Game.version)
           }
         }
-        this.moveTo(room.controller!)
+        this.moveTo(room.controller!, move_to_opt)
         return
       }
     }
@@ -1435,7 +1439,7 @@ export function init() {
 
       if (link && (link.energy > 0)) {
         if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(link)
+          this.moveTo(link, move_to_opt)
           return
         }
         else if (this.room.storage) {

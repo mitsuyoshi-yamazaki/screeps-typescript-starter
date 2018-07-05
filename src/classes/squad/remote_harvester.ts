@@ -195,16 +195,6 @@ export class RemoteHarvesterSquad extends Squad {
       return
     }
 
-    const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
-    if ((squad_memory.room_contains_construction_sites.length > 0)) {
-
-      const builder_max = 2
-      if (this.builders.length < builder_max) {
-        this.next_creep = CreepType.WORKER
-      }
-      return
-    }
-
     if (!this.keeper && !room.attacked && room.controller) {
       if (!room.controller.reservation || (room.controller.reservation.ticksToEnd < 4000)) {
         this.next_creep = CreepType.CONTROLLER_KEEPER
@@ -215,6 +205,16 @@ export class RemoteHarvesterSquad extends Squad {
           console.log(`RemoteHarvesterSquad.setNextCreep enough reserved`)
         }
       }
+    }
+
+    const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+    if ((squad_memory.room_contains_construction_sites.length > 0)) {
+
+      const builder_max = 2
+      if (this.builders.length < builder_max) {
+        this.next_creep = CreepType.WORKER
+      }
+      return
     }
 
     const harvester_max = 1 // @todo:
@@ -710,7 +710,7 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy == creep.carryCapacity) {
+        if (creep.carry.energy > (creep.carryCapacity * 0.95)) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
@@ -736,9 +736,14 @@ export class RemoteHarvesterSquad extends Squad {
             return
           }
 
+          let energy_threshold = 100
+          if (this.room_name == 'W45S5') {
+            energy_threshold = 1000
+          }
+
           const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (structure) => {
-              return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
+              return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > energy_threshold)
             }
           })
 
@@ -764,7 +769,7 @@ export class RemoteHarvesterSquad extends Squad {
       const has_minerals = ((_.sum(creep.carry) - creep.carry.energy) > 0)
 
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (!has_minerals && (creep.carry.energy < (creep.carryCapacity * 0.5)) && !should_escape) {
+        if (!has_minerals && (creep.carry.energy < (creep.carryCapacity * 0.2)) && !should_escape) {
           creep.memory.status = CreepStatus.HARVEST
           return
         }
@@ -791,14 +796,22 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (has_minerals || !this.destination.room.storage) {
-          if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        if (!has_minerals || !this.destination.room.storage) {
+          const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
+          if (withdraw_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(this.destination)
+          }
+          else if (withdraw_result != OK) {
+            creep.say(`E${withdraw_result}`)
           }
         }
         else {
-          if (creep.transferResources(this.destination.room.storage) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(this.destination)
+          const withdraw_result = creep.transferResources(this.destination.room.storage)
+          if (withdraw_result == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.destination.room.storage)
+          }
+          else if (withdraw_result != OK) {
+            creep.say(`E${withdraw_result}`)
           }
         }
       }

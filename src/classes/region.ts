@@ -19,6 +19,7 @@ import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote
 
 export interface RegionMemory {
   reaction_outputs?: string[]
+  reaction_output_excludes?: string[]
 }
 
 export class Region {
@@ -213,13 +214,13 @@ export class Region {
         rooms_need_scout = [
           'W42S5',
           'W43S4',
-          'W45S5',
           'W42S4',
         ]
         rooms_need_to_be_defended = [
           'W42S5',
           'W43S4',
           'W42S4',
+          'W45S5',
         ]
         this.destination_link_id = '5b317f135c9e085b93bedf0c'
         charger_position = {x: 19, y: 16}
@@ -268,8 +269,8 @@ export class Region {
       case 'W47N2':
         lightweight_harvester_targets = [
           { id: '59f1a01882100e1594f360cd', room_name: 'W46N2' },
-          { id: '59f1a00882100e1594f35ee7', room_name: 'W47N3' }, // bottom
-          { id: '59f1a00882100e1594f35ee6', room_name: 'W47N3' }, // top
+          // { id: '59f1a00882100e1594f35ee7', room_name: 'W47N3' }, // bottom
+          // { id: '59f1a00882100e1594f35ee6', room_name: 'W47N3' }, // top
           { id: '59f1a00882100e1594f35ee3', room_name: 'W47N4' },
           { id: '59f1a02882100e1594f36304', room_name: 'W45N2' },
           { id: '59f1a01882100e1594f360d0', room_name: 'W46N1' },
@@ -396,8 +397,16 @@ export class Region {
             research_output_targets = this.room.find(FIND_STRUCTURES, {
               filter: (structure) => {
                 let input_target_ids = research_input_targets.map(t=>t.id)
-                return (structure.structureType == STRUCTURE_LAB)
-                  && (input_target_ids.indexOf(structure.id) < 0)
+                if (structure.structureType != STRUCTURE_LAB) {
+                  return false
+                }
+                if (input_target_ids.indexOf(structure.id) >= 0) {
+                  return false
+                }
+                if (region_memory.reaction_output_excludes && (region_memory.reaction_output_excludes.indexOf(structure.id) >= 0)) {
+                  return false
+                }
+                return true
               }
             }).map((lab) => {
               const target: ResearchTarget = {

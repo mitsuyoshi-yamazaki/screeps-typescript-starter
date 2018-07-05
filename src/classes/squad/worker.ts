@@ -3,6 +3,11 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 import { isNewLine } from "../../../node_modules/@types/acorn/index";
 
+interface WorkerSquadMemory extends SquadMemory {
+  number_of_workers?: number
+  room_to_escape?: string
+}
+
 /**
  * WorkerSquad manages workers ([WORK, CARRY, MOVE] * n or [WORK * 2, CARRY * 2, MOVE * 3] * n)
  * to build or upgrade.
@@ -44,9 +49,6 @@ export class WorkerSquad extends Squad {
     if (this.room_name == 'W51S29') {
       max = 3
     }
-    else if (this.room_name == 'W44S7') {
-      max = 3
-    }
     else if (this.room_name == 'W48S6') {
       max = 2
     }
@@ -59,11 +61,13 @@ export class WorkerSquad extends Squad {
     else if (this.room_name == 'W42N1') {
       max = 4
     }
-    else if (this.room_name == 'W47N2') {
-      max = 4
-    }
     else if (this.room_name == 'W43N5') {
       max = 3
+    }
+
+    const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
+    if (squad_memory.number_of_workers) {
+      max = squad_memory.number_of_workers
     }
 
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
@@ -183,6 +187,11 @@ export class WorkerSquad extends Squad {
 
       case 'W43N5':
         room_to_escape = 'W43N6'
+    }
+
+    const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
+    if (squad_memory.room_to_escape) {
+      room_to_escape = squad_memory.room_to_escape
     }
 
     for (const creep_name of Array.from(this.creeps.keys())) {

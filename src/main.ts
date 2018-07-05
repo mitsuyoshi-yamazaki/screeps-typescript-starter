@@ -52,10 +52,12 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const hydrogen_first_room_name = 'W44S7'  // H
   const hydrogen_second_room_name = 'W48S6'  // H
   const hydrogen_third_room_name = 'W47N2'  // H
-  const utrium_first_room_name = 'W43S5'
+  const utrium_first_room_name = 'W43S5'    // U
+  const zynthium_first_room_name = 'W43N5'  // Z
+  const catalyst_first_room_name = 'W42N1'  // C
 
   const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    // { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+    { from: zynthium_first_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
     // { from: hydrogen_third_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
     // { from: utrium_first_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
   ]

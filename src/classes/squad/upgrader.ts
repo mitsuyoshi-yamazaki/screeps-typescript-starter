@@ -2,6 +2,10 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface UpgraderSquadMemory extends SquadMemory {
+  lab_id?: string
+}
+
 export class UpgraderSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string, readonly source_ids: string[]) {
     super(name)
@@ -28,11 +32,6 @@ export class UpgraderSquad extends Squad {
     let max = 0
     const room = Game.rooms[this.room_name]
 
-    // if ((this.room_name == 'W48S6') && room && room.storage && (room.storage.store.energy > 10000)) {
-    //   const max = Math.floor(room.storage.store.energy / 10000)
-    //   return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
-    // }
-
     if (!room || !room.controller || !room.controller.my || (room.controller.level == 8)) {
       return SpawnPriority.NONE
     }
@@ -50,10 +49,6 @@ export class UpgraderSquad extends Squad {
         max = Math.floor(available / 200000)
       }
     }
-
-    // if ((this.room_name == 'W49S47') && room.storage && (room.storage.store.energy > 30000) && room.controller && (room.controller.level < 8)) {
-    //   return (this.creeps.size < 1) ? SpawnPriority.LOW : SpawnPriority.NONE
-    // }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
@@ -75,7 +70,28 @@ export class UpgraderSquad extends Squad {
   }
 
   public run(): void {
+    const squad_memory = Memory.squads[this.name] as UpgraderSquadMemory
+    let lab: StructureLab | undefined
+
+    if (squad_memory.lab_id) {
+      lab = Game.getObjectById(squad_memory.lab_id) as StructureLab | undefined
+    }
+
+    const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
+    const can_boost = !(!lab)
+      && lab.mineralType
+      && (boost_compounds.indexOf(lab.mineralType) >= 0)
+      && (lab.mineralAmount >= 600)
+
     this.creeps.forEach((creep) => {
+      const should_boost = !creep.boosted && ((creep.ticksToLive || 0) > 1450) && can_boost
+      if (lab && should_boost) {
+        if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(lab)
+        }
+        return
+      }
+
       creep.upgrade((structure) => {
         // If source is storage and it contains less energy, wait for charge
         if (structure.structureType == STRUCTURE_STORAGE) {
