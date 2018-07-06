@@ -47,53 +47,82 @@ export const loop = ErrorMapper.wrapLoop(() => {
   })()
 
   ErrorMapper.wrapLoop(() => {
+    const hydrogen_first_room_name = 'W44S7'  // H
+    const hydrogen_second_room_name = 'W48S6'  // H
+    const hydrogen_third_room_name = 'W47N2'  // H
+    const utrium_first_room_name = 'W43S5'    // U
+    const zynthium_first_room_name = 'W43N5'  // Z
+    const catalyst_first_room_name = 'W42N1'  // C
 
-  // const first_room_name = 'W48S47'  // O
-  // const second_room_name = 'W49S47' // U
-  // const third_room_name = 'W49S48'  // H
-  // const fourth_room_name = 'W49S34' // K
-  // const fifth_room_name = 'W46S33'  // Z
-  // const sixth_room_name = 'W51S29'  // L
-  const hydrogen_first_room_name = 'W44S7'  // H
-  const hydrogen_second_room_name = 'W48S6'  // H
-  const hydrogen_third_room_name = 'W47N2'  // H
-  const utrium_first_room_name = 'W43S5'    // U
-  const zynthium_first_room_name = 'W43N5'  // Z
-  const catalyst_first_room_name = 'W42N1'  // C
+    if ((Game.time % 13) == 1) {
 
-  const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
-    { from: zynthium_first_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
-    { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_CATALYZED_GHODIUM_ACID, is_output: true },
-  ]
+      const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
+        { from: zynthium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
+        { from: utrium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
+        { from: hydrogen_third_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_HYDROGEN, is_output: true },
+        { from: hydrogen_third_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_GHODIUM, is_output: true },
+        { from: catalyst_first_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_GHODIUM_HYDRIDE, is_output: true },
+        { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+      ]
 
-  if ((Game.time % 13) == 11) {
-    transports.forEach((transport) => {
-      const from_room = Game.rooms[transport.from]
-      const to_room = Game.rooms[transport.to]
+      transports.forEach((transport) => {
+        const from_room = Game.rooms[transport.from]
+        const to_room = Game.rooms[transport.to]
 
-      if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
-        const message = `Terminal ${to_room.name} is full ${from_room.name} ${transport.resource_type}`
+        if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
+          const message = `Terminal ${to_room.name} is full ${from_room.name} ${transport.resource_type}`
+          console.log(message)
+          Game.notify(message)
+          return
+        }
+
+        const amount_needed = transport.is_output ? 500 : 4900
+
+        const from_room_ready: boolean = !(!from_room)
+          && !(!from_room.terminal)
+          && (from_room.terminal.cooldown == 0)
+          && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
+
+        const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
+
+        if (from_room_ready && to_room_ready) {
+          const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
+          const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
+          console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
+        }
+      })
+    }
+
+    if ((Game.time % 23) == 0) {
+      const hydrogen_buy_orders = Game.market.getAllOrders((order) => {
+        if (order.type != ORDER_BUY) {
+          return false
+        }
+        if (order.resourceType != RESOURCE_HYDROGEN) {
+          return false
+        }
+        if (order.price < 0.195) {
+            return false
+        }
+        if (order.amount < 100) {
+          return false
+        }
+        return true
+      }).sort(function(a,b){
+        if( a > b ) return -1
+        if( a < b ) return 1
+        return 0
+      })
+
+      if (hydrogen_buy_orders.length > 0) {
+        const message = `Hydrogen buy orders: ${hydrogen_buy_orders.map(o=>[o.price, o.amount])}`
         console.log(message)
         Game.notify(message)
-        return
       }
-
-      const amount_needed = transport.is_output ? 500 : 4900
-
-      const from_room_ready: boolean = !(!from_room)
-        && !(!from_room.terminal)
-        && (from_room.terminal.cooldown == 0)
-        && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
-
-      const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
-
-      if (from_room_ready && to_room_ready) {
-        const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
-        const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
-        console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
+      else {
+        console.log(`No Hydrogen buy orders`)
       }
-    })
-  }
+    }
   })()
 
   ErrorMapper.wrapLoop(() => {

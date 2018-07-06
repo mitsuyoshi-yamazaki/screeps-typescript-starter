@@ -177,7 +177,7 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     if ((room && (room.attacked && !room.is_keeperroom)) || (room_memory && room_memory.attacked_time)) {
-      if ((Game.time % 2) == 1) {
+      if ((Game.time % 13) == 5) {
         console.log(`RemoteHarvesterSquad.setNextCreep room ${this.room_name} is under attack ${this.name}`)
       }
       return

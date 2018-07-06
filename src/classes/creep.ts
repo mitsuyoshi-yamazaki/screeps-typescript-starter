@@ -220,6 +220,9 @@ export function init() {
     else if ((destination_room_name == 'W42N6') && (this.room.name == 'W43N5')) {
       destination_room_name = 'W42N5'
     }
+    else if ((destination_room_name == 'W43N5') && (this.room.name == 'W42N6')) {
+      destination_room_name = 'W42N5'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
@@ -832,19 +835,21 @@ export function init() {
       }
       else if (this.room.terminal) {
         for (const resource_type of RESOURCES_ALL) {
-          // const resource_type = raw_type as ResourceConstant
+          let amount_min = 10000
+          let amount_max = 12000
 
           if (resource_type == RESOURCE_ENERGY) {
-            continue
+            amount_min *= 10
+            amount_max = amount_min + 2000
           }
 
           const amount = (this.room.terminal.store[resource_type] || 0)
-          if ((amount < 10000) && ((storage.store[resource_type] || 0) > 0)) {
+          if ((amount < amount_min) && ((storage.store[resource_type] || 0) > 0)) {
             this.withdraw(storage, resource_type)
             withdrawn = true
             break
           }
-          else if (amount > 12000) {
+          else if (amount > amount_max) {
             this.withdraw(this.room.terminal, resource_type)
             withdrawn = true
             break
@@ -1015,7 +1020,9 @@ export function init() {
       }
     }
     else {
-      this.moveTo(this.room.controller)
+      this.moveTo(this.room.controller, {
+        maxRooms: 0,
+      })
     }
     this.upgradeController(this.room.controller)
 

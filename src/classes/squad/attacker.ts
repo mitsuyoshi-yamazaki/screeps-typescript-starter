@@ -44,12 +44,12 @@ export class AttackerSquad extends Squad {
 
     const attacker = Array.from(this.creeps.values())[0]
 
-    if (this.rooms_to_defend.length > 0) {
-      if ((Game.time % 7) == 0) {
-        const attacker_description = attacker ? `${attacker.name}, ${attacker.pos}` : ''
-        console.log(`Room Attacked!! ${this.rooms_to_defend}, ${attacker_description}`)
-      }
-    }
+    // if (this.rooms_to_defend.length > 0) {
+    //   if ((Game.time % 7) == 0) {
+    //     const attacker_description = attacker ? `${attacker.name}, ${attacker.pos}` : ''
+    //     console.log(`Room Attacked!! ${this.rooms_to_defend}, ${attacker_description}`)
+    //   }
+    // }
   }
 
   public get type(): SquadType {

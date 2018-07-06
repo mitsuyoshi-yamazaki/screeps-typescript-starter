@@ -461,7 +461,7 @@ export class Region {
 
     this.attacked_rooms = this.attacked_rooms.concat(attacked)
 
-    if (this.attacked_rooms.length > 0) {
+    if ((this.attacked_rooms.length > 0) && ((Game.time % 13) == 5)) {
       const message = `Room ${this.attacked_rooms} are attacked!! ${this.name}`
       console.log(message)
       // Game.notify(message)
@@ -914,7 +914,7 @@ export class Region {
       if (this.room.spawns.length == 0) {
         continue
       }
-      if (this.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+      if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
         continue
       }
 
@@ -1021,7 +1021,7 @@ export class Region {
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-        const max = is_wall ? hits_max : 100000
+        const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
         return (structure.hits < Math.min(structure.hitsMax, max))
       }
     })

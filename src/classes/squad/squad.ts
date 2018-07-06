@@ -138,8 +138,8 @@ export abstract class Squad {
     const work: BodyPartConstant[] = [WORK, WORK]
     const energy_unit = 250
 
-    energyAvailable -= upgraded ? 300 : 150
-    const header: BodyPartConstant[] = upgraded ? [CARRY, CARRY, CARRY, CARRY] : [CARRY, CARRY]
+    energyAvailable -= upgraded ? 350 : 150
+    const header: BodyPartConstant[] = upgraded ? [WORK, CARRY, CARRY, CARRY] : [CARRY, CARRY]
     let body: BodyPartConstant[] = upgraded ? [MOVE, MOVE] : [MOVE]
     const name = this.generateNewName()
     const memory: CreepMemory = {
