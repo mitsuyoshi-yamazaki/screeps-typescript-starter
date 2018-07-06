@@ -145,6 +145,8 @@ export function init() {
         this.cost_matrix = PathFinder.CostMatrix.deserialize(memory.cost_matrix)
       }
       else {
+        console.log(`HOGE create costmatrix ${this.name}`)
+
         this.cost_matrix = new PathFinder.CostMatrix;
         const margin = 5
         const cost = 3

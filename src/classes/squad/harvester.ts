@@ -916,7 +916,7 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
   }
   else if (resource_type && (store as StructureContainer).store) {
     const capacity = (store as StructureContainer).storeCapacity
-    const energy_amount = (store as StructureContainer).store[resource_type] || 0
+    const energy_amount = _.sum((store as StructureContainer).store)
     has_capacity = (energy_amount < capacity)
   }
   else if (store.structureType == STRUCTURE_LINK) {

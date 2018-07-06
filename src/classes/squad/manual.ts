@@ -79,7 +79,7 @@ export class ManualSquad extends Squad {
 
       case 'W44S7': {
         const room = Game.rooms[this.original_room_name]
-        if (!room || !room.terminal || !room.storage) {
+        if (!room || !room.terminal) {
           return SpawnPriority.NONE
         }
 
@@ -92,7 +92,7 @@ export class ManualSquad extends Squad {
         }
 
         // const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
-        const no_gh2o = (room.storage.store[RESOURCE_GHODIUM_ACID] || 0) < 400
+        const no_gh2o = (room.terminal.store[RESOURCE_GHODIUM_ACID] || 0) < 400
 
         if (no_gh2o) {
           return SpawnPriority.NONE
@@ -546,6 +546,10 @@ export class ManualSquad extends Squad {
           }
 
           if (_.sum(creep.carry) == 0) {
+            if (lab.mineralAmount > (lab.mineralCapacity - 200)) {
+              creep.say(`FULL`)
+              return
+            }
             if (creep.withdraw(creep.room.terminal, resource_type) == ERR_NOT_IN_RANGE) {
               creep.moveTo(creep.room.terminal)
             }

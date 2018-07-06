@@ -32,22 +32,25 @@ export class UpgraderSquad extends Squad {
     let max = 0
     const room = Game.rooms[this.room_name]
 
-    if (!room || !room.controller || !room.controller.my || (room.controller.level == 8)) {
+    if (!room || !room.controller || !room.controller.my || (room.controller.level == 8) || !room.storage || !room.storage.my) {
       return SpawnPriority.NONE
     }
 
-    if (room && room.storage && room.storage.my) {
-      const energy = room.storage!.store.energy
-      let available = (energy - 200000)
+    const energy = room.storage.store.energy
+    let available = (energy - 200000)
 
-      if (room.terminal && (room.terminal.store.energy > 200000)) {
-        available = Math.max(available, 0)
-        available += room.terminal.store.energy
-      }
+    if (room.terminal && (room.terminal.store.energy > 200000)) {
+      available = Math.max(available, 0)
+      available += room.terminal.store.energy
+    }
 
-      if (available > 0) {
-        max = Math.floor(available / 200000)
-      }
+    if (available > 0) {
+      max = Math.floor(available / 200000)
+    }
+
+    if (this.room_name == 'W44S7') {
+      const energy = room.storage.store.energy - 200000
+      max = Math.min(Math.floor(energy / 100000), 2)
     }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
