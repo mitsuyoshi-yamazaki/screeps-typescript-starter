@@ -1062,8 +1062,6 @@ export function init() {
       }
     }
 
-    let should_harvest_from_link = false
-
     let charge_target: StructureExtension | StructureSpawn | StructureTerminal | StructureTower | StructureLab | undefined
     let find_charge_target = false
 
@@ -1074,10 +1072,6 @@ export function init() {
         if (debug_say) {
           this.say('H2C')
         }
-
-        // if ((Game.shard.name == 'swc') && this.room.controller && (this.room.controller.ticksToDowngrade < 1000)) {
-        //   this.memory.status = CreepStatus.UPGRADE
-        // }
 
         const should_split_charger_and_upgrader = (this.room.attacked == false) && (Game.shard.name == 'shard2')
 
@@ -1136,64 +1130,12 @@ export function init() {
           }
         }
 
-        let link: StructureLink | undefined
-
-        switch (this.room.name) {
-          case 'W48S47':
-            link = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
-            break
-
-          case 'W49S47':
-            link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
-            break
-
-          case 'W49S48':
-            link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
-            break
-
-          case 'W48S39':
-            link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
-            break
-
-          default:
-            break
-        }
-
-        if (link && (link.energy > 0)) {
-          if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(link, move_to_opt)
-            return
-          }
-          else if (this.room.storage) {
-            this.transfer(this.room.storage, RESOURCE_ENERGY)
-          }
-
-          return
-        }
-
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
           if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             this.moveTo(source!, move_to_opt)
             return
           }
         }
-        // else if (this.room.name == 'W49S34') {
-        //   const source = this.room.sources[this.memory.birth_time % 2]
-        //   if (source && ((source.energy > 0) || (source.ticksToRegeneration < 10))) {
-        //     if (this.harvest(source) == ERR_NOT_IN_RANGE) {
-        //       this.moveTo(source)
-        //       return
-        //     }
-        //   }
-        //   else {
-        //     const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-
-        //     if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-        //       this.moveTo(target)
-        //       return
-        //     }
-        //   }
-        // }
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
 
@@ -1214,26 +1156,8 @@ export function init() {
       }
     }
 
-    // if ((this.memory.status == CreepStatus.UPGRADE) && (((Game.time - this.memory.birth_time) % 5) == 0)) {
-    //   this.memory.status = CreepStatus.CHARGE
-    // }
-
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
-      // if (this.room.name == 'W49S34') {
-      //   const container = this.pos.findInRange(FIND_STRUCTURES, 2, {
-      //     filter: (structure: AnyStructure) => {
-      //       return (structure.structureType == STRUCTURE_CONTAINER) && (_.sum(structure.store) < structure.storeCapacity)
-      //     }
-      //   })[0]
-
-      //   if (container) {
-      //     if (this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      //       this.moveTo(container)
-      //       return
-      //     }
-      //   }
-      // }
 
       const target = this.find_charge_target()
       charge_target = target
@@ -1252,7 +1176,7 @@ export function init() {
         if (debug_say) {
           this.say('C2H-1')
         }
-    }
+      }
       else if (this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         this.moveTo(target, move_to_opt)
         return
@@ -1261,23 +1185,9 @@ export function init() {
 
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
-      if (this.room.attacked) {
-        const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
-
-        if (!find_charge_target) {
-          const target = this.find_charge_target()
-          charge_target = target
-          find_charge_target = true
-        }
-
-        if (!is_safemode_active && charge_target) {
-          console.log(`${this.room} remain charge`)
-          this.memory.status = CreepStatus.CHARGE
-          if (debug_say) {
-            this.say('B2C-2')
-          }
-          return
-        }
+      if (this.room.attacked && ((this.memory.birth_time % 2) == 0)) {
+        this.memory.status = CreepStatus.CHARGE
+        return
       }
 
       if (this.room.controller && this.room.controller.my && (this.room.controller.ticksToDowngrade < 3000)) {
@@ -1306,11 +1216,6 @@ export function init() {
       //   }
       // }
 
-      const target = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
-        filter: (site) => site.my
-      })
-
-
       let should_upgrade = true
       if (['dummy'].indexOf(this.room.name) >= 0) {
         let number = 0
@@ -1334,7 +1239,7 @@ export function init() {
       }
 
 
-      if (!target) {
+      if (!this.room.construction_sites || (this.room.construction_sites.length == 0)) {
         if (should_upgrade) {
           this.memory.status = CreepStatus.UPGRADE
           if (debug_say) {
@@ -1350,7 +1255,7 @@ export function init() {
           if (this.room.storage) {
             this.transfer(this.room.storage, RESOURCE_ENERGY)
 
-            should_harvest_from_link = true
+            return
           }
         }
       }
@@ -1362,6 +1267,14 @@ export function init() {
 
       }
       else {
+        const target = this.pos.findClosestByPath(this.room.construction_sites)
+
+        if (!target) {
+          this.say(`ERR`)
+          console.log(`Creep.work unexpectedly nil target ${this.room.construction_sites} ${this.name} ${this.pos}`)
+          return
+        }
+
         this.build(target)
         this.moveTo(target, move_to_opt)
         return
@@ -1371,21 +1284,7 @@ export function init() {
     // Upgrade
     if (this.memory.status == CreepStatus.UPGRADE) {
       if (this.room.attacked) {
-        const is_safemode_active = (this.room && this.room.controller && this.room.controller.my) ? ((this.room!.controller!.safeMode || 0) > 0) : false
-
-        if (!find_charge_target) {
-          const target = this.find_charge_target()
-          charge_target = target
-          find_charge_target = true
-        }
-
-        if (!is_safemode_active && charge_target) {
-          this.memory.status = CreepStatus.CHARGE
-          if (debug_say) {
-            this.say('U2C-1')
-          }
-            return
-        }
+        this.memory.status = CreepStatus.CHARGE
       }
     }
 
@@ -1405,50 +1304,12 @@ export function init() {
       }
       else {
         this.upgradeController(room.controller!)
-        if (((Game.time % 13) == 0) && room.controller) {
+        if (((Game.time % 41) == 0) && room.controller) {
           if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
             this.signController(room.controller, Game.version)
           }
         }
         this.moveTo(room.controller!, move_to_opt)
-        return
-      }
-    }
-
-    // ---
-    if (should_harvest_from_link) {
-      let link: StructureLink | undefined
-
-      switch (this.room.name) {
-        case 'W48S47':
-          link = Game.getObjectById('5aee959afd02f942b0a03361') as StructureLink
-          break
-
-        case 'W49S47':
-          link = Game.getObjectById('5af1900395fe4569eddba9da') as StructureLink
-          break
-
-        case 'W49S48':
-          link = Game.getObjectById('5b0a45f2f30cc0671dc1e8e1') as StructureLink
-          break
-
-        case 'W48S39':
-          link = Game.getObjectById('5b0a2b654e8c62672f3191fb') as StructureLink
-          break
-
-        default:
-          break
-      }
-
-      if (link && (link.energy > 0)) {
-        if (this.withdraw(link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          this.moveTo(link, move_to_opt)
-          return
-        }
-        else if (this.room.storage) {
-          this.transfer(this.room.storage, RESOURCE_ENERGY)
-        }
-
         return
       }
     }

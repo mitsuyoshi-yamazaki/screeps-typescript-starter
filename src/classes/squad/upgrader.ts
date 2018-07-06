@@ -57,17 +57,22 @@ export class UpgraderSquad extends Squad {
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    capacity = Math.min(capacity, 2300)
+    if (this.room_name == 'W44S7') {
+      return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity, 3300)
+    }
 
-    const energy_unit = 250
-    const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
-    return energyAvailable >= energyNeeded
+    return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity)
   }
 
   // --
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     // capacity: 2300
     // 8 units, 2C, 16W, 9M
+
+    if (this.room_name == 'W44S7') {
+      this.addUpgrader(energyAvailable, spawnFunc, 3300)
+      return
+    }
 
     this.addUpgrader(energyAvailable, spawnFunc)
   }

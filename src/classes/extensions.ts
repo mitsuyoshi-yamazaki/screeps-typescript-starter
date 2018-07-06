@@ -24,6 +24,7 @@ declare global {
     debug_last_tick: any
     versions: string[]
     regions: {[index: string]: RegionMemory}
+    cpu_usages: number[]
   }
 
   interface RoomMemory {
@@ -43,6 +44,7 @@ declare global {
     attacker_info: AttackerInfo
     is_keeperroom: boolean
     cost_matrix: CostMatrix | undefined
+    construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
 
     initialize(): void
   }
@@ -54,13 +56,13 @@ declare global {
 
 export function init() {
   Room.prototype.initialize = function() {
-    let memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
+    let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
 
-    if (!memory) {
-      memory = {
+    if (!room_memory) {
+      room_memory = {
         harvesting_source_ids: []
       }
-      Memory.rooms[this.name] = memory
+      Memory.rooms[this.name] = room_memory
     }
 
     this.sources = this.find(FIND_SOURCES)
@@ -136,13 +138,19 @@ export function init() {
       this.resourceful_tombstones = []
     }
 
+    if (this.controller && this.controller.my) {
+      this.construction_sites = this.find(FIND_CONSTRUCTION_SITES, {
+        filter: (site: ConstructionSite) => site.my
+      })
+    }
+
     const prefix = (Number(this.name.slice(1,3)) - 4) % 10
     const suffix = (Number(this.name.slice(4,6)) - 4) % 10
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
 
     if (this.is_keeperroom) {
-      if (memory.cost_matrix) {
-        this.cost_matrix = PathFinder.CostMatrix.deserialize(memory.cost_matrix)
+      if (room_memory.cost_matrix) {
+        this.cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix)
       }
       else {
         console.log(`HOGE create costmatrix ${this.name}`)
@@ -208,7 +216,7 @@ export function init() {
           this.cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
         })
 
-        memory.cost_matrix = this.cost_matrix.serialize()
+        room_memory.cost_matrix = this.cost_matrix.serialize()
       }
     }
   }

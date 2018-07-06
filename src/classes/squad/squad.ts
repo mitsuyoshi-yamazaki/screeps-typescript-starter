@@ -117,8 +117,8 @@ export abstract class Squad {
     })
   }
 
-  public hasEnoughEnergyForUpgrader(energyAvailable: number, capacity: number): boolean {
-    capacity = Math.min(capacity, 2300)
+  public hasEnoughEnergyForUpgrader(energyAvailable: number, capacity: number, max_energy?: number): boolean {
+    capacity = Math.min(capacity, 2150)
 
     const energy_unit = 250
     const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
@@ -126,10 +126,11 @@ export abstract class Squad {
   }
 
   public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, max_energy?: number): void {
-    // capacity: 2300
+    // capacity: 2150
     // 8 units, 2C, 16W, 9M
 
     max_energy = max_energy || 2300
+    const upgraded = max_energy > 2300
 
     energyAvailable = Math.min(energyAvailable, max_energy)
 
@@ -137,9 +138,9 @@ export abstract class Squad {
     const work: BodyPartConstant[] = [WORK, WORK]
     const energy_unit = 250
 
-    energyAvailable -= 150
-    const header: BodyPartConstant[] = [CARRY, CARRY]
-    let body: BodyPartConstant[] = [MOVE]
+    energyAvailable -= upgraded ? 300 : 150
+    const header: BodyPartConstant[] = upgraded ? [CARRY, CARRY, CARRY, CARRY] : [CARRY, CARRY]
+    let body: BodyPartConstant[] = upgraded ? [MOVE, MOVE] : [MOVE]
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,

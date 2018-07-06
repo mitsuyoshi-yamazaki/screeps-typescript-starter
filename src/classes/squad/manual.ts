@@ -547,6 +547,7 @@ export class ManualSquad extends Squad {
 
           if (_.sum(creep.carry) == 0) {
             if (lab.mineralAmount > (lab.mineralCapacity - 200)) {
+              creep.moveTo(14, 35)
               creep.say(`FULL`)
               return
             }

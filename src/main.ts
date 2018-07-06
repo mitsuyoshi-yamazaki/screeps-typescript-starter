@@ -17,8 +17,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   ErrorMapper.wrapLoop(() => {
+    // const cpu_1 = Math.floor(Game.cpu.getUsed())
     const empire = new Empire("Mitsuyoshi", spawns)
+    // const cpu_2 = Math.floor(Game.cpu.getUsed())
     empire.run()
+    // const cpu_3 = Math.floor(Game.cpu.getUsed())
+
+    // console.log(`HOGE ${cpu_1}, ${cpu_2}, ${cpu_3}`)
   })()
 
   ErrorMapper.wrapLoop(() => {
@@ -102,6 +107,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       creep.say(creep.memory.status)
     }
   })()
+
+  const all_cpu = Math.floor(Game.cpu.getUsed())
+  Memory.cpu_usages.push(all_cpu)
+
+  // console.log(`HOGE ${before_cpu} : ${after_cpu1} : ${after_cpu2} , all: ${all_cpu}`)
 })
 
 /**

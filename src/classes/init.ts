@@ -50,6 +50,20 @@ export function init() {
     Memory.regions = {}
   }
 
+  if (!Memory.cpu_usages) {
+    Memory.cpu_usages = []
+  }
+
+  if (Memory.cpu_usages.length >= 11) {
+    Memory.cpu_usages.shift()
+  }
+
+  if (true) {
+    if ((Game.time % 10) == 0) {
+      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / 10}`)
+    }
+  }
+
   keys.forEach((key) => {
     if (Memory[key] == null) {
       Memory[key] = new Map<string, any>()

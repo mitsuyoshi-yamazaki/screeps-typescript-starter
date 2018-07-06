@@ -972,121 +972,132 @@ export class Region {
     }) as StructureTower[]
     const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
-    let a = 0
+    const damaged_hostiles: Creep[] = this.room.attacker_info.hostile_creeps.filter((creep) => {
+      return (creep.hits < creep.hitsMax)
+    })
+
+    const damaged_healers: Creep[] = damaged_hostiles.filter((creep) => {
+      return creep.getActiveBodyparts(HEAL) > 0
+    })
+
+    const damaged_my_creeps: Creep[] = this.room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return (creep.hits < creep.hitsMax)
+      }
+    })
+
+    const heavyry_damaged_ramparts: (StructureRampart | StructureWall)[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
+      filter: (structure) => {
+        if (structure.structureType == STRUCTURE_RAMPART) {
+          return structure.hits < 1000
+        }
+        if (structure.structureType == STRUCTURE_WALL) {
+          return structure.hits < 1000
+        }
+        return false
+      }
+    }) as (StructureRampart | StructureWall)[]
+
+    let hits_max = 150000
+    if (this.room.storage && (this.room.storage.store.energy > 700000)) {
+      hits_max = 500000
+    }
+    else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+      hits_max = 400000
+    }
+    else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
+      hits_max = 300000
+    }
+    if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
+      hits_max = 1000000
+    }
+    else if ((this.room.name == 'W44S7')) {
+      hits_max = 300000
+    }
+    else if ((this.room.name == 'W38S7')) {
+      hits_max = 100000
+    }
+
+    const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
+      filter: (structure) => {
+        const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+        const max = is_wall ? hits_max : 100000
+        return (structure.hits < Math.min(structure.hitsMax, max))
+      }
+    })
+
+    const should_attack_hostile = this.room.attacked && ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 3))
 
     this.towers.forEach((tower) => {
-      if ((!is_safemode_active)) {// && (this.room.name != 'W49S47')) {
-        if ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 2)) {
-          // const closestHealer = tower.pos.findInRange(FIND_HOSTILE_CREEPS, 100, {
-          //   filter: (creep: Creep) => {
-          //     return creep.getActiveBodyparts(HEAL) > 0
-          //   }
-          // })
-          // if(closestHealer.length > 0) {
-          //   // tower.attack(closestHealer[a % closestHealer.length])
-          //   tower.attack(closestHealer[0])
-          //   a += 1
-          //   return
-          // }
 
-          const closestDamagedHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-            filter: (creep) => {
-              return (creep.hits < creep.hitsMax)
-            }
-          })
-          if(closestDamagedHostile) {
-            const healer_count = closestDamagedHostile.pos.findInRange(FIND_HOSTILE_CREEPS, 18, {
-              filter: (creep: Creep) => {
-                if (creep.getActiveBodyparts(HEAL) > 3) {
-                  return true
-                }
-                return false
-              }
-            }).length
-
-            if (healer_count < 2) {
-              tower.attack(closestDamagedHostile)
-              return
-            }
+      if (should_attack_hostile) {
+        if(damaged_healers.length > 0) {
+          const hostile = tower.pos.findClosestByRange(damaged_healers)
+          if (hostile) {
+            tower.attack(hostile)
+            return
           }
           else {
-            const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-              filter: (creep: Creep) => {
-                return true//creep.getActiveBodyparts(ATTACK) > 0
-              }
-            })
-            if(closestHostile) {
-              const healer_count = closestHostile.pos.findInRange(FIND_HOSTILE_CREEPS, 18, {
-                filter: (creep: Creep) => {
-                  if (creep.getActiveBodyparts(HEAL) > 3) {
-                    return true
-                  }
-                  return false
-                }
-              }).length
-
-              if (healer_count < 2) {
-                tower.attack(closestHostile)
-                return
-              }
-            }
+            console.log(`Region ${this.name} unexpected error: damaged healer not found ${damaged_healers}.`)
+          }
+        }
+        else if (damaged_hostiles.length > 0) {
+          const hostile = tower.pos.findClosestByRange(damaged_hostiles)
+          if (hostile) {
+            tower.attack(hostile)
+            return
+          }
+          else {
+            console.log(`Region ${this.name} unexpected error: damaged hostile not found ${damaged_hostiles}.`)
+          }
+        }
+        else {
+          const hostile = tower.pos.findClosestByRange(this.room.attacker_info.hostile_creeps)
+          if (hostile) {
+            tower.attack(hostile)
+            return
+          }
+          else {
+            console.log(`Region ${this.name} unexpected error: hostile not found ${this.room.attacked}, ${this.room.attacker_info.hostile_creeps}.`)
           }
         }
       }
 
-      const closest_damaged_creep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: (creep) => creep.hits < creep.hitsMax
-      })
-      if (closest_damaged_creep) {
-        tower.heal(closest_damaged_creep)
+      if (damaged_my_creeps.length > 0) {
+        const damaged_creep = tower.pos.findClosestByRange(damaged_my_creeps)
+        if (damaged_creep) {
+          tower.heal(damaged_creep)
+          return
+        }
+        else {
+          console.log(`Region ${this.name} unexpected error: damaged_creep not found ${damaged_my_creeps}.`)
+        }
+      }
+
+      if ((tower.energy < (tower.energyCapacity * 0.66))) {
         return
       }
-      else if ((tower.energy > (tower.energyCapacity * 0.66))) {
-        // if (this.room.name == 'W49S34') {
-          const heavyry_damaged_rampart = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-            filter: (structure) => {
-              if (structure.structureType == STRUCTURE_RAMPART) {
-                return structure.hits < 1000
-              }
-              return false
-            }
-          })
-          if(heavyry_damaged_rampart) {
-            tower.repair(heavyry_damaged_rampart)
-            return
-          }
 
-          // else {
-          let hits_max = 150000
-          if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-            hits_max = 500000
-          }
-          else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
-            hits_max = 400000
-          }
-          else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
-            hits_max = 300000
-          }
-          if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-            hits_max = 1000000
-          }
-          else if ((this.room.name == 'W44S7')) {
-            hits_max = 300000
-          }
-          else if ((this.room.name == 'W38S7')) {
-            hits_max = 100000
-          }
-          const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, { // To Detect non-ownable structures
-            filter: (structure) => {
-              const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-              const max = is_wall ? hits_max : 100000
-              return (structure.hits < Math.min(structure.hitsMax, max))
-            }
-          })
-          if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure)
-          }
-        // }
+      if (heavyry_damaged_ramparts.length > 0) {
+        const rampart = tower.pos.findClosestByRange(heavyry_damaged_ramparts)
+        if (rampart) {
+          tower.repair(rampart)
+          return
+        }
+        else {
+          console.log(`Region ${this.name} unexpected error: damaged rampart not found ${heavyry_damaged_ramparts}.`)
+        }
+      }
+
+      if (damaged_structures.length > 0) {
+        const structure = tower.pos.findClosestByRange(damaged_structures)
+        if (structure) {
+          tower.repair(structure)
+          return
+        }
+        else {
+          console.log(`Region ${this.name} unexpected error: damaged structure not found ${damaged_structures}.`)
+        }
       }
     })
 
