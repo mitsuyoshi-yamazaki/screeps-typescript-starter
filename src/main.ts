@@ -93,35 +93,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
       })
     }
 
-    if ((Game.time % 23) == 0) {
-      const hydrogen_buy_orders = Game.market.getAllOrders((order) => {
-        if (order.type != ORDER_BUY) {
-          return false
-        }
-        if (order.resourceType != RESOURCE_HYDROGEN) {
-          return false
-        }
-        if (order.price < 0.195) {
-            return false
-        }
-        if (order.amount < 100) {
-          return false
-        }
-        return true
-      }).sort(function(a,b){
-        if( a > b ) return -1
-        if( a < b ) return 1
-        return 0
-      })
+    // Market
+  })()
 
-      if (hydrogen_buy_orders.length > 0) {
-        const message = `Hydrogen buy orders: ${hydrogen_buy_orders.map(o=>[o.price, o.amount])}`
-        console.log(message)
-        Game.notify(message)
-      }
-      else {
-        console.log(`No Hydrogen buy orders`)
-      }
+  ErrorMapper.wrapLoop(() => {
+    // if ((Game.time % 23) == 0) {
+    if ((Game.time % 7) == 0) {  // @fixme:
+      trade()
     }
   })()
 
@@ -141,7 +119,201 @@ export const loop = ErrorMapper.wrapLoop(() => {
   Memory.cpu_usages.push(all_cpu)
 
   // console.log(`HOGE ${before_cpu} : ${after_cpu1} : ${after_cpu2} , all: ${all_cpu}`)
+
+  // console.log(`HOGE ${sellOrders(RESOURCE_HYDROGEN, 0.16).map(o=>[o.price])}`)
 })
+
+function trade():void {
+  if (Memory.stop_trading) {
+    console.log(`STOP TRADING ${Memory.stop_trading}`)
+    return
+  }
+  else {
+    console.log(`TRADE ${Memory.stop_trading}`)
+    return
+  }
+
+  // const credit_amount = Game.market.credits
+
+  // const hydrogen_first_room_name = 'W44S7'  // H
+  // const hydrogen_second_room_name = 'W48S6'  // H
+  // const hydrogen_third_room_name = 'W47N2'  // H
+  // const utrium_first_room_name = 'W43S5'    // U
+  // const zynthium_first_room_name = 'W43N5'  // Z
+  // const catalyst_first_room_name = 'W42N1'  // C
+
+  // sellResource({
+  //   resource_type: RESOURCE_HYDROGEN,
+  //   price: 0.195,  // @fixme:
+  //   trader_room_names: [
+  //     hydrogen_first_room_name,
+  //     hydrogen_second_room_name,
+  //     hydrogen_third_room_name,
+  //   ]
+  // })
+}
+
+// type OrderTypeConstant = ORDER_SELL | ORDER_BUY  // not working
+
+/**
+ * @param resource_type
+ * @param order_type If you want to BUY something, it seeks SELL order
+ */
+interface TradeResourceOptions {
+  resource_type: ResourceConstant,
+  price: number,
+  trader_room_names: string[],
+}
+
+// Sell
+function sellResource(opt: TradeResourceOptions): void {
+
+  const orders = buyOrders(opt.resource_type, opt.price)
+  const order = orders[0]
+
+  if (order) {
+    const trader: Room | undefined = sellerRoom(opt.trader_room_names, opt.resource_type, order.amount)
+    let message: string
+
+    if (trader && trader.terminal) {
+      const buyer_resource_amount = (trader.terminal.store[opt.resource_type] || 0)
+
+      // const trade_result = "simulate"
+      const trade_result = Game.market.deal(order.id, buyer_resource_amount, trader.name)
+      message = `BUY ${opt.resource_type}: ${trade_result}, [${order.price} * ${order.amount} (+${order.price * order.amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+    }
+    else {
+      message = `[NO Trader] BUY ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>[o.price, o.amount])}`
+
+      const detail: any[] = opt.trader_room_names.map((room_name) => {
+        const room = Game.rooms[room_name]
+        if (!room) {
+          return `\nNO ${room_name}`
+        }
+        if (!room.terminal || !room.storage) {
+          return `\n${room_name} no storage`
+        }
+        return `\n${room_name}: t${room.terminal.store[opt.resource_type] || 0}, s${room.storage.store[opt.resource_type] || 0}`
+      })
+      message += `${detail}`
+    }
+
+    console.log(message)
+    Game.notify(message)
+  }
+  else {
+    console.log(`No ${opt.resource_type} buy orders (${opt.price})`)
+  }
+}
+
+function sellerRoom(room_names: string[], resource_type: ResourceConstant, order_amount: number): Room | undefined {
+  return room_names.map((room_name) => {
+    return Game.rooms[room_name]
+  }).filter((room) => {
+    if (!room || !room.terminal || !room.storage) {
+      return false
+    }
+
+    const storage_amount = (room.storage.store[resource_type] || 0)
+    if (storage_amount < 40000) {
+      return false
+    }
+
+    if (room.terminal.cooldown > 0) {
+      return false
+    }
+
+    const terminal_amount = (room.terminal.store[resource_type] || 0)
+    if (terminal_amount > order_amount) {
+      return true
+    }
+    if (terminal_amount >= 10000) {
+      return true
+    }
+    return false
+  })[0]
+}
+
+function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
+  return Game.market.getAllOrders((order) => {
+    if (order.type != ORDER_BUY) {
+      return false
+    }
+    if (order.resourceType != resource_type) {
+      return false
+    }
+    if (order.price <= price) {
+        return false
+    }
+    if (order.amount < 100) {
+      return false
+    }
+    return true
+  }).sort(function(lhs, rhs){
+    if( lhs.price > rhs.price ) return -1
+    if( lhs.price < rhs.price ) return 1
+    return 0
+  })
+}
+
+// -- Buy
+function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
+  if (credit_amount < 195000) {
+    const message = `main.tradeResource lack of credit ${credit_amount}`
+    console.log(message)
+    Game.notify(message)
+    return
+  }
+
+}
+
+function buyerRoom(room_names: string[], order_amount: number): Room | undefined {
+  return room_names.map((room_name) => {
+    return Game.rooms[room_name]
+  }).filter((room) => {
+    if (!room || !room.terminal || !room.storage) {
+      return false
+    }
+
+    const storage_amount = _.sum(room.storage.store)
+    if (storage_amount < (room.storage.storeCapacity * 0.8)) {
+      return false
+    }
+
+    if (room.terminal.cooldown >= 0) {
+      return false
+    }
+
+    const terminal_amount = _.sum(room.terminal.store)
+    if ((terminal_amount + order_amount) < (room.terminal.storeCapacity * 0.9)) {
+      return true
+    }
+    return false
+  })[0]
+}
+
+
+function sellOrders(resource_type: ResourceConstant, price: number): Order[] {
+  return Game.market.getAllOrders((order) => {
+    if (order.type != ORDER_SELL) {
+      return false
+    }
+    if (order.resourceType != resource_type) {
+      return false
+    }
+    if (order.price >= price) {
+        return false
+    }
+    if (order.amount < 100) {
+      return false
+    }
+    return true
+  }).sort(function(lhs, rhs){
+    if( lhs.price < rhs.price ) return -1
+    if( lhs.price > rhs.price ) return 1
+    return 0
+  })
+}
 
 /**
  * @fixme:
@@ -184,9 +356,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
  /**
   * memo:
-  * 6045600
   * Game.rooms['W48S47'].terminal.send(RESOURCE_OXYGEN, 100, 'W49S47', '')
-  * Game.market.deal('xxx', 100, 'W48S47')
   * Game.market.calcTransactionCost(40000, 'E16S42', 'W48S47')
   * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
   * Game.rooms['W48S47'].terminal.send(RESOURCE_ENERGY, 100, 'W48S45', "Hi neighbour, it's test")
@@ -203,8 +373,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 // // healer
 // // heal
 // Game.getObjectById('5af7c5180ce89a3235fd46d8').boostCreep(Game.creeps['invader61326144'])
-
-// Game.market.deal('5a591e77ce9bb61c7260a89a', 7487, 'W48S47')
 
 /**
  * 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199 211 223 227 229 233 239 241 251 257 263 269 271 277 281 283 293 307 311 313 317 331 337 347 349 353 359 367 373 379 383 389 397 401 409 419 421 431 433 439 443 449 457 461 463 467 479 487 491 499 503 509 521 523 541 547 557 563 569 571 577 587 593 599 601 607 613 617 619 631 641 643 647 653 659 661 673 677 683 691 701 709 719 727 733 739 743 751 757 761 769 773 787 797 809 811 821 823 827 829 839 853 857 859 863 877 881 883 887 907 911 919 929 937 941 947 953 967 971 977 983 991 997

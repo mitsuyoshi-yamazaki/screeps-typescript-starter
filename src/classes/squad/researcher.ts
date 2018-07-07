@@ -532,6 +532,9 @@ export class ResearcherSquad extends Squad {
         if (lab.mineralType && boost_compounds.indexOf(lab.mineralType) >= 0) {
           has_output = (lab.mineralAmount > 1500)
         }
+        if (this.room_name == 'W42N1') {
+          has_output = (lab.mineralAmount > 300)
+        }
 
         const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)
         if (has_output || has_micellaous) {

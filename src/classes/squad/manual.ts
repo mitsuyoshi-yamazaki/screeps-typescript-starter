@@ -98,7 +98,8 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'W43S5': {

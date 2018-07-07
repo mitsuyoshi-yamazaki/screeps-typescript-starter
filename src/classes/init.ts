@@ -11,7 +11,7 @@ const keys = [
 ]
 
 export function init() {
-  Game.version = '2.10.3'
+  Game.version = '2.11.5'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -54,13 +54,18 @@ export function init() {
     Memory.cpu_usages = []
   }
 
-  if (Memory.cpu_usages.length >= 11) {
+  const cpu_ticks = 20
+  if (Memory.cpu_usages.length > cpu_ticks) {
     Memory.cpu_usages.shift()
   }
 
+  if (Memory.stop_trading == null) {
+    Memory.stop_trading = false
+  }
+
   if (true) {
-    if ((Game.time % 10) == 0) {
-      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / 10}`)
+    if ((Game.time % cpu_ticks) == 0) {
+      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}`)
     }
   }
 

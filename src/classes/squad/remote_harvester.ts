@@ -55,7 +55,9 @@ export class RemoteHarvesterSquad extends Squad {
         )
 
         if (ok) {
-          this.destination = specified_destination
+          if ((specified_destination.structureType != STRUCTURE_LINK) || (specified_destination.energy == 0)) {
+            this.destination = specified_destination
+          }
         }
         else {
           const message = `RemoteHarvesterSquad specified destination id is wrong ${squad_memory.destination_id}, ${specified_destination}, ${this.name}, ${this.room_name}`

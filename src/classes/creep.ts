@@ -1274,17 +1274,17 @@ export function init() {
 
       }
       else {
-        const target = this.pos.findClosestByPath(this.room.construction_sites)
+        const target = this.pos.findClosestByRange(this.room.construction_sites)
 
-        if (!target) {
-          this.say(`ERR`)
-          console.log(`Creep.work unexpectedly nil target ${this.room.construction_sites} ${this.name} ${this.pos}`)
+        if (target) {
+          this.build(target)
+          this.moveTo(target, move_to_opt)
           return
         }
-
-        this.build(target)
-        this.moveTo(target, move_to_opt)
-        return
+        else {
+          this.say(`ERR`)
+          console.log(`Creep.work unexpectedly no construction site target ${this.room.construction_sites} ${this.name} ${this.pos}`)
+        }
       }
     }
 

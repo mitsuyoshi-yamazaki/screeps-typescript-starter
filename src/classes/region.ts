@@ -432,9 +432,11 @@ export class Region {
         }
       }
       else {
-        const message = `No reaction ${this.name}`
-        console.log(message)
-        Game.notify(message)
+        if ((Game.time % 19) == 3) {
+          const message = `No reaction ${this.name}`
+          console.log(message)
+          Game.notify(message)
+        }
       }
     }
 
