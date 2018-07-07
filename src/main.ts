@@ -52,12 +52,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const hydrogen_third_room_name = 'W47N2'  // H
     const utrium_first_room_name = 'W43S5'    // U
     const zynthium_first_room_name = 'W43N5'  // Z
+    const lemergium_first_room_name = 'W51S29'// L
     const catalyst_first_room_name = 'W42N1'  // C
 
     if ((Game.time % 13) == 1) {
 
       const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
         { from: zynthium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
+        { from: lemergium_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_LEMERGIUM, is_output: false },
         { from: utrium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
         { from: hydrogen_third_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_HYDROGEN, is_output: true },
         { from: hydrogen_third_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_GHODIUM, is_output: true },
