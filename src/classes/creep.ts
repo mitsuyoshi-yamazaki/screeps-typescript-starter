@@ -39,6 +39,7 @@ export interface CreepDestroyOption {
 export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
   // structure_first?: boolean, // not implemented yet: use target_id
   ignore_source_keeper?: boolean  // default: false
+  move_while_healing?: boolean    // default: false
 }
 
 export interface CreepTransferOption {
@@ -71,7 +72,7 @@ declare global {
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dropResources(opt?: CreepTransferOption): ScreepsReturnCode
-    dismantleObjects(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult
+    dismantleObjects(target_room_name: string, include_wall?: boolean): ActionResult
     transferLinkToStorage(link: StructureLink | undefined, pos: {x: number, y: number}, opt?: CreepTransferLinkToStorageOption): void
 
     // Worker tasks
@@ -224,6 +225,12 @@ export function init() {
     else if ((destination_room_name == 'W43N5') && (this.room.name == 'W42N6')) {
       destination_room_name = 'W42N5'
     }
+    else if ((destination_room_name == 'W48N11') && (Number(this.room.name.slice(4,6)) < 9) && (Number(this.room.name.slice(1,3)) == 50)) {
+      destination_room_name = 'W50N9'
+    }
+    else if ((destination_room_name == 'W43N11') && (Number(this.room.name.slice(4,6)) < 10) && (Number(this.room.name.slice(1,3)) == 43)) {
+      destination_room_name = 'W43N10'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
@@ -324,6 +331,10 @@ export function init() {
       this.moveTo(9, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W47N10') && ((destination_room_name == 'W48N11'))) { // @fixme: temp code
+      this.moveTo(10, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
     else if ((this.room.name == 'W47S17') && (exit == TOP)) { // @fixme: temp code
       this.moveTo(19, 0, opt)
       return ActionResult.IN_PROGRESS
@@ -384,6 +395,10 @@ export function init() {
       this.moveTo(0, 18, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W47N11') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(0, 29, opt)
+      return ActionResult.IN_PROGRESS
+    }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W43S2')) {
       this.moveTo(49, 11, opt)
       return ActionResult.IN_PROGRESS
@@ -426,13 +441,17 @@ export function init() {
       this.moveTo(36, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W48N11') && (this.room.name == 'W50N9')) { // @fixme: temp code
+      this.moveTo(49, 10, opt)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
     }
 
-    if (this.room.is_keeperroom) {
+    if (this.room.is_keeperroom && ((this.room.name != 'W44S6') || ((Game.time % 5) < 2))) {
       const callback = (room_name: string): boolean | CostMatrix => {
         if ((this.room.name == room_name) && this.room.cost_matrix) {
           return this.room.cost_matrix
@@ -722,7 +741,7 @@ export function init() {
     return return_code
   }
 
-  Creep.prototype.dismantleObjects = function(target_room_name: string, specified_target: Structure | undefined, include_wall?: boolean): ActionResult {
+  Creep.prototype.dismantleObjects = function(target_room_name: string, include_wall?: boolean): ActionResult {
     if (this.getActiveBodyparts(WORK) == 0) {
       this.say(`ERROR`)
       return ActionResult.IN_PROGRESS
@@ -735,11 +754,23 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
-    if (specified_target) {
-      if (this.dismantle(specified_target) == ERR_NOT_IN_RANGE) {
-        this.moveTo(specified_target)
+    const memory = (this.memory as {target_id?: string})
+
+    if (memory.target_id) {
+      const specified_target = Game.getObjectById(memory.target_id) as Structure | undefined
+
+      if (specified_target && (specified_target as Structure).structureType) {
+        if (this.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
+          this.moveTo((specified_target as Structure))
+          this.say(`${specified_target.pos.x},${specified_target.pos.y}`)
+        }
+        return ActionResult.IN_PROGRESS
       }
-      return ActionResult.IN_PROGRESS
+      else {
+        this.say(`NO T`)
+        console.log(`No target ${memory.target_id} for ${this.name}`);
+        (this.memory as {target_id?: string}).target_id = undefined
+      }
     }
 
     const target = this.pos.findClosestByPath(FIND_HOSTILE_SPAWNS)
@@ -1447,7 +1478,15 @@ export function init() {
       return this.destroy(hostile_attacker)
     }
 
-    if ((this.hits < (this.hitsMax - 100)) && (this.getActiveBodyparts(HEAL) > 3)) {
+    if (hostile_attacker && opt.move_while_healing) {
+      const range = this.pos.getRangeTo(hostile_attacker)
+
+      if (range > 5) {
+        this.moveTo(hostile_attacker)
+      }
+    }
+
+    if ((this.hits < (this.hitsMax * 0.9)) && (this.getActiveBodyparts(HEAL) > 3)) {
       this.heal(this)
       return ActionResult.IN_PROGRESS
     }
@@ -1636,7 +1675,7 @@ export function init() {
         }
         const path: PathFinderPath = PathFinder.search(this.pos, goal, {
           flee: true,
-          maxRooms: 2,
+          maxRooms: 0,
         })
 
         if (path.path.length > 0) {

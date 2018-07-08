@@ -35,6 +35,7 @@ declare global {
     harvesting_source_ids: string[]
     cost_matrix?: number[] | undefined
     attacked_time?: number
+    description_position?: {x:number, y:number}
   }
 
   interface Room {
@@ -64,11 +65,20 @@ export function init() {
 
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
-      if (!room || !room.terminal || !room.terminal.my) {
+      if (!room || !room.controller || !room.controller.my) {
         continue
       }
 
-      const amount = room.terminal.store[resource_type] || 0
+      let amount = 0
+
+      if (room.terminal && room.terminal.my) {
+        amount += room.terminal.store[resource_type] || 0
+      }
+
+      if (room.storage && room.storage.my) {
+        amount += room.storage.store[resource_type] || 0
+      }
+
       details += `\n${room_name}: ${amount}`
       sum += amount
     }

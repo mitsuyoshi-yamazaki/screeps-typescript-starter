@@ -41,7 +41,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         creep.say(`NO SQD`)
 
         // creep.memory.let_thy_die = true
-        // creep.memory.squad_name = 'worker72214031'  // W44S7
+        // creep.memory.squad_name = 'worker771957135'  // W48N11
       }
     }
   })()
@@ -128,6 +128,20 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // console.log(`HOGE ${before_cpu} : ${after_cpu1} : ${after_cpu2} , all: ${all_cpu}`)
 
   // console.log(`HOGE ${sellOrders(RESOURCE_HYDROGEN, 0.16).map(o=>[o.price])}`)
+
+  if ((Game.time % 23) == 0) {
+    const credit = Game.market.credits
+    let message: string | undefined
+
+    if (credit < 190000) {
+      message = `[WARNING] Credit ${credit}`
+    }
+
+    if (message) {
+      console.log(message)
+      Game.notify(message)
+    }
+  }
 })
 
 function trade():void {
@@ -147,7 +161,7 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.2,
+    price: 0.201,
     trader_room_names: [
       hydrogen_first_room_name,
       hydrogen_second_room_name,

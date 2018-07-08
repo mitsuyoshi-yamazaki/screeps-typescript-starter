@@ -61,9 +61,6 @@ export class WorkerSquad extends Squad {
     else if (this.room_name == 'W42N1') {
       max = 4
     }
-    else if (this.room_name == 'W43N5') {
-      max = 3
-    }
 
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
     if (squad_memory.number_of_workers) {
@@ -197,7 +194,17 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
-      if (room_to_escape && room.attacked && room.controller && room.controller.my && (room.controller.level <= 3)) {
+      if ((this.room_name == 'W43N5') && (this.creeps.size > 3)) {
+        if ((creep.hits == creep.hitsMax) && ((creep.ticksToLive || 0) > 1400)) {
+          const colony_worker_memory = Memory.squads['worker771957135']
+          if (colony_worker_memory && (colony_worker_memory.number_of_creeps < 12)) {
+            creep.memory.squad_name = colony_worker_memory.name
+            continue
+          }
+        }
+      }
+
+      if (room_to_escape && ((room.attacker_info.attack + room.attacker_info.ranged_attack) > 0) && room.controller && room.controller.my && (room.controller.level <= 3)) {
         if (creep.memory.type == CreepType.WORKER) {
           creep.drop(RESOURCE_ENERGY)
         }

@@ -217,7 +217,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        return energy_available >= 4100
+        return energy_available >= 3820
         // return energy_available >= 150
 
       case 'W43S5':
@@ -317,15 +317,17 @@ export class ManualSquad extends Squad {
       case 'W44S7': {
         // this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
         const body: BodyPartConstant[] = [
+          TOUGH, TOUGH, TOUGH, TOUGH,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE,
           ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
           ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
           ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+          ATTACK,
+          MOVE,
           HEAL, HEAL, HEAL, HEAL, HEAL,
         ]
         this.addGeneralCreep(spawn_func, body, CreepType.ATTACKER)
@@ -530,16 +532,50 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const target_room_name = 'W45S5'
+        const target_room_name = 'W44S6'
 
         this.creeps.forEach((creep) => {
-          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+          if ((creep.room.name != target_room_name) && (creep.searchAndDestroyTo(target_room_name, false) == ActionResult.IN_PROGRESS)) {
             creep.heal(creep)
             return
           }
-          creep.searchAndDestroy({
-            ignore_source_keeper: false,
-          })
+
+          const closest_hostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+
+          if (closest_hostile) {
+            const attack_result = creep.attack(closest_hostile)
+
+            if (attack_result != OK) {
+              creep.heal(creep)
+            }
+
+            creep.moveTo(closest_hostile)
+            return
+          }
+
+          const lairs = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure: Structure) => {
+              if (structure.structureType != STRUCTURE_KEEPER_LAIR) {
+                return false
+              }
+              return true
+            }
+          }) as StructureKeeperLair[]
+
+          const keeper_lair = lairs.sort((lhs, rhs) => {
+            const l_ticks = (lhs.ticksToSpawn || 0)
+            const r_ticks = (rhs.ticksToSpawn || 0)
+            if (l_ticks < r_ticks) return -1
+            if (l_ticks > r_ticks) return 1
+            return 0
+          })[0]
+
+          // console.log(`HOGE ${keeper_lair.pos}`)
+          creep.heal(creep)
+
+          if (keeper_lair) {
+            creep.moveTo(keeper_lair)
+          }
         })
 
         // const lab_id = '5b329651244d2334f4d0a50e'
@@ -928,6 +964,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43N5': {
+
         const sender_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
         const receiver_link = Game.getObjectById('5b360f3491f023098d6515f2') as StructureLink | undefined
 
@@ -1846,30 +1883,7 @@ export class ManualSquad extends Squad {
     let result_sum: ActionResult = ActionResult.DONE
 
     this.creeps.forEach((creep) => {
-      let specified_target: Structure | undefined
-
-      if (creep.room.name == target_room_name) {
-        const memory = creep.memory as ManualMemory
-
-        if (memory.target_id) {
-          specified_target = Game.getObjectById(memory.target_id) as Structure | undefined
-
-          if (specified_target && (specified_target as Structure).structureType) {
-            if (creep.dismantle((specified_target as Structure)) == ERR_NOT_IN_RANGE) {
-              creep.moveTo((specified_target as Structure))
-            }
-            result_sum = ActionResult.IN_PROGRESS
-            return
-          }
-          else {
-            creep.say(`NO T`)
-            console.log(`No target ${memory.target_id} for ${this.name}`);
-            (creep.memory as ManualMemory).target_id = undefined
-          }
-        }
-      }
-
-      const result = creep.dismantleObjects(target_room_name, specified_target, include_wall)
+      const result = creep.dismantleObjects(target_room_name, include_wall)
 
       if (result == ActionResult.IN_PROGRESS) {
         result_sum = ActionResult.IN_PROGRESS

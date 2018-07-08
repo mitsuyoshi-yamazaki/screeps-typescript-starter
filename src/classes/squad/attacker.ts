@@ -9,7 +9,7 @@ interface AttackerSquadMemory extends SquadMemory {
 export class AttackerSquad extends Squad {
   private destination_room_name: string | undefined
   private energy_unit = 130
-  private fix_part_energy = 120
+  private fix_part_energy = 320
   private max_energy = 1100
 
   constructor(readonly name: string, readonly rooms_to_defend: string[], readonly base_room: Room, readonly energy_capacity: number) {
@@ -135,10 +135,15 @@ export class AttackerSquad extends Squad {
     this.creeps.forEach((attacker) => {
       const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
 
-      const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-      if (target) {
-        attacker.destroy(target)
-        return
+      if (attacker.room.name == 'W43N7') {
+
+      }
+      else {
+        const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+        if (target) {
+          attacker.destroy(target)
+          return
+        }
       }
 
       if (!this.destination_room_name) {
@@ -200,12 +205,24 @@ export class AttackerSquad extends Squad {
               attacker.moveTo(27, 8)
               break
 
-            case 'W43N5':
+            case 'W43N5': {
               attacker.moveTo(35, 19)
+
+              if ((attacker.hits == attacker.hitsMax) && ((attacker.ticksToLive || 0) > 1200)) {
+                const colony_attacker_memory = Memory.squads['attacker771957138']
+                if (colony_attacker_memory && (colony_attacker_memory.number_of_creeps < 2)) {
+                  attacker.memory.squad_name = colony_attacker_memory.name
+                }
+              }
               break
+            }
 
             case 'W43S5':
               attacker.moveTo(19, 12)
+              break
+
+            case 'W48N11':
+              attacker.moveTo(31, 25)
               break
 
             default:
@@ -239,7 +256,12 @@ export class AttackerSquad extends Squad {
       //   return
       // }
 
-      attacker.searchAndDestroy()
+      if (attacker.room.name == 'W43N7') {
+
+      }
+      else {
+        attacker.searchAndDestroy()
+      }
 
       if (attacker.moveToRoom(this.destination_room_name) != ActionResult.DONE) {
         attacker.say(this.destination_room_name)

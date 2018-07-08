@@ -20,7 +20,6 @@ import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote
 export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
-  description_position?: {x:number, y:number}
 }
 
 export class Region {
@@ -332,6 +331,8 @@ export class Region {
           'W42N5',
           'W43N4',
           'W41N5',
+          'W43N7',
+          'W48N11',
         ]
         rooms_need_to_be_defended = [
           'W43N6',
@@ -352,6 +353,10 @@ export class Region {
         break
 
       case 'W49N1':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W48N11':
         this.room_names = [this.room.name]
         break
 
@@ -675,6 +680,7 @@ export class Region {
         type: squad.type,
         owner_name: this.name,
         room_name: room_name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -690,10 +696,11 @@ export class Region {
       worker_squad = squad
       this.squads.set(squad.name, squad)
 
-      const memory = {
+      const memory: SquadMemory = {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -709,10 +716,11 @@ export class Region {
       upgrader_squad = squad
       this.squads.set(squad.name, squad)
 
-      const memory = {
+      const memory: SquadMemory = {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -737,6 +745,7 @@ export class Region {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -772,6 +781,7 @@ export class Region {
         owner_name: this.name,
         source_id: target.id,
         room_name: target.room_name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -808,6 +818,7 @@ export class Region {
         owner_name: this.name,
         source_id: target.id,
         room_name: target.room_name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -827,6 +838,7 @@ export class Region {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -840,6 +852,7 @@ export class Region {
         name: name,
         type: SquadType.ATTACKER,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[name] = memory
 
@@ -863,6 +876,7 @@ export class Region {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
 
@@ -901,6 +915,7 @@ export class Region {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
     }
@@ -918,6 +933,7 @@ export class Region {
         name: squad.name,
         type: squad.type,
         owner_name: this.name,
+        number_of_creeps: 0,
       }
       Memory.squads[squad.name] = memory
     }
@@ -1028,8 +1044,9 @@ export class Region {
     else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
       hits_max = 300000
     }
+
     if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-      hits_max = 1100000
+      hits_max = 1300000
     }
     else if ((this.room.name == 'W44S7')) {
       hits_max = 300000
@@ -1467,6 +1484,7 @@ export class Region {
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
     const region_memory = Memory.regions[this.name] as RegionMemory
+    const room_memory = Memory.rooms[this.room.name]
 
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
@@ -1500,8 +1518,8 @@ export class Region {
         break
     }
 
-    if (region_memory && region_memory.description_position) {
-      pos = region_memory.description_position
+    if (room_memory && room_memory.description_position) {
+      pos = room_memory.description_position
     }
 
     let lines: string[] = [

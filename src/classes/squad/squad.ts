@@ -43,6 +43,7 @@ export interface SquadMemory {
   name: string
   type: SquadType
   owner_name: string  // Spawn name
+  number_of_creeps: number
   stop_spawming?: boolean
 }
 
@@ -82,6 +83,12 @@ export abstract class Squad {
       creep.squad = this
       creep.initialize()
       this.creeps.set(creep.name, creep)
+    }
+
+    const squad_memory = Memory.squads[this.name] as SquadMemory | undefined
+
+    if (squad_memory) {
+      squad_memory.number_of_creeps = this.creeps.size
     }
   }
 
