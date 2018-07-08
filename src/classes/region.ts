@@ -20,6 +20,7 @@ import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote
 export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
+  description_position?: {x:number, y:number}
 }
 
 export class Region {
@@ -116,7 +117,7 @@ export class Region {
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         this.support_link_ids = [
-          '5b3b56f2403e7d592a9aa366',
+          // '5b3b56f2403e7d592a9aa366',
         ]
         charger_position = {x: 24, y: 21}
         break
@@ -347,6 +348,10 @@ export class Region {
         break
 
       case 'W44N3':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W49N1':
         this.room_names = [this.room.name]
         break
 
@@ -1024,7 +1029,7 @@ export class Region {
       hits_max = 300000
     }
     if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-      hits_max = 1000000
+      hits_max = 1100000
     }
     else if ((this.room.name == 'W44S7')) {
       hits_max = 300000
@@ -1493,6 +1498,10 @@ export class Region {
 
       default:
         break
+    }
+
+    if (region_memory && region_memory.description_position) {
+      pos = region_memory.description_position
     }
 
     let lines: string[] = [

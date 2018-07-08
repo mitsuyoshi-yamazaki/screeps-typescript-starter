@@ -15,6 +15,8 @@ declare global {
   interface Game {
     version: string
     reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
+    check_resources: (resource_type: ResourceConstant) => void
+    collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
   }
 
   interface Memory {
@@ -56,6 +58,67 @@ declare global {
 }
 
 export function init() {
+  Game.check_resources = (resource_type: ResourceConstant) => {
+    let details = ""
+    let sum = 0
+
+    for (const room_name of Object.keys(Game.rooms)) {
+      const room = Game.rooms[room_name]
+      if (!room || !room.terminal || !room.terminal.my) {
+        continue
+      }
+
+      const amount = room.terminal.store[resource_type] || 0
+      details += `\n${room_name}: ${amount}`
+      sum += amount
+    }
+    console.log(`Resource ${resource_type}: ${sum}${details}`)
+  }
+
+  Game.collect_resources = (resource_type: ResourceConstant, room_name: string, threshold?: number) => {
+    threshold = threshold || 5000
+
+    const target_room = Game.rooms[room_name]
+    if (!target_room || !target_room.terminal || !target_room.terminal.my || (_.sum(target_room.terminal.store) > (target_room.terminal.storeCapacity * 0.8))) {
+      console.log(`Game.collect_resources failed: ${room_name} not found`)
+      return
+    }
+
+    let details = ""
+    let sum = 0
+
+    for (const name of Object.keys(Game.rooms)) {
+      if (name == room_name) {
+        continue
+      }
+
+      const room = Game.rooms[name]
+      if (!room || !room.terminal || !room.terminal.my) {
+        continue
+      }
+
+      const amount = room.terminal.store[resource_type] || 0
+      if ((amount < 100) || (threshold && (amount > threshold))) {
+        details += `\n${name}: ${amount}`
+        continue
+      }
+
+      details += `\n${name}: ${amount}`
+
+      const result = room.terminal.send(resource_type, amount, room_name)
+      if (result == OK) {
+        details += ` - ${amount}`
+        sum += amount
+      }
+      else {
+        console.log(`Game.collect_resources send failed with ${result}: from ${name} to ${room_name}, (${resource_type}, ${amount}, ${room_name})`)
+        details += `  E${result}`
+      }
+    }
+
+    console.log(`Collect resource ${resource_type} ${room_name}: ${target_room.terminal.store[resource_type] || 0} + ${sum}${details}`)
+  }
+
   Room.prototype.initialize = function() {
     let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
 

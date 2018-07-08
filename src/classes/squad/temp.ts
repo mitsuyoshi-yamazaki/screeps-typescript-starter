@@ -46,6 +46,10 @@ export class TempSquad extends Squad {
         // this.target_room_name = 'W44N3'
         break
 
+      case 'W47N2':
+        // this.target_room_name = 'W49N1'
+        break
+
       default:
         break
     }
@@ -75,7 +79,7 @@ export class TempSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+    return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
     // return SpawnPriority.NONE
 
   }
