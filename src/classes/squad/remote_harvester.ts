@@ -212,7 +212,7 @@ export class RemoteHarvesterSquad extends Squad {
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
     if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
-      const builder_max = 2
+      const builder_max = 3
       if (this.builders.length < builder_max) {
         this.next_creep = CreepType.WORKER
       }
@@ -301,7 +301,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       case CreepType.CARRIER:
         energy_unit = 150
-        max = (energy_unit * 8) + 150
+        max = (energy_unit * 8) + 200
         break
 
       case CreepType.CONTROLLER_KEEPER:
@@ -491,14 +491,14 @@ export class RemoteHarvesterSquad extends Squad {
       debug: this.debug,
     }
 
-    energy_available = Math.min(energy_available, (energy_unit * 8) + 150)
-    energy_available -= 150
+    energy_available = Math.min(energy_available, (energy_unit * 8) + 200)
+    energy_available -= 200
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
       energy_available -= energy_unit
     }
-    body = body.concat([WORK, MOVE])
+    body = body.concat([WORK, CARRY, MOVE])
 
     const result = spawn_func(body, name, {
       memory: memory
@@ -681,6 +681,7 @@ export class RemoteHarvesterSquad extends Squad {
       if ((_.sum(creep.carry) < creep.carryCapacity) && tombstone) {
         if (creep.withdrawResources(tombstone) == ERR_NOT_IN_RANGE) {
           creep.moveTo(tombstone, {maxRooms: 0})
+          creep.say(`${tombstone.pos.x},${tombstone.pos.y}`)
         }
         return
       }
@@ -738,7 +739,7 @@ export class RemoteHarvesterSquad extends Squad {
             return
           }
 
-          let energy_threshold = 100
+          let energy_threshold = 200
           if (this.room_name == 'W45S5') {
             energy_threshold = 1000
           }

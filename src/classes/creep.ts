@@ -38,7 +38,7 @@ export interface CreepDestroyOption {
 
 export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
   // structure_first?: boolean, // not implemented yet: use target_id
-  ignore_source_keeper?: boolean
+  ignore_source_keeper?: boolean  // default: false
 }
 
 export interface CreepTransferOption {
@@ -51,7 +51,8 @@ export interface CreepChargeTargetOption {
 }
 
 export interface CreepTransferLinkToStorageOption {
-  additional_targets?: StructureLink[]
+  additional_links?: StructureLink[]
+  has_support_links?: boolean
 }
 
 declare global {
@@ -369,6 +370,10 @@ export function init() {
     }
     else if ((this.room.name == 'W42N2') && (exit == LEFT)) { // @fixme: temp code
       this.moveTo(30, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((this.room.name == 'W42N5') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(0, 16, opt)
       return ActionResult.IN_PROGRESS
     }
     else if ((this.room.name == 'W44S7') && (destination_room_name == 'W46S7') && (exit == LEFT)) { // @fixme: temp code
@@ -796,7 +801,7 @@ export function init() {
 
   Creep.prototype.transferLinkToStorage = function(link: StructureLink | undefined, pos: {x: number, y: number}, opt?: CreepTransferLinkToStorageOption): void {
     opt = opt || {}
-    const additional_target = (opt.additional_targets || [])[0]
+    const additional_link = (opt.additional_links || [])[0]
 
     if (!this.room.storage) {
       this.say(`ERR`)
@@ -823,8 +828,9 @@ export function init() {
     // withdraw
     if ((_.sum(this.carry) == 0) && (this.ticksToLive || 0) > 2) {
       let withdrawn = false
+      const min_link_energy = (link && opt.has_support_links) ? (link.energyCapacity * 0.5) : 0
 
-      if (link && (link.energy > 0)) {
+      if (link && (link.energy > min_link_energy)) {
         const withdraw_result = this.withdraw(link, RESOURCE_ENERGY)
         if (withdraw_result == OK) {
           withdrawn = true
@@ -877,8 +883,8 @@ export function init() {
           }
         }
 
-        if (additional_target) {
-          if (this.transfer(additional_target, RESOURCE_ENERGY) == OK) {
+        if (additional_link) {
+          if (this.transfer(additional_link, RESOURCE_ENERGY) == OK) {
             return
           }
         }

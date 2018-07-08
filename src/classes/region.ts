@@ -36,6 +36,7 @@ export class Region {
   // Private
   private squads = new Map<string, Squad>()
   private destination_link_id: string | undefined
+  private support_link_ids: string[] = []
   worker_squad: WorkerSquad
   private upgrader_squad: UpgraderSquad
   private manual_squad: ManualSquad | undefined
@@ -114,6 +115,9 @@ export class Region {
           rhs: '5b2585544218cc4736554b87', // 31, 17
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
+        this.support_link_ids = [
+          '5b3b56f2403e7d592a9aa366',
+        ]
         charger_position = {x: 24, y: 21}
         break
 
@@ -131,8 +135,8 @@ export class Region {
           { id: '59f1a04682100e1594f36739', room_name: 'W43S6' }, // center
           { id: '59f1a02a82100e1594f36333', room_name: 'W45S8' },
           { id: '59f1a01a82100e1594f360fa', room_name: 'W46S7' },
-          { id: '59f1a03882100e1594f3656d', room_name: 'W44S8' }, // left
-          { id: '59f1a03882100e1594f3656f', room_name: 'W44S8' }, // bottom
+          // { id: '59f1a03882100e1594f3656d', room_name: 'W44S8' }, // left
+          // { id: '59f1a03882100e1594f3656f', room_name: 'W44S8' }, // bottom
           { id: '59f1a05a82100e1594f368c7', room_name: 'W42S7' }, // bottom
           { id: '59f1a05a82100e1594f368c6', room_name: 'W42S7' }, // bottom right
         ]
@@ -143,7 +147,7 @@ export class Region {
           'W43S6',
           'W45S8',
           'W46S7',
-          'W44S8',
+          // 'W44S8',
           'W42S7',
         ]
         rooms_need_to_be_defended = [
@@ -363,7 +367,7 @@ export class Region {
           if (((Game.time % 101) == 0)) {
             let input_lab_l = Game.getObjectById(input_lab_ids.lhs) as StructureLab | undefined
             let input_lab_r = Game.getObjectById(input_lab_ids.rhs) as StructureLab | undefined
-            const minimum_amount = 100
+            const minimum_amount = 20
 
             if (input_lab_l && (!input_lab_l.mineralType || (ingredients.lhs == input_lab_l.mineralType))) {
               const amount = (this.room.terminal.store[ingredients.lhs] || 0) + input_lab_l.mineralAmount
@@ -526,7 +530,16 @@ export class Region {
         }
 
         const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-        const squad = new ChargerSquad(squad_memory.name, this.room.name, link, charger_position)
+        const support_links: StructureLink[] = this.support_link_ids.map((id) => {
+          return Game.getObjectById(id) as StructureLink | undefined
+        }).filter((l) => {
+          if (!l) {
+            return false
+          }
+          return true
+        }) as StructureLink[]
+
+        const squad = new ChargerSquad(squad_memory.name, this.room.name, link, support_links, charger_position)
 
         this.squads.set(squad.name, squad)
         break
@@ -1341,12 +1354,30 @@ export class Region {
       return
     }
 
-    const destination = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+    let destination_link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+    let support_link = this.support_link_ids.map((id) => {
+      return Game.getObjectById(id) as StructureLink | undefined
+    }).filter((l) => {
+      if (!l) {
+        const message = `Region.transferLinks incorrect support_link_id ${this.support_link_ids} ${this.name}`
+        console.log(message)
+        if ((Game.time % 29) == 11) {
+          Game.notify(message)
+        }
+        return false
+      }
+      if (l.energy > (l.energyCapacity * 0.5)) {
+        return false
+      }
+      return true
+    })[0]
 
+    const destination = support_link || destination_link
     if (!destination) {
       console.log(`Region.transferLinks no destination found ${this.name} for ${this.destination_link_id}`)
       return
     }
+
     if (destination.room.name != this.room.name) {
       const message = `Region.transferLinks the specified link is not in the room ${destination.pos}, ${this.room}`
       console.log(message)
@@ -1354,21 +1385,23 @@ export class Region {
       return
     }
 
-    if (destination.energy > (destination.energyCapacity / 2)) {
-      return
-    }
-
     const links: StructureLink[] = (this.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         return (structure.structureType == STRUCTURE_LINK)
-          && (structure.id != destination.id)
-          && (structure.id != '5af5c771dea4db08d5fb7c84') // W48S43 link next to storage
+          && (structure.id != this.destination_link_id)
+          && (this.support_link_ids.indexOf(structure.id) < 0)
       }
     }) as StructureLink[]).filter((link) => {
       if (link.energy == 0) {
         return false
       }
-      if ((link.cooldown == 0) && (link.energy > (link.energyCapacity / 2))) {
+      if (link.cooldown > 0) {
+        return false
+      }
+      if ((destination.energyCapacity - destination.energy) > link.energy) {
+        return true
+      }
+      if ((link.energy > (link.energyCapacity / 2))) {
         return true
       }
       if (link.energy == link.energyCapacity) {
@@ -1377,9 +1410,18 @@ export class Region {
       return false
     })
 
+    let transfer_succeeded = false
+
     for (const link of links) {
       if (link.transferEnergy(destination) == OK) {
-        return  // To not consume all link's cooldown time at once
+        transfer_succeeded = true
+        break  // To not consume all link's cooldown time at once
+      }
+    }
+
+    if (!transfer_succeeded) {
+      if (destination_link && support_link && (destination_link.energy > 200) && (support_link.energy < (support_link.energyCapacity * 0.5))) {
+        destination_link.transferEnergy(support_link)
       }
     }
   }

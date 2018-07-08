@@ -3,7 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType } from "classes/creep"
 
 export class ChargerSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string, readonly link: StructureLink | undefined, readonly creep_position: {x: number, y: number}) {
+  constructor(readonly name: string, readonly room_name: string, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
     super(name)
   }
 
@@ -34,14 +34,18 @@ export class ChargerSquad extends Squad {
 
   public run(): void {
     let link: StructureLink | undefined = this.link
-    let opt: CreepTransferLinkToStorageOption = {}
+    const opt: CreepTransferLinkToStorageOption = {}
+
+    if (this.support_links.length > 0) {
+      opt.has_support_links = true
+    }
 
     if (this.room_name == 'W43N5') {
       link = undefined
 
       const charge_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
       if (charge_link) {
-        opt.additional_targets = [
+        opt.additional_links = [
           charge_link
         ]
       }
@@ -51,7 +55,7 @@ export class ChargerSquad extends Squad {
     }
 
     this.creeps.forEach((creep) => {
-      creep.transferLinkToStorage(this.link, this.creep_position, opt)
+      creep.transferLinkToStorage(link, this.creep_position, opt)
     })
   }
 }

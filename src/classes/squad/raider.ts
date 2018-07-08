@@ -8,6 +8,7 @@ export interface RaiderTarget {
   readonly room_name: string
 }
 
+// @todo: Raiderは警護をするのみ、収穫はRemoteHarvester
 export class RaiderSquad extends Squad {
   private attacker: Creep | undefined
   private harvester: Creep | undefined

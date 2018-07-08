@@ -3,7 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 interface UpgraderSquadMemory extends SquadMemory {
-  lab_id?: string
+  lab_ids?: string[]
 }
 
 export class UpgraderSquad extends Squad {
@@ -38,11 +38,6 @@ export class UpgraderSquad extends Squad {
 
     const energy = room.storage.store.energy
     let available = (energy - 200000)
-
-    if (room.terminal && (room.terminal.store.energy > 200000)) {
-      available = Math.max(available, 0)
-      available += room.terminal.store.energy
-    }
 
     if (available > 0) {
       max = Math.floor(available / 200000)
@@ -80,16 +75,30 @@ export class UpgraderSquad extends Squad {
   public run(): void {
     const squad_memory = Memory.squads[this.name] as UpgraderSquadMemory
     let lab: StructureLab | undefined
+    const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 
-    if (squad_memory.lab_id) {
-      lab = Game.getObjectById(squad_memory.lab_id) as StructureLab | undefined
+    if (squad_memory.lab_ids) {
+      lab = squad_memory.lab_ids.map((id) => {
+        return Game.getObjectById(id) as StructureLab | undefined
+      }).filter((l) => {
+        if (!l || !l.mineralType) {
+          return false
+        }
+        if (boost_compounds.indexOf(l.mineralType) < 0) {
+          return false
+        }
+        return true
+      }).sort(function(lhs, rhs){
+        if( lhs!.mineralAmount > rhs!.mineralAmount ) return -1
+        if( lhs!.mineralAmount < rhs!.mineralAmount ) return 1
+        return 0
+      })[0]
     }
 
-    const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
     const can_boost = !(!lab)
       && lab.mineralType
       && (boost_compounds.indexOf(lab.mineralType) >= 0)
-      && (lab.mineralAmount >= 600)
+      && (lab.mineralAmount >= 90)
 
     this.creeps.forEach((creep) => {
       const should_boost = !creep.boosted && ((creep.ticksToLive || 0) > 1450) && can_boost

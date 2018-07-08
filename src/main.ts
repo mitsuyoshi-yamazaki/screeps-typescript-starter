@@ -55,9 +55,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const lemergium_first_room_name = 'W51S29'// L
     const catalyst_first_room_name = 'W42N1'  // C
 
-    if ((Game.time % 13) == 1) {
+    if ((Game.time % 97) == 1) {
 
       const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
+        { from: catalyst_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_GHODIUM_HYDRIDE, is_output: true },
+        { from: hydrogen_second_room_name, to: utrium_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+        { from: utrium_first_room_name, to: zynthium_first_room_name, resource_type: RESOURCE_KEANIUM, is_output: true },
+        { from: hydrogen_third_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_OXYGEN, is_output: true },
+        // optional above
         { from: zynthium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
         { from: lemergium_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_LEMERGIUM, is_output: false },
         { from: utrium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_UTRIUM_LEMERGITE, is_output: true },
@@ -99,8 +104,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
   })()
 
   ErrorMapper.wrapLoop(() => {
-    // if ((Game.time % 23) == 0) {
-    if ((Game.time % 7) == 0) {  // @fixme:
+    if ((Game.time % 23) == 0) {
+    // if ((Game.time % 7) == 0) {  // @fixme:
       trade()
     }
   })()
@@ -126,33 +131,47 @@ export const loop = ErrorMapper.wrapLoop(() => {
 })
 
 function trade():void {
-  if (Memory.stop_trading) {
-    console.log(`STOP TRADING ${Memory.stop_trading}`)
-    return
-  }
-  else {
-    console.log(`TRADE ${Memory.stop_trading}`)
+  if (Memory.trading.stop) {
+    console.log(`STOP TRADING ${Memory.trading.stop}`)
     return
   }
 
-  // const credit_amount = Game.market.credits
+  const credit_amount = Game.market.credits
 
-  // const hydrogen_first_room_name = 'W44S7'  // H
-  // const hydrogen_second_room_name = 'W48S6'  // H
-  // const hydrogen_third_room_name = 'W47N2'  // H
-  // const utrium_first_room_name = 'W43S5'    // U
-  // const zynthium_first_room_name = 'W43N5'  // Z
-  // const catalyst_first_room_name = 'W42N1'  // C
+  const hydrogen_first_room_name = 'W44S7'  // H
+  const hydrogen_second_room_name = 'W48S6'  // H
+  const hydrogen_third_room_name = 'W47N2'  // H
+  const utrium_first_room_name = 'W43S5'    // U
+  const zynthium_first_room_name = 'W43N5'  // Z
+  const catalyst_first_room_name = 'W42N1'  // C
 
-  // sellResource({
-  //   resource_type: RESOURCE_HYDROGEN,
-  //   price: 0.195,  // @fixme:
-  //   trader_room_names: [
-  //     hydrogen_first_room_name,
-  //     hydrogen_second_room_name,
-  //     hydrogen_third_room_name,
-  //   ]
-  // })
+  sellResource({
+    resource_type: RESOURCE_HYDROGEN,
+    price: 0.2,
+    trader_room_names: [
+      hydrogen_first_room_name,
+      hydrogen_second_room_name,
+      hydrogen_third_room_name,
+    ]
+  })
+
+  buyResource({
+    resource_type: RESOURCE_KEANIUM,
+    price: 0.1,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_OXYGEN,
+    price: 0.15,
+    trader_room_names: [
+      hydrogen_second_room_name,
+      hydrogen_third_room_name,
+    ],
+  }, credit_amount)
 }
 
 // type OrderTypeConstant = ORDER_SELL | ORDER_BUY  // not working
@@ -178,14 +197,15 @@ function sellResource(opt: TradeResourceOptions): void {
     let message: string
 
     if (trader && trader.terminal) {
-      const buyer_resource_amount = (trader.terminal.store[opt.resource_type] || 0)
+      const buyer_resource_amount = Math.min((trader.terminal.store[opt.resource_type] || 0), order.amount)
+
 
       // const trade_result = "simulate"
       const trade_result = Game.market.deal(order.id, buyer_resource_amount, trader.name)
-      message = `BUY ${opt.resource_type}: ${trade_result}, [${order.price} * ${order.amount} (+${order.price * order.amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+      message = `SELL ${opt.resource_type}: ${trade_result}, [${order.price} * ${buyer_resource_amount} (+${order.price * buyer_resource_amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
     }
     else {
-      message = `[NO Trader] BUY ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>[o.price, o.amount])}`
+      message = `[NO Trader] SELL ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
 
       const detail: any[] = opt.trader_room_names.map((room_name) => {
         const room = Game.rooms[room_name]
@@ -244,7 +264,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
     if (order.resourceType != resource_type) {
       return false
     }
-    if (order.price <= price) {
+    if (order.price < price) {
         return false
     }
     if (order.amount < 100) {
@@ -267,6 +287,30 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
     return
   }
 
+  const orders = sellOrders(opt.resource_type, opt.price)
+  const order = orders[0]
+
+  if (order) {
+    const trader: Room | undefined = buyerRoom(opt.trader_room_names, order.amount)
+    let message: string
+
+    if (trader && trader.terminal) {
+      const buy_amount = Math.min(order.amount, 20000)
+
+      // const trade_result = "simulate"
+      const trade_result = Game.market.deal(order.id, buy_amount, trader.name)
+      message = `BUY ${opt.resource_type}: ${trade_result}, [${order.price} * ${buy_amount} (-${order.price * buy_amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+    }
+    else {
+      message = `[NO Trader] BUY ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+    }
+
+    console.log(message)
+    Game.notify(message)
+  }
+  else {
+    console.log(`No ${opt.resource_type} sell orders (${opt.price})`)
+  }
 }
 
 function buyerRoom(room_names: string[], order_amount: number): Room | undefined {
@@ -278,11 +322,11 @@ function buyerRoom(room_names: string[], order_amount: number): Room | undefined
     }
 
     const storage_amount = _.sum(room.storage.store)
-    if (storage_amount < (room.storage.storeCapacity * 0.8)) {
+    if (storage_amount > (room.storage.storeCapacity * 0.8)) {
       return false
     }
 
-    if (room.terminal.cooldown >= 0) {
+    if (room.terminal.cooldown > 0) {
       return false
     }
 
@@ -303,7 +347,7 @@ function sellOrders(resource_type: ResourceConstant, price: number): Order[] {
     if (order.resourceType != resource_type) {
       return false
     }
-    if (order.price >= price) {
+    if (order.price > price) {
         return false
     }
     if (order.amount < 100) {

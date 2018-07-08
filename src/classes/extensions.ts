@@ -25,7 +25,7 @@ declare global {
     versions: string[]
     regions: {[index: string]: RegionMemory}
     cpu_usages: number[]
-    stop_trading: boolean
+    trading: {stop: boolean}
   }
 
   interface RoomMemory {

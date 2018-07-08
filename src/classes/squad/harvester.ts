@@ -628,6 +628,13 @@ export class HarvesterSquad extends Squad {
     //   max_energy = 800
     // }
 
+    if (this.source_info.id == '59f1a03882100e1594f3656b') { // W44S7 bottom
+      max_energy = 900
+    }
+    else if (this.source_info.id == '59f1a04482100e1594f36714') { // W43N5 left
+      max_energy = 900
+    }
+
     energyAvailable = Math.min(energyAvailable, max_energy)
 
     while (energyAvailable >= energy_unit) {

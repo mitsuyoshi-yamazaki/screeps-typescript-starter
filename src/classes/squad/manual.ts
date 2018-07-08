@@ -78,28 +78,31 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const room = Game.rooms[this.original_room_name]
-        if (!room || !room.terminal) {
-          return SpawnPriority.NONE
-        }
-
-        const lab_id = '5b329651244d2334f4d0a50e'
-        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
-        if (!lab) {
-          this.say(`NO LAB`)
-          console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
-          return SpawnPriority.NONE
-        }
-
-        // const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
-        const no_gh2o = (room.terminal.store[RESOURCE_GHODIUM_ACID] || 0) < 400
-
-        if (no_gh2o) {
-          return SpawnPriority.NONE
-        }
-
-        // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
         return SpawnPriority.NONE
+
+        // const room = Game.rooms[this.original_room_name]
+        // if (!room || !room.terminal) {
+        //   return SpawnPriority.NONE
+        // }
+
+        // const lab_id = '5b329651244d2334f4d0a50e'
+        // const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+        // if (!lab) {
+        //   this.say(`NO LAB`)
+        //   console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
+        //   return SpawnPriority.NONE
+        // }
+
+        // // const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
+        // const no_gh2o = (room.terminal.store[RESOURCE_GHODIUM_ACID] || 0) < 400
+
+        // if (no_gh2o) {
+        //   return SpawnPriority.NONE
+        // }
+
+        // // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        // return SpawnPriority.NONE
       }
 
       case 'W43S5': {
@@ -214,8 +217,8 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        // return energy_available >= 2300
-        return energy_available >= 150
+        return energy_available >= 4100
+        // return energy_available >= 150
 
       case 'W43S5':
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
@@ -312,8 +315,20 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
-        // this.addUpgrader(energy_available, spawn_func)
+        // this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
+        const body: BodyPartConstant[] = [
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+          HEAL, HEAL, HEAL, HEAL, HEAL,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.ATTACKER)
         return
       }
 
@@ -515,85 +530,71 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const lab_id = '5b329651244d2334f4d0a50e'
-        const lab = Game.getObjectById(lab_id) as StructureLab | undefined
-        if (!lab) {
-          this.say(`NO LAB`)
-          console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
-          return
-        }
-
-        const resource_type = RESOURCE_GHODIUM_ACID
+        const target_room_name = 'W45S5'
 
         this.creeps.forEach((creep) => {
-          if (!creep.room.terminal) {
-            creep.say(`ERR`)
+          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+            creep.heal(creep)
             return
           }
-
-          if (lab.mineralType && (lab.mineralType != resource_type)) {
-            if (_.sum(creep.carry) == 0) {
-              if (creep.withdraw(lab, lab.mineralType) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(lab)
-              }
-            }
-            else {
-              if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.terminal)
-              }
-            }
-
-            return
-          }
-
-          if (_.sum(creep.carry) == 0) {
-            if (lab.mineralAmount > (lab.mineralCapacity - 200)) {
-              creep.moveTo(14, 35)
-              creep.say(`FULL`)
-              return
-            }
-            if (creep.withdraw(creep.room.terminal, resource_type) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(creep.room.terminal)
-            }
-          }
-          else {
-            if ((creep.carry[resource_type] || 0) == 0) {
-              if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.terminal)
-              }
-              return
-            }
-            if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(lab)
-            }
-          }
-
-          // if (!creep.boosted && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 600)) {
-          //   if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
-          //     creep.moveTo(lab)
-          //   }
-          //   return
-          // }
-
-          // const x = 21
-          // const y = 40
-
-          // if ((creep.pos.x != x) || (creep.pos.y != y)) {
-          //   creep.moveTo(x, y)
-          // }
-
-          // if (!creep.room.storage) {
-          //   creep.say(`NO SRC`)
-          //   return
-          // }
-          // if (!creep.room.controller || !creep.room.controller.my) {
-          //   creep.say(`NO CTR`)
-          //   return
-          // }
-
-          // creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
-          // creep.upgradeController(creep.room.controller)
+          creep.searchAndDestroy({
+            ignore_source_keeper: false,
+          })
         })
+
+        // const lab_id = '5b329651244d2334f4d0a50e'
+        // const lab = Game.getObjectById(lab_id) as StructureLab | undefined
+        // if (!lab) {
+        //   this.say(`NO LAB`)
+        //   console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
+        //   return
+        // }
+
+        // const resource_type = RESOURCE_GHODIUM_ACID
+
+        // this.creeps.forEach((creep) => {
+        //   if (!creep.room.terminal) {
+        //     creep.say(`ERR`)
+        //     return
+        //   }
+
+        //   if (lab.mineralType && (lab.mineralType != resource_type)) {
+        //     if (_.sum(creep.carry) == 0) {
+        //       if (creep.withdraw(lab, lab.mineralType) == ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(lab)
+        //       }
+        //     }
+        //     else {
+        //       if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(creep.room.terminal)
+        //       }
+        //     }
+
+        //     return
+        //   }
+
+        //   if (_.sum(creep.carry) == 0) {
+        //     if (lab.mineralAmount > (lab.mineralCapacity - 200)) {
+        //       creep.moveTo(14, 35)
+        //       creep.say(`FULL`)
+        //       return
+        //     }
+        //     if (creep.withdraw(creep.room.terminal, resource_type) == ERR_NOT_IN_RANGE) {
+        //       creep.moveTo(creep.room.terminal)
+        //     }
+        //   }
+        //   else {
+        //     if ((creep.carry[resource_type] || 0) == 0) {
+        //       if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(creep.room.terminal)
+        //       }
+        //       return
+        //     }
+        //     if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
+        //       creep.moveTo(lab)
+        //     }
+        //   }
+        // })
         return
       }
 
@@ -614,7 +615,8 @@ export class ManualSquad extends Squad {
 
         this.creeps.forEach((creep) => {
           if (!room || !room.storage || !mineral) {
-            creep.say(`ERR`)
+            creep.say(`NO DEST`)
+            creep.moveTo(2, 14)
             return
           }
 
