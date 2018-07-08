@@ -67,6 +67,10 @@ export class WorkerSquad extends Squad {
       max = squad_memory.number_of_workers
     }
 
+    if (this.room_name == 'W43N5') {
+      return size < max ? SpawnPriority.LOW : SpawnPriority.NONE
+    }
+
     return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
     // const really_need = (!this.delegated) && (this.creeps.size < 3)
