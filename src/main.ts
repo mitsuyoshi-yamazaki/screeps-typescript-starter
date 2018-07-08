@@ -180,7 +180,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.15,
+    price: 0.05,
     trader_room_names: [
       hydrogen_second_room_name,
       hydrogen_third_room_name,

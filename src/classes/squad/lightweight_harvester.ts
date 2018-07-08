@@ -235,13 +235,15 @@ export class LightWeightHarvesterSquad extends Squad {
           // }
           const has_minerals = _.sum(creep.carry) > creep.carry.energy
 
-          if (!has_minerals && this.destination.room.storage && (_.sum(this.destination.room.storage.store) > (this.destination.room.storage.storeCapacity * 0.9)) && (this.region.room.controller && this.region.room.controller.my)) {
+          // console.log(`HOGE ${this.destination}, ${this.region}, ${this.name}`)
+
+          if (!has_minerals && this.destination && this.destination.room.storage && (_.sum(this.destination.room.storage.store) > (this.destination.room.storage.storeCapacity * 0.9)) && (this.region.room.controller && this.region.room.controller.my)) {
             creep.moveTo(this.region.room.controller)
             creep.memory.status = CreepStatus.UPGRADE
             return
           }
 
-          if ((this.destination.structureType == STRUCTURE_LINK) || (this.destination.structureType == STRUCTURE_SPAWN)) {
+          if (this.destination && ((this.destination.structureType == STRUCTURE_LINK) || (this.destination.structureType == STRUCTURE_SPAWN))) {
             if (has_minerals && this.destination.room.storage) {
               if (creep.transferResources(this.destination.room.storage) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(this.destination)
