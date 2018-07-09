@@ -584,6 +584,10 @@ export class RemoteHarvesterSquad extends Squad {
     if (!this.scout) {
       return
     }
+    if (this.scout.spawning) {
+      return
+    }
+
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
     if (((Game.time % 19) == 3) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
@@ -617,6 +621,10 @@ export class RemoteHarvesterSquad extends Squad {
     if (!this.keeper) {
       return
     }
+    if (this.keeper.spawning) {
+      return
+    }
+
     const creep = this.keeper
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
@@ -642,6 +650,10 @@ export class RemoteHarvesterSquad extends Squad {
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
     this.builders.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
         return
       }
@@ -760,6 +772,10 @@ export class RemoteHarvesterSquad extends Squad {
 
     this.source_info.forEach((info) => {
       info.harvesters.forEach((creep) => {
+        if (creep.spawning) {
+          return
+        }
+
         if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
           return
         }
@@ -773,6 +789,10 @@ export class RemoteHarvesterSquad extends Squad {
 
   private runCarrier(): void {
     this.carriers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
         return
       }
@@ -948,6 +968,10 @@ export class RemoteHarvesterSquad extends Squad {
 
   private runAttacker(): void {
     this.attackers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       if ((creep.room.name != this.room_name) && (creep.searchAndDestroyTo(this.room_name, false) == ActionResult.IN_PROGRESS)) {
         return
       }

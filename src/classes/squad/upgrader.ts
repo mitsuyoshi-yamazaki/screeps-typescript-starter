@@ -101,6 +101,10 @@ export class UpgraderSquad extends Squad {
       && (lab.mineralAmount >= 90)
 
     this.creeps.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       const should_boost = !creep.boosted && ((creep.ticksToLive || 0) > 1450) && can_boost
       if (lab && should_boost) {
         if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {

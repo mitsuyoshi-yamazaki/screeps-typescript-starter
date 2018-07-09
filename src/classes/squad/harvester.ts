@@ -693,6 +693,10 @@ export class HarvesterSquad extends Squad {
 
   private carry(): void {
     this.carriers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
         creep.memory.let_thy_die = true
       }
@@ -868,6 +872,10 @@ export interface RunHarvesterOptions {
 }
 
 export function runHarvester(creep: Creep, room_name: string, source: Source | Mineral | undefined, store: StructureContainer | StructureLink | StructureStorage | undefined, container: StructureContainer | StructureLink | undefined, opt?: RunHarvesterOptions): void {
+  if (creep.spawning) {
+    return
+  }
+
   const options = opt || {}
   const resource_type = options.resource_type || RESOURCE_ENERGY
 

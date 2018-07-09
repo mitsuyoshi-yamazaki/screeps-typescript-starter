@@ -133,6 +133,10 @@ export class AttackerSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((attacker) => {
+      if (attacker.spawning) {
+        return
+      }
+
       const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
 
       if (attacker.room.name == 'W43N7') {

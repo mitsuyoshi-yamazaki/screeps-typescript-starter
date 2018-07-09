@@ -149,15 +149,6 @@ export class WorkerSquad extends Squad {
 
     // If enemy storage | terminal is covered with a rampart, withdraw() throws error and workers stop moving
     const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
-    let containers: StructureContainer[] = []
-
-    if (room) {
-      containers = room.find(FIND_STRUCTURES, {
-        filter: (structure: AnyStructure) => {
-          return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 100)
-        }
-      }) as StructureContainer[]
-    }
 
     let room_to_escape: string | undefined
 
@@ -198,6 +189,10 @@ export class WorkerSquad extends Squad {
     for (const creep_name of Array.from(this.creeps.keys())) {
       const creep = this.creeps.get(creep_name)!
 
+      if (creep.spawning) {
+        continue
+      }
+
       if ((this.room_name == 'W43N5') && (this.creeps.size > 3)) {
         if ((creep.hits == creep.hitsMax) && ((creep.ticksToLive || 0) > 1400)) {
           const colony_worker_memory = Memory.squads['worker771957135']
@@ -235,22 +230,6 @@ export class WorkerSquad extends Squad {
         }
         creep.moveToRoom(this.room_name)
         continue
-      }
-
-      if (this.room_name == 'W43S5') {
-        if (room && room.storage && (room.storage.store.energy > 300)) {
-
-        }
-        else {
-          let objects: (StructureContainer | Source)[] = creep.room.sources
-          objects = objects.concat(containers)
-
-          const target = creep.pos.findClosestByPath(objects) as StructureContainer | Source | undefined
-
-          if (target && (target as StructureContainer).structureType) {
-            source_local = (target as StructureContainer)
-          }
-        }
       }
 
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 350) && (creep.carry.energy > (creep.carryCapacity * 0.8))))// !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 300))

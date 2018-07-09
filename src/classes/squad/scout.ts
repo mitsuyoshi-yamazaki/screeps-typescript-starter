@@ -81,6 +81,10 @@ export class ScoutSquad extends Squad {
 
   public run(): void {
     this.creep_for_room.forEach((creep, room_name) => {
+      if (creep.spawning) {
+        return
+      }
+
       if (creep.memory.stop) {
         return
       }

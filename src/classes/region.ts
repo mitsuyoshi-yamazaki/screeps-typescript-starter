@@ -331,8 +331,8 @@ export class Region {
           'W42N5',
           'W43N4',
           'W41N5',
-          'W43N7',
-          'W48N11',
+          // 'W43N7',
+          // 'W48N11',
         ]
         rooms_need_to_be_defended = [
           'W43N6',
@@ -1064,7 +1064,7 @@ export class Region {
     }
 
     if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-      hits_max = 1300000
+      hits_max = 1500000
     }
     else if ((this.room.name == 'W44S7')) {
       hits_max = 300000
@@ -1279,11 +1279,11 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      // if ((Game.time % 23) == 3) {
-      //   if ((this.room.name == 'W42N1') && !this.room.terminal && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
-      //     this.room.createConstructionSite(24, 30, STRUCTURE_TERMINAL)
-      //   }
-      // }
+      if ((Game.time % 101) == 3) {
+        if ((this.room.name == 'W48N11') && !this.room.storage && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
+          this.room.createConstructionSite(8, 40, STRUCTURE_STORAGE)
+        }
+      }
     })()
 
     // ErrorMapper.wrapLoop(() => {
@@ -1354,15 +1354,10 @@ export class Region {
     }
 
     // If there's no healer, towers and attackers can deal with it
-     const healers = room.find(FIND_HOSTILE_CREEPS, {
-      filter: (creep) => {
-        return creep.getActiveBodyparts(HEAL) > 0
-      }
-    })
-    if (healers.length == 0) {
+    if (this.room.attacker_info.heal == 0) {
       return
     }
-    console.log('DETECT ', healers.length, ' Healer-Attackers!!! owner: ', healers[0].owner.username)
+    console.log('DETECT ', ' Healer-Attackers!!!')
 
     const important_structures: StructureConstant[] = [
       STRUCTURE_SPAWN,

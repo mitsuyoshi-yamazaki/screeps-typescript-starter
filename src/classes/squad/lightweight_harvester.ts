@@ -91,6 +91,10 @@ export class LightWeightHarvesterSquad extends Squad {
 
   public run(): void {
     this.creeps.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       const room = Game.rooms[this.source_info.room_name]
       const w45s42 = Game.rooms['W45S42']
 

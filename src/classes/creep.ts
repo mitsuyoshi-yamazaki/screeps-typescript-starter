@@ -158,8 +158,8 @@ export function init() {
 
     let opt: MoveToOpts = {
       maxRooms: 0,
-      reusePath: 5,
-      maxOps: 1000,
+      reusePath: 10,
+      maxOps: 500,
     }
 
     this.say(`${this.room.is_keeperroom ? 's' : ''}${destination_room_name}`)
@@ -1075,7 +1075,7 @@ export function init() {
     let move_to_opt: MoveToOpts = {
       maxRooms: 0,
       reusePath: 2,
-      maxOps: 1000,
+      maxOps: 500,
     }
 
     if ((_.sum(this.carry) > this.carry.energy) && this.room.storage) {
