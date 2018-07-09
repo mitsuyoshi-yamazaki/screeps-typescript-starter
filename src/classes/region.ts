@@ -360,15 +360,21 @@ export class Region {
         lightweight_harvester_targets = [
           { id: '59f19fe982100e1594f35bce', room_name: 'W49N11' },
           { id: '59f19ff882100e1594f35d46', room_name: 'W48N12' },
+          { id: '59f1a00782100e1594f35ecd', room_name: 'W47N11' },
+          { id: '59f1a01582100e1594f3609e', room_name: 'W46N11' },
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
           'W49N11',
           'W48N12',
+          'W47N11',
+          'W46N11',
         ]
         rooms_need_to_be_defended = [
           'W49N11',
           'W48N12',
+          'W47N11',
+          'W46N11',
         ]
         break
 
