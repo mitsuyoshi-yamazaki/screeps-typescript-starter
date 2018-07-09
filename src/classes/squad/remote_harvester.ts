@@ -355,7 +355,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       case CreepType.CARRIER:
         energy_unit = 150
-        max = (energy_unit * 8) + 200
+        max = (energy_unit * 12) + 200
         break
 
       case CreepType.ATTACKER:
@@ -547,7 +547,7 @@ export class RemoteHarvesterSquad extends Squad {
       debug: this.debug,
     }
 
-    energy_available = Math.min(energy_available, (energy_unit * 8) + 200)
+    energy_available = Math.min(energy_available, (energy_unit * 12) + 200)
     energy_available -= 200
 
     while (energy_available >= energy_unit) {
@@ -940,9 +940,9 @@ export class RemoteHarvesterSquad extends Squad {
           }
         }
 
-        if (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS) {
-          return
-        }
+        // if (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS) {
+        //   return
+        // }
 
         if (!has_minerals || !this.destination.room.storage) {
           const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
