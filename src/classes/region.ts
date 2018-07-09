@@ -1069,6 +1069,21 @@ export class Region {
 
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
+        if (this.room.name == 'W48N11') {
+          if ((structure.pos.x <= 3)) {
+            return false
+          }
+          if ((structure.pos.x >= 47)) {
+            return false
+          }
+          if ((structure.pos.y <= 3)) {
+            return false
+          }
+          if ((structure.pos.y >= 47)) {
+            return false
+          }
+        }
+
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
         const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
         return (structure.hits < Math.min(structure.hitsMax, max))
