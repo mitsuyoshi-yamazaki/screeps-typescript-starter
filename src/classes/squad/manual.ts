@@ -1413,6 +1413,18 @@ export class ManualSquad extends Squad {
         return
       }
 
+      if ((to.mineralAmount == to.mineralCapacity)) {
+        if ((_.sum(creep.carry) > 0)) {
+          if (creep.transferResources(from) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(from)
+          }
+        }
+        else {
+          return
+        }
+        return
+      }
+
       if (creep.memory.status == CreepStatus.CHARGE) {
         if ((creep.carry[resource_type] || 0) == 0) {
           if (_.sum(creep.carry) > 0) {

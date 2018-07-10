@@ -62,6 +62,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         { from: hydrogen_second_room_name, to: utrium_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
         { from: utrium_first_room_name, to: zynthium_first_room_name, resource_type: RESOURCE_KEANIUM, is_output: true },
         { from: hydrogen_third_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_OXYGEN, is_output: true },
+        { from: hydrogen_first_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
         // optional above
         { from: zynthium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
         { from: lemergium_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_LEMERGIUM, is_output: false },
