@@ -14,6 +14,7 @@ interface ManualMemory extends CreepMemory {
 
 interface ManualSquadMemory extends SquadMemory {
   claimer_last_spawned?: number
+  dismantle_room_name?: string
 }
 
 type MineralContainer = StructureTerminal | StructureStorage | StructureContainer
@@ -115,14 +116,14 @@ export class ManualSquad extends Squad {
 
       case 'W48S6':
         const room = Game.rooms[this.original_room_name]
-        if (!room || !room.storage || !room.storage.my) {
+        if (!room || !room.terminal) {
           return SpawnPriority.NONE
         }
 
-        if ((room.storage.store[RESOURCE_HYDROGEN] || 0) == 0) {
+        if ((room.terminal.store[RESOURCE_GHODIUM_ACID] || 0) == 0) {
           return SpawnPriority.NONE
         }
-        return this.creeps.size < 5 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
 
       case 'W43S2': {
         return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
@@ -224,7 +225,7 @@ export class ManualSquad extends Squad {
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
 
       case 'W48S6':
-        return energy_available >= 1200
+        return energy_available >= 150
 
       case 'W43S2':
         const energy = (capacity >= 1200) ? 1200 : 800
@@ -304,13 +305,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const body: BodyPartConstant[] = [
-          MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-          CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,
-        ]
-        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
         return
       }
 
@@ -400,6 +395,13 @@ export class ManualSquad extends Squad {
   }
 
   public run(): void {
+    const squad_memory = Memory.squads[this.name] as ManualSquadMemory
+    if (squad_memory.dismantle_room_name) {
+      if (this.dismantle(squad_memory.dismantle_room_name) == ActionResult.DONE) {
+        (Memory.squads[this.name] as ManualSquadMemory).dismantle_room_name = undefined
+      }
+      return
+    }
 
     switch (this.original_room_name) {
 
@@ -680,80 +682,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        // const room = Game.rooms[this.original_room_name]
-        // if (!room || !room.terminal || room.terminal.my || !room.storage || !room.storage.my) {
-        //   return
-        // }
-
-        // const terminal = room.terminal
-        // const storage = room.storage
-
-        // this.creeps.forEach((creep) => {
-        //   if (_.sum(creep.carry) == 0) {
-        //     if (creep.withdrawResources(terminal) == ERR_NOT_IN_RANGE) {
-        //       creep.moveTo(terminal)
-        //     }
-        //   }
-        //   else {
-        //     if (creep.transferResources(storage) == ERR_NOT_IN_RANGE) {
-        //       creep.moveTo(storage)
-        //     }
-        //   }
-        // })
-
-        // if ((_.sum(terminal.store) == 0)) {
-        //   this.say(`DONE`)
-        //   return
-        // }
-
         const room = Game.rooms[this.original_room_name]
-        const destination_room = Game.rooms['W44S7']
+        const lab = Game.getObjectById('5b3ec0561ca96b59438c5536') as StructureLab | undefined
 
-        if (!room || !destination_room || !destination_room.storage) {
+        if (!room || !room.terminal || !lab) {
+          this.say(`ERR`)
           return
         }
 
-        const target = (room.storage && ((room.storage.store[RESOURCE_HYDROGEN] || 0) > 0)) ? room.storage : undefined
-
-        this.creeps.forEach((creep) => {
-          creep.drop(RESOURCE_ENERGY)
-
-          if (_.sum(creep.carry) == 0) {
-
-            if ((creep.room.name == destination_room.name) && ((creep.ticksToLive || 0) < 400)) {
-              creep.say(`DONE`)
-              creep.moveTo(27, 23)
-              // creep.memory.squad_name = 'harvester72598561'
-              return
-            }
-            if (!target) {
-              creep.say(`NO TGT`)
-              console.log(`${this.name} no target ${target}`);
-
-              (Memory.squads[this.name] as ManualSquadMemory).stop_spawming = true
-              return
-            }
-
-            if (creep.withdrawResources(target, {include: [RESOURCE_HYDROGEN]}) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target)
-            }
-            return
-          }
-          else {
-            if (creep.moveToRoom(destination_room.name) == ActionResult.IN_PROGRESS) {
-              return
-            }
-
-            if (!destination_room.storage) {
-              creep.say(`NO STR`)
-              return
-            }
-
-            if (creep.transferResources(destination_room.storage) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(destination_room.storage)
-            }
-          }
-        })
+        this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
         return
       }
 
@@ -1002,6 +939,7 @@ export class ManualSquad extends Squad {
 
       default:
         if (this.creeps.size > 0) {
+          this.say(`NO SCR`)
           console.log(`ManualSquad.run error no script for ${this.original_room_name}`)
         }
         return
@@ -1448,6 +1386,13 @@ export class ManualSquad extends Squad {
   }
 
   private transferMineralToLab(from: MineralContainer, to: StructureLab, resource_type: ResourceConstant): void {
+    if (!from || !to || !resource_type) {
+      const message = `ManualSquad.transferMineralToLab invalid args ${this.name} ${this.original_room_name}`
+      console.log(message)
+      Game.notify(message)
+      return
+    }
+
     this.creeps.forEach((creep) => {
       if (creep.getActiveBodyparts(CARRY) == 0) {
         console.log(`ManualSquad.transferMineralToLab no CARRY body parts  ${this.name}`)

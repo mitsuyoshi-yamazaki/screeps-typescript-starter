@@ -20,6 +20,7 @@ import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote
 export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
+  support_link_ids?: string[]
 }
 
 export class Region {
@@ -36,7 +37,6 @@ export class Region {
   // Private
   private squads = new Map<string, Squad>()
   private destination_link_id: string | undefined
-  private support_link_ids: string[] = []
   worker_squad: WorkerSquad
   private upgrader_squad: UpgraderSquad
   private manual_squad: ManualSquad | undefined
@@ -48,6 +48,14 @@ export class Region {
   private attacked_rooms: string[] = []
   private current_reaction_target: ResourceConstant | undefined
 
+  private get support_link_ids(): string[] {
+    const region_memory = Memory.regions[this.name]
+    if (!region_memory || !region_memory.support_link_ids) {
+      return []
+    }
+    return region_memory.support_link_ids
+  }
+
   constructor(readonly controller: StructureController) {
     if (!controller || !controller.my) {
       const message = `Region() controller not provided or not mine ${controller}`
@@ -56,7 +64,7 @@ export class Region {
 
       // dummy
       this.worker_squad = new WorkerSquad('', '')
-      this.upgrader_squad = new UpgraderSquad('', this.room.name, [])
+      this.upgrader_squad = new UpgraderSquad('', this.room.name)
       return
     }
 
@@ -94,7 +102,6 @@ export class Region {
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let rooms_need_to_be_defended: string[] = []
-    let upgrader_source_ids: string[] = []
     let research_input_targets: ResearchTarget[] = []
     let research_output_targets: ResearchTarget[] = []
     const energy_capacity = this.room.energyCapacityAvailable - 50
@@ -115,9 +122,6 @@ export class Region {
           rhs: '5b2585544218cc4736554b87', // 31, 17
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
-        this.support_link_ids = [
-          // '5b3b56f2403e7d592a9aa366',
-        ]
         charger_position = {x: 24, y: 21}
         break
 
@@ -548,7 +552,7 @@ export class Region {
         break
       }
       case SquadType.UPGRADER: {
-        const squad = new UpgraderSquad(squad_memory.name, this.room.name, upgrader_source_ids)
+        const squad = new UpgraderSquad(squad_memory.name, this.room.name)
         upgrader_squad = squad
         this.squads.set(squad.name, squad)
         break
@@ -733,7 +737,7 @@ export class Region {
     // --- Upgrader ---
     if (!upgrader_squad) {
       const name = UpgraderSquad.generateNewName()
-      const squad = new UpgraderSquad(name, this.room.name, upgrader_source_ids)
+      const squad = new UpgraderSquad(name, this.room.name)
 
       upgrader_squad = squad
       this.squads.set(squad.name, squad)

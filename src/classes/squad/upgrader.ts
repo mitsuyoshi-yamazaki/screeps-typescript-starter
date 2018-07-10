@@ -4,10 +4,11 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 interface UpgraderSquadMemory extends SquadMemory {
   lab_ids?: string[]
+  source_link_ids?: string[]
 }
 
 export class UpgraderSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string, readonly source_ids: string[]) {
+  constructor(readonly name: string, readonly room_name: string) {
     super(name)
   }
 
@@ -25,7 +26,7 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (['W51S29', 'W43N5'].indexOf(this.room_name) >= 0) {
+    if (['W43N5'].indexOf(this.room_name) >= 0) {
       return SpawnPriority.NONE
     }
 
@@ -46,6 +47,9 @@ export class UpgraderSquad extends Squad {
     if (this.room_name == 'W44S7') {
       const energy = room.storage.store.energy - 200000
       max = Math.min(Math.floor(energy / 100000), 2)
+    }
+    else if (this.room_name == 'W51S29') {
+      max = 1
     }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
@@ -74,6 +78,8 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     const squad_memory = Memory.squads[this.name] as UpgraderSquadMemory
+    const source_ids = squad_memory.source_link_ids || []
+
     let lab: StructureLab | undefined
     const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 
@@ -118,7 +124,7 @@ export class UpgraderSquad extends Squad {
         if (structure.structureType == STRUCTURE_STORAGE) {
           return true
         }
-        return ((structure.structureType == STRUCTURE_LINK) && (this.source_ids.indexOf(structure.id) >= 0) && (structure.energy > 0))
+        return ((structure.structureType == STRUCTURE_LINK) && (source_ids.indexOf(structure.id) >= 0) && (structure.energy > 0))
       })
     })
   }
