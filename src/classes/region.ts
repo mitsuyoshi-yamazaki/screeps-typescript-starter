@@ -357,6 +357,10 @@ export class Region {
         break
 
       case 'W48N11':
+        harvester_targets = [
+          { id: '59f19ff882100e1594f35d48', room_name: 'W48N11' },  // left
+          { id: '59f19ff882100e1594f35d49', room_name: 'W48N11' },  // right
+        ]
         lightweight_harvester_targets = [
           { id: '59f19fe982100e1594f35bce', room_name: 'W49N11' },
           { id: '59f19ff882100e1594f35d46', room_name: 'W48N12' },

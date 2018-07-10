@@ -212,12 +212,12 @@ export class AttackerSquad extends Squad {
             case 'W43N5': {
               attacker.moveTo(35, 19)
 
-              if ((attacker.hits == attacker.hitsMax) && ((attacker.ticksToLive || 0) > 1200)) {
-                const colony_attacker_memory = Memory.squads['attacker771957138']
-                if (colony_attacker_memory && (colony_attacker_memory.number_of_creeps < 2)) {
-                  attacker.memory.squad_name = colony_attacker_memory.name
-                }
-              }
+              // if ((attacker.hits == attacker.hitsMax) && ((attacker.ticksToLive || 0) > 1200)) {
+              //   const colony_attacker_memory = Memory.squads['attacker771957138']
+              //   if (colony_attacker_memory && (colony_attacker_memory.number_of_creeps < 2)) {
+              //     attacker.memory.squad_name = colony_attacker_memory.name
+              //   }
+              // }
               break
             }
 

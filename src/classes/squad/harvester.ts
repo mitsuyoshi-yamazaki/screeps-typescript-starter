@@ -1053,17 +1053,19 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
     }
     else {
       if (source) {
-        const x_diff = creep.pos.x - source.pos.x
-        const y_diff = creep.pos.y - source.pos.y
-        const pos = {
-          x: creep.pos.x,// + x_diff,
-          y: creep.pos.y,// + y_diff,
-        }
+        if (creep.pos.getRangeTo(source) == 1) {
+          const x_diff = creep.pos.x - source.pos.x
+          const y_diff = creep.pos.y - source.pos.y
+          const pos = {
+            x: creep.pos.x,// + x_diff,
+            y: creep.pos.y,// + y_diff,
+          }
 
-        const result = creep.room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
-        console.log(`HarvesterSquad place container on ${pos} at ${creep.room.name}, ${room_name}`)
-        creep.memory.status = CreepStatus.HARVEST // @todo: more optimized way
-        return
+          const result = creep.room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
+          console.log(`HarvesterSquad place container on ${pos.x}, ${pos.y} at ${creep.room.name}, ${room_name}`)
+          creep.memory.status = CreepStatus.HARVEST // @todo: more optimized way
+          return
+        }
       }
       else {
         console.log(`HarvesterSquad.harvest no target source ${creep.name} at ${creep.pos} ${room_name}`)

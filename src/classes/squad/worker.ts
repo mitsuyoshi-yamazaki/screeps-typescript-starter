@@ -193,15 +193,15 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if ((this.room_name == 'W43N5') && (this.creeps.size > 3)) {
-        if ((creep.hits == creep.hitsMax) && ((creep.ticksToLive || 0) > 1400)) {
-          const colony_worker_memory = Memory.squads['worker771957135']
-          if (colony_worker_memory && (colony_worker_memory.number_of_creeps < 10)) {
-            creep.memory.squad_name = colony_worker_memory.name
-            continue
-          }
-        }
-      }
+      // if ((this.room_name == 'W43N5') && (this.creeps.size > 3)) {
+      //   if ((creep.hits == creep.hitsMax) && ((creep.ticksToLive || 0) > 1400)) {
+      //     const colony_worker_memory = Memory.squads['worker771957135']
+      //     if (colony_worker_memory && (colony_worker_memory.number_of_creeps < 10)) {
+      //       creep.memory.squad_name = colony_worker_memory.name
+      //       continue
+      //     }
+      //   }
+      // }
 
       if (room_to_escape && ((room.attacker_info.attack + room.attacker_info.ranged_attack) > 0) && room.controller && room.controller.my && (room.controller.level <= 3)) {
         if (creep.memory.type == CreepType.WORKER) {
