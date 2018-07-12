@@ -49,14 +49,20 @@ export class UpgraderSquad extends Squad {
       max = Math.min(Math.floor(energy / 100000), 2)
     }
     else if (this.room_name == 'W51S29') {
-      max = 1
+      max = (room.storage.store.energy > 400000) ? 1 : 0
+    }
+    else if (this.room_name == 'W43S5') {
+      max = (room.storage.store.energy > 100000) ? 1 : 0
     }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
-    if (this.room_name == 'W44S7') {
+    const room = Game.rooms[this.room_name]
+    const over_rcl7 = !(!room) && room.controller && room.controller.my && (room.controller.level >= 7)
+
+    if (over_rcl7) {
       return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity, 3300)
     }
 
@@ -68,7 +74,10 @@ export class UpgraderSquad extends Squad {
     // capacity: 2300
     // 8 units, 2C, 16W, 9M
 
-    if (this.room_name == 'W44S7') {
+    const room = Game.rooms[this.room_name]
+    const over_rcl7 = !(!room) && room.controller && room.controller.my && (room.controller.level >= 7)
+
+    if (over_rcl7) {
       this.addUpgrader(energyAvailable, spawnFunc, 3300)
       return
     }
@@ -79,11 +88,13 @@ export class UpgraderSquad extends Squad {
   public run(): void {
     const squad_memory = Memory.squads[this.name] as UpgraderSquadMemory
     const source_ids = squad_memory.source_link_ids || []
+    const room = Game.rooms[this.room_name]
+    const is_rcl8 = !(!room) && room.controller && room.controller.my && (room.controller.level == 8)
 
     let lab: StructureLab | undefined
     const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 
-    if (squad_memory.lab_ids) {
+    if (squad_memory.lab_ids && !is_rcl8) {
       lab = squad_memory.lab_ids.map((id) => {
         return Game.getObjectById(id) as StructureLab | undefined
       }).filter((l) => {
@@ -102,6 +113,7 @@ export class UpgraderSquad extends Squad {
     }
 
     const can_boost = !(!lab)
+      && !is_rcl8
       && lab.mineralType
       && (boost_compounds.indexOf(lab.mineralType) >= 0)
       && (lab.mineralAmount >= 90)
