@@ -1584,6 +1584,10 @@ export class Region {
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
+    if (!Memory.debug.show_visuals) {
+      return
+    }
+
     const region_memory = Memory.regions[this.name] as RegionMemory
     const room_memory = Memory.rooms[this.room.name]
 

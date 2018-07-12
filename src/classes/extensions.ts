@@ -28,6 +28,9 @@ declare global {
     regions: {[index: string]: RegionMemory}
     cpu_usages: number[]
     trading: {stop: boolean}
+    debug: {
+      show_visuals: boolean,
+    }
   }
 
   interface RoomMemory {
@@ -321,6 +324,9 @@ export function init() {
   }
 
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
+    if (!Memory.debug.show_visuals) {
+      return
+    }
 
     const lines = ((text as string).split) ? (text as string).split('\n') : text as string[]
     lines.forEach((line, index) => {

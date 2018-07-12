@@ -1056,6 +1056,10 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private showDescription(): void {
+    if (!Memory.debug.show_visuals) {
+      return
+    }
+
     const room = Game.rooms[this.room_name]
     if (!room) {
       return
