@@ -78,9 +78,23 @@ export class Region {
     }
 
     // Spawns
-    this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
-      this.spawns.set(spawn.name, spawn)
-    })
+    if (this.room.owned_structures) {
+      const spawn_list = this.room.owned_structures.get(STRUCTURE_SPAWN)
+
+      if (spawn_list) {
+        spawn_list.forEach((structure) => {
+          const spawn = structure as StructureSpawn
+          this.spawns.set(spawn.name, spawn)
+        })
+      }
+    }
+
+    if (this.spawns.size == 0) {
+      this.room.owned_structures_not_found_error(STRUCTURE_SPAWN)
+      this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
+        this.spawns.set(spawn.name, spawn)
+      })
+    }
 
     this.spawns.forEach((spawn, _) => {
       spawn.initialize()
@@ -228,7 +242,7 @@ export class Region {
           'W42S5',
           'W43S4',
           'W42S4',
-          'W45S5',
+          // 'W45S5',
         ]
         this.destination_link_id = '5b317f135c9e085b93bedf0c'
         charger_position = {x: 19, y: 16}
@@ -434,20 +448,28 @@ export class Region {
               },
             ]
 
-            research_output_targets = this.room.find(FIND_STRUCTURES, {
-              filter: (structure) => {
-                let input_target_ids = research_input_targets.map(t=>t.id)
-                if (structure.structureType != STRUCTURE_LAB) {
-                  return false
-                }
-                if (input_target_ids.indexOf(structure.id) >= 0) {
-                  return false
-                }
-                if (region_memory.reaction_output_excludes && (region_memory.reaction_output_excludes.indexOf(structure.id) >= 0)) {
-                  return false
-                }
-                return true
+            let labs: StructureLab[] | undefined
+            if (this.room.owned_structures) {
+              labs = this.room.owned_structures.get(STRUCTURE_LAB) as StructureLab[]
+            }
+
+            if (!labs) {
+              this.room.owned_structures_not_found_error(STRUCTURE_LAB)
+              labs = this.room.find(FIND_MY_STRUCTURES) as StructureLab[]
+            }
+
+            research_output_targets = labs.filter((structure) => {
+              let input_target_ids = research_input_targets.map(t=>t.id)
+              if (structure.structureType != STRUCTURE_LAB) {
+                return false
               }
+              if (input_target_ids.indexOf(structure.id) >= 0) {
+                return false
+              }
+              if (region_memory.reaction_output_excludes && (region_memory.reaction_output_excludes.indexOf(structure.id) >= 0)) {
+                return false
+              }
+              return true
             }).map((lab) => {
               const target: ResearchTarget = {
                 id: lab.id,
@@ -1027,12 +1049,21 @@ export class Region {
 
     // --- Defend ---
     // Tower
-    this.towers = this.room.find(FIND_MY_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType == STRUCTURE_TOWER
-      }
-    }) as StructureTower[]
-    const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
+    if (this.room.owned_structures) {
+      this.towers = this.room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
+    }
+
+    if (!this.towers || (this.towers.length == 0)) {
+      this.room.owned_structures_not_found_error(STRUCTURE_TOWER)
+
+      this.towers = this.room.find(FIND_MY_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType == STRUCTURE_TOWER
+        }
+      }) as StructureTower[]
+    }
+
+    // const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
 
     const damaged_hostiles: Creep[] = this.room.attacker_info.hostile_creeps.filter((creep) => {
       return (creep.hits < creep.hitsMax)
@@ -1275,22 +1306,34 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      const power_spawn = this.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_POWER_SPAWN
-        }
-      })[0] as StructurePowerSpawn | undefined
+      let power_spawns: StructurePowerSpawn[] | undefined
 
-      if (power_spawn && (power_spawn.power > 0)) {
-        power_spawn.processPower()
+      if (this.room.owned_structures) {
+        power_spawns = this.room.owned_structures.get(STRUCTURE_POWER_SPAWN) as StructurePowerSpawn[]
+      }
+
+      // if (!power_spawns) {
+      //   this.room.owned_structures_not_found_error(STRUCTURE_POWER_SPAWN)
+
+      //   power_spawns = this.room.find(FIND_STRUCTURES, {
+      //     filter: (structure) => {
+      //       return structure.structureType == STRUCTURE_POWER_SPAWN
+      //     }
+      //   }) as StructurePowerSpawn[]
+      // }
+
+      if (power_spawns) {
+        power_spawns.forEach((power_spawn) => {
+          power_spawn.processPower()
+        })
       }
     })()
 
     ErrorMapper.wrapLoop(() => {
       if ((Game.time % 101) == 3) {
-        if ((this.room.name == 'W48N11') && !this.room.storage && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
-          this.room.createConstructionSite(8, 40, STRUCTURE_STORAGE)
-        }
+        // if ((this.room.name == 'W48N11') && !this.room.storage && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
+        //   this.room.createConstructionSite(8, 40, STRUCTURE_STORAGE)
+        // }
       }
     })()
 
@@ -1443,13 +1486,29 @@ export class Region {
       return
     }
 
-    const links: StructureLink[] = (this.room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return (structure.structureType == STRUCTURE_LINK)
-          && (structure.id != this.destination_link_id)
-          && (this.support_link_ids.indexOf(structure.id) < 0)
+    let links: StructureLink[] | undefined
+
+    if (this.room.owned_structures) {
+      links = this.room.owned_structures.get(STRUCTURE_LINK) as StructureLink[]
+    }
+
+    if (!links || (links.length == 0)) {
+      this.room.owned_structures_not_found_error(STRUCTURE_LINK)
+
+      links = this.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return (structure.structureType == STRUCTURE_LINK)
+        }
+      }) as StructureLink[]
+    }
+
+    const source_links = links.filter((link) => {
+      if (link.id != this.destination_link_id) {
+        return false
       }
-    }) as StructureLink[]).filter((link) => {
+      if (this.support_link_ids.indexOf(link.id) < 0) {
+        return false
+      }
       if (link.energy == 0) {
         return false
       }
@@ -1470,7 +1529,7 @@ export class Region {
 
     let transfer_succeeded = false
 
-    for (const link of links) {
+    for (const link of source_links) {
       if (link.transferEnergy(destination) == OK) {
         transfer_succeeded = true
         break  // To not consume all link's cooldown time at once

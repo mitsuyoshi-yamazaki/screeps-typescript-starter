@@ -123,6 +123,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   })()
 
+  // ErrorMapper.wrapLoop(() => {
+  //   const before = Game.cpu.getUsed()
+  //   const a = Game.rooms['W44S7'].find(FIND_MY_STRUCTURES, {filter: (s=>true)})
+  //   const after = Game.cpu.getUsed()
+
+  //   console.log(`HOGE ${after - before}`)
+  // })()
+
   const all_cpu = Math.floor(Game.cpu.getUsed())
   Memory.cpu_usages.push(all_cpu)
 

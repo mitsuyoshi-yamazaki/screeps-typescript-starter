@@ -139,18 +139,18 @@ export class LightWeightHarvesterSquad extends Squad {
                 creep.memory.status = CreepStatus.CHARGE
               }
             }
-            const tomb = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
-              filter: (t) => t.store.energy > 50
-            })
-            if (tomb) {
-              if (creep.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(tomb)
-                return
-              }
-              else if (creep.carry.energy > 200) {
-                creep.memory.status = CreepStatus.CHARGE
-              }
-            }
+            // const tomb = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+            //   filter: (t) => t.store.energy > 50
+            // })
+            // if (tomb) {
+            //   if (creep.withdraw(tomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            //     creep.moveTo(tomb)
+            //     return
+            //   }
+            //   else if (creep.carry.energy > 200) {
+            //     creep.memory.status = CreepStatus.CHARGE
+            //   }
+            // }
           }
 
           if (this.source && (this.source.energy == 0) && (this.source.ticksToRegeneration > 50) && (creep.carry.energy > (creep.carryCapacity / 2))) {
@@ -158,12 +158,12 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           else {
             if (creep.room.heavyly_attacked && !creep.room.is_keeperroom) {
-              const closest_hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
-                filter: (hostile_creep) => {
+              const closest_hostile = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 10, {
+                filter: (hostile_creep: Creep) => {
                   return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0
                 }
-              })
-              if (closest_hostile && (creep.pos.getRangeTo(closest_hostile) < 8)) {
+              })[0]
+              if (closest_hostile) {
                 creep.say('RUN')
                 if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
                   return

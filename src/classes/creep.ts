@@ -445,6 +445,10 @@ export function init() {
       this.moveTo(49, 10, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W48N12') && (this.room.name == 'W48N11')) {
+      this.moveTo(30, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
@@ -1075,7 +1079,7 @@ export function init() {
     let move_to_opt: MoveToOpts = {
       maxRooms: 0,
       reusePath: 2,
-      maxOps: 500,
+      maxOps: 200,
     }
 
     if ((_.sum(this.carry) > this.carry.energy) && this.room.storage) {

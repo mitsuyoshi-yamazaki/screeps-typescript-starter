@@ -49,6 +49,8 @@ declare global {
     is_keeperroom: boolean
     cost_matrix: CostMatrix | undefined
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
+    owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
+    owned_structures_not_found_error(structure_type: StructureConstant): void
 
     initialize(): void
   }
@@ -218,6 +220,20 @@ export function init() {
       })
     }
 
+    if (this.controller && this.controller.my) {
+      this.owned_structures = new Map<StructureConstant, AnyOwnedStructure[]>()
+
+      this.find(FIND_MY_STRUCTURES).forEach((structure: AnyOwnedStructure) => {
+        let structure_list: AnyOwnedStructure[] | null = this.owned_structures.get(structure.structureType)
+        if (!structure_list) {
+          structure_list = []
+        }
+
+        structure_list.push(structure)
+        this.owned_structures.set(structure.structureType, structure_list)
+      })
+    }
+
     const prefix = (Number(this.name.slice(1,3)) - 4) % 10
     const suffix = (Number(this.name.slice(4,6)) - 4) % 10
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
@@ -293,6 +309,10 @@ export function init() {
         room_memory.cost_matrix = this.cost_matrix.serialize()
       }
     }
+  }
+
+  Room.prototype.owned_structures_not_found_error = function(structure_type: StructureConstant): void {
+    console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
   }
 
   for (const room_name in Game.rooms) {

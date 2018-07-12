@@ -1066,6 +1066,11 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
           creep.memory.status = CreepStatus.HARVEST // @todo: more optimized way
           return
         }
+        else {
+          creep.drop(RESOURCE_ENERGY)
+          creep.memory.status = CreepStatus.HARVEST
+          return
+        }
       }
       else {
         console.log(`HarvesterSquad.harvest no target source ${creep.name} at ${creep.pos} ${room_name}`)
