@@ -1452,6 +1452,7 @@ export class Region {
 
   private transferLinks() {
     if (!this.destination_link_id) {
+      // console.log(`NO destination_link_id ${this.room.name}`)
       return
     }
 
@@ -1502,11 +1503,16 @@ export class Region {
       }) as StructureLink[]
     }
 
+    if (!links || (links.length == 0)) {
+      console.log(`Region.transferLinks no link error ${this.room.name}`)
+      return
+    }
+
     const source_links = links.filter((link) => {
-      if (link.id != this.destination_link_id) {
+      if (link.id == this.destination_link_id) {
         return false
       }
-      if (this.support_link_ids.indexOf(link.id) < 0) {
+      if (this.support_link_ids.indexOf(link.id) >= 0) {
         return false
       }
       if (link.energy == 0) {
