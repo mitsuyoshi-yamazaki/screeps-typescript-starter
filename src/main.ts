@@ -54,8 +54,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const zynthium_first_room_name = 'W43N5'  // Z
     const lemergium_first_room_name = 'W51S29'// L
     const catalyst_first_room_name = 'W42N1'  // C
+    const oxygen_first_room_name = 'W48N11'   // O
 
-    if ((Game.time % 97) == 1) {
+    const test_send_resources = Memory.debug.test_send_resources
+
+    if (test_send_resources || ((Game.time % 97) == 1)) {
+      if (test_send_resources) {
+        Memory.debug.test_send_resources = false
+      }
 
       const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
         { from: catalyst_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_GHODIUM_HYDRIDE, is_output: true },
@@ -63,6 +69,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         { from: utrium_first_room_name, to: zynthium_first_room_name, resource_type: RESOURCE_KEANIUM, is_output: true },
         { from: hydrogen_third_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_OXYGEN, is_output: true },
         { from: hydrogen_first_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_HYDROGEN, is_output: false },
+        { from: hydrogen_first_room_name, to: oxygen_first_room_name, resource_type: RESOURCE_ENERGY, is_output: false },
         // optional above
         { from: zynthium_first_room_name, to: hydrogen_third_room_name, resource_type: RESOURCE_ZYNTHIUM_KEANITE, is_output: true },
         { from: lemergium_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_LEMERGIUM, is_output: false },
@@ -71,30 +78,39 @@ export const loop = ErrorMapper.wrapLoop(() => {
         { from: hydrogen_third_room_name, to: catalyst_first_room_name, resource_type: RESOURCE_GHODIUM, is_output: true },
         { from: catalyst_first_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_GHODIUM_HYDRIDE, is_output: true },
         { from: hydrogen_second_room_name, to: hydrogen_first_room_name, resource_type: RESOURCE_HYDROXIDE, is_output: true },
+        { from: oxygen_first_room_name, to: hydrogen_second_room_name, resource_type: RESOURCE_OXYGEN, is_output: false },
       ]
 
       transports.forEach((transport) => {
         const from_room = Game.rooms[transport.from]
         const to_room = Game.rooms[transport.to]
+        const capacity = (transport.resource_type == RESOURCE_ENERGY) ? 100000 : 10000
 
-        if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - 10000))) {
+        if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity))) {
           const message = `Terminal ${to_room.name} is full ${from_room.name} ${transport.resource_type}`
           console.log(message)
           Game.notify(message)
           return
         }
 
-        const amount_needed = transport.is_output ? 500 : 4900
+        let amount_needed = transport.is_output ? 500 : 4900
+        let resource_capacity = 3000
+        let amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
+
+        if (transport.resource_type == RESOURCE_ENERGY) {
+          amount_needed = 140000
+          resource_capacity = 100000
+          amount_send = 100000
+        }
 
         const from_room_ready: boolean = !(!from_room)
           && !(!from_room.terminal)
           && (from_room.terminal.cooldown == 0)
           && ((from_room.terminal.store[transport.resource_type] || 0) > amount_needed)
 
-        const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < 3000)
+        const to_room_ready: boolean = !(!to_room) && !(!to_room.terminal) && ((to_room.terminal.store[transport.resource_type] || 0) < resource_capacity)
 
         if (from_room_ready && to_room_ready) {
-          const amount_send: number = transport.is_output ? (from_room.terminal!.store[transport.resource_type] || 0) : 2000
           const result = from_room.terminal!.send(transport.resource_type, amount_send, transport.to)
           console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
         }
@@ -131,7 +147,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   //   console.log(`HOGE ${after - before}`)
   // })()
 
-  const all_cpu = Math.floor(Game.cpu.getUsed())
+  const all_cpu = Math.ceil(Game.cpu.getUsed())
   Memory.cpu_usages.push(all_cpu)
 
   // console.log(`HOGE ${before_cpu} : ${after_cpu1} : ${after_cpu2} , all: ${all_cpu}`)
@@ -167,6 +183,7 @@ function trade():void {
   const utrium_first_room_name = 'W43S5'    // U
   const zynthium_first_room_name = 'W43N5'  // Z
   const catalyst_first_room_name = 'W42N1'  // C
+  const oxygen_first_room_name = 'W48N11'   // O
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
@@ -306,7 +323,7 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
   if (credit_amount < 195000) {
     const message = `main.tradeResource lack of credit ${credit_amount}`
     console.log(message)
-    Game.notify(message)
+    // Game.notify(message)
     return
   }
 

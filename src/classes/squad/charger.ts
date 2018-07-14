@@ -3,8 +3,27 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType } from "classes/creep"
 
 export class ChargerSquad extends Squad {
-  constructor(readonly name: string, readonly room_name: string, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
+  private energy_max: number
+
+  constructor(readonly name: string, readonly room: Room, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
     super(name)
+
+    if (!room.controller || !room.controller.my) {
+      const message = `ChargerSquad no controller for ${room.name} ${this.name}`
+      console.log(message)
+      Game.notify(message)
+
+      this.energy_max = 150
+    }
+    else if (room.controller.level == 8) {
+      this.energy_max = 450
+    }
+    else if (room.controller.level == 8) {
+      this.energy_max = 300
+    }
+    else {
+      this.energy_max = 150
+    }
   }
 
   public get type(): SquadType {
@@ -25,11 +44,22 @@ export class ChargerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    return energy_available >= 150
+    return energy_available >= this.energy_max
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    this.addGeneralCreep(spawn_func, [MOVE, CARRY, CARRY], CreepType.CARRIER)
+    let energy = this.energy_max
+    let body: BodyPartConstant[] = []
+
+    const energy_unit = 150
+    const body_unit = [MOVE, CARRY, CARRY]
+
+    while(energy >= energy_unit) {
+      body = body.concat(body_unit)
+      energy -= energy_unit
+    }
+
+    this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
   }
 
   public run(): void {
@@ -40,7 +70,7 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    if (this.room_name == 'W43N5') {
+    if (this.room.name == 'W43N5') {
       link = undefined
 
       const charge_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
@@ -50,7 +80,7 @@ export class ChargerSquad extends Squad {
         ]
       }
       else {
-        console.log(`NO charge link ${this.name} ${this.room_name}`)
+        console.log(`NO charge link ${this.name} ${this.room.name}`)
       }
     }
 

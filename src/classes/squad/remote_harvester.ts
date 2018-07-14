@@ -654,7 +654,7 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
+      if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
         return
       }
 
@@ -776,7 +776,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
+        if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
           return
         }
 
@@ -793,7 +793,7 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      if (this.escapeFromHostileIfNeeded(creep) == ActionResult.IN_PROGRESS) {
+      if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
         return
       }
 
@@ -1006,55 +1006,6 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   // ---
-  private escapeFromHostileIfNeeded(creep: Creep): ActionResult {
-
-    const range = 6
-    const ticks = range
-    let flee_from: {x: number, y: number}
-    const closest_hostile = creep.room.attacked ? creep.pos.findInRange(creep.room.attacker_info.hostile_creeps, range)[0] : undefined
-    if (closest_hostile) {
-      flee_from = closest_hostile.pos
-    }
-    else if ((creep.room.name == this.room_name) && (this.keeper_lairs.length > 0)) {
-      const keeper_lair = creep.pos.findInRange(this.keeper_lairs, range, {
-        filter: (lair: StructureKeeperLair) => {
-          return (lair.ticksToSpawn || 0) < ticks
-        }
-      })[0]
-
-      if (keeper_lair) {
-        flee_from = keeper_lair.pos
-      }
-      else {
-        return ActionResult.DONE
-      }
-    }
-    else {
-      return ActionResult.DONE
-    }
-
-    const goal: {pos: RoomPosition, range: number} = {
-      pos: new RoomPosition(flee_from.x, flee_from.y, creep.room.name),
-      range: 8,
-    }
-    const path: PathFinderPath = PathFinder.search(creep.pos, goal, {
-      flee: true,
-      maxRooms: 0,
-    })
-
-    if (path.path.length > 0) {
-      creep.say(`FLEEp`)
-      creep.moveByPath(path.path)
-    }
-    else {
-      creep.say(`FLEE`)
-      const target = this.scout || (new RoomPosition(25, 25, creep.room.name))
-      creep.moveTo(target)
-    }
-
-    return ActionResult.IN_PROGRESS
-  }
-
   private showDescription(): void {
     if (!Memory.debug.show_visuals) {
       return

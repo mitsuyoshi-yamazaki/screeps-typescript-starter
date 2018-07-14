@@ -17,6 +17,7 @@ export enum SquadType {
   BOOSTED_UPGRADER  = "boosted_upgrader",
   HARVESTER         = "harvester",
   REMOET_HARVESTER  = "remote_harvester",
+  REMOET_M_HARVESTER    = "remote_m_harvester",
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
   MANUAL            = "manual",
@@ -201,5 +202,53 @@ export abstract class Squad {
     const result = spawn_func(body, name, {
       memory: memory
     })
+  }
+
+  public escapeFromHostileIfNeeded(creep: Creep, room_name: string, keeper_lairs?: StructureKeeperLair[]): ActionResult {
+
+    const range = 6
+    const ticks = range
+    let flee_from: {x: number, y: number}
+    const closest_hostile = creep.room.attacked ? creep.pos.findInRange(creep.room.attacker_info.hostile_creeps, range)[0] : undefined
+    if (closest_hostile) {
+      flee_from = closest_hostile.pos
+    }
+    else if ((creep.room.name == room_name) && keeper_lairs && (keeper_lairs.length > 0)) {
+      const keeper_lair = creep.pos.findInRange(keeper_lairs, range, {
+        filter: (lair: StructureKeeperLair) => {
+          return (lair.ticksToSpawn || 0) < ticks
+        }
+      })[0]
+
+      if (keeper_lair) {
+        flee_from = keeper_lair.pos
+      }
+      else {
+        return ActionResult.DONE
+      }
+    }
+    else {
+      return ActionResult.DONE
+    }
+
+    const goal: {pos: RoomPosition, range: number} = {
+      pos: new RoomPosition(flee_from.x, flee_from.y, creep.room.name),
+      range: 8,
+    }
+    const path: PathFinderPath = PathFinder.search(creep.pos, goal, {
+      flee: true,
+      maxRooms: 0,
+    })
+
+    if (path.path.length > 0) {
+      creep.say(`FLEEp`)
+      creep.moveByPath(path.path)
+    }
+    else {
+      creep.say(`FLEE`)
+      creep.moveTo(25, 25)
+    }
+
+    return ActionResult.IN_PROGRESS
   }
 }

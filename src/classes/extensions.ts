@@ -30,6 +30,7 @@ declare global {
     trading: {stop: boolean}
     debug: {
       show_visuals: boolean,
+      test_send_resources: boolean,
     }
   }
 

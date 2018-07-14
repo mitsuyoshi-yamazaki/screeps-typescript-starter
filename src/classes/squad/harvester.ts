@@ -144,9 +144,13 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03ce') { // W43N5 Zynthium
       this.resource_type = RESOURCE_ZYNTHIUM
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0219') { // W48N11 Oxygen
+      this.resource_type = RESOURCE_ZYNTHIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
+
 
     const store = this.source.pos.findInRange(FIND_STRUCTURES, 2, {
       filter: function(structure: Structure) {

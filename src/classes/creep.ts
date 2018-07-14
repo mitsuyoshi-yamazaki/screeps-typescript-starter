@@ -626,10 +626,8 @@ export function init() {
             return (structure.energy < structure.energyCapacity)
           }
           else if (structure.structureType == STRUCTURE_TERMINAL) {
-            // if (this.room.name == 'W49S48') {
-            //   return true// @fixme:
-            // }
-            return (structure.store.energy < 100000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
+            // structure.store.energyを変更する際はtransferLinkToStorageも
+            return (structure.store.energy < 150000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
           }
           else if (structure.structureType == STRUCTURE_LAB) {
             return (structure.energy < (structure.energyCapacity - 100))
@@ -880,7 +878,7 @@ export function init() {
           let amount_max = 12000
 
           if (resource_type == RESOURCE_ENERGY) {
-            amount_min *= 10
+            amount_min *= 15
             amount_max = amount_min + 2000
           }
 

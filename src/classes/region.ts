@@ -16,6 +16,7 @@ import { TempSquad } from "./squad/temp";
 import { GuardSquad } from "./squad/guard";
 import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
+import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -180,7 +181,7 @@ export class Region {
         this.destination_link_id = '5b2e775359615412454b065e'
         charger_position = {x: 19, y: 42}
         input_lab_ids = {
-          lhs: '5b32880e2ffd7a7b7f47e643', // 18, 34
+          lhs: '5b3b4987f8c7fa739a68e406', // 18, 32
           rhs: '5b32af23c3f6e64781782851', // 17, 33
         }
         break
@@ -378,6 +379,7 @@ export class Region {
         harvester_targets = [
           { id: '59f19ff882100e1594f35d48', room_name: 'W48N11' },  // left
           { id: '59f19ff882100e1594f35d49', room_name: 'W48N11' },  // right
+          { id: '59f1c0ce7d0b3d79de5f0219', room_name: 'W48N11' },  // oxygen
         ]
         lightweight_harvester_targets = [
           { id: '59f19fe982100e1594f35bce', room_name: 'W49N11' },
@@ -398,6 +400,8 @@ export class Region {
           'W47N11',
           'W46N11',
         ]
+        charger_position = {x: 7, y: 39}
+        this.destination_link_id = '5b49eb11323c7916916f0a3d'
         break
 
       default:
@@ -497,7 +501,7 @@ export class Region {
         if ((Game.time % 19) == 3) {
           const message = `No reaction ${this.name}`
           console.log(message)
-          Game.notify(message)
+          // Game.notify(message)
         }
       }
     }
@@ -597,7 +601,7 @@ export class Region {
           return true
         }) as StructureLink[]
 
-        const squad = new ChargerSquad(squad_memory.name, this.room.name, link, support_links, charger_position)
+        const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
 
         this.squads.set(squad.name, squad)
         break
@@ -626,6 +630,16 @@ export class Region {
         const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
         this.squads.set(squad.name, squad)
         break
+      }
+      case SquadType.REMOET_M_HARVESTER: {
+        if (!this.room.storage) {
+          console.log(`ERROR!!!3`)
+          break
+        }
+        const harvester_squad_memory = squad_memory as RemoteMineralHarvesterSquadMemory
+
+        const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
+        this.squads.set(squad.name, squad)
       }
       case SquadType.LIGHTWEIGHT_HARVESTER: {
         const harvester_squad_memory = squad_memory as HarvesterSquadMemory
@@ -986,31 +1000,6 @@ export class Region {
       Memory.squads[squad.name] = memory
     }
 
-    // --- Construction site ---
-    for (const flag_name in Game.flags) {
-      const flag = Game.flags[flag_name]
-      if (!flag.room) {
-        continue
-      }
-      if ((flag.room.name != this.room.name)) {
-        continue
-      }
-      if (this.room.spawns.length == 0) {
-        continue
-      }
-      if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
-        continue
-      }
-
-      if (this.room.createConstructionSite(flag.pos, STRUCTURE_EXTENSION) == OK) {
-        console.log(`Place extension construction site on ${flag.pos.x}, ${flag.pos.y}, ${flag.name}, ${flag.pos}`)
-        flag.remove()
-
-        break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
-        // so call it one by one
-      }
-    }
-
     // --- Spawn ---
     const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
       const l_priority = lhs.spawnPriority
@@ -1330,10 +1319,8 @@ export class Region {
     })()
 
     ErrorMapper.wrapLoop(() => {
-      if ((Game.time % 101) == 3) {
-        // if ((this.room.name == 'W48N11') && !this.room.storage && (this.room.find(FIND_MY_CONSTRUCTION_SITES).length == 0)) {
-        //   this.room.createConstructionSite(8, 40, STRUCTURE_STORAGE)
-        // }
+      if ((Game.time % 31) == 0) {
+        this.placeConstructionSite()
       }
     })()
 
@@ -1347,6 +1334,65 @@ export class Region {
   }
 
   // --- Private ---
+  private placeConstructionSite() {
+    for (const flag_name in Game.flags) {
+      const flag = Game.flags[flag_name]
+      if (!flag.room) {
+        continue
+      }
+      if ((flag.room.name != this.room.name)) {
+        continue
+      }
+      if (this.room.spawns.length == 0) {
+        continue
+      }
+      if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
+        continue
+      }
+
+      let structure_type: StructureConstant | undefined
+
+      switch (flag.color) {
+        case COLOR_RED:
+          structure_type = STRUCTURE_TOWER
+          break
+
+        case COLOR_BLUE:
+          structure_type = STRUCTURE_LAB
+          break
+
+        case COLOR_GREEN:
+          structure_type = STRUCTURE_STORAGE
+          break
+
+        case COLOR_PURPLE:
+          structure_type = STRUCTURE_TERMINAL
+          break
+
+        case COLOR_YELLOW:
+          structure_type = STRUCTURE_EXTRACTOR
+          break
+      }
+
+      if (!structure_type) {
+        structure_type = STRUCTURE_EXTENSION
+      }
+
+      const result = this.room.createConstructionSite(flag.pos, structure_type)
+
+      if (result == OK) {
+        console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}`)
+        flag.remove()
+
+        break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
+        // so call it one by one
+      }
+      else if (result != ERR_RCL_NOT_ENOUGH) {
+        console.log(`ERROR Place ${structure_type} construction site failed E${result}: ${flag.name}, ${flag.pos}, ${flag.color}`)
+      }
+    }
+  }
+
   private activateSafeModeIfNeeded() {
     if (this.room.name == 'W49S34') {
       return
