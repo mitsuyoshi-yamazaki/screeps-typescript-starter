@@ -7,6 +7,10 @@ import * as Initializer from "classes/init"
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
 
+  if (Memory.debug.show_cpu_usage) {
+    console.log(`\n\n--------------\n\n`)
+  }
+
   Initializer.init()
 
   const spawns = new Map<string, StructureSpawn>()
@@ -24,10 +28,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
     // const cpu_3 = Math.floor(Game.cpu.getUsed())
 
     // console.log(`HOGE ${cpu_1}, ${cpu_2}, ${cpu_3}`)
-  })()
+  }, `empire.run`)()
 
-  ErrorMapper.wrapLoop(() => {
-    if (((Game.time + 3) % 11) == 0) {
+  if ((Game.time % 29) == 3) {
+    ErrorMapper.wrapLoop(() => {
       for (const creep_name in Game.creeps) {
         const creep = Game.creeps[creep_name]
 
@@ -43,25 +47,26 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // creep.memory.let_thy_die = true
         // creep.memory.squad_name = 'worker771957135'  // W48N11
       }
-    }
-  })()
+    }, `creep.gc`)()
+  }
 
-  ErrorMapper.wrapLoop(() => {
-    const hydrogen_first_room_name = 'W44S7'  // H
-    const hydrogen_second_room_name = 'W48S6'  // H
-    const hydrogen_third_room_name = 'W47N2'  // H
-    const utrium_first_room_name = 'W43S5'    // U
-    const zynthium_first_room_name = 'W43N5'  // Z
-    const lemergium_first_room_name = 'W51S29'// L
-    const catalyst_first_room_name = 'W42N1'  // C
-    const oxygen_first_room_name = 'W48N11'   // O
+  const test_send_resources = Memory.debug.test_send_resources
+  if (test_send_resources || ((Game.time % 97) == 1)) {
+    ErrorMapper.wrapLoop(() => {
 
-    const test_send_resources = Memory.debug.test_send_resources
 
-    if (test_send_resources || ((Game.time % 97) == 1)) {
       if (test_send_resources) {
         Memory.debug.test_send_resources = false
       }
+
+      const hydrogen_first_room_name = 'W44S7'  // H
+      const hydrogen_second_room_name = 'W48S6'  // H
+      const hydrogen_third_room_name = 'W47N2'  // H
+      const utrium_first_room_name = 'W43S5'    // U
+      const zynthium_first_room_name = 'W43N5'  // Z
+      const lemergium_first_room_name = 'W51S29'// L
+      const catalyst_first_room_name = 'W42N1'  // C
+      const oxygen_first_room_name = 'W48N11'   // O
 
       const transports: {from: string, to: string, resource_type: ResourceConstant, is_output: boolean}[] = [
         { from: catalyst_first_room_name, to: utrium_first_room_name, resource_type: RESOURCE_GHODIUM_HYDRIDE, is_output: true },
@@ -115,17 +120,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
           console.log(`Send ${transport.resource_type} from ${transport.from} to ${transport.to} ${result}`)
         }
       })
-    }
+    }, `SendResources`)()
+  }
 
-    // Market
-  })()
-
-  ErrorMapper.wrapLoop(() => {
-    if ((Game.time % 23) == 0) {
-    // if ((Game.time % 7) == 0) {  // @fixme:
-      trade()
-    }
-  })()
+  if ((Game.time % 47) == 5) {
+    ErrorMapper.wrapLoop(() => {
+      // if ((Game.time % 7) == 0) {  // @fixme:
+        trade()
+    }, `Trade`)()
+  }
 
   ErrorMapper.wrapLoop(() => {
     for (const creep_name in Game.creeps) {
@@ -137,7 +140,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
       creep.say(creep.memory.status)
     }
-  })()
+  }, `Creep.debug`)()
 
   // ErrorMapper.wrapLoop(() => {
   //   const before = Game.cpu.getUsed()

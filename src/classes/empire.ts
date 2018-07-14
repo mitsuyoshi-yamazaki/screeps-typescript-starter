@@ -22,7 +22,7 @@ export class Empire {
       ErrorMapper.wrapLoop(() => {
         const region = new Region(controller)
         this.regions.set(region.name, region)
-      })()
+      }, `${room.name}.init`)()
     }
 
     const set_delegate = (base_region_name: string, colony_region_name: string) => {
@@ -47,7 +47,7 @@ export class Empire {
 
           base_region.delegated_squads = squads
         }
-      })()
+      }, `${base_region_name}.set_delegate`)()
     }
 
     const w51s29 = 'W51S29'
@@ -93,7 +93,7 @@ export class Empire {
     this.regions.forEach((region) => {
       ErrorMapper.wrapLoop(() => {
         region.run()
-      })()
+      }, `${region.name}.run`)()
     })
   }
 }

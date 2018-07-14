@@ -11,7 +11,7 @@ const keys = [
 ]
 
 export function init() {
-  Game.version = '2.15.0'
+  Game.version = '2.16.2'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -36,6 +36,7 @@ export function init() {
   }
   if (Memory.versions.indexOf(Game.version) < 0) {
     Memory.versions.push(Game.version)
+    console.log(`Updated v${Game.version}`)
   }
 
   if (Memory.squads == null) {
@@ -54,6 +55,7 @@ export function init() {
     Memory.debug = {
       show_visuals: false,
       test_send_resources: false,
+      show_cpu_usage: false,
     }
   }
   if ((Game.time % 997) == 0) {
@@ -77,7 +79,7 @@ export function init() {
 
   if (true) {
     if ((Game.time % cpu_ticks) == 0) {
-      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}`)
+      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
     }
   }
 

@@ -1241,26 +1241,26 @@ export class Region {
   public run(): void {
     ErrorMapper.wrapLoop(() => {
       this.activateSafeModeIfNeeded()
-    })()
+    }, `${this.name}.activateSafeModeIfNeeded`)()
 
     ErrorMapper.wrapLoop(() => {
       this.drawDebugInfo()
-    })()
+    }, `${this.name}.drawDebugInfo`)()
 
     const sources = this.room.sources
     this.squads.forEach((squad, _) => {
       ErrorMapper.wrapLoop(() => {
         squad.run()
-      })()
+      }, `${squad.name}.run ${squad.description()}`)()
     })
 
     ErrorMapper.wrapLoop(() => {
       this.transferLinks()
-    })()
+    }, `${this.name}.transferLinks`)()
 
     ErrorMapper.wrapLoop(() => {
       this.spawnAndRenew()
-    })()
+    }, `${this.name}.spawnAndRenew`)()
 
     ErrorMapper.wrapLoop(() => {
       const nuke: Nuke = this.room.find(FIND_NUKES, {
@@ -1298,7 +1298,7 @@ export class Region {
           c.moveTo(26, 11)
         })
       }
-    })()
+    }, `${this.name}.findNuke`)()
 
     ErrorMapper.wrapLoop(() => {
       let power_spawns: StructurePowerSpawn[] | undefined
@@ -1322,13 +1322,13 @@ export class Region {
           power_spawn.processPower()
         })
       }
-    })()
+    }, `${this.name}.processPower`)()
 
-    ErrorMapper.wrapLoop(() => {
-      if ((Game.time % 31) == 0) {
+    if ((Game.time % 31) == 0) {
+      ErrorMapper.wrapLoop(() => {
         this.placeConstructionSite()
-      }
-    })()
+      }, `${this.name}.placeConstructionSite`)()
+    }
 
     // ErrorMapper.wrapLoop(() => {
     //   if ((this.room.name == 'W48S47') || (this.room.name == 'W49S47') || (this.room.name == 'S49S48')) {
