@@ -627,7 +627,11 @@ export function init() {
           }
           else if (structure.structureType == STRUCTURE_TERMINAL) {
             // structure.store.energyを変更する際はtransferLinkToStorageも
-            return (structure.store.energy < 150000) && !(!structure.room.storage) && (structure.room.storage.store.energy > 20000)
+            if (!structure.room.storage) {
+              return false
+            }
+            const energy = (structure.room.storage.store.energy > 200000) ? 150000 : 100000
+            return (structure.store.energy < energy)
           }
           else if (structure.structureType == STRUCTURE_LAB) {
             return (structure.energy < (structure.energyCapacity - 100))
@@ -878,7 +882,9 @@ export function init() {
           let amount_max = 12000
 
           if (resource_type == RESOURCE_ENERGY) {
-            amount_min *= 15
+            const multiply = (storage.store.energy > 200000) ? 15 : 10
+
+            amount_min *= multiply
             amount_max = amount_min + 2000
           }
 

@@ -403,6 +403,10 @@ export class Region {
         ]
         charger_position = {x: 7, y: 39}
         this.destination_link_id = '5b49eb11323c7916916f0a3d'
+        input_lab_ids = {
+          lhs: '5b49ff838087f443459c9d17', // 3, 43
+          rhs: '5b4a1b2e59c3ee4337241aab', // 4, 44
+        }
         break
 
       default:

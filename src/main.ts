@@ -157,18 +157,27 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // console.log(`HOGE ${sellOrders(RESOURCE_HYDROGEN, 0.16).map(o=>[o.price])}`)
 
-  if ((Game.time % 23) == 0) {
-    const credit = Game.market.credits
-    let message: string | undefined
+  if ((Game.time % 47) == 13) {
+    ErrorMapper.wrapLoop(() => {
+      const credit = Game.market.credits
+      let message: string | undefined
 
-    if (credit < 190000) {
-      message = `[WARNING] Credit ${credit}`
-    }
+      if (Game.cpu.bucket < 5000) {
+        message = `CPU Bucket ${Game.cpu.bucket}`
+      }
 
-    if (message) {
-      console.log(message)
-      Game.notify(message)
-    }
+      if (credit < 190000) {
+        const credit_message = `Credit ${credit}`
+        message = message ? (message + credit_message) : credit_message
+      }
+
+      if (message) {
+        message = '[WARNING] ' + message
+
+        console.log(message)
+        Game.notify(message)
+      }
+    })()
   }
 })
 

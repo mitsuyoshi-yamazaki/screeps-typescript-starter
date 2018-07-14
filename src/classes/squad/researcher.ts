@@ -92,6 +92,10 @@ export class ResearcherSquad extends Squad {
           room_resource = RESOURCE_ZYNTHIUM
           break
 
+        case 'W48N11':
+          room_resource = RESOURCE_OXYGEN
+          break
+
         default:
           break
       }
@@ -279,6 +283,10 @@ export class ResearcherSquad extends Squad {
 
           case 'W43N5':
             room_resource = RESOURCE_ZYNTHIUM
+            break
+
+          case 'W48N11':
+            room_resource = RESOURCE_OXYGEN
             break
         }
 

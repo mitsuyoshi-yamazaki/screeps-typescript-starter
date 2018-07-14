@@ -252,11 +252,13 @@ export class RemoteHarvesterSquad extends Squad {
       else {
         console.log(`RemoteHarvesterSquad.setNextCreep unexpected error ${this.need_attacker} ${this.name} ${this.room_name}`)
       }
+    }
 
-      if (this.ranged_attackers.length == 0) {
-        this.next_creep = CreepType.RANGED_ATTACKER
-        return
-      }
+    const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+
+    if (squad_memory.need_attacker && (this.ranged_attackers.length == 0)) {
+      this.next_creep = CreepType.RANGED_ATTACKER
+      return
     }
 
     if (!this.keeper && !this.is_room_attacked && room.controller) {
@@ -271,7 +273,6 @@ export class RemoteHarvesterSquad extends Squad {
       }
     }
 
-    const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
     if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
       const builder_max = 3
