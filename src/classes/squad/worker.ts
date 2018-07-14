@@ -13,8 +13,33 @@ interface WorkerSquadMemory extends SquadMemory {
  * to build or upgrade.
  */
 export class WorkerSquad extends Squad {
+  private number_of_workers: number
+
   constructor(readonly name: string, readonly room_name: string, readonly delegated?: boolean) {
     super(name)
+
+    const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
+    if (squad_memory.number_of_workers) {
+      this.number_of_workers = squad_memory.number_of_workers
+    }
+    else if (this.room_name == 'W51S29') {
+      this.number_of_workers = 3
+    }
+    else if (this.room_name == 'W48S6') {
+      this.number_of_workers = 2
+    }
+    else if (this.room_name == 'W43S5') {
+      this.number_of_workers = 3
+    }
+    else if (this.room_name == 'W43S2') {
+      this.number_of_workers = 6
+    }
+    else if (this.room_name == 'W42N1') {
+      this.number_of_workers = 4
+    }
+    else {
+      this.number_of_workers = 8
+    }
   }
 
   public get type(): SquadType {
@@ -35,43 +60,7 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.URGENT
     }
 
-    let max = 8
-
-    // if (room && room.controller) {
-    //   if ((room.controller.level < 3)) {
-    //     max = 10
-    //   }
-    //   else if (room.controller.level < 4) {
-    //     max = 10
-    //   }
-    // }
-
-    if (this.room_name == 'W51S29') {
-      max = 3
-    }
-    else if (this.room_name == 'W48S6') {
-      max = 2
-    }
-    else if (this.room_name == 'W43S5') {
-      max = 3
-    }
-    else if (this.room_name == 'W43S2') {
-      max = 6
-    }
-    else if (this.room_name == 'W42N1') {
-      max = 4
-    }
-
-    const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
-    if (squad_memory.number_of_workers) {
-      max = squad_memory.number_of_workers
-    }
-
-    if (this.room_name == 'W43N5') {
-      return size < max ? SpawnPriority.LOW : SpawnPriority.NONE
-    }
-
-    return size < max ? SpawnPriority.NORMAL : SpawnPriority.NONE
+    return size < this.number_of_workers ? SpawnPriority.NORMAL : SpawnPriority.NONE
 
     // const really_need = (!this.delegated) && (this.creeps.size < 3)
 
@@ -258,5 +247,9 @@ export class WorkerSquad extends Squad {
 
       creep.work(room, source_local)
     }
+  }
+
+  public description(): string {
+    return `${super.description()}, ${this.creeps.size}/${this.number_of_workers}`
   }
 }

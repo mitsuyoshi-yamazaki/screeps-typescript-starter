@@ -178,6 +178,10 @@ export class ManualSquad extends Squad {
         // return SpawnPriority.NONE
       }
 
+      case 'W48N11': {
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
+
       default:
         return SpawnPriority.NONE
     }
@@ -239,6 +243,10 @@ export class ManualSquad extends Squad {
 
       case 'W43N5': {
         return this.hasEnoughEnergyForUpgrader(energy_available, capacity)
+      }
+
+      case 'W48N11': {
+        return energy_available >= 1500
       }
 
       default:
@@ -386,6 +394,19 @@ export class ManualSquad extends Squad {
 
       case 'W43N5': {
         this.addUpgrader(energy_available, spawn_func, 1800)
+        return
+      }
+
+      case 'W48N11': {
+        // 1500
+        const body: BodyPartConstant[] = [
+          MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          WORK, WORK, WORK, WORK, WORK,
+          WORK, WORK, WORK, WORK, WORK,
+          MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.WORKER)
         return
       }
 
@@ -934,6 +955,11 @@ export class ManualSquad extends Squad {
             }
           }
         })
+        return
+      }
+
+      case 'W48N11': {
+        this.dismantle('W49N12')
         return
       }
 
@@ -1837,6 +1863,14 @@ export class ManualSquad extends Squad {
   }
 
   private dismantle(target_room_name: string, include_wall?: boolean): ActionResult {
+    const room = Game.rooms[target_room_name]
+    if (room && room.controller && room.controller.my) {
+      const message = `ManualSquad.dismantle target room ${target_room_name} has my controller, are you sure? ${this.name}`
+      console.log(message)
+      Game.notify(message)
+      return ActionResult.DONE
+    }
+
     let result_sum: ActionResult = ActionResult.DONE
 
     this.creeps.forEach((creep) => {

@@ -3,7 +3,7 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType } from "classes/creep"
 
 export class ChargerSquad extends Squad {
-  private energy_max: number
+  private number_of_carries: number
 
   constructor(readonly name: string, readonly room: Room, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
     super(name)
@@ -13,16 +13,16 @@ export class ChargerSquad extends Squad {
       console.log(message)
       Game.notify(message)
 
-      this.energy_max = 150
+      this.number_of_carries = 2
     }
     else if (room.controller.level == 8) {
-      this.energy_max = 450
+      this.number_of_carries = 4
     }
-    else if (room.controller.level == 8) {
-      this.energy_max = 300
+    else if (room.controller.level >= 7) {
+      this.number_of_carries = 3
     }
     else {
-      this.energy_max = 150
+      this.number_of_carries = 2
     }
   }
 
@@ -44,20 +44,21 @@ export class ChargerSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    return energy_available >= this.energy_max
+    const energy_unit = 100
+    const needs = (this.number_of_carries * energy_unit) + 50
+
+    return energy_available >= needs
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    let energy = this.energy_max
     let body: BodyPartConstant[] = []
 
-    const energy_unit = 150
-    const body_unit = [MOVE, CARRY, CARRY]
+    const body_unit = [CARRY, CARRY]
 
-    while(energy >= energy_unit) {
+    for (let i = 0; i < this.number_of_carries; i++) {
       body = body.concat(body_unit)
-      energy -= energy_unit
     }
+    body = body.concat([MOVE])
 
     this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
   }

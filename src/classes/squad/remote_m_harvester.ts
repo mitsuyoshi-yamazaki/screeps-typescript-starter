@@ -6,11 +6,12 @@ export interface RemoteMineralHarvesterSquadMemory extends SquadMemory {
   room_name: string
   mineral_id: string
   keeper_lair_id: string
+  number_of_carriers?: number
 }
 
 export class RemoteMineralHarvesterSquad extends Squad {
   private harvester: Creep | undefined
-  private carrier: Creep | undefined
+  private carriers: Creep[] = []
   private mineral: Mineral | undefined
   private keeper_lair: StructureKeeperLair | undefined
   readonly room_name: string
@@ -35,7 +36,7 @@ export class RemoteMineralHarvesterSquad extends Squad {
           break
 
         case CreepType.CARRIER:
-          this.carrier = creep
+          this.carriers.push(creep)
           break
 
         default:
@@ -43,6 +44,11 @@ export class RemoteMineralHarvesterSquad extends Squad {
           break
       }
     })
+
+    const room = Game.rooms[this.room_name]
+    if (room) {
+      this.showDescription(room, 1)
+    }
   }
 
   public get type(): SquadType {
@@ -78,7 +84,10 @@ export class RemoteMineralHarvesterSquad extends Squad {
     if (!this.harvester) {
       return SpawnPriority.LOW
     }
-    if (!this.carrier) {
+
+    const number_of_carriers = memory.number_of_carriers || 1
+
+    if (this.carriers.length < number_of_carriers) {
       return SpawnPriority.NORMAL
     }
 
@@ -87,12 +96,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
     if (!this.harvester) {
-      return energy_available >= 2750
+      return energy_available >= 3000
     }
-    if (!this.carrier) {
-      return energy_available >= 500
-    }
-    return false
+    return energy_available >= 1000
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
@@ -100,10 +106,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
       this.addHarvester(energy_available, spawn_func)
       return
     }
-    if (!this.carrier) {
-      this.addCarrier(energy_available, spawn_func)
-      return
-    }
+
+    this.addCarrier(energy_available, spawn_func)
+    return
   }
 
   public run(): void {
@@ -113,7 +118,7 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
   // ---
   private addHarvester(energy_available: number, spawn_func: SpawnFunction): void {
-    // 20W, 10M, 5C
+    // 20W, 10M, 10C
 
     const body: BodyPartConstant[] = [
       MOVE, MOVE, MOVE, MOVE, MOVE,
@@ -121,6 +126,7 @@ export class RemoteMineralHarvesterSquad extends Squad {
       WORK, WORK, WORK, WORK, WORK,
       WORK, WORK, WORK, WORK, WORK,
       WORK, WORK, WORK, WORK, WORK,
+      CARRY, CARRY, CARRY, CARRY, CARRY,
       CARRY, CARRY, CARRY, CARRY, CARRY,
       MOVE, MOVE, MOVE, MOVE, MOVE,
     ]
@@ -130,9 +136,10 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
   private addCarrier(energy_available: number, spawn_func: SpawnFunction): void {
     const body: BodyPartConstant[] = [
-      MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
       CARRY, CARRY, CARRY, CARRY, CARRY,
-      MOVE, MOVE, MOVE,
+      CARRY, CARRY, CARRY, CARRY, CARRY,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
     ]
 
     this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
@@ -163,38 +170,41 @@ export class RemoteMineralHarvesterSquad extends Squad {
   }
 
   private runCarrier() {
-    if (!this.carrier) {
-      return
-    }
-
-    const creep = this.carrier
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
-    if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
-      return
-    }
-
-    const carry = _.sum(creep.carry)
-
-    if (carry > (creep.carryCapacity - 30)) {
-      if (creep.transferResources(this.destination) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(this.destination)
+    this.carriers.forEach((creep) => {
+      if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
+        return
       }
-      return
-    }
 
-    if (this.harvester) {
-      if (this.mineral) {
-        if (this.harvester.transfer(creep, this.mineral.mineralType) == ERR_NOT_IN_RANGE) {
+      const carry = _.sum(creep.carry)
+
+      if (carry > (creep.carryCapacity - 30)) {
+        if (creep.transferResources(this.destination) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(this.destination)
+        }
+        return
+      }
+
+      if (this.harvester) {
+        if (this.mineral) {
+          if (this.harvester.transfer(creep, this.mineral.mineralType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(this.harvester)
+          }
+        }
+        else {
           creep.moveTo(this.harvester)
         }
+        return
       }
-      else {
-        creep.moveTo(this.harvester)
-      }
-      return
-    }
 
-    creep.moveToRoom(this.room_name)
+      creep.moveToRoom(this.room_name)
+    })
+  }
+
+  // ---
+  public description(): string {
+    const number_of_creeps = `H${!(!this.harvester) ? 1 : 0}C${this.carriers.length}`
+    return `${super.description()}, ${this.room_name}, ${number_of_creeps}`
   }
 }

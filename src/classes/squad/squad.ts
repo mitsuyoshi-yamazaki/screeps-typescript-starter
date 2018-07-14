@@ -99,6 +99,32 @@ export abstract class Squad {
     return `${this.name} ${this.creeps.size} crp, pri: ${priority}`
   }
 
+  public showDescription(room: Room, index: number): void {
+    if (!room) {
+      return
+    }
+    if (!Memory.debug.show_visuals) {
+      return
+    }
+
+    const room_memory = Memory.rooms[room.name]
+    let pos: {x: number, y: number} = {x: 1, y: 1}
+
+    if (room_memory && room_memory.description_position) {
+      pos = room_memory.description_position
+    }
+
+    let lines: string[] = [
+      this.description(),
+    ]
+
+    room.visual.multipleLinedText(lines, pos.x, (pos.y + index), {
+      align: 'left',
+      opacity: 0.8,
+      font: '12px',
+    })
+  }
+
   public say(message: string): void {
     this.creeps.forEach((creep, _) => {
       creep.say(message)
@@ -214,9 +240,9 @@ export abstract class Squad {
 
     const body: BodyPartConstant[] = [
       TOUGH, TOUGH, TOUGH, TOUGH,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
       RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
       RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
       MOVE, MOVE, MOVE, MOVE, MOVE,
       MOVE, MOVE, MOVE, MOVE,

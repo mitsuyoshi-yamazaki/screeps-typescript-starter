@@ -205,7 +205,9 @@ export class RemoteHarvesterSquad extends Squad {
     const room_memory = Memory.rooms[this.room_name]
     this.is_room_attacked = !(!squad_memory.need_attacker) ? false : !(!room_memory.attacked_time)
 
-    this.showDescription()
+    if (room) {
+      this.showDescription(room, 0)
+    }
   }
 
   private setNextCreep(): void {
@@ -249,11 +251,11 @@ export class RemoteHarvesterSquad extends Squad {
       else {
         console.log(`RemoteHarvesterSquad.setNextCreep unexpected error ${this.need_attacker} ${this.name} ${this.room_name}`)
       }
-    }
 
-    if (room && room.is_keeperroom && (this.ranged_attackers.length == 0)) {
-      this.next_creep = CreepType.RANGED_ATTACKER
-      return
+      if (this.ranged_attackers.length == 0) {
+        this.next_creep = CreepType.RANGED_ATTACKER
+        return
+      }
     }
 
     if (!this.keeper && !this.is_room_attacked && room.controller) {
@@ -1053,35 +1055,6 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       creep.searchAndDestroy(opt)
-    })
-  }
-
-  // ---
-  private showDescription(): void {
-    if (!Memory.debug.show_visuals) {
-      return
-    }
-
-    const room = Game.rooms[this.room_name]
-    if (!room) {
-      return
-    }
-
-    const room_memory = Memory.rooms[this.room_name]
-    let pos: {x: number, y: number} = {x: 1, y: 1}
-
-    if (room_memory && room_memory.description_position) {
-      pos = room_memory.description_position
-    }
-
-    let lines: string[] = [
-      this.description(),
-    ]
-
-    room.visual.multipleLinedText(lines, pos.x, pos.y, {
-      align: 'left',
-      opacity: 0.8,
-      font: '12px',
     })
   }
 }
