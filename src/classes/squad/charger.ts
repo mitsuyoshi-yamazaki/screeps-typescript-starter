@@ -87,6 +87,18 @@ export class ChargerSquad extends Squad {
 
     this.creeps.forEach((creep) => {
       creep.transferLinkToStorage(link, this.creep_position, opt)
+
+      // if (creep.carry.energy) {
+      //   const rampart = creep.pos.findInRange(FIND_MY_STRUCTURES, 1, {
+      //     filter: (structure: OwnedStructure) => {
+      //       return structure.structureType == STRUCTURE_RAMPART
+      //     }
+      //   })[0]
+
+      //   if (rampart) {
+      //     creep.repair(rampart)
+      //   }
+      // }
     })
   }
 }

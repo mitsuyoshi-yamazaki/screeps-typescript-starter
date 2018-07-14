@@ -107,11 +107,12 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43S5': {
-        const target_room_memory = Memory.rooms['W45S5']
-        if (target_room_memory && target_room_memory.attacked_time) {
-          return SpawnPriority.NONE
-        }
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // const target_room_memory = Memory.rooms['W45S5']
+        // if (target_room_memory && target_room_memory.attacked_time) {
+        //   return SpawnPriority.NONE
+        // }
+        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'W48S6':

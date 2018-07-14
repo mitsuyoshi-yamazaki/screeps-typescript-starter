@@ -81,6 +81,12 @@ export class RemoteMineralHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
+    const room_memory = Memory.rooms[this.room_name]
+
+    if (room_memory && room_memory.attacked_time) {
+      return SpawnPriority.NONE
+    }
+
     if (!this.harvester) {
       return SpawnPriority.LOW
     }

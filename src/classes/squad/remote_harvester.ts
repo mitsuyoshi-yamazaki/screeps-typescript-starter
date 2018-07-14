@@ -18,6 +18,7 @@ export interface RemoteHarvesterSquadMemory extends SquadMemory {
   carrier_max?: number
   destination_id?: string
   need_attacker?: boolean
+  defend_room_name?: string
 }
 
 interface SourceInfo {
@@ -325,6 +326,12 @@ export class RemoteHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
+    const room_memory = Memory.rooms[this.room_name]
+
+    if (room_memory && room_memory.attacked_time && ([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
+      return SpawnPriority.NONE
+    }
+
     switch (this.next_creep) {
       case CreepType.SCOUT:
         return SpawnPriority.NORMAL
@@ -364,10 +371,15 @@ export class RemoteHarvesterSquad extends Squad {
         max = energy_unit * 5
         break
 
-      case CreepType.HARVESTER:
+      case CreepType.HARVESTER: {
         energy_unit = this.harvester_energy_unit
-        max = energy_unit
+
+        const room = Game.rooms[this.room_name]
+        const energy_max = (room && room.is_keeperroom) ? (energy_unit * 2) : energy_unit
+
+        max = energy_max
         break
+      }
 
       case CreepType.CARRIER:
         energy_unit = 150
@@ -469,6 +481,7 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private addHarvester(energy_available: number, spawn_func: SpawnFunction): void {
+    const room = Game.rooms[this.room_name]
     const harvester_max = 1
     let source_id: string | undefined
 
@@ -504,7 +517,9 @@ export class RemoteHarvesterSquad extends Squad {
       debug: this.debug,
     }
 
-    energy_available = Math.min(energy_available, energy_unit)
+    const energy_max = (room && room.is_keeperroom) ? (energy_unit * 2) : energy_unit
+
+    energy_available = Math.min(energy_available, energy_max)
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
       energy_available -= energy_unit
@@ -805,7 +820,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
 
         runHarvester(creep, this.room_name, info.target, info.container, info.container, {
-          resource_type: RESOURCE_ENERGY, // @fixme:
+          resource_type: RESOURCE_ENERGY,
         })
       })
     })
@@ -991,6 +1006,17 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private runAttacker(): void {
+    const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+
+    if (squad_memory && squad_memory.defend_room_name && (this.ranged_attackers.length > 0)) {
+      const room_memory = Memory.rooms[squad_memory.defend_room_name]
+
+      if (room_memory && room_memory.attacked_time) {
+        this.defendRoom(squad_memory.defend_room_name)
+        return
+      }
+    }
+
     this.attackers.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -1029,15 +1055,29 @@ export class RemoteHarvesterSquad extends Squad {
     })
   }
 
+  private defendRoom(room_name: string): void {
+    this.attackers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
+      creep.searchAndDestroyTo(room_name, false)
+    })
+  }
+
   private runRangedAttacker(): void {
     const attacker = this.attackers.filter((creep) => {
       return creep.room.name == this.room_name
     })[0]
 
     this.ranged_attackers.forEach((creep) => {
-      if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+      if (creep.spawning) {
         return
       }
+
+      // if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+      //   return
+      // }
 
       let no_move: boolean
 

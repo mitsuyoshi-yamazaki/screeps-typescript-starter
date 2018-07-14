@@ -1223,7 +1223,8 @@ export function init() {
           this.say('C2H-1')
         }
       }
-      else if (this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      else {
+        this.transfer(target, RESOURCE_ENERGY)
         this.moveTo(target, move_to_opt)
         return
       }
