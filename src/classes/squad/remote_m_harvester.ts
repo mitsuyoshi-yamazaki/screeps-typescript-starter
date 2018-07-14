@@ -146,7 +146,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
     const creep = this.harvester
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
-    this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs)
+    if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
+      return
+    }
 
     if (this.mineral) {
       if (creep.harvest(this.mineral) == ERR_NOT_IN_RANGE) {
@@ -168,7 +170,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
     const creep = this.carrier
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
-    this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs)
+    if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
+      return
+    }
 
     const carry = _.sum(creep.carry)
 

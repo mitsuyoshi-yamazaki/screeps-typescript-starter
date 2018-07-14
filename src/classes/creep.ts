@@ -1558,6 +1558,11 @@ export function init() {
         if (ignore.indexOf(structure.structureType) >= 0) {
           return false
         }
+        if (structure.structureType == STRUCTURE_EXTRACTOR) {
+          if (this.room.is_keeperroom) {
+            return false
+          }
+        }
         if ((structure.structureType) == STRUCTURE_CONTAINER) {
           if (structure.room.controller) {
             if (structure.room.controller.my) {
@@ -1593,7 +1598,7 @@ export function init() {
       return this.destroy(hostile_structure)
     }
 
-    this.heal(this)
+    this.healNearbyCreep()
 
     // console.log('searchAndDestroy done')
     return ActionResult.DONE
@@ -1637,7 +1642,7 @@ export function init() {
     if (is_creep) {
       if (!opt.no_move && is_ranged_attacker) {
         const hostile_creep = target as Creep
-        if (this.pos.getRangeTo(hostile_creep) < 4) {
+        if (this.pos.getRangeTo(hostile_creep) < 3) {
           const filter = function(creep: Creep): boolean {
             return (creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)) > 0
           }

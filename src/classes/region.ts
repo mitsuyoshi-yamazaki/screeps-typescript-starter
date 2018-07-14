@@ -17,6 +17,7 @@ import { GuardSquad } from "./squad/guard";
 import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
+import { RemoteDefenderSqauad } from "./squad/remote_defender";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -638,6 +639,11 @@ export class Region {
         }
 
         const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
+        this.squads.set(squad.name, squad)
+        break
+      }
+      case SquadType.REMOTE_DEFENDER: {
+        const squad = new RemoteDefenderSqauad(squad_memory.name)
         this.squads.set(squad.name, squad)
         break
       }

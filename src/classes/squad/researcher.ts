@@ -224,6 +224,12 @@ export class ResearcherSquad extends Squad {
         }
       }
 
+      if ((Game.time % 53) == 5) {
+        const move = ((Game.time % 8) + 1) as DirectionConstant
+        creep.move(move)
+        return
+      }
+
       if (creep.memory.status == CreepStatus.NONE) {
         let room_resource: ResourceConstant | undefined // @fixme: temp code
         switch (this.room_name) {

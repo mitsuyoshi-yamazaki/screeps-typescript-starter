@@ -1,6 +1,6 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction, SquadStatus } from "./squad"
-import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType, CreepSearchAndDestroyOption } from "classes/creep"
 import { runHarvester } from "./harvester"
 import { Region } from "../region";
 
@@ -35,6 +35,7 @@ export class RemoteHarvesterSquad extends Squad {
   private source_info = new Map<string, SourceInfo>()
   private carriers: Creep[] = []
   private attackers: Creep[] = []
+  private ranged_attackers: Creep[] = []
   private need_attacker: boolean
   private is_room_attacked: boolean
   private keeper_lairs: StructureKeeperLair[] = []
@@ -166,6 +167,11 @@ export class RemoteHarvesterSquad extends Squad {
           break
         }
 
+        case CreepType.RANGED_ATTACKER: {
+          this.ranged_attackers.push(creep)
+          break
+        }
+
         default:
           console.log(`RemoteHarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}`)
           break
@@ -245,6 +251,11 @@ export class RemoteHarvesterSquad extends Squad {
       }
     }
 
+    if (room && room.is_keeperroom && (this.ranged_attackers.length == 0)) {
+      this.next_creep = CreepType.RANGED_ATTACKER
+      return
+    }
+
     if (!this.keeper && !this.is_room_attacked && room.controller) {
       if (!room.controller.reservation || (room.controller.reservation.ticksToEnd < 4000)) {
         this.next_creep = CreepType.CONTROLLER_KEEPER
@@ -317,12 +328,15 @@ export class RemoteHarvesterSquad extends Squad {
         return SpawnPriority.NORMAL
 
       case CreepType.CONTROLLER_KEEPER:
-        return SpawnPriority.HIGH
+        return SpawnPriority.NORMAL
 
       case CreepType.CARRIER:
         return SpawnPriority.NORMAL
 
       case CreepType.ATTACKER:
+        return SpawnPriority.HIGH
+
+      case CreepType.RANGED_ATTACKER:
         return SpawnPriority.HIGH
 
       default:
@@ -360,6 +374,9 @@ export class RemoteHarvesterSquad extends Squad {
 
       case CreepType.ATTACKER:
         return energy_available >= 3820
+
+      case CreepType.RANGED_ATTACKER:
+        return this.hasEnoughEnergyForRangedAttacker(energy_available, capacity)
 
       default:
         console.log(`RemoteHarvesterSquad.hasEnoughEnergy unexpected creep type ${this.next_creep}, ${this.name}`)
@@ -403,6 +420,10 @@ export class RemoteHarvesterSquad extends Squad {
         this.addAttacker(energy_available, spawn_func)
         return
 
+      case CreepType.RANGED_ATTACKER:
+        this.addBasicRangedAttacker(energy_available, spawn_func)
+        return
+
       default:
         console.log(`RemoteHarvesterSquad.addCreep unexpected creep type ${this.next_creep}, ${this.name}`)
         return
@@ -416,10 +437,11 @@ export class RemoteHarvesterSquad extends Squad {
     this.runHarvester()
     this.runCarrier()
     this.runAttacker()
+    this.runRangedAttacker()
   }
 
   public description(): string {
-    const number_of_creeps = `S${this.scout ? 1 : 0}K${this.keeper ? 1 : 0}A${this.attackers.length}B${this.builders.length}H${this.harvesters.length}C${this.carriers.length}`
+    const number_of_creeps = `S${this.scout ? 1 : 0}K${this.keeper ? 1 : 0}A${this.attackers.length}RA${this.ranged_attackers.length}B${this.builders.length}H${this.harvesters.length}C${this.carriers.length}`
     return `${super.description()}, ${this.room_name}, ${this.next_creep}, ${number_of_creeps}`
   }
 
@@ -1002,6 +1024,35 @@ export class RemoteHarvesterSquad extends Squad {
       if (keeper_lair) {
         creep.moveTo(keeper_lair)
       }
+    })
+  }
+
+  private runRangedAttacker(): void {
+    const attacker = this.attackers.filter((creep) => {
+      return creep.room.name == this.room_name
+    })[0]
+
+    this.ranged_attackers.forEach((creep) => {
+      if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+        return
+      }
+
+      let no_move: boolean
+
+      if (attacker) {
+        creep.moveTo(attacker)
+        no_move = true
+      }
+      else {
+        no_move = false
+      }
+
+      const opt: CreepSearchAndDestroyOption = {
+        ignore_source_keeper: false,
+        no_move: no_move,
+      }
+
+      creep.searchAndDestroy(opt)
     })
   }
 

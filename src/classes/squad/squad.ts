@@ -18,6 +18,7 @@ export enum SquadType {
   HARVESTER         = "harvester",
   REMOET_HARVESTER  = "remote_harvester",
   REMOET_M_HARVESTER    = "remote_m_harvester",
+  REMOTE_DEFENDER   = "remote_defender",
   LIGHTWEIGHT_HARVESTER = "lightweight_harvester",
   RESEARCHER        = "researcher",
   MANUAL            = "manual",
@@ -204,6 +205,30 @@ export abstract class Squad {
     })
   }
 
+  public hasEnoughEnergyForRangedAttacker(energy_available: number, capacity: number): boolean {
+    return energy_available >= 4040
+  }
+
+  public addBasicRangedAttacker(energy_available: number, spawn_func: SpawnFunction): void {
+    // 4040
+
+    const body: BodyPartConstant[] = [
+      TOUGH, TOUGH, TOUGH, TOUGH,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
+      RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE,
+      MOVE,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL,
+    ]
+
+    this.addGeneralCreep(spawn_func, body, CreepType.RANGED_ATTACKER)
+  }
+
+  // ---
   public escapeFromHostileIfNeeded(creep: Creep, room_name: string, keeper_lairs?: StructureKeeperLair[]): ActionResult {
 
     const range = 6

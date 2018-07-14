@@ -264,7 +264,7 @@ function sellResource(opt: TradeResourceOptions): void {
     Game.notify(message)
   }
   else {
-    console.log(`No ${opt.resource_type} buy orders (${opt.price})`)
+    // console.log(`No ${opt.resource_type} buy orders (${opt.price})`)
   }
 }
 
@@ -322,7 +322,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
 function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
   if (credit_amount < 195000) {
     const message = `main.tradeResource lack of credit ${credit_amount}`
-    console.log(message)
+    // console.log(message)
     // Game.notify(message)
     return
   }
