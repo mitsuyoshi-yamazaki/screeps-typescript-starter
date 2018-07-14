@@ -86,7 +86,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         const to_room = Game.rooms[transport.to]
         const capacity = (transport.resource_type == RESOURCE_ENERGY) ? 100000 : 10000
 
-        if (to_room && to_room.terminal && (_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity))) {
+        if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
           const message = `Terminal ${to_room.name} is full ${from_room.name} ${transport.resource_type}`
           console.log(message)
           Game.notify(message)

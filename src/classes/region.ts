@@ -636,10 +636,10 @@ export class Region {
           console.log(`ERROR!!!3`)
           break
         }
-        const harvester_squad_memory = squad_memory as RemoteMineralHarvesterSquadMemory
 
         const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
         this.squads.set(squad.name, squad)
+        break
       }
       case SquadType.LIGHTWEIGHT_HARVESTER: {
         const harvester_squad_memory = squad_memory as HarvesterSquadMemory

@@ -145,7 +145,7 @@ export class HarvesterSquad extends Squad {
       this.resource_type = RESOURCE_ZYNTHIUM
     }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0219') { // W48N11 Oxygen
-      this.resource_type = RESOURCE_ZYNTHIUM
+      this.resource_type = RESOURCE_OXYGEN
     }
     else {
       this.resource_type = RESOURCE_ENERGY
