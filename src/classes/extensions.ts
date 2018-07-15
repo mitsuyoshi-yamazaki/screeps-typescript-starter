@@ -74,6 +74,9 @@ declare global {
 }
 
 export function init() {
+}
+
+export function tick(): void {
   Game.check_resources = (resource_type: ResourceConstant) => {
     let details = ""
     let sum = 0
@@ -380,9 +383,7 @@ export function init() {
       this.text(line, x, y + index, style)
     })
   }
-}
 
-export function tick(): void {
   for (const room_name in Game.rooms) {
     const room = Game.rooms[room_name]
     room.spawns = []
