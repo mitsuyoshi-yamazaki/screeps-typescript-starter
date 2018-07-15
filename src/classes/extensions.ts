@@ -369,11 +369,6 @@ export function init() {
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
   }
 
-  for (const room_name in Game.rooms) {
-    const room = Game.rooms[room_name]
-    room.spawns = []
-  }
-
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
     if (!Memory.debug.show_visuals) {
       return
@@ -383,5 +378,12 @@ export function init() {
     lines.forEach((line, index) => {
       this.text(line, x, y + index, style)
     })
+  }
+}
+
+export function tick(): void {
+  for (const room_name in Game.rooms) {
+    const room = Game.rooms[room_name]
+    room.spawns = []
   }
 }

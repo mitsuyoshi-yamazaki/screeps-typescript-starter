@@ -1,9 +1,9 @@
-import * as WorldInitializer from "classes/world"
+import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
 export function init(): void {
-  Game.version = '2.17.0'
+  Game.version = '2.17.1'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -65,28 +65,7 @@ export function init(): void {
     }
   }
 
-  Game.reactions = {}
-
-  for (const resource_type of Object.keys(REACTIONS)) {
-    const reactions = REACTIONS[resource_type]
-
-    for (const ingredient_type of Object.keys(reactions)) {
-      const compound_type = reactions[ingredient_type]
-      Game.reactions[compound_type] = {
-        lhs: resource_type as ResourceConstant,
-        rhs: ingredient_type as ResourceConstant,
-      }
-    }
-  }
-
-  // if ((Game.time % 13) == 5) {
-  //   console.log(Object.keys(Game.reactions))
-
-  //   for (const rt of Object.keys(Game.reactions)) {
-  //     const aa = Game.reactions[rt]
-  //     console.log(`${rt}: ${aa.lhs}, ${aa.rhs}`)
-  //   }
-  // }
+  Extensions.init()
 }
 
 export function tick(): void {
@@ -105,10 +84,41 @@ export function tick(): void {
     console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
   }
 
+  Game.reactions = {}
+
+  for (const resource_type of Object.keys(REACTIONS)) {
+    const reactions = REACTIONS[resource_type]
+
+    for (const ingredient_type of Object.keys(reactions)) {
+      const compound_type = reactions[ingredient_type]
+      Game.reactions[compound_type] = {
+        lhs: resource_type as ResourceConstant,
+        rhs: ingredient_type as ResourceConstant,
+      }
+    }
+  }
+
+  Extensions.tick()
+  refreshMemory()
+
+  for (const room_name in Game.rooms) {
+    const room = Game.rooms[room_name]
+    room.initialize()
+  }
+
   // @fixme: could move to init()
-  WorldInitializer.init()
   SpawnInitializer.init()
   CreepInitializer.init()
+}
+
+function refreshMemory() {
+  // @todo: clear spawn, squad memory
+  // Automatically delete memory of missing creeps
+  for (const name in Memory.creeps) {
+    if (!(name in Game.creeps)) {
+      delete Memory.creeps[name]
+    }
+  }
 }
 
 /**

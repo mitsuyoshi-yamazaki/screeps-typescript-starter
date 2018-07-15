@@ -3,6 +3,9 @@ import { ErrorMapper } from "utils/ErrorMapper"
 import { Empire } from "classes/empire"
 import * as Initializer from "classes/init"
 
+Initializer.init()
+console.log(`Initializer.init()`)
+
 // let empire: Empire
 
 // ErrorMapper.wrapLoop(() => {
@@ -18,7 +21,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   }
 
   ErrorMapper.wrapLoop(() => {
-    Initializer.init()
+    // Initializer.init()
     Initializer.tick()
   }, `Initializer.init`)()
 
