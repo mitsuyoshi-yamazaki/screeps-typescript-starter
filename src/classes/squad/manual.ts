@@ -84,10 +84,6 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        if ((room.terminal.store[RESOURCE_GHODIUM] || 0) == 0) {
-          return SpawnPriority.NONE
-        }
-
         if (room.storage.store.energy < 400000) {
           return SpawnPriority.NONE
         }
@@ -101,7 +97,7 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
         // return SpawnPriority.NONE
       }
 

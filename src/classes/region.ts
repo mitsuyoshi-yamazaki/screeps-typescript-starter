@@ -23,6 +23,7 @@ export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
   support_link_ids?: string[]
+  transports?: {[room_name: string]: ResourceConstant}
 }
 
 export class Region {
@@ -114,7 +115,7 @@ export class Region {
     // })[0] as StructureContainer
 
     let harvester_targets: {id: string, room_name: string}[] = []
-    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer | StructureSpawn = (storage || terminal) as (StructureStorage | StructureTerminal) // @fixme: null check // || container
+    let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as (StructureStorage | StructureTerminal) // @fixme: null check // || container
     let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let rooms_need_to_be_defended: string[] = []
@@ -558,162 +559,163 @@ export class Region {
       if (squad_memory.owner_name != this.name) {
         continue
       }
-      squad_memory.owner_name = this.name  // @fixme: this is a migration code
 
-      switch (squad_memory.type) {
-      case SquadType.CONTROLLER_KEEPER: {
-        const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
-        const room_name = controller_keeper_squad_memory.room_name
+      ErrorMapper.wrapLoop(() => {
+        switch (squad_memory.type) {
+          case SquadType.CONTROLLER_KEEPER: {
+            const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
+            const room_name = controller_keeper_squad_memory.room_name
 
-        const squad = new ControllerKeeperSquad(squad_memory.name, room_name, energy_capacity)
-        this.squads.set(squad.name, squad)
+            const squad = new ControllerKeeperSquad(squad_memory.name, room_name, energy_capacity)
+            this.squads.set(squad.name, squad)
 
-        const room = Game.rooms[room_name]
-        if (room) {
-          room.keeper = squad
-        }
-        break
-      }
-      case SquadType.WORKER: {
-        const delegated = false //this.room.name == 'W44S42'
-
-        const squad = new WorkerSquad(squad_memory.name, this.room.name, delegated)
-        worker_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.UPGRADER: {
-        const squad = new UpgraderSquad(squad_memory.name, this.room.name)
-        upgrader_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.CHARGER: {
-        if (!charger_position) {
-          const message = `Region charger_position for room ${this.room.name} is not provided`
-          console.log(message)
-          Game.notify(message)
-          break
-        }
-
-        const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-        const support_links: StructureLink[] = this.support_link_ids.map((id) => {
-          return Game.getObjectById(id) as StructureLink | undefined
-        }).filter((l) => {
-          if (!l) {
-            return false
+            const room = Game.rooms[room_name]
+            if (room) {
+              room.keeper = squad
+            }
+            break
           }
-          return true
-        }) as StructureLink[]
+          case SquadType.WORKER: {
+            const delegated = false //this.room.name == 'W44S42'
 
-        const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
+            const squad = new WorkerSquad(squad_memory.name, this.room.name, delegated)
+            worker_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.UPGRADER: {
+            const squad = new UpgraderSquad(squad_memory.name, this.room.name)
+            upgrader_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.CHARGER: {
+            if (!charger_position) {
+              const message = `Region charger_position for room ${this.room.name} is not provided`
+              console.log(message)
+              Game.notify(message)
+              break
+            }
 
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.RESEARCHER: {
-        const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
+            const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+            const support_links: StructureLink[] = this.support_link_ids.map((id) => {
+              return Game.getObjectById(id) as StructureLink | undefined
+            }).filter((l) => {
+              if (!l) {
+                return false
+              }
+              return true
+            }) as StructureLink[]
 
-        researcher_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.HARVESTER: {
-        const harvester_squad_memory = squad_memory as HarvesterSquadMemory
-        const source_info = {
-          id: harvester_squad_memory.source_id,
-          room_name: harvester_squad_memory.room_name,
-        }
+            const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
 
-        const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.REMOET_HARVESTER: {
-        const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.RESEARCHER: {
+            const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
 
-        const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.REMOET_M_HARVESTER: {
-        if (!this.room.storage) {
-          console.log(`ERROR!!!3`)
-          break
-        }
+            researcher_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.HARVESTER: {
+            const harvester_squad_memory = squad_memory as HarvesterSquadMemory
+            const source_info = {
+              id: harvester_squad_memory.source_id,
+              room_name: harvester_squad_memory.room_name,
+            }
 
-        const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.REMOTE_DEFENDER: {
-        const squad = new RemoteDefenderSqauad(squad_memory.name)
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.LIGHTWEIGHT_HARVESTER: {
-        const harvester_squad_memory = squad_memory as HarvesterSquadMemory
-        const source_info = {
-          id: harvester_squad_memory.source_id,
-          room_name: harvester_squad_memory.room_name,
-        }
+            const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.REMOET_HARVESTER: {
+            const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
 
-        const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.MANUAL: {
-        const squad = new ManualSquad(squad_memory.name, this.room.name)
+            const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.REMOET_M_HARVESTER: {
+            if (!this.room.storage) {
+              console.log(`ERROR!!!3`)
+              break
+            }
 
-        this.manual_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.SCOUT: {
-        const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
+            const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.REMOTE_DEFENDER: {
+            const squad = new RemoteDefenderSqauad(squad_memory.name)
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.LIGHTWEIGHT_HARVESTER: {
+            const harvester_squad_memory = squad_memory as HarvesterSquadMemory
+            const source_info = {
+              id: harvester_squad_memory.source_id,
+              room_name: harvester_squad_memory.room_name,
+            }
 
-        this.scout_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.ATTACKER: {
-        const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room, energy_capacity)
+            const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.MANUAL: {
+            const squad = new ManualSquad(squad_memory.name, this.room.name)
 
-        this.defend_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.RAIDER: {
-        const squad = new RaiderSquad(squad_memory.name, raid_target)
+            this.manual_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.SCOUT: {
+            const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
 
-        raider_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.INVADER: {
-        const squad = new InvaderSquad(squad_memory.name, this.room.name)
+            this.scout_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.ATTACKER: {
+            const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room, energy_capacity)
 
-        invader_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.GUARD: {
-        const squad = new GuardSquad(squad_memory.name, this.room.name)
+            this.defend_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.RAIDER: {
+            const squad = new RaiderSquad(squad_memory.name, raid_target)
 
-        this.squads.set(squad.name, squad)
-        break
-      }
-      case SquadType.TEMP: {
-        const squad = new TempSquad(squad_memory.name, this.room.name, energy_capacity)
+            raider_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.INVADER: {
+            const squad = new InvaderSquad(squad_memory.name, this.room.name)
 
-        temp_squad = squad
-        this.squads.set(squad.name, squad)
-        break
-      }
-      default:
-        console.log(`Unexpected squad type ${squad_memory}`)
-        break
-      }
+            invader_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.GUARD: {
+            const squad = new GuardSquad(squad_memory.name, this.room.name)
+
+            this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.TEMP: {
+            const squad = new TempSquad(squad_memory.name, this.room.name, energy_capacity)
+
+            temp_squad = squad
+            this.squads.set(squad.name, squad)
+            break
+          }
+          default:
+            console.log(`Unexpected squad type ${squad_memory}`)
+            break
+          }
+        }, `Squad.init ${this.room.name} ${squad_memory.name}`)()
     }
 
     // --- Room ---
@@ -1334,6 +1336,13 @@ export class Region {
       }, `${this.name}.placeConstructionSite`)()
     }
 
+    const test_send_resources = Memory.debug.test_send_resources
+    if (test_send_resources || ((Game.time % 97) == 1)) {
+      ErrorMapper.wrapLoop(() => {
+        this.sendResources()
+      })()
+    }
+
     // ErrorMapper.wrapLoop(() => {
     //   if ((this.room.name == 'W48S47') || (this.room.name == 'W49S47') || (this.room.name == 'S49S48')) {
     //     this.room.find(FIND_STRUCTURES).forEach((s) => {
@@ -1344,6 +1353,81 @@ export class Region {
   }
 
   // --- Private ---
+  private sendResources(): void {
+    if (!this.room.terminal) {
+      console.log(`Region.sendResources no terminal ${this.name} ${this.room.terminal}`)
+      return
+    }
+    if (this.room.terminal.cooldown > 0) {
+      return
+    }
+
+    const region_memory = Memory.regions[this.name]
+    if (!region_memory || !region_memory.transports) {
+      return
+    }
+
+    const raw_resources: ResourceConstant[] = [
+      RESOURCE_OXYGEN,
+      RESOURCE_HYDROGEN,
+      RESOURCE_UTRIUM,
+      RESOURCE_LEMERGIUM,
+      RESOURCE_ZYNTHIUM,
+      RESOURCE_KEANIUM,
+      RESOURCE_CATALYST,
+    ]
+
+    for (const room_name in region_memory.transports) {
+      const resource_type = region_memory.transports[room_name]
+
+      if (RESOURCES_ALL.indexOf(resource_type) < 0) {
+        console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name}`)
+        continue
+      }
+
+      const to_room = Game.rooms[room_name]
+      if (!to_room || !to_room.terminal) {
+        console.log(`Region.sendResources no destination room ${room_name}`)
+        continue
+      }
+
+      const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
+
+      if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
+        const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
+        console.log(message)
+
+        if (resource_type != RESOURCE_ENERGY) {
+          Game.notify(message)
+        }
+        continue
+      }
+
+      const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
+      let amount_needed = is_raw_resource ? 4900 : 500
+      let resource_capacity = 3000
+      let amount_send: number = is_raw_resource ? 2000 : Math.min((this.room.terminal.store[resource_type] || 0), 5000)
+
+      if (resource_type == RESOURCE_ENERGY) {
+        amount_needed = 140000
+        resource_capacity = 160000
+        amount_send = 100000
+      }
+
+      const from_room_ready: boolean = ((this.room.terminal.store[resource_type] || 0) > amount_needed)
+      const to_room_ready: boolean = ((to_room.terminal.store[resource_type] || 0) < resource_capacity)
+
+      if (from_room_ready && to_room_ready) {
+        const result = this.room.terminal.send(resource_type, amount_send, room_name)
+        console.log(`Send ${resource_type} from ${this.room.name} to ${room_name}, result:${result}`)
+
+        if (result == OK) {
+          break
+        }
+      }
+    }
+  }
+
   private placeConstructionSite() {
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]

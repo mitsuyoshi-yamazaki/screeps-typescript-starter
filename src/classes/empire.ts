@@ -10,7 +10,7 @@ enum State {
 export class Empire {
   private regions = new Map<string, Region>()
 
-  constructor(readonly name: string, readonly spawns: Map<string, StructureSpawn>) {
+  constructor(readonly name: string) {
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {

@@ -329,9 +329,9 @@ export class RemoteHarvesterSquad extends Squad {
 
     const room_memory = Memory.rooms[this.room_name]
 
-    if (([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
-      return SpawnPriority.NONE
-    }
+    // if (([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
+    //   return SpawnPriority.NONE
+    // }
 
     switch (this.next_creep) {
       case CreepType.SCOUT:
@@ -1067,9 +1067,9 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private runRangedAttacker(): void {
-    const attacker = this.attackers[0]//.filter((creep) => {
-    //   return creep.room.name == this.room_name
-    // })[0]
+    const attacker = this.attackers.filter((creep) => {
+      return !creep.spawning
+    })[0]
 
     this.ranged_attackers.forEach((creep) => {
       if (creep.spawning) {
