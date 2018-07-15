@@ -315,7 +315,7 @@ export class ResearcherSquad extends Squad {
   private transferRoomResource(creep: Creep, resource_type: ResourceConstant): void {
     // creep.memory.status supporse to be NONE
 
-    if (creep.carrying_resources.length == 0) {
+    if (creep.carrying_resources().length == 0) {
       // Harvest
       if (creep.withdraw(creep.room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.storage!)
@@ -324,7 +324,7 @@ export class ResearcherSquad extends Squad {
     }
     else {
       // Charge
-      const carrying_resource_type = creep.carrying_resources[0]
+      const carrying_resource_type = creep.carrying_resources()[0]
       const transfer_result = creep.transfer(creep.room.terminal!, carrying_resource_type)
 
       switch (transfer_result) {
@@ -348,7 +348,7 @@ export class ResearcherSquad extends Squad {
     }
     if (creep.memory.status == CreepStatus.HARVEST) {
       const input_resource_types = this.input_targets.map(t=>t.resource_type)
-      for (const resource_type of creep.carrying_resources) {
+      for (const resource_type of creep.carrying_resources()) {
         if (input_resource_types.indexOf(resource_type) >= 0) {
           continue
         }

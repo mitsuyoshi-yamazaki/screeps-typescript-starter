@@ -233,7 +233,7 @@ export class RaiderSquad extends Squad {
   }
 
   private runAttacker(creep: Creep): void {
-    if (!creep.boosted) {
+    if (!creep.boosted()) {
       const lab = Game.getObjectById('5af483456449d07df7f76acc') as StructureLab
       if (!lab) {
         console.log(`RaiderSquad.runAttacker cannot find lab ${this.name}, ${this.source_info.room_name}`)

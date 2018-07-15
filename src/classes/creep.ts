@@ -60,9 +60,13 @@ declare global {
   interface Creep {
     squad: Squad
     initialize(): void
-    boosted: boolean
-    boost_info: {[index: string]: boolean}
-    carrying_resources: ResourceConstant[]
+
+    _boosted: boolean
+    boosted(): boolean
+    _boost_info: {[index: string]: boolean}
+    boost_info(): {[index: string]: boolean}
+    _carrying_resources: ResourceConstant[]
+    carrying_resources(): ResourceConstant[]
 
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
@@ -108,24 +112,43 @@ export function init() {
     if ((this.memory.status == null) || (this.memory.status == undefined)) {
       this.memory.status = CreepStatus.NONE
     }
+  }
 
-    this.boosted = false
-    this.boost_info = {}
+  // ---
+  Creep.prototype.boosted = function(): boolean {
+    if (!this._boosted) {
+      this._boosted = false
+      this.boost_info()
+    }
+    return this._boosted
+  }
 
-    for (const body of this.body) {
-      if (body.boost) {
-        this.boosted = true
-        this.boost_info[body.type] = true
+  Creep.prototype.boost_info = function(): {[index: string]: boolean} {
+    if (!this._boost_info) {
+      this._boosted = false
+      this._boost_info = {}
+
+      for (const body of this.body) {
+        if (body.boost) {
+          this._boosted = true
+          this._boost_info[body.type] = true
+        }
       }
     }
+    return this._boost_info
+  }
 
-    this.carrying_resources = []
-    for (const resource_type of Object.keys(this.carry)) {
-      if ((this.carry[resource_type as ResourceConstant] || 0) == 0) {
-        continue
+  Creep.prototype.carrying_resources = function(): ResourceConstant[] {
+    if (!this._carrying_resources) {
+      this._carrying_resources = []
+      for (const resource_type of Object.keys(this.carry)) {
+        if ((this.carry[resource_type as ResourceConstant] || 0) == 0) {
+          continue
+        }
+        this._carrying_resources.push(resource_type as ResourceConstant)
       }
-      this.carrying_resources.push(resource_type as ResourceConstant)
     }
+    return this._carrying_resources
   }
 
   // --- General tasks ---
@@ -938,8 +961,8 @@ export function init() {
         this.transfer(storage, RESOURCE_ENERGY)
       }
       else {
-        if (this.room.terminal && this.carrying_resources[0]) {
-          const amount = this.room.terminal.store[this.carrying_resources[0]] || 0
+        if (this.room.terminal && this.carrying_resources()[0]) {
+          const amount = this.room.terminal.store[this.carrying_resources()[0]] || 0
 
           if (amount < 10000) {
             this.transferResources(this.room.terminal)

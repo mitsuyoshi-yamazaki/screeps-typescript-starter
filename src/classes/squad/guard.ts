@@ -187,13 +187,13 @@ export class GuardSquad extends Squad {
     this.runRangedAttacker()
 
     // this.workers.forEach((creep) => {
-    //   if ((creep.room.name == this.base_room_name) && lab_tough && (lab_tough.mineralAmount >= 150) && !creep.boost_info[TOUGH]) {
+    //   if ((creep.room.name == this.base_room_name) && lab_tough && (lab_tough.mineralAmount >= 150) && !creep.boost_info()[TOUGH]) {
     //     if (lab_tough.boostCreep(creep) == ERR_NOT_IN_RANGE) {
     //       creep.moveTo(lab_tough)
     //     }
     //     return
     //   }
-    //   else if ((creep.room.name == this.base_room_name) && lab_work && (lab_work.mineralAmount >= 150) && !creep.boost_info[WORK] && (['Creep71034667', 'Creep71036281', 'Creep71036651', 'Creep71039351', 'Creep71039624'].indexOf(creep.name) < 0)) {
+    //   else if ((creep.room.name == this.base_room_name) && lab_work && (lab_work.mineralAmount >= 150) && !creep.boost_info()[WORK] && (['Creep71034667', 'Creep71036281', 'Creep71036651', 'Creep71039351', 'Creep71039624'].indexOf(creep.name) < 0)) {
     //     if (lab_work.boostCreep(creep) == ERR_NOT_IN_RANGE) {
     //       creep.moveTo(lab_work)
     //     }
@@ -215,7 +215,7 @@ export class GuardSquad extends Squad {
     // })
 
     // this.healers.forEach((creep) => {
-    //   if ((creep.room.name == this.base_room_name) && lab_heal && (lab_heal.mineralAmount >= 750) && !creep.boost_info[HEAL]) {
+    //   if ((creep.room.name == this.base_room_name) && lab_heal && (lab_heal.mineralAmount >= 750) && !creep.boost_info()[HEAL]) {
     //     if (lab_heal.boostCreep(creep) == ERR_NOT_IN_RANGE) {
     //       creep.moveTo(lab_heal)
     //     }
@@ -280,19 +280,19 @@ export class GuardSquad extends Squad {
     const target_wall = Game.getObjectById('5aaad46b80c9a51a13a00aa4') as StructureWall | undefined
 
     if (this.attacker) {
-      if ((this.attacker.room.name == this.base_room_name) && lab_move && (lab_move.mineralAmount >= 510) && !this.attacker.boost_info[MOVE]) {
+      if ((this.attacker.room.name == this.base_room_name) && lab_move && (lab_move.mineralAmount >= 510) && !this.attacker.boost_info()[MOVE]) {
         if (lab_move.boostCreep(this.attacker) == ERR_NOT_IN_RANGE) {
           this.attacker.moveTo(lab_move)
         }
         return
       }
-      if ((this.attacker.room.name == this.base_room_name) && lab_attack && (lab_attack.mineralAmount >= 870) && !this.attacker.boost_info[ATTACK]) {
+      if ((this.attacker.room.name == this.base_room_name) && lab_attack && (lab_attack.mineralAmount >= 870) && !this.attacker.boost_info()[ATTACK]) {
         if (lab_attack.boostCreep(this.attacker) == ERR_NOT_IN_RANGE) {
           this.attacker.moveTo(lab_attack)
         }
         return
       }
-      if ((this.attacker.room.name == this.base_room_name) && lab_tough && (lab_tough.mineralAmount >= 120) && !this.attacker.boost_info[TOUGH]) {
+      if ((this.attacker.room.name == this.base_room_name) && lab_tough && (lab_tough.mineralAmount >= 120) && !this.attacker.boost_info()[TOUGH]) {
         if (lab_tough.boostCreep(this.attacker) == ERR_NOT_IN_RANGE) {
           this.attacker.moveTo(lab_tough)
         }
@@ -341,7 +341,7 @@ export class GuardSquad extends Squad {
     const target_wall = Game.getObjectById('5aaad46b80c9a51a13a00aa4') as StructureWall | undefined
 
     if (this.healer) {
-      if ((this.healer.room.name == this.base_room_name) && lab_heal && (lab_heal.mineralAmount >= 510) && !this.healer.boost_info[HEAL]) {
+      if ((this.healer.room.name == this.base_room_name) && lab_heal && (lab_heal.mineralAmount >= 510) && !this.healer.boost_info()[HEAL]) {
         if (lab_heal.boostCreep(this.healer) == ERR_NOT_IN_RANGE) {
           this.healer.moveTo(lab_heal)
         }
@@ -397,7 +397,7 @@ export class GuardSquad extends Squad {
 
 
     if (this.ranged_attacker) {
-      if ((this.ranged_attacker.room.name == this.base_room_name) && lab_ranged_attack && (lab_ranged_attack.mineralAmount >= 300) && !this.ranged_attacker.boost_info[RANGED_ATTACK]) {
+      if ((this.ranged_attacker.room.name == this.base_room_name) && lab_ranged_attack && (lab_ranged_attack.mineralAmount >= 300) && !this.ranged_attacker.boost_info()[RANGED_ATTACK]) {
         if (lab_ranged_attack.boostCreep(this.ranged_attacker) == ERR_NOT_IN_RANGE) {
           this.ranged_attacker.moveTo(lab_ranged_attack)
         }

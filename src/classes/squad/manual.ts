@@ -425,7 +425,7 @@ export class ManualSquad extends Squad {
         this.creeps.forEach((creep) => {
           const memory = creep.memory as ManualMemory
 
-          if (!creep.boosted && lab && (lab.mineralType == RESOURCE_LEMERGIUM_HYDRIDE) && (lab.mineralAmount >= 300)) {
+          if (!creep.boosted() && lab && (lab.mineralType == RESOURCE_LEMERGIUM_HYDRIDE) && (lab.mineralAmount >= 300)) {
             if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
               creep.moveTo(lab)
             }
@@ -1152,7 +1152,7 @@ export class ManualSquad extends Squad {
     this.creeps.forEach((creep) => {
       (creep.memory as {target_id?: string}).target_id = '5ac2d005bc88a23950950fe4'
 
-      if (!creep.boosted && lab && (lab.mineralType == RESOURCE_UTRIUM_ACID)) {
+      if (!creep.boosted() && lab && (lab.mineralType == RESOURCE_UTRIUM_ACID)) {
         if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
           creep.moveTo(lab)
           creep.heal(creep)
@@ -1541,7 +1541,7 @@ export class ManualSquad extends Squad {
   private withdrawFromLabs(): void {
     this.creeps.forEach((creep) => {
       if (_.sum(creep.carry) > 0) {
-        const resource_type = creep.carrying_resources[0]
+        const resource_type = creep.carrying_resources()[0]
         if (creep.transfer(creep.room.terminal!, resource_type) == ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.terminal!)
         }

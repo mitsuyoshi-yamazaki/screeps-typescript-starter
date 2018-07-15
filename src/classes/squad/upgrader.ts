@@ -103,14 +103,14 @@ export class UpgraderSquad extends Squad {
     const is_rcl8 = !(!room) && room.controller && room.controller.my && (room.controller.level == 8)
 
     let lab: StructureLab | undefined
-    let no_lab = false
+    let no_lab = ['W43N5'].indexOf(this.room_name) >= 0
 
     this.creeps.forEach((creep) => {
       if (creep.spawning) {
         return
       }
 
-      const should_boost = !creep.boosted && ((creep.ticksToLive || 0) > 1450)
+      const should_boost = !creep.boosted() && ((creep.ticksToLive || 0) > 1450)
       if (should_boost && room && room.owned_structures && !is_rcl8) {
         const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 

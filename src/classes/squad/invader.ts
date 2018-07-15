@@ -185,7 +185,7 @@ export class InvaderSquad extends Squad {
     // const should_boost = false
 
     // // --- Leader
-    // if (should_boost && lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted) {
+    // if (should_boost && lab && (this.leader.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !this.leader.boosted()) {
     //   if (lab.boostCreep(this.leader) == ERR_NOT_IN_RANGE) {
     //     this.leader.moveTo(lab)
     //   }
@@ -250,7 +250,7 @@ export class InvaderSquad extends Squad {
 
     // // --- Follower
     // this.followers.forEach((creep) => {
-    //   if (lab && (creep.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !creep.boosted) {
+    //   if (lab && (creep.room.name == lab.room.name) && (lab.mineralAmount >= 300) && !creep.boosted()) {
     //     if (lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
     //       creep.moveTo(lab)
     //     }
@@ -276,7 +276,7 @@ export class InvaderSquad extends Squad {
 
     this.creeps.forEach((creep) => {
       if (memory.attacker) {
-        if (a_lab && (creep.room.name == a_lab.room.name) && (a_lab.mineralAmount >= 750) && !creep.boosted) {
+        if (a_lab && (creep.room.name == a_lab.room.name) && (a_lab.mineralAmount >= 750) && !creep.boosted()) {
           if (a_lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
             creep.moveTo(a_lab)
           }
@@ -284,7 +284,7 @@ export class InvaderSquad extends Squad {
         }
       }
       else {
-        if (ra_lab && (creep.room.name == ra_lab.room.name) && (ra_lab.mineralAmount >= 300) && !creep.boosted) {
+        if (ra_lab && (creep.room.name == ra_lab.room.name) && (ra_lab.mineralAmount >= 300) && !creep.boosted()) {
           if (ra_lab.boostCreep(creep) == ERR_NOT_IN_RANGE) {
             creep.moveTo(ra_lab)
           }
@@ -552,7 +552,7 @@ export class InvaderSquad extends Squad {
         return
       }
 
-      if (creep.boosted) {
+      if (creep.boosted()) {
         console.log(`InvaderSquad.moveToOutpost do NOT renew boosted creep ${creep.name}, ${this.name}, at ${creep.pos}`)
         return
       }
