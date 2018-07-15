@@ -987,7 +987,8 @@ export class RemoteHarvesterSquad extends Squad {
         if (!has_minerals || !this.destination.room.storage) {
           const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
-            creep.moveTo(this.destination)
+            const ignore_creeps = (Game.time % 5) < 3
+            creep.moveTo(this.destination, {maxRooms: 0, reusePath: 2, ignoreCreeps: ignore_creeps})
           }
           else if (withdraw_result != OK) {
             creep.say(`E${withdraw_result}`)

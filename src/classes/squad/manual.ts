@@ -118,24 +118,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W42N1': {
-        const energy_room_name = 'W42N3'
-        const energy_room = Game.rooms[energy_room_name]
-        if (!energy_room || !energy_room.storage || (energy_room.storage.store.energy < 800)) {
-          return SpawnPriority.NONE
-        }
-
-        const colony_room_name = 'W47N2'
-        const colony_room = Game.rooms[colony_room_name]
-        if (!colony_room || !colony_room.storage || colony_room.storage.my) {
-          return SpawnPriority.NONE
-        }
-        if ((_.sum(colony_room.storage.store) == 0)) {
-          return SpawnPriority.NONE
-        }
-
-        // return this.creeps.size < 6 ? SpawnPriority.LOW : SpawnPriority.NONE
-
-        return SpawnPriority.NONE
+        return this.spawnPriorityForBoostCarrier(RESOURCE_GHODIUM_ACID)
       }
 
       case 'W47N2': {
@@ -212,7 +195,7 @@ export class ManualSquad extends Squad {
         return energy_available >= energy
 
       case 'W42N1':
-        return energy_available >= 1600
+        return energy_available >= 150
 
       case 'W47N2':
         return energy_available >= 150
@@ -330,18 +313,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W42N1': {
-        // 1600
-        const body: BodyPartConstant[] = [
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE,
-        ]
-        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER, true)
+        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
         return
       }
 
@@ -648,141 +620,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W42N1': {
-        const energy_room_name = 'W42N3'
-        const colony_room_name = 'W47N2'
-        const main_room_name = 'W42N1'
+        const room = Game.rooms[this.original_room_name]
+        const lab = Game.getObjectById('5b403626bf3716439f3d880a') as StructureLab | undefined
 
-        this.creeps.forEach((creep) => {
-          if ((creep.ticksToLive || 0) > 1400) {
-            creep.memory.status = CreepStatus.HARVEST
-          }
+        if (!room || !room.terminal || !lab) {
+          this.say(`ERR`)
+          return
+        }
 
-          if ([CreepStatus.HARVEST, CreepStatus.CHARGE, CreepStatus.WAITING_FOR_RENEW].indexOf(creep.memory.status) < 0) {
-            creep.memory.status = CreepStatus.HARVEST
-          }
-
-          if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
-            if (!creep.spawning && creep.room.spawns[0]) {
-              creep.goToRenew(creep.room.spawns[0])
-              return
-            }
-          }
-
-          if (creep.memory.status == CreepStatus.HARVEST) {
-            if (_.sum(creep.carry) == creep.carryCapacity) {
-              creep.memory.status = CreepStatus.CHARGE
-            }
-            else {
-              if ((creep.room.name == colony_room_name) && (_.sum(creep.carry) == 0)) {
-                // creep.memory.squad_name = 'harvester73492211'
-                creep.memory.squad_name = 'manualw47n2'
-                return
-              }
-
-
-              if ((creep.room.name == main_room_name)) {
-                if (!creep.spawning && ((creep.ticksToLive || 0) < 1000) && creep.room.spawns[0]) {
-                  creep.goToRenew(creep.room.spawns[0])
-                  return
-                }
-              }
-
-              let target: StructureStorage | StructureTerminal | undefined
-
-              if (creep.room.name == colony_room_name) {
-                if (creep.room.storage && (_.sum(creep.room.storage.store) > 0)) {
-                  target = creep.room.storage
-                }
-                else if (creep.room.terminal && (_.sum(creep.room.terminal.store) > 0)) {
-                  target = creep.room.terminal
-                }
-                else {
-                  creep.say(`DONE55`)
-                  return
-                }
-              }
-              else {
-                if (creep.moveToRoom(energy_room_name) == ActionResult.IN_PROGRESS) {
-                  return
-                }
-
-                if (creep.room.storage && (_.sum(creep.room.storage.store) > 0)) {
-                  target = creep.room.storage
-                }
-                else {
-                  creep.say(`DONE71`)
-                  return
-                }
-              }
-
-              const withdraw_result = creep.withdrawResources(target)
-              if (withdraw_result == ERR_NOT_IN_RANGE) {
-                creep.moveTo(target)
-              }
-            }
-          }
-
-          if (creep.memory.status == CreepStatus.CHARGE) {
-            if (_.sum(creep.carry) == 0) {
-              creep.memory.status = CreepStatus.HARVEST
-              return
-            }
-
-            let destination: string
-
-            if (creep.carry.energy > 0) {
-              destination = colony_room_name
-            }
-            else {
-              destination = main_room_name
-            }
-
-            if (creep.moveToRoom(destination) == ActionResult.IN_PROGRESS) {
-              return
-            }
-
-            if (creep.room.storage && creep.room.storage.my) {
-              const transfer_result = creep.transferResources(creep.room.storage)
-              if (transfer_result == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.storage)
-              }
-              else if (transfer_result != OK) {
-                creep.say(`E${transfer_result}`)
-              }
-              return
-            }
-
-            if (creep.room.name == colony_room_name) {
-              if (creep.carry.energy > 0) {
-                const charge_target = creep.find_charge_target()
-
-                if (charge_target) {
-                  if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(charge_target)
-                  }
-                }
-
-                const x = 15
-                const y = 11
-                if ((creep.pos.x == x) && (creep.pos.y == y)) {
-                  creep.drop(RESOURCE_ENERGY)
-                }
-                else {
-                  creep.moveTo(x, y)
-                }
-              }
-            }
-            else {
-              creep.say(`WTF`)
-              console.log(`ManualSquad ${this.name} unknown error ${creep.name} at ${creep.pos}`)
-            }
-          }
-        })
-
-        // const target_room_name = 'W42N3'
-        // if (this.stealEnergyFrom(this.original_room_name, target_room_name, 22, 28, false) == ActionResult.IN_PROGRESS) {
-        //   return
-        // }
+        this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
         return
       }
 
