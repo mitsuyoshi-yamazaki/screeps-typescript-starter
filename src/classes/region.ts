@@ -410,6 +410,10 @@ export class Region {
         }
         break
 
+      case 'W47N5':
+        this.room_names = [this.room.name]
+        break
+
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
@@ -1472,6 +1476,10 @@ export class Region {
 
         case COLOR_YELLOW:
           structure_type = STRUCTURE_EXTRACTOR
+          break
+
+        case COLOR_GREY:
+          structure_type = STRUCTURE_SPAWN
           break
       }
 

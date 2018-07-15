@@ -32,9 +32,11 @@ export class Empire {
         const colony_region = this.regions.get(colony_region_name)
 
         if (!base_region || !colony_region) {
-          const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
-          console.log(message)
-          Game.notify(message)
+          if ((Game.time % 29) == 13) {
+            const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
+            console.log(message)
+            // Game.notify(message)
+          }
           return
         }
 
@@ -61,8 +63,9 @@ export class Empire {
     const w44n3 = 'W44N3'
     const w49n1 = 'W49N1'
     const w48n11 = 'W48N11'
+    const w47n5 = 'W47N5'
 
-    // set_delegate(w43n5, w48n11)
+    set_delegate(w47n2, w47n5)
 
     if ((Game.time % 2) == 0) {
       // set_delegate(w47n2, w44n3)

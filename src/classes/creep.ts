@@ -1786,7 +1786,9 @@ export function init() {
         return ActionResult.IN_PROGRESS
 
       case ERR_GCL_NOT_ENOUGH:
-        console.log(`Creep.claim ${action} GCL not enough ${result}, ${this.name}`)
+        if ((Game.time % 29) == 19) {
+          console.log(`Creep.claim ${action} GCL not enough ${result}, ${this.name}`)
+        }
         this.moveTo(target)
         this.reserveController(target)
         return ActionResult.IN_PROGRESS

@@ -47,7 +47,7 @@ export class TempSquad extends Squad {
         break
 
       case 'W47N2':
-        // this.target_room_name = 'W49N1'
+        this.target_room_name = 'W47N5'
         break
 
       case 'W49N1':
@@ -55,7 +55,7 @@ export class TempSquad extends Squad {
         break
 
       case 'W43N5':
-        this.target_room_name = 'W48N11'
+        // this.target_room_name = 'W48N11'
         break
 
       default:

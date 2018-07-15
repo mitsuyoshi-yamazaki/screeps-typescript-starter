@@ -197,7 +197,7 @@ export class RemoteMineralHarvesterSquad extends Squad {
             creep.moveTo(this.harvester)
           }
           else if ((Game.time % 11) == 7) {
-            const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0]
+            const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 3)[0]
 
             if (drop) {
               creep.pickup(drop)
