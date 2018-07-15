@@ -11,7 +11,7 @@ const keys = [
 ]
 
 export function init() {
-  Game.version = '2.16.10'
+  Game.version = '2.16.17'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -55,7 +55,11 @@ export function init() {
     Memory.debug = {
       show_visuals: false,
       test_send_resources: false,
-      show_cpu_usage: false,
+      cpu: {
+        show_usage: false,
+        threshold: 0,
+        stop_threshold: 150,
+      }
     }
   }
   if ((Game.time % 997) == 0) {

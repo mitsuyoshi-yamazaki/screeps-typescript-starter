@@ -7,7 +7,7 @@ import * as Initializer from "classes/init"
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
 
-  if (Memory.debug.show_cpu_usage) {
+  if (Memory.debug.cpu.show_usage) {
     console.log(`\n\n--------------\n\n`)
   }
 
@@ -34,6 +34,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
     ErrorMapper.wrapLoop(() => {
       for (const creep_name in Game.creeps) {
         const creep = Game.creeps[creep_name]
+
+        if ((creep.ticksToLive || 0) < 1450) {
+          continue
+        }
 
         creep.notifyWhenAttacked(!(!creep.memory.should_notify_attack))
 
@@ -94,7 +98,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
         if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
           const message = `Terminal ${to_room.name} is full ${from_room.name} ${transport.resource_type}`
           console.log(message)
-          Game.notify(message)
+
+          if (transport.resource_type != RESOURCE_ENERGY) {
+            Game.notify(message)
+          }
           return
         }
 
@@ -153,6 +160,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   const all_cpu = Math.ceil(Game.cpu.getUsed())
   Memory.cpu_usages.push(all_cpu)
 
+  if ((all_cpu > Memory.debug.cpu.stop_threshold) && Memory.debug.cpu.show_usage) {
+    Memory.debug.cpu.show_usage = false
+  }
+
   // console.log(`HOGE ${before_cpu} : ${after_cpu1} : ${after_cpu2} , all: ${all_cpu}`)
 
   // console.log(`HOGE ${sellOrders(RESOURCE_HYDROGEN, 0.16).map(o=>[o.price])}`)
@@ -162,7 +173,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       const credit = Game.market.credits
       let message: string | undefined
 
-      if (Game.cpu.bucket < 5000) {
+      if (Game.cpu.bucket < 6000) {
         message = `CPU Bucket ${Game.cpu.bucket}`
       }
 

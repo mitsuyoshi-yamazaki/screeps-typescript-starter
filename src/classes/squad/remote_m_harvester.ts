@@ -81,12 +81,6 @@ export class RemoteMineralHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    const room_memory = Memory.rooms[this.room_name]
-
-    if (room_memory && room_memory.attacked_time) {
-      return SpawnPriority.NONE
-    }
-
     if (!this.harvester) {
       return SpawnPriority.LOW
     }
@@ -184,36 +178,41 @@ export class RemoteMineralHarvesterSquad extends Squad {
       }
 
       const carry = _.sum(creep.carry)
+      const no_resource = (this.mineral && (this.mineral.mineralAmount == 0) && (carry > 0))
 
-      if (carry > (creep.carryCapacity - 30)) {
+      if ((carry > (creep.carryCapacity - 30)) || no_resource) {
         if (creep.transferResources(this.destination) == ERR_NOT_IN_RANGE) {
           creep.moveTo(this.destination)
-        }
-        else if ((Game.time % 11) == 7) {
-          const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0]
-
-          if (drop) {
-            creep.pickup(drop)
-          }
-          else {
-            const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
-              filter: (tomb: Tombstone) => {
-                return (_.sum(tomb.store) - tomb.store.energy) > 0
-              }
-            })[0]
-
-            if (tombstone) {
-              creep.withdrawResources(tombstone)
-            }
-          }
+          creep.memory.status = CreepStatus.CHARGE
         }
         return
       }
 
-      if (this.harvester) {
+      if (this.harvester && !this.harvester.spawning) {
         if (this.mineral) {
-          if (this.harvester.transfer(creep, this.mineral.mineralType) == ERR_NOT_IN_RANGE) {
+          const transfer_result = this.harvester.transfer(creep, this.mineral.mineralType)
+          // creep.say(`${transfer_result}`)
+
+          if (transfer_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(this.harvester)
+          }
+          else if ((Game.time % 11) == 7) {
+            const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0]
+
+            if (drop) {
+              creep.pickup(drop)
+            }
+            else {
+              const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
+                filter: (tomb: Tombstone) => {
+                  return (_.sum(tomb.store) - tomb.store.energy) > 0
+                }
+              })[0]
+
+              if (tombstone) {
+                creep.withdrawResources(tombstone)
+              }
+            }
           }
         }
         else {

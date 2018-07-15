@@ -33,7 +33,11 @@ declare global {
     debug: {
       show_visuals: boolean,
       test_send_resources: boolean,
-      show_cpu_usage: boolean,
+      cpu: {
+        show_usage: boolean,
+        threshold: number,
+        stop_threshold: number,
+      }
     }
   }
 

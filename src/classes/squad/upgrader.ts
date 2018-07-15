@@ -8,8 +8,21 @@ interface UpgraderSquadMemory extends SquadMemory {
 }
 
 export class UpgraderSquad extends Squad {
+  private max_energy: number | undefined
+
   constructor(readonly name: string, readonly room_name: string) {
     super(name)
+
+    const room = Game.rooms[this.room_name]
+
+    if (room && room.controller && room.controller.my) {
+      if (room.controller.level == 8) {
+        this.max_energy = 4300
+      }
+      if (room.controller.level >= 7) {
+        this.max_energy = 3300
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -33,7 +46,7 @@ export class UpgraderSquad extends Squad {
     let max = 0
     const room = Game.rooms[this.room_name]
 
-    if (!room || !room.controller || !room.controller.my || (room.controller.level == 8) || !room.storage || !room.storage.my) {
+    if (!room || !room.controller || !room.controller.my || !room.storage || !room.storage.my) {
       return SpawnPriority.NONE
     }
 
@@ -45,8 +58,8 @@ export class UpgraderSquad extends Squad {
     }
 
     if (this.room_name == 'W44S7') {
-      const energy = room.storage.store.energy - 200000
-      max = Math.min(Math.floor(energy / 100000), 2)
+      const energy = room.storage.store.energy - 300000
+      max = Math.min(Math.floor(energy / 200000), 2)
     }
     else if (this.room_name == 'W51S29') {
       max = (room.storage.store.energy > 400000) ? 1 : 0
@@ -60,10 +73,9 @@ export class UpgraderSquad extends Squad {
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     const room = Game.rooms[this.room_name]
-    const over_rcl7 = !(!room) && room.controller && room.controller.my && (room.controller.level >= 7)
 
-    if (over_rcl7) {
-      return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity, 3300)
+    if (this.max_energy) {
+      return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity, this.max_energy)
     }
 
     return this.hasEnoughEnergyForUpgrader(energyAvailable, capacity)
@@ -75,10 +87,9 @@ export class UpgraderSquad extends Squad {
     // 8 units, 2C, 16W, 9M
 
     const room = Game.rooms[this.room_name]
-    const over_rcl7 = !(!room) && room.controller && room.controller.my && (room.controller.level >= 7)
 
-    if (over_rcl7) {
-      this.addUpgrader(energyAvailable, spawnFunc, 3300)
+    if (this.max_energy) {
+      this.addUpgrader(energyAvailable, spawnFunc, this.max_energy)
       return
     }
 

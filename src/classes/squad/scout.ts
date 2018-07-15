@@ -93,7 +93,13 @@ export class ScoutSquad extends Squad {
         return
       }
 
-      if (creep.room.controller && (creep.moveTo(creep.room.controller, {maxRooms: 0}) == OK)) {
+      const opt: MoveToOpts = {
+        maxRooms: 0,
+        maxOps: 500,
+        reusePath: 10,
+      }
+
+      if (creep.room.controller && (creep.moveTo(creep.room.controller, opt) == OK)) {
         const emoji = ['😆', '😄', '😐', '😴', '🤔', '🙃', '😃']
         const index = (Number(creep.room.name.slice(1,3)) + Number(creep.room.name.slice(4,6))) % emoji.length
         const sign = emoji[index]
@@ -131,7 +137,7 @@ export class ScoutSquad extends Squad {
         }
       }
 
-      creep.moveTo(25, 25, {maxRooms: 0})
+      creep.moveTo(25, 25, opt)
     })
   }
 

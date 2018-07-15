@@ -79,30 +79,29 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        // return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
-        return SpawnPriority.NONE
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.terminal || !room.storage) {
+          return SpawnPriority.NONE
+        }
 
-        // const room = Game.rooms[this.original_room_name]
-        // if (!room || !room.terminal) {
-        //   return SpawnPriority.NONE
-        // }
+        if ((room.terminal.store[RESOURCE_GHODIUM] || 0) == 0) {
+          return SpawnPriority.NONE
+        }
 
-        // const lab_id = '5b329651244d2334f4d0a50e'
-        // const lab = Game.getObjectById(lab_id) as StructureLab | undefined
-        // if (!lab) {
-        //   this.say(`NO LAB`)
-        //   console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
-        //   return SpawnPriority.NONE
-        // }
+        if (room.storage.store.energy < 400000) {
+          return SpawnPriority.NONE
+        }
 
-        // // const no_xgh2o = (room.terminal.store[RESOURCE_CATALYZED_GHODIUM_ACID] || 0) == 0
-        // const no_gh2o = (room.terminal.store[RESOURCE_GHODIUM_ACID] || 0) < 400
+        const nuker = Game.getObjectById('5b4a627a8899194a2fa7f524') as StructureNuker | undefined
+        if (!nuker) {
+          return SpawnPriority.NONE
+        }
 
-        // if (no_gh2o) {
-        //   return SpawnPriority.NONE
-        // }
+        if ((nuker.ghodium == nuker.ghodiumCapacity) && (nuker.energy == nuker.energyCapacity)) {
+          return SpawnPriority.NONE
+        }
 
-        // // return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.URGENT : SpawnPriority.NONE
         // return SpawnPriority.NONE
       }
 
@@ -223,8 +222,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 1600
 
       case 'W44S7':
-        return energy_available >= 3820
-        // return energy_available >= 150
+        return energy_available >= 1500
 
       case 'W43S5':
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
@@ -247,7 +245,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48N11': {
-        return energy_available >= 1500
+        return energy_available >= 1760
       }
 
       default:
@@ -319,22 +317,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        // this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
         const body: BodyPartConstant[] = [
-          TOUGH, TOUGH, TOUGH, TOUGH,
           MOVE, MOVE, MOVE, MOVE, MOVE,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
           MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE,
-          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-          ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-          ATTACK,
-          MOVE,
-          HEAL, HEAL, HEAL, HEAL, HEAL,
         ]
-        this.addGeneralCreep(spawn_func, body, CreepType.ATTACKER)
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
         return
       }
 
@@ -401,6 +392,8 @@ export class ManualSquad extends Squad {
       case 'W48N11': {
         // 1500
         const body: BodyPartConstant[] = [
+          ATTACK, ATTACK,
+          MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           WORK, WORK, WORK, WORK, WORK,
@@ -556,105 +549,64 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const target_room_name = 'W44S6'
+        const nuker = Game.getObjectById('5b4a627a8899194a2fa7f524') as StructureNuker | undefined
+        if (!nuker) {
+          console.log(`ManualSquad.run ${this.original_room_name} no nuker`)
+          return
+        }
+
+        const room = Game.rooms[this.original_room_name]
+        if (!room || !room.storage || !room.terminal) {
+          console.log(`ManualSquad.run ${this.original_room_name} no storage`)
+          return
+        }
+
+        const opt: MoveToOpts = {
+          maxOps: 200,
+          maxRooms: 0,
+          reusePath: 3,
+        }
 
         this.creeps.forEach((creep) => {
-          if ((creep.room.name != target_room_name) && (creep.searchAndDestroyTo(target_room_name, false) == ActionResult.IN_PROGRESS)) {
-            creep.heal(creep)
-            return
-          }
+          const carry = _.sum(creep.carry)
 
-          const closest_hostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-
-          if (closest_hostile) {
-            const attack_result = creep.attack(closest_hostile)
-
-            if (attack_result != OK) {
-              creep.heal(creep)
-            }
-
-            creep.moveTo(closest_hostile)
-            return
-          }
-
-          const lairs = creep.room.find(FIND_STRUCTURES, {
-            filter: (structure: Structure) => {
-              if (structure.structureType != STRUCTURE_KEEPER_LAIR) {
-                return false
+          if (carry > 0) {
+            if (creep.carry.energy > 0) {
+              if (creep.transfer(nuker, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(nuker, opt)
               }
-              return true
+              else {
+                creep.moveTo(room.storage!, opt)
+              }
             }
-          }) as StructureKeeperLair[]
-
-          const keeper_lair = lairs.sort((lhs, rhs) => {
-            const l_ticks = (lhs.ticksToSpawn || 0)
-            const r_ticks = (rhs.ticksToSpawn || 0)
-            if (l_ticks < r_ticks) return -1
-            if (l_ticks > r_ticks) return 1
-            return 0
-          })[0]
-
-          // console.log(`HOGE ${keeper_lair.pos}`)
-          creep.heal(creep)
-
-          if (keeper_lair) {
-            creep.moveTo(keeper_lair)
+            else {
+              if (creep.transfer(nuker, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(nuker, opt)
+              }
+              else {
+                creep.moveTo(room.storage!, opt)
+              }
+            }
+          }
+          else {
+            if (nuker.ghodium == nuker.ghodiumCapacity) {
+              if (creep.withdraw(room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(room.storage!, opt)
+              }
+              else {
+                creep.moveTo(nuker, opt)
+              }
+            }
+            else {
+              if (creep.withdraw(room.terminal!, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(room.terminal!, opt)
+              }
+              else {
+                creep.moveTo(nuker, opt)
+              }
+            }
           }
         })
-
-        // const lab_id = '5b329651244d2334f4d0a50e'
-        // const lab = Game.getObjectById(lab_id) as StructureLab | undefined
-        // if (!lab) {
-        //   this.say(`NO LAB`)
-        //   console.log(`ManualSquad.run no lab for ${lab_id} ${this.name} ${this.original_room_name} `)
-        //   return
-        // }
-
-        // const resource_type = RESOURCE_GHODIUM_ACID
-
-        // this.creeps.forEach((creep) => {
-        //   if (!creep.room.terminal) {
-        //     creep.say(`ERR`)
-        //     return
-        //   }
-
-        //   if (lab.mineralType && (lab.mineralType != resource_type)) {
-        //     if (_.sum(creep.carry) == 0) {
-        //       if (creep.withdraw(lab, lab.mineralType) == ERR_NOT_IN_RANGE) {
-        //         creep.moveTo(lab)
-        //       }
-        //     }
-        //     else {
-        //       if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
-        //         creep.moveTo(creep.room.terminal)
-        //       }
-        //     }
-
-        //     return
-        //   }
-
-        //   if (_.sum(creep.carry) == 0) {
-        //     if (lab.mineralAmount > (lab.mineralCapacity - 200)) {
-        //       creep.moveTo(14, 35)
-        //       creep.say(`FULL`)
-        //       return
-        //     }
-        //     if (creep.withdraw(creep.room.terminal, resource_type) == ERR_NOT_IN_RANGE) {
-        //       creep.moveTo(creep.room.terminal)
-        //     }
-        //   }
-        //   else {
-        //     if ((creep.carry[resource_type] || 0) == 0) {
-        //       if (creep.transferResources(creep.room.terminal) == ERR_NOT_IN_RANGE) {
-        //         creep.moveTo(creep.room.terminal)
-        //       }
-        //       return
-        //     }
-        //     if (creep.transfer(lab, resource_type) == ERR_NOT_IN_RANGE) {
-        //       creep.moveTo(lab)
-        //     }
-        //   }
-        // })
         return
       }
 
@@ -960,7 +912,20 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48N11': {
-        this.dismantle('W49N12')
+        const target_room_name = 'W49N12'
+
+        if (this.any_creep) {
+          if ((this.any_creep.room.name == target_room_name) && (this.any_creep.getActiveBodyparts(ATTACK) > 0)) {
+            const hostile_worker = this.any_creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+
+            if (hostile_worker) {
+              this.any_creep.destroy(hostile_worker)
+              return
+            }
+          }
+        }
+
+        this.dismantle(target_room_name)
         return
       }
 

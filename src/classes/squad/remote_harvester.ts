@@ -329,7 +329,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     const room_memory = Memory.rooms[this.room_name]
 
-    if (room_memory && room_memory.attacked_time && ([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
+    if (([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
       return SpawnPriority.NONE
     }
 
@@ -857,7 +857,7 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
-        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 3, {
+        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY
           }
@@ -1010,9 +1010,9 @@ export class RemoteHarvesterSquad extends Squad {
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
     if (squad_memory && squad_memory.defend_room_name && (this.ranged_attackers.length > 0)) {
-      const room_memory = Memory.rooms[squad_memory.defend_room_name]
+      const defend_room_memory = Memory.rooms[squad_memory.defend_room_name]
 
-      if (room_memory && room_memory.attacked_time) {
+      if (defend_room_memory && defend_room_memory.attacked_time) {
         this.defendRoom(squad_memory.defend_room_name)
         return
       }
@@ -1027,16 +1027,10 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      const closest_hostile = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
+      const closest_hostile = creep.pos.findClosestByPath(creep.room.attacker_info.hostile_creeps)
 
       if (closest_hostile) {
-        const attack_result = creep.attack(closest_hostile)
-
-        if (attack_result != OK) {
-          creep.heal(creep)
-        }
-
-        creep.moveTo(closest_hostile)
+        creep.destroy(closest_hostile)
         return
       }
 
@@ -1048,11 +1042,17 @@ export class RemoteHarvesterSquad extends Squad {
         return 0
       })[0]
 
-      creep.heal(creep)
-
       if (keeper_lair) {
-        creep.moveTo(keeper_lair)
+        const range = creep.pos.getRangeTo(keeper_lair)
+
+        if ((creep.hits < creep.hitsMax) && (range < 8)) {
+        }
+        else {
+          creep.moveTo(keeper_lair)
+        }
       }
+
+      creep.heal(creep)
     })
   }
 
@@ -1067,9 +1067,9 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private runRangedAttacker(): void {
-    const attacker = this.attackers.filter((creep) => {
-      return creep.room.name == this.room_name
-    })[0]
+    const attacker = this.attackers[0]//.filter((creep) => {
+    //   return creep.room.name == this.room_name
+    // })[0]
 
     this.ranged_attackers.forEach((creep) => {
       if (creep.spawning) {
@@ -1083,7 +1083,6 @@ export class RemoteHarvesterSquad extends Squad {
       let no_move: boolean
 
       if (attacker) {
-        creep.moveTo(attacker)
         no_move = true
       }
       else {
@@ -1096,6 +1095,14 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       creep.searchAndDestroy(opt)
+
+      if (attacker) {
+        // creep.say(`M2A`)
+        creep.moveTo(attacker)
+      }
+      else {
+        // creep.say(`NOATT`)
+      }
     })
   }
 }

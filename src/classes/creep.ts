@@ -399,6 +399,10 @@ export function init() {
       this.moveTo(0, 29, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((this.room.name == 'W43S6') && (exit == LEFT)) { // @fixme: temp code
+      this.moveTo(0, 17, opt)
+      return ActionResult.IN_PROGRESS
+    }
     else if ((destination_room_name == 'W47N2') && (this.room.name == 'W43S2')) {
       this.moveTo(49, 11, opt)
       return ActionResult.IN_PROGRESS
@@ -637,6 +641,9 @@ export function init() {
             return (structure.energy < (structure.energyCapacity - 100))
           }
           // else if (structure.structureType == STRUCTURE_NUKER) {
+          //   if (!structure.room.storage || (structure.room.storage.store.energy < 500000)) {
+          //     return false
+          //   }
           //   return (structure.energy < structure.energyCapacity)
           // }
         }
@@ -1400,8 +1407,8 @@ export function init() {
     if (this.room.name != room_name) {
       let hostile_creep: Creep | undefined
       if (attack_anything) {
-        hostile_creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
-          filter: (creep) => {
+        hostile_creep = this.pos.findClosestByPath(this.room.attacker_info.hostile_creeps, {
+          filter: (creep: Creep) => {
             if (creep.owner.username == 'Source Keeper') {
               return false
             }
@@ -1410,7 +1417,7 @@ export function init() {
         })
       }
       else {
-        hostile_creep = this.pos.findInRange(FIND_HOSTILE_CREEPS, 4, {
+        hostile_creep = this.pos.findInRange(this.room.attacker_info.hostile_creeps, 4, {
           filter: (creep: Creep) => {
             if (creep.owner.username == 'Source Keeper') {
               return false
@@ -1464,8 +1471,8 @@ export function init() {
 
     const memory = this.memory as {target_id?: string}
 
-    const hostile_attacker: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
-      filter: (creep) => {
+    const hostile_attacker: Creep = this.pos.findClosestByPath(this.room.attacker_info.hostile_creeps, {
+      filter: (creep: Creep) => {
         const is_attacker = creep.body.filter((body: BodyPartDefinition) => {
           return (body.type == ATTACK) || (body.type == RANGED_ATTACK) || (body.type == HEAL)
         }).length > 0
@@ -1522,7 +1529,7 @@ export function init() {
       return this.destroy(hostile_spawn)
     }
 
-    const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+    const hostile_creep: Creep = this.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {  // workers
       filter: (creep) => {
         if (creep.pos.x == 0) {
           return false
@@ -1629,19 +1636,13 @@ export function init() {
 
     const is_ranged_attacker = (this.getActiveBodyparts(RANGED_ATTACK) > 0) && (this.getActiveBodyparts(ATTACK) == 0)
 
-    if (is_ranged_attacker && (this.pos.getRangeTo(target) <= 1)) {
-      opt.no_move = true
-    }
+    // if (is_ranged_attacker && (this.pos.getRangeTo(target) <= 1)) {
+    //   opt.no_move = true
+    // }
 
     if (((Game.time % 3) == 0) && !(this.memory as {should_silent?: boolean}).should_silent) {
       this.say(`T${target.pos.x},${target.pos.y}`)
     }
-
-    // if ((target as Creep).carry) {
-    //   if (((target as Creep).getActiveBodyparts(RANGED_ATTACK) > 0) && (((target as Creep).getActiveBodyparts(ATTACK) == 0))) {
-    //     no_move = true
-    //   }
-    // }
 
     let ranged_target: Creep | Structure = target
     let should_flee = false
@@ -1654,7 +1655,7 @@ export function init() {
           const filter = function(creep: Creep): boolean {
             return (creep.getActiveBodyparts(ATTACK) + creep.getActiveBodyparts(RANGED_ATTACK)) > 0
           }
-          if ((hostile_creep.getActiveBodyparts(ATTACK) > 1) || (hostile_creep.pos.findInRange(FIND_HOSTILE_CREEPS, 2, {filter}).length > 1)) {
+          if ((hostile_creep.getActiveBodyparts(ATTACK) > 1) || (hostile_creep.pos.findInRange(hostile_creep.room.attacker_info.hostile_creeps, 2, {filter}).length > 1)) {
             should_flee = true
           }
         }

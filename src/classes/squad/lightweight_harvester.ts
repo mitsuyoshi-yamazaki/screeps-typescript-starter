@@ -3,6 +3,11 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 import { Region } from "../region"
 
+interface LightWeightHarvesterMemory extends CreepMemory {
+  target_drop_id?: string
+  target_tombstone_id?: string
+}
+
 export class LightWeightHarvesterSquad extends Squad {
   private source: Source | undefined  // A source that the harvester harvests energy
 
@@ -95,8 +100,8 @@ export class LightWeightHarvesterSquad extends Squad {
         return
       }
 
+      const memory = creep.memory as LightWeightHarvesterMemory
       const room = Game.rooms[this.source_info.room_name]
-      const w45s42 = Game.rooms['W45S42']
 
       if (((room && !room.is_keeperroom && room.heavyly_attacked) || (creep.hits < creep.hitsMax)) && this.region.worker_squad) {
         creep.memory.squad_name = this.region.worker_squad.name
@@ -119,25 +124,44 @@ export class LightWeightHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.CHARGE
       }
 
+      let moveToOps: MoveToOpts = {
+        maxOps: 500,
+        maxRooms: 1,
+        reusePath: 2,
+      }
+
       if (creep.memory.status == CreepStatus.HARVEST) {
         if (creep.carry.energy == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
           if (creep.carry.energy < (creep.carryCapacity - 50)) {
-            const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 10, {
-              filter: (d: Resource) => {
-                return (d.resourceType == RESOURCE_ENERGY) && (d.amount > 50)
-              }
-            })[0] as Resource
+            let drop: Resource | undefined
+
+            if (memory.target_drop_id) {
+              drop = Game.getObjectById(memory.target_drop_id) as Resource | undefined
+            }
+            else if ((Game.time % 19) == 5) {
+              drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 10, {
+                filter: (d: Resource) => {
+                  return (d.resourceType == RESOURCE_ENERGY) && (d.amount > 50)
+                }
+              })[0] as Resource
+            }
+
             if (drop) {
+              (creep.memory as LightWeightHarvesterMemory).target_drop_id = drop.id
+
               if (creep.pickup(drop) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(drop)
+                creep.moveTo(drop, moveToOps)
                 return
               }
               else if (creep.carry.energy > 200) {
                 creep.memory.status = CreepStatus.CHARGE
               }
+            }
+            else {
+              (creep.memory as LightWeightHarvesterMemory).target_drop_id = undefined
             }
             // const tomb = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
             //   filter: (t) => t.store.energy > 50
@@ -158,42 +182,49 @@ export class LightWeightHarvesterSquad extends Squad {
           }
           else {
             if (creep.room.heavyly_attacked && !creep.room.is_keeperroom) {
-              const closest_hostile = creep.pos.findInRange(FIND_HOSTILE_CREEPS, 10, {
-                filter: (hostile_creep: Creep) => {
-                  return (hostile_creep.getActiveBodyparts(ATTACK) + hostile_creep.getActiveBodyparts(RANGED_ATTACK)) > 0
-                }
-              })[0]
+              const closest_hostile = creep.pos.findInRange(creep.room.attacker_info.hostile_creeps, 10)[0]
               if (closest_hostile) {
                 creep.say('RUN')
                 if (this.destination && (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS)) {
                   return
                 }
-                creep.moveTo(this.destination)
+                creep.moveTo(this.destination, moveToOps)
                 creep.memory.status = CreepStatus.CHARGE
                 return
               }
             }
 
             if (creep.room.resourceful_tombstones.length > 0) {
-              const target = creep.room.resourceful_tombstones[0]
-              const resource_amount = _.sum(target.store)
-              if (resource_amount > 0) {
-                const vacancy = creep.carryCapacity - _.sum(creep.carry)
-                if (vacancy < resource_amount) {
-                  creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
-                }
+              let tomb: Tombstone | undefined
 
-                let resource_type: ResourceConstant | undefined
-                for (const type of Object.keys(target.store)) {
-                  resource_type = type as ResourceConstant
-                }
-                if (resource_type) {
-                  if (creep.withdraw(target, resource_type) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target)
-                    creep.say(`${target.pos.x}, ${target.pos.y}`)
+              if (memory.target_tombstone_id) {
+                tomb = Game.getObjectById(memory.target_tombstone_id) as Tombstone | undefined
+              }
+              else if ((Game.time % 19) == 7) {
+                tomb = creep.room.resourceful_tombstones[0]
+              }
+
+              if (tomb) {
+                const resource_amount = _.sum(tomb.store)
+                if (resource_amount > 0) {
+                  (creep.memory as LightWeightHarvesterMemory).target_tombstone_id = tomb.id
+
+                  const vacancy = creep.carryCapacity - _.sum(creep.carry)
+                  if (vacancy < resource_amount) {
+                    creep.drop(RESOURCE_ENERGY, resource_amount - vacancy)
                   }
-                  return
+
+                  if (creep.withdrawResources(tomb) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(tomb, moveToOps)
+                    creep.say(`${tomb.pos.x}, ${tomb.pos.y}`)
+                  }
                 }
+                else {
+                  (creep.memory as LightWeightHarvesterMemory).target_tombstone_id = undefined
+                }
+              }
+              else {
+                (creep.memory as LightWeightHarvesterMemory).target_tombstone_id = undefined
               }
             }
             else if ((_.sum(creep.carry) - creep.carry.energy) > 0) {
@@ -206,10 +237,9 @@ export class LightWeightHarvesterSquad extends Squad {
               }
               if (creep.harvest(this.source!) == ERR_NOT_IN_RANGE) {
                 const ignoreCreeps = false//((Game.time % 2) == 0) ? false : true
+                moveToOps.ignoreCreeps = ignoreCreeps
 
-                creep.moveTo(this.source, {
-                  ignoreCreeps: ignoreCreeps
-                })
+                creep.moveTo(this.source, moveToOps)
                 return
               }
             }
@@ -221,9 +251,11 @@ export class LightWeightHarvesterSquad extends Squad {
         }
       }
 
+      const carry = _.sum(creep.carry)
+
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (_.sum(creep.carry) == 0) {
-          if ((this.region.room.name != 'W49S34') && ((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
+        if (carry == 0) {
+          if (((creep.ticksToLive || 0) < 200) && this.region.worker_squad) {
             creep.memory.squad_name = this.region.worker_squad.name
             creep.memory.status = CreepStatus.CHARGE
             creep.memory.let_thy_die = true
@@ -232,17 +264,10 @@ export class LightWeightHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.HARVEST
         }
         else {
-          // if ((this.source_info.room_name == 'W49S34') && (creep.room.controller) && creep.room.controller.my) {
-          //   creep.upgradeController(creep.room.controller)
-          //   creep.moveTo(creep.room.controller)
-          //   return
-          // }
-          const has_minerals = _.sum(creep.carry) > creep.carry.energy
-
-          // console.log(`HOGE ${this.destination}, ${this.region}, ${this.name}`)
+          const has_minerals = carry > creep.carry.energy
 
           if (!has_minerals && this.destination && this.destination.room.storage && (_.sum(this.destination.room.storage.store) > (this.destination.room.storage.storeCapacity * 0.9)) && (this.region.room.controller && this.region.room.controller.my)) {
-            creep.moveTo(this.region.room.controller)
+            creep.moveTo(this.region.room.controller, moveToOps)
             creep.memory.status = CreepStatus.UPGRADE
             return
           }
@@ -250,12 +275,12 @@ export class LightWeightHarvesterSquad extends Squad {
           if (this.destination && ((this.destination.structureType == STRUCTURE_LINK) || (this.destination.structureType == STRUCTURE_SPAWN))) {
             if (has_minerals && this.destination.room.storage) {
               if (creep.transferResources(this.destination.room.storage) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(this.destination)
+                creep.moveTo(this.destination, moveToOps)
               }
             }
             else {
               if (creep.transfer(this.destination, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(this.destination)
+                creep.moveTo(this.destination, moveToOps)
               }
             }
             return
@@ -284,7 +309,7 @@ export class LightWeightHarvesterSquad extends Squad {
                   }
                   return
                 }
-                creep.moveTo(this.destination)
+                creep.moveTo(this.destination, moveToOps)
                 return
 
               case OK:
@@ -295,7 +320,7 @@ export class LightWeightHarvesterSquad extends Squad {
 
                 if (charge_target) {
                   if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(charge_target)
+                    creep.moveTo(charge_target, moveToOps)
                   }
                 }
                 else {
@@ -305,7 +330,7 @@ export class LightWeightHarvesterSquad extends Squad {
                     creep.moveTo(construction_site)
                   }
                   else if (this.region.room.controller && this.region.room.controller.my) {
-                    creep.moveTo(this.region.room.controller)
+                    creep.moveTo(this.region.room.controller, moveToOps)
                     creep.memory.status = CreepStatus.UPGRADE
                     return
                   }

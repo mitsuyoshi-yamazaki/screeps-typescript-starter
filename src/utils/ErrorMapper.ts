@@ -70,7 +70,7 @@ export class ErrorMapper {
 
   public static wrapLoop(loop: () => void, label?: string): () => void {
     return () => {
-      const measure_cpu_usage: boolean = !(!Memory.debug.show_cpu_usage)
+      const measure_cpu_usage: boolean = !(!Memory.debug.cpu.show_usage)
       let before_cpu: number | undefined
 
       if (measure_cpu_usage && label) {
@@ -82,7 +82,7 @@ export class ErrorMapper {
 
         if (measure_cpu_usage && label) {
           const get_used = Math.round((Game.cpu.getUsed() - before_cpu!) * 100) / 100
-          if (get_used > 0) {
+          if (get_used > Memory.debug.cpu.threshold) {
             console.log(`CPU ${label} [${get_used}]`)
           }
         }
