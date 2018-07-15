@@ -1387,8 +1387,15 @@ export class Region {
 
       const to_room = Game.rooms[room_name]
       if (!to_room || !to_room.terminal) {
-        console.log(`Region.sendResources no destination room ${room_name}`)
+        console.log(`Region.sendResources no destination room ${room_name}, ${this.room.name}`)
         continue
+      }
+
+      if (resource_type == RESOURCE_ENERGY) {
+        if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
+          console.log(`Region.sendResources lack of energy ${this.room.name}`)
+          continue
+        }
       }
 
       const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
