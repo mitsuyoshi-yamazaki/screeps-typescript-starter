@@ -2,16 +2,8 @@ import * as WorldInitializer from "classes/world"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
-const keys = [
-  "game",
-  "empire",
-  "spawn",
-  "squad",
-  "creep"
-]
-
-export function init() {
-  Game.version = '2.16.23'
+export function init(): void {
+  Game.version = '2.17.0'
   const now = Game.time
   // if (Memory.last_tick != (now - 1)) {  // This will clear entire memory when edit Memory root
   //   if (Memory.last_tick < (now - 10)) { // Just in case
@@ -62,17 +54,9 @@ export function init() {
       }
     }
   }
-  if ((Game.time % 997) == 0) {
-    Memory.debug.show_visuals = false
-  }
 
   if (!Memory.cpu_usages) {
     Memory.cpu_usages = []
-  }
-
-  const cpu_ticks = 20
-  if (Memory.cpu_usages.length > cpu_ticks) {
-    Memory.cpu_usages.shift()
   }
 
   if (Memory.trading == null) {
@@ -80,22 +64,6 @@ export function init() {
       stop: true
     }
   }
-
-  if (true) {
-    if ((Game.time % cpu_ticks) == 0) {
-      console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
-    }
-  }
-
-  keys.forEach((key) => {
-    if (Memory[key] == null) {
-      Memory[key] = new Map<string, any>()
-    }
-  })
-
-  WorldInitializer.init()
-  SpawnInitializer.init()
-  CreepInitializer.init()
 
   Game.reactions = {}
 
@@ -119,6 +87,28 @@ export function init() {
   //     console.log(`${rt}: ${aa.lhs}, ${aa.rhs}`)
   //   }
   // }
+}
+
+export function tick(): void {
+  const time = Game.time
+
+  if ((time % 997) == 0) {
+    Memory.debug.show_visuals = false
+  }
+
+  const cpu_ticks = 20
+  if (Memory.cpu_usages.length > cpu_ticks) {
+    Memory.cpu_usages.shift()
+  }
+
+  if ((Game.time % cpu_ticks) == 0) {
+    console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
+  }
+
+  // @fixme: could move to init()
+  WorldInitializer.init()
+  SpawnInitializer.init()
+  CreepInitializer.init()
 }
 
 /**

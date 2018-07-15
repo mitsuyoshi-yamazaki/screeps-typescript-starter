@@ -3,6 +3,12 @@ import { ErrorMapper } from "utils/ErrorMapper"
 import { Empire } from "classes/empire"
 import * as Initializer from "classes/init"
 
+// let empire: Empire
+
+// ErrorMapper.wrapLoop(() => {
+//   empire = new Empire("Mitsuyoshi")
+// }, `empire.init`)()
+
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
@@ -13,16 +19,14 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   ErrorMapper.wrapLoop(() => {
     Initializer.init()
+    Initializer.tick()
   }, `Initializer.init`)()
 
   ErrorMapper.wrapLoop(() => {
-    // const cpu_1 = Math.floor(Game.cpu.getUsed())
-    const empire = new Empire("Mitsuyoshi")
-    // const cpu_2 = Math.floor(Game.cpu.getUsed())
-    empire.run()
-    // const cpu_3 = Math.floor(Game.cpu.getUsed())
 
-    // console.log(`HOGE ${cpu_1}, ${cpu_2}, ${cpu_3}`)
+    const empire = new Empire("Mitsuyoshi")
+
+    empire.run()
   }, `empire.run`)()
 
   if ((Game.time % 29) == 3) {
