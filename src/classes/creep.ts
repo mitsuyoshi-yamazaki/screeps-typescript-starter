@@ -1487,7 +1487,7 @@ export function init() {
     opt = opt || {}
 
     if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
-      console.log(`searchAndDestroy no attacker body parts ${this.name}`)
+      console.log(`searchAndDestroy no attacker body parts ${this.name} ${this.pos}`)
       this.say('DAMAGED')
       // return ActionResult.DONE
     }

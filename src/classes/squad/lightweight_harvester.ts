@@ -65,7 +65,7 @@ export class LightWeightHarvesterSquad extends Squad {
 
     const room = Game.rooms[this.source_info.room_name]
 
-    if (!room || room.heavyly_attacked) {
+    if (!room || room.attacked) {
       return SpawnPriority.NONE
     }
 

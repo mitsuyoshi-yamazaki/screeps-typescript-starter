@@ -1023,10 +1023,10 @@ export class Region {
 
     const highest_priority = sorted[0].spawnPriority
     const availableEnergy = this.room.energyAvailable
+    const worker_squad_name = this.worker_squad.name
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
       const is_lightweight_harvester = squad.type == SquadType.LIGHTWEIGHT_HARVESTER
-      const worker_squad_name = this.worker_squad.name
       const worker_harvester = Array.from(this.worker_squad.creeps.values()).filter((creep) => {
         return (creep.memory.type == CreepType.HARVESTER)
           && (creep.memory.squad_name == worker_squad_name)
