@@ -15,6 +15,7 @@ declare global {
   interface Game {
     version: string
     reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
+    squad_creeps: {[squad_name: string]: Creep[]}
     check_resources: (resource_type: ResourceConstant) => void
     check_all_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void

@@ -76,16 +76,13 @@ export abstract class Squad {
 
   // Methods
   constructor(readonly name: string) {
-    for (const creep_name in Game.creeps) {
-      const creep = Game.creeps[creep_name]
-      if (creep.memory.squad_name != name) {
-        continue
-      }
+    const squad_creeps: Creep[] = Game.squad_creeps[this.name] || []
 
+    squad_creeps.forEach((creep) => {
       creep.squad = this
       creep.initialize()
       this.creeps.set(creep.name, creep)
-    }
+    })
 
     const squad_memory = Memory.squads[this.name] as SquadMemory | undefined
 

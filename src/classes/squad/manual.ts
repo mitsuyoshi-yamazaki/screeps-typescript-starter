@@ -911,7 +911,7 @@ export class ManualSquad extends Squad {
         const target_room_name = 'W49N12'
 
         if (this.any_creep) {
-          if ((this.any_creep.room.name == target_room_name) && (this.any_creep.getActiveBodyparts(ATTACK) > 0)) {
+          if ((this.any_creep.room.name == target_room_name)) {
             const hostile_worker = this.any_creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
 
             if (hostile_worker) {

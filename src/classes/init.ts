@@ -3,7 +3,7 @@ import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
 export function init(): void {
-  Game.version = '2.17.1'
+  Game.version = '2.17.2'
   const now = Game.time
 
   Memory.last_tick = now
@@ -94,6 +94,23 @@ export function tick(): void {
   // Followings set functions to prototype, and the prototypes are reset every tick
   SpawnInitializer.init()
   CreepInitializer.init()
+
+  Game.squad_creeps = {}
+
+  for (const creep_name in Game.creeps) {
+    const creep = Game.creeps[creep_name]
+    const squad_name = creep.memory.squad_name
+
+    if (!squad_name) {
+      continue
+    }
+
+    if (!Game.squad_creeps[squad_name]) {
+      Game.squad_creeps[squad_name] = []
+    }
+
+    Game.squad_creeps[squad_name].push(creep)
+  }
 }
 
 function refreshMemory() {
