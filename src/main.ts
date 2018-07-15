@@ -6,27 +6,18 @@ import * as Initializer from "classes/init"
 Initializer.init()
 console.log(`Initializer.init()`)
 
-// let empire: Empire
-
-// ErrorMapper.wrapLoop(() => {
-//   empire = new Empire("Mitsuyoshi")
-// }, `empire.init`)()
-
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-
   if (Memory.debug.cpu.show_usage) {
     console.log(`\n\n--------------\n\n`)
   }
 
   ErrorMapper.wrapLoop(() => {
-    // Initializer.init()
     Initializer.tick()
   }, `Initializer.init`)()
 
   ErrorMapper.wrapLoop(() => {
-
     const empire = new Empire("Mitsuyoshi")
 
     empire.run()
