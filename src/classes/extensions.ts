@@ -16,6 +16,7 @@ declare global {
     version: string
     reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
     check_resources: (resource_type: ResourceConstant) => void
+    check_all_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
   }
 
@@ -90,6 +91,30 @@ export function init() {
       sum += amount
     }
     console.log(`Resource ${resource_type}: ${sum}${details}`)
+  }
+
+  Game.check_all_resources = () => {
+    RESOURCES_ALL.forEach((resource_type) => {
+
+      let amount = 0
+
+      for (const room_name of Object.keys(Game.rooms)) {
+        const room = Game.rooms[room_name]
+        if (!room || !room.controller || !room.controller.my) {
+          continue
+        }
+
+        if (room.terminal && room.terminal.my) {
+          amount += room.terminal.store[resource_type] || 0
+        }
+
+        if (room.storage && room.storage.my) {
+          amount += room.storage.store[resource_type] || 0
+        }
+      }
+
+      console.log(`${resource_type}: ${amount}`)
+    })
   }
 
   Game.collect_resources = (resource_type: ResourceConstant, room_name: string, threshold?: number) => {
