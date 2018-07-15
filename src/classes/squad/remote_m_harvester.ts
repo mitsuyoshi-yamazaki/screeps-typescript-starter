@@ -189,6 +189,24 @@ export class RemoteMineralHarvesterSquad extends Squad {
         if (creep.transferResources(this.destination) == ERR_NOT_IN_RANGE) {
           creep.moveTo(this.destination)
         }
+        else if ((Game.time % 11) == 7) {
+          const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0]
+
+          if (drop) {
+            creep.pickup(drop)
+          }
+          else {
+            const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
+              filter: (tomb: Tombstone) => {
+                return (_.sum(tomb.store) - tomb.store.energy) > 0
+              }
+            })[0]
+
+            if (tombstone) {
+              creep.withdrawResources(tombstone)
+            }
+          }
+        }
         return
       }
 

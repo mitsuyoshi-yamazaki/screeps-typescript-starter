@@ -18,6 +18,7 @@ declare global {
     check_resources: (resource_type: ResourceConstant) => void
     check_all_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
+    room_info: () => void
   }
 
   interface Memory {
@@ -41,6 +42,7 @@ declare global {
     harvesting_source_ids: string[]
     cost_matrix?: number[] | undefined
     attacked_time?: number
+    last_attacked_time?: number
     description_position?: {x:number, y:number}
   }
 
@@ -161,6 +163,23 @@ export function init() {
     console.log(`Collect resource ${resource_type} ${room_name}: ${target_room.terminal.store[resource_type] || 0} + ${sum}${details}`)
   }
 
+  Game.room_info = () => {
+    for (const room_name of Object.keys(Game.rooms)) {
+      const room = Game.rooms[room_name]
+      if (!room || !room.controller || !room.controller.my) {
+        continue
+      }
+
+      const is_rcl8 = room.controller.level == 8
+      const progress = is_rcl8 ? '' : ` ${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
+
+      const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
+      const reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
+
+      console.log(`${room_name} RCL:${room.controller.level}${progress} ${reaction_output}`)
+    }
+  }
+
   Room.prototype.initialize = function() {
     let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
 
@@ -197,7 +216,8 @@ export function init() {
     this.attacker_info = attacker_info
 
     if (this.attacker_info.hostile_creeps.length > 0) {
-      (Memory.rooms[this.name] as RoomMemory).attacked_time = Game.time
+      (Memory.rooms[this.name] as RoomMemory).last_attacked_time = (Memory.rooms[this.name] as RoomMemory).attacked_time;
+      (Memory.rooms[this.name] as RoomMemory).attacked_time = Game.time;
     }
     else {
       (Memory.rooms[this.name] as RoomMemory).attacked_time = undefined

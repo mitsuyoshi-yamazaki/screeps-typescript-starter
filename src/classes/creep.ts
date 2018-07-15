@@ -1561,15 +1561,16 @@ export function init() {
           STRUCTURE_WALL,
           STRUCTURE_KEEPER_LAIR,
           STRUCTURE_POWER_BANK,
+          STRUCTURE_EXTRACTOR,
         ]
         if (ignore.indexOf(structure.structureType) >= 0) {
           return false
         }
-        if (structure.structureType == STRUCTURE_EXTRACTOR) {
-          if (this.room.is_keeperroom) {
-            return false
-          }
-        }
+        // if (structure.structureType == STRUCTURE_EXTRACTOR) {  // creeps try destroying extractor in the center room
+        //   if (this.room.is_keeperroom) {
+        //     return false
+        //   }
+        // }
         if ((structure.structureType) == STRUCTURE_CONTAINER) {
           if (structure.room.controller) {
             if (structure.room.controller.my) {

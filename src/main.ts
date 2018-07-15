@@ -104,7 +104,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
         if (transport.resource_type == RESOURCE_ENERGY) {
           amount_needed = 140000
-          resource_capacity = 100000
+          resource_capacity = 110000
           amount_send = 100000
         }
 

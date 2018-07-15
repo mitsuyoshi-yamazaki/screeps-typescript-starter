@@ -108,7 +108,7 @@ export abstract class Squad {
     }
 
     const room_memory = Memory.rooms[room.name]
-    let pos: {x: number, y: number} = {x: 1, y: 1}
+    let pos: {x: number, y: number} = {x: 1, y: 3}
 
     if (room_memory && room_memory.description_position) {
       pos = room_memory.description_position
