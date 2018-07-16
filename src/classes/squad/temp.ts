@@ -37,7 +37,10 @@ export class TempSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    const energy = (capacity >= 850) ? 850 : 750
+    let energy = (capacity >= 850) ? 850 : 750
+    if (this.room_name == 'W47N2') {
+      energy = 1300
+    }
     return energy_available >= energy
   }
 
@@ -46,7 +49,7 @@ export class TempSquad extends Squad {
   }
 
   private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const body: BodyPartConstant[] = (energyAvailable >= 850) ? [MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM] : [MOVE, MOVE, MOVE, CLAIM]
+    let body: BodyPartConstant[] = (energyAvailable >= 850) ? [MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM] : [MOVE, MOVE, MOVE, CLAIM]
     const name = this.generateNewName()
     const memory: CreepMemory = {
       squad_name: this.name,
@@ -55,6 +58,12 @@ export class TempSquad extends Squad {
       type: CreepType.CLAIMER,
       should_notify_attack: false,
       let_thy_die: true,
+    }
+
+    if (this.room_name == 'W47N2') {
+      body = [
+        MOVE, CLAIM, CLAIM, MOVE,
+      ]
     }
 
     const result = spawnFunc(body, name, {
@@ -75,62 +84,17 @@ export class TempSquad extends Squad {
       }
 
       creep.claim(target_room_name, true)
+
+      if (((Game.time % 41) == 1) && (creep.room.name == target_room_name) && creep.room.controller) {
+        if (!creep.room.controller.sign || (Memory.versions.indexOf(creep.room.controller.sign.text) < 0)) {
+          creep.signController(creep.room.controller, Game.version)
+        }
+      }
     })
   }
 
   public description(): string {
     const addition = this.creeps.size > 0 ? `, ${Array.from(this.creeps.values())[0].pos}` : ''
     return `${super.description()} ${addition}`
-  }
-
-  // ----
-  private addWorker(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      CARRY, MOVE, CARRY, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      WORK, MOVE, WORK, MOVE, WORK, MOVE,
-      WORK, MOVE, WORK, MOVE,
-      CARRY, MOVE, CARRY, MOVE,
-      WORK, MOVE,
-    ]
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.WORKER,
-      should_notify_attack: false,
-      let_thy_die: false,
-    }
-
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
-  }
-
-  public addHarvester(energy_available: number, spawn_func: SpawnFunction): void {
-    const body_unit: BodyPartConstant[] = [WORK, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE]
-    const energy_unit = 450
-    energy_available = Math.min(energy_available, 1350)
-
-    const name = this.generateNewName()
-    let body: BodyPartConstant[] = []
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.HARVESTER,
-      should_notify_attack: false,
-      let_thy_die: false,
-    }
-
-    while (energy_available >= energy_unit) {
-      body = body.concat(body_unit)
-      energy_available -= energy_unit
-    }
-
-    const result = spawn_func(body, name, {
-      memory: memory
-    })
   }
 }

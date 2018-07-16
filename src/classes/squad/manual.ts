@@ -143,6 +143,19 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
       }
 
+      case 'W47N5': {
+        const base_room = Game.rooms['W47N2']
+        if (!base_room || !base_room.storage) {
+          return SpawnPriority.NONE
+        }
+
+        if (base_room.storage.store.energy < 200000) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
+
       default:
         return SpawnPriority.NONE
     }
@@ -209,6 +222,10 @@ export class ManualSquad extends Squad {
         return energy_available >= 1760
       }
 
+      case 'W47N5': {
+        return energy_available >= 1000
+      }
+
       default:
         return false
     }
@@ -253,7 +270,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W51S29': {
-        this.addUpgrader(energy_available, spawn_func, 1150)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 1150)
         return
       }
 
@@ -324,7 +341,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43N5': {
-        this.addUpgrader(energy_available, spawn_func, 1800)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 1800)
         return
       }
 
@@ -341,6 +358,18 @@ export class ManualSquad extends Squad {
         ]
         this.addGeneralCreep(spawn_func, body, CreepType.WORKER)
         return
+      }
+
+      case 'W47N5': {
+                // 1000
+                const body: BodyPartConstant[] = [
+                  MOVE, MOVE, MOVE, MOVE, MOVE,
+                  CARRY, CARRY, CARRY, CARRY, CARRY,
+                  CARRY, CARRY, CARRY, CARRY, CARRY,
+                  MOVE, MOVE, MOVE, MOVE, MOVE,
+                ]
+                this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+                return
       }
 
       default:
@@ -685,6 +714,50 @@ export class ManualSquad extends Squad {
         }
 
         this.dismantle(target_room_name)
+        return
+      }
+
+      case 'W47N5': {
+        const base_room = Game.rooms['W47N2']
+        if (!base_room || !base_room.storage) {
+          this.say(`ERR`)
+          console.log(`ManualSquad.run ${this.name} error`)
+          return
+        }
+
+        this.creeps.forEach((creep) => {
+          if (creep.spawning) {
+            return
+          }
+
+          if (creep.carry.energy > 0) {
+            if (creep.moveToRoom(this.original_room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+
+            const x = 34
+            const y = 7
+
+            if ((creep.pos.x != x) || (creep.pos.y != y)) {
+              creep.moveTo(x, y, {maxRooms: 0, reusePath: 10})
+              return
+            }
+
+            creep.drop(RESOURCE_ENERGY)
+            return
+          }
+          else {
+            if ((creep.ticksToLive || 1500) < 200) {
+              creep.memory.squad_name = 'worker734834525' // W47N2 worker
+              return
+            }
+
+            if (creep.withdraw(base_room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(base_room.storage!, {maxRooms: 4, reusePath: 10})
+            }
+          }
+        })
+
         return
       }
 

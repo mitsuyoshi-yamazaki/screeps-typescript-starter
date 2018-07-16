@@ -15,6 +15,7 @@ export class HarvesterSquad extends Squad {
   private store: StructureContainer | StructureLink | StructureStorage | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage | undefined
+  private mineral_harvester_energy_max = 2300
 
   private get needs_harvester(): boolean {
     if (this.source_info.room_name == 'W49S34') {
@@ -527,7 +528,20 @@ export class HarvesterSquad extends Squad {
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
     if (this.needs_harvester) {
       if (this.resource_type && (this.resource_type != RESOURCE_ENERGY)) {
-        capacity = Math.min(capacity, 2300)
+        const room = Game.rooms[this.source_info.room_name]
+        if (room && room.controller && room.controller.my) {
+          switch (room.controller.level) {
+            case 8:
+              this.mineral_harvester_energy_max = 4300
+              break
+
+            case 7:
+              this.mineral_harvester_energy_max = 3300
+              break
+          }
+        }
+
+        capacity = Math.min(capacity, this.mineral_harvester_energy_max)
 
         const energy_unit = 250
         const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
@@ -670,38 +684,41 @@ export class HarvesterSquad extends Squad {
   }
 
   private addMineralHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    // capacity: 2300
-    // 8 units, 2C, 16W, 9M
 
-    energyAvailable = Math.min(energyAvailable, 2300)
 
-    const move: BodyPartConstant[] = [MOVE]
-    const work: BodyPartConstant[] = [WORK, WORK]
-    const energy_unit = 250
+    this.addUpgrader(energyAvailable, spawnFunc, CreepType.HARVESTER, this.mineral_harvester_energy_max)
+    // // capacity: 2300
+    // // 8 units, 2C, 16W, 9M
 
-    energyAvailable -= 150
-    const header: BodyPartConstant[] = [CARRY, CARRY]
-    let body: BodyPartConstant[] = [MOVE]
-    const name = this.generateNewName()
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.HARVESTER,
-      should_notify_attack: false,
-      let_thy_die: true,
-    }
+    // energyAvailable = Math.min(energyAvailable, 2300)
 
-    while (energyAvailable >= energy_unit) {
-      body = move.concat(body)
-      body = body.concat(work)
-      energyAvailable -= energy_unit
-    }
-    body = header.concat(body)
+    // const move: BodyPartConstant[] = [MOVE]
+    // const work: BodyPartConstant[] = [WORK, WORK]
+    // const energy_unit = 250
 
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
+    // energyAvailable -= 150
+    // const header: BodyPartConstant[] = [CARRY, CARRY]
+    // let body: BodyPartConstant[] = [MOVE]
+    // const name = this.generateNewName()
+    // const memory: CreepMemory = {
+    //   squad_name: this.name,
+    //   status: CreepStatus.NONE,
+    //   birth_time: Game.time,
+    //   type: CreepType.HARVESTER,
+    //   should_notify_attack: false,
+    //   let_thy_die: true,
+    // }
+
+    // while (energyAvailable >= energy_unit) {
+    //   body = move.concat(body)
+    //   body = body.concat(work)
+    //   energyAvailable -= energy_unit
+    // }
+    // body = header.concat(body)
+
+    // const result = spawnFunc(body, name, {
+    //   memory: memory
+    // })
   }
 
   private harvest(): void {

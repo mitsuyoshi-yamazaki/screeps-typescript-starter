@@ -157,7 +157,7 @@ export abstract class Squad {
     return energyAvailable >= energyNeeded
   }
 
-  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, max_energy?: number): void {
+  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, creep_type: CreepType, max_energy?: number): void {
     // capacity: 2150
     // 8 units, 2C, 16W, 9M
 
@@ -178,7 +178,7 @@ export abstract class Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.WORKER,
+      type: creep_type,
       should_notify_attack: false,
       let_thy_die: true,
     }

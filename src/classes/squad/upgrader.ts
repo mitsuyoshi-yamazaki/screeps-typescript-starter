@@ -89,11 +89,11 @@ export class UpgraderSquad extends Squad {
     const room = Game.rooms[this.room_name]
 
     if (this.max_energy) {
-      this.addUpgrader(energyAvailable, spawnFunc, this.max_energy)
+      this.addUpgrader(energyAvailable, spawnFunc, CreepType.WORKER, this.max_energy)
       return
     }
 
-    this.addUpgrader(energyAvailable, spawnFunc)
+    this.addUpgrader(energyAvailable, spawnFunc, CreepType.WORKER)
   }
 
   public run(): void {
@@ -112,7 +112,7 @@ export class UpgraderSquad extends Squad {
 
       const should_boost = !creep.boosted() && ((creep.ticksToLive || 0) > 1450)
       if (should_boost && room && room.owned_structures && !is_rcl8) {
-        const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_HYDRIDE, RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
+        const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 
         if (!lab && !no_lab) {
           const labs = room.owned_structures.get(STRUCTURE_LAB) as StructureLab[]

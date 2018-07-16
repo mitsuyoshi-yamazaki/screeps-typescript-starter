@@ -1155,7 +1155,7 @@ export function init() {
           this.say('H2C')
         }
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && (Game.shard.name == 'shard2')
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5'].indexOf(this.room.name) < 0)
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
@@ -1179,7 +1179,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'dummy')) {
+        if ((this.room.name == 'W47N5')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
@@ -1201,15 +1201,15 @@ export function init() {
               return
             }
           }
-          const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {
-            filter: (t: Tombstone) => t.store.energy > 0
-          })[0]
-          if (tomb) {
-            if (this.withdrawResources(tomb) == ERR_NOT_IN_RANGE) {
-              this.moveTo(tomb, move_to_opt)
-              return
-            }
-          }
+          // const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {
+          //   filter: (t: Tombstone) => t.store.energy > 0
+          // })[0]
+          // if (tomb) {
+          //   if (this.withdrawResources(tomb) == ERR_NOT_IN_RANGE) {
+          //     this.moveTo(tomb, move_to_opt)
+          //     return
+          //   }
+          // }
         }
 
         if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {

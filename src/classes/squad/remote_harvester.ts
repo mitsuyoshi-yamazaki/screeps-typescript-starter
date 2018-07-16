@@ -963,20 +963,34 @@ export class RemoteHarvesterSquad extends Squad {
         }
 
         if (creep.carry.energy > 0) {
-          const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
-            filter: (structure: AnyStructure) => {
-              if (structure.structureType == STRUCTURE_ROAD) {
-                return structure.hits < (structure.hitsMax * 0.9)
+          if (creep.room.controller && creep.room.controller.my && creep.room.owned_structures) {
+            const extensions: StructureExtension[] = creep.room.owned_structures.get(STRUCTURE_EXTENSION) as StructureExtension[]
+            const extension = creep.pos.findInRange(extensions, 1, {
+              filter: (structure: StructureExtension) => {
+                return structure.energy < structure.energyCapacity
               }
-              if (structure.structureType == STRUCTURE_CONTAINER) {
-                return structure.hits < (structure.hitsMax * 0.9)
-              }
-              return false
-            }
-          })[0]
+            })[0]
 
-          if (damaged_structure) {
-            creep.repair(damaged_structure)
+            if (extension) {
+              creep.transfer(extension, RESOURCE_ENERGY)
+            }
+          }
+          else {
+            const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+              filter: (structure: AnyStructure) => {
+                if (structure.structureType == STRUCTURE_ROAD) {
+                  return structure.hits < (structure.hitsMax * 0.9)
+                }
+                if (structure.structureType == STRUCTURE_CONTAINER) {
+                  return structure.hits < (structure.hitsMax * 0.9)
+                }
+                return false
+              }
+            })[0]
+
+            if (damaged_structure) {
+              creep.repair(damaged_structure)
+            }
           }
         }
 

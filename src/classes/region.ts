@@ -24,6 +24,7 @@ export interface RegionMemory {
   reaction_output_excludes?: string[]
   support_link_ids?: string[]
   resource_transports?: {[room_name: string]: ResourceConstant[]}
+  last_spawn_time: number
 }
 
 export class Region {
@@ -72,7 +73,9 @@ export class Region {
     }
 
     if (!Memory.regions[this.name]) {
-      Memory.regions[this.name] = {}
+      Memory.regions[this.name] = {
+        last_spawn_time: Game.time,
+      }
     }
     const region_memory = Memory.regions[this.name]
 
@@ -500,8 +503,19 @@ export class Region {
           }
         }
         else {
+          let reason: string
+
+          if (RESOURCES_ALL.indexOf(output as ResourceConstant) < 0) {
+            Memory.regions[this.name].reaction_outputs!.shift()
+            reason = ``
+          }
+          else {
+            reason = `Unknown`
+          }
+
           const message = `Region no ingredients found for ${output}, ${this.name}`
           console.log(message)
+          Game.notify(message)
         }
       }
       else {
@@ -1251,6 +1265,12 @@ export class Region {
   }
 
   public run(): void {
+    if ((Game.time % 101) == 13) {
+      ErrorMapper.wrapLoop(() => {
+        this.watchDog()
+      }, `${this.name}.watchDog`)()
+    }
+
     ErrorMapper.wrapLoop(() => {
       this.activateSafeModeIfNeeded()
     }, `${this.name}.activateSafeModeIfNeeded`)()
@@ -1736,13 +1756,45 @@ export class Region {
       if (squad) {
         squad.addCreep(availableEnergy, (body, name, ops) => { // this closure is to keep 'this'
           const result = spawn.spawnCreep(body, name, ops)
-          if (result != OK) {
+          if (result == OK) {
+            Memory.regions[this.name].last_spawn_time = Game.time
+          }
+          else {
             console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}`)
           }
           return result
         })
       }
     })
+  }
+
+  private watchDog(): void {
+    const region_memory = Memory.regions[this.name]
+    let error: string | undefined
+
+    if (!region_memory) {
+      error = `No region_memory`
+    }
+    else {
+      if (!this.room.controller || (this.room.controller.level < 5)) {
+        return
+      }
+
+      if (!region_memory.last_spawn_time) {
+        error = `No last_spawn_time`
+      }
+      else if ((Game.time - region_memory.last_spawn_time) > 400) {
+        error = `No spawn in ${(Game.time - region_memory.last_spawn_time)} ticks (last_spawn_time: ${region_memory.last_spawn_time})`
+      }
+    }
+
+    if (!error) {
+      return
+    }
+
+    const message = `[ERROR] Region ${this.name} ${error}`
+    console.log(message)
+    Game.notify(message)
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
