@@ -50,6 +50,7 @@ export class Region {
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
   private current_reaction_target: ResourceConstant | undefined
+  private temp_squad_target_room_name: string | undefined
 
   private get support_link_ids(): string[] {
     const region_memory = Memory.regions[this.name]
@@ -329,6 +330,7 @@ export class Region {
           lhs: '5b378bd089b8230740d3f5dd', // 7, 14
           rhs: '5b376efd21b80f301e67dd92', // 8, 15
         }
+        this.temp_squad_target_room_name = 'W47N5'
         break
 
       case 'W43N5':
@@ -550,7 +552,7 @@ export class Region {
     let upgrader_squad: UpgraderSquad | null = null
     let researcher_squad: ResearcherSquad | null = null
     let raider_squad: RaiderSquad | null = null
-    let temp_squad: TempSquad | null = null
+    // let temp_squad: TempSquad | null = null
     let invader_squad: InvaderSquad | null = null
     const raid_target: RaiderTarget = {
       id: '59f1c265a5165f24b259a48a',
@@ -709,10 +711,15 @@ export class Region {
             break
           }
           case SquadType.TEMP: {
-            const squad = new TempSquad(squad_memory.name, this.room.name, energy_capacity)
+            if (this.temp_squad_target_room_name) {
+              // Creating squad costs CPU
+              const temp_squad_target_room = Game.rooms[this.temp_squad_target_room_name]
 
-            temp_squad = squad
-            this.squads.set(squad.name, squad)
+              if (!temp_squad_target_room || !temp_squad_target_room.controller || !temp_squad_target_room.controller.my) {
+                const squad = new TempSquad(squad_memory.name, this.room.name, this.temp_squad_target_room_name)
+                this.squads.set(squad.name, squad)
+              }
+            }
             break
           }
           default:
@@ -998,23 +1005,23 @@ export class Region {
       Memory.squads[squad.name] = memory
     }
 
-    // Temp
-    if (!temp_squad) {
-      // const name = TempSquad.generateNewName()
-      const name = `temp${this.room.name.toLowerCase()}`
-      const squad = new TempSquad(name, this.room.name, energy_capacity)
+    // // Temp
+    // if (!temp_squad) {
+    //   // const name = TempSquad.generateNewName()
+    //   const name = `temp${this.room.name.toLowerCase()}`
+    //   const squad = new TempSquad(name, this.room.name, energy_capacity)
 
-      temp_squad = squad
-      this.squads.set(squad.name, squad)
+    //   temp_squad = squad
+    //   this.squads.set(squad.name, squad)
 
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-    }
+    //   const memory: SquadMemory = {
+    //     name: squad.name,
+    //     type: squad.type,
+    //     owner_name: this.name,
+    //     number_of_creeps: 0,
+    //   }
+    //   Memory.squads[squad.name] = memory
+    // }
 
     // --- Spawn ---
     const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
@@ -1790,6 +1797,10 @@ export class Region {
 
     const squad_descriptions = this.squadDescriptions(Array.from(this.squads.values()))
     lines = lines.concat(squad_descriptions)
+
+    if (!this.temp_squad_target_room_name) {
+      lines.push(`  - no temp squad`)
+    }
 
     if (this.delegated_squads.length > 0) {
       lines.push(`  Delegated: `)

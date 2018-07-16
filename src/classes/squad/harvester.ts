@@ -253,6 +253,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a03882100e1594f3656b') { // W44S7 bottom
+      const link = Game.getObjectById('5b4886e633652d6850c4b543') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
 
 
     // --
@@ -1024,7 +1030,7 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
       creep.repair(store)
       return
     }
-    else if ((resource_type == RESOURCE_ENERGY) && (creep.room.controller && !creep.room.controller.my) && (store.hits < store.hitsMax)) {
+    else if ((resource_type == RESOURCE_ENERGY) && (store.hits < store.hitsMax)) {
       creep.repair(store)
       return
     }
