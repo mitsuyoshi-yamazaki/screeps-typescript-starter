@@ -23,7 +23,7 @@ export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
   support_link_ids?: string[]
-  transports?: {[room_name: string]: ResourceConstant}
+  resource_transports?: {[room_name: string]: ResourceConstant[]}
 }
 
 export class Region {
@@ -49,7 +49,6 @@ export class Region {
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
-  private current_reaction_target: ResourceConstant | undefined
   private temp_squad_target_room_name: string | undefined
 
   private get support_link_ids(): string[] {
@@ -76,10 +75,6 @@ export class Region {
       Memory.regions[this.name] = {}
     }
     const region_memory = Memory.regions[this.name]
-
-    if (region_memory.reaction_outputs) {
-      this.current_reaction_target = region_memory.reaction_outputs[0] as ResourceConstant | undefined
-    }
 
     // Spawns
     if (this.room.owned_structures) {
@@ -775,7 +770,7 @@ export class Region {
 
     // --- Worker ---
     if (!worker_squad) {
-      const name = WorkerSquad.generateNewName()
+      const name = `worker_${this.room.name.toLowerCase}` //WorkerSquad.generateNewName()
       const squad = new WorkerSquad(name, this.room.name)
 
       worker_squad = squad
@@ -795,7 +790,7 @@ export class Region {
 
     // --- Upgrader ---
     if (!upgrader_squad) {
-      const name = UpgraderSquad.generateNewName()
+      const name = `upgrader_${this.room.name.toLowerCase}` //UpgraderSquad.generateNewName()
       const squad = new UpgraderSquad(name, this.room.name)
 
       upgrader_squad = squad
@@ -820,7 +815,7 @@ export class Region {
 
     // --- Researcher ---
     if (!researcher_squad) {
-      const name = ResearcherSquad.generateNewName()
+      const name = `researcher_${this.room.name.toLowerCase}` //ResearcherSquad.generateNewName()
       const squad = new ResearcherSquad(name, this.room.name, research_input_targets, research_output_targets)
 
       researcher_squad = squad
@@ -913,7 +908,7 @@ export class Region {
 
     // --- Scout ---
     if ((!this.scout_squad) && (rooms_need_scout.length > 0)) {
-      const name = ScoutSquad.generateNewName()
+      const name = `scout_${this.room.name.toLowerCase}` //ScoutSquad.generateNewName()
       const squad = new ScoutSquad(name, rooms_need_scout)
 
       this.scout_squad = squad
@@ -932,7 +927,7 @@ export class Region {
 
     // --- Attacker ---
     if (!this.defend_squad) {
-      const name = AttackerSquad.generateNewName()
+      const name = `attacker_${this.room.name.toLowerCase}` //AttackerSquad.generateNewName()
       const memory: SquadMemory = {
         name: name,
         type: SquadType.ATTACKER,
@@ -990,7 +985,7 @@ export class Region {
     // Manual
     if (!this.manual_squad) {
       // const name = ManualSquad.generateNewName()
-      const name = `manual${this.room.name.toLowerCase()}`
+      const name = `manual_${this.room.name.toLowerCase()}`
       const squad = new ManualSquad(name, this.room.name)
 
       this.manual_squad = squad
@@ -1374,7 +1369,7 @@ export class Region {
     }
 
     const region_memory = Memory.regions[this.name]
-    if (!region_memory || !region_memory.transports) {
+    if (!region_memory || !region_memory.resource_transports) {
       return
     }
 
@@ -1388,59 +1383,64 @@ export class Region {
       RESOURCE_CATALYST,
     ]
 
-    for (const room_name in region_memory.transports) {
-      const resource_type = region_memory.transports[room_name]
-
-      if (RESOURCES_ALL.indexOf(resource_type) < 0) {
-        console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name}`)
+    for (const room_name in region_memory.resource_transports) {
+      const resource_types = region_memory.resource_transports[room_name]
+      if (!resource_types) {
         continue
       }
 
-      const to_room = Game.rooms[room_name]
-      if (!to_room || !to_room.terminal) {
-        console.log(`Region.sendResources no destination room ${room_name}, ${this.room.name}`)
-        continue
-      }
-
-      if (resource_type == RESOURCE_ENERGY) {
-        if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
-          console.log(`Region.sendResources lack of energy ${this.room.name}`)
+      for (const resource_type of resource_types) {
+        if (RESOURCES_ALL.indexOf(resource_type) < 0) {
+          console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name}`)
           continue
         }
-      }
 
-      const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
-
-      if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
-        const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
-        console.log(message)
-
-        if (resource_type != RESOURCE_ENERGY) {
-          Game.notify(message)
+        const to_room = Game.rooms[room_name]
+        if (!to_room || !to_room.terminal) {
+          console.log(`Region.sendResources no destination room ${room_name}, ${this.room.name}`)
+          continue
         }
-        continue
-      }
 
-      const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
-      let amount_needed = is_raw_resource ? 4900 : 500
-      let resource_capacity = 3000
-      let amount_send: number = is_raw_resource ? 2000 : Math.min((this.room.terminal.store[resource_type] || 0), 5000)
+        if (resource_type == RESOURCE_ENERGY) {
+          if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
+            console.log(`Region.sendResources lack of energy ${this.room.name}`)
+            continue
+          }
+        }
 
-      if (resource_type == RESOURCE_ENERGY) {
-        amount_needed = 140000
-        resource_capacity = 160000
-        amount_send = 100000
-      }
+        const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
 
-      const from_room_ready: boolean = ((this.room.terminal.store[resource_type] || 0) > amount_needed)
-      const to_room_ready: boolean = ((to_room.terminal.store[resource_type] || 0) < resource_capacity)
+        if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
+          const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
+          console.log(message)
 
-      if (from_room_ready && to_room_ready) {
-        const result = this.room.terminal.send(resource_type, amount_send, room_name)
-        console.log(`Send ${resource_type} from ${this.room.name} to ${room_name}, result:${result}`)
+          if (resource_type != RESOURCE_ENERGY) {
+            Game.notify(message)
+          }
+          continue
+        }
 
-        if (result == OK) {
-          break
+        const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
+        let amount_needed = is_raw_resource ? 4900 : 500
+        let resource_capacity = 3000
+        let amount_send: number = is_raw_resource ? 2000 : Math.min((this.room.terminal.store[resource_type] || 0), 5000)
+
+        if (resource_type == RESOURCE_ENERGY) {
+          amount_needed = 140000
+          resource_capacity = 160000
+          amount_send = 100000
+        }
+
+        const from_room_ready: boolean = ((this.room.terminal.store[resource_type] || 0) > amount_needed)
+        const to_room_ready: boolean = ((to_room.terminal.store[resource_type] || 0) < resource_capacity)
+
+        if (from_room_ready && to_room_ready) {
+          const result = this.room.terminal.send(resource_type, amount_send, room_name)
+          console.log(`Send ${resource_type} from ${this.room.name} to ${room_name}, result:${result}`)
+
+          if (result == OK) {
+            break
+          }
         }
       }
     }
