@@ -25,8 +25,13 @@ export class Empire {
       }, `${room.name}.init`)()
     }
 
-    const set_delegate = (base_region_name: string, colony_region_name: string) => {
+    const set_delegate = (base_region_name: string, colony_region_name: string, excludes?: SquadType[]) => {
       ErrorMapper.wrapLoop(() => {
+        const excludes_opt = excludes || [
+          SquadType.ATTACKER,
+          SquadType.SCOUT,
+          SquadType.TEMP,
+        ]
 
         const base_region = this.regions.get(base_region_name)
         const colony_region = this.regions.get(colony_region_name)
@@ -42,9 +47,7 @@ export class Empire {
 
         if ((colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 5)) {//4)) {
           const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
-            return (squad.type != SquadType.ATTACKER)
-              && (squad.type != SquadType.SCOUT)
-              && (squad.type != SquadType.TEMP)
+            return excludes_opt.indexOf(squad.type) < 0
           })
 
           base_region.delegated_squads = squads
@@ -65,7 +68,13 @@ export class Empire {
     const w48n11 = 'W48N11'
     const w47n5 = 'W47N5'
 
-    set_delegate(w47n2, w47n5)
+    set_delegate(w47n2, w47n5)//, [
+    //   SquadType.ATTACKER,
+    //   SquadType.SCOUT,
+    //   SquadType.TEMP,
+    //   SquadType.REMOET_HARVESTER,
+    //   // SquadType.REMOET_M_HARVESTER,
+    // ])
     set_delegate(w43n5, w47n5)
 
     if ((Game.time % 2) == 0) {

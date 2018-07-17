@@ -1736,11 +1736,16 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
+    const no_remote_harvester = (this.room.name == 'W47N5')
+
     const availableEnergy = this.room.energyAvailable
     const energy_capacity = this.room.energyCapacityAvailable - 50
 
     let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
     squad_needs_spawn = squad_needs_spawn.filter((squad) => {
+      if (no_remote_harvester && ([SquadType.REMOET_HARVESTER].indexOf(squad.type) >= 0)) {
+        return false
+      }
       return (squad.hasEnoughEnergy(availableEnergy, energy_capacity))
     })
 

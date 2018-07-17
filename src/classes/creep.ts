@@ -254,6 +254,9 @@ export function init() {
     else if ((destination_room_name == 'W43N11') && (Number(this.room.name.slice(4,6)) < 10) && (Number(this.room.name.slice(1,3)) == 43)) {
       destination_room_name = 'W43N10'
     }
+    else if ((destination_room_name == 'W46N5') && (Number(this.room.name.slice(4,6)) < 5)) {
+      destination_room_name = 'W47N5'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
@@ -1155,7 +1158,7 @@ export function init() {
           this.say('H2C')
         }
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5'].indexOf(this.room.name) < 0)
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5', 'W47N5'].indexOf(this.room.name) < 0)
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
@@ -1192,7 +1195,7 @@ export function init() {
           //   drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
           // }
           // else {
-            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 5, opt)[0] as Resource | undefined
+            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 7, opt)[0] as Resource | undefined
           // }
 
           if (drop) {
@@ -1388,6 +1391,7 @@ export function init() {
       else {
         this.upgradeController(room.controller!)
         if (((Game.time % 41) == 0) && room.controller) {
+        // if ((this.room.name == 'W47N5') && room.controller) {
           if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
             this.signController(room.controller, Game.version)
           }

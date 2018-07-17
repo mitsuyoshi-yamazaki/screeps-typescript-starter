@@ -178,13 +178,17 @@ export function tick(): void {
         continue
       }
 
-      const is_rcl8 = room.controller.level == 8
-      const progress = is_rcl8 ? '' : ` ${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
+      const rcl = room.controller.level
+      const progress = (rcl >= 8) ? '' : ` ${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
-      const reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
+      let reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
 
-      console.log(`${room_name} RCL:${room.controller.level}${progress} ${reaction_output}`)
+      if (rcl < 6) {
+        reaction_output = '-'
+      }
+
+      console.log(`${room_name} RCL:<b>${room.controller.level}</b>${progress} ${reaction_output}`)
     }
   }
 

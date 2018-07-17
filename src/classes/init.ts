@@ -3,7 +3,7 @@ import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
 export function init(): void {
-  Game.version = '2.20.4'
+  Game.version = '2.20.6'
   const now = Game.time
 
   Memory.last_tick = now

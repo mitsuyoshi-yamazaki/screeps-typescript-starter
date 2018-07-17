@@ -19,6 +19,8 @@ export interface RemoteHarvesterSquadMemory extends SquadMemory {
   destination_id?: string
   need_attacker?: boolean
   defend_room_name?: string
+  builder_max?: number
+  attacker_spawn_ticks_before?: number
 }
 
 interface SourceInfo {
@@ -127,6 +129,13 @@ export class RemoteHarvesterSquad extends Squad {
     this.creeps.forEach((creep, _) => {
       const memory = creep.memory as RemoteHarvesterMemory
 
+      // Log current position
+      // if (this.room_name == 'W46N5') {
+      //   if (((Game.time % 13) == 11) && (creep.room.name != this.room_name)) {
+      //     console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
+      //   }
+      // }
+
       switch (creep.memory.type) {
         case CreepType.WORKER:
           this.builders.push(creep)
@@ -179,7 +188,12 @@ export class RemoteHarvesterSquad extends Squad {
       }
     })
 
-    this.need_attacker = !(!squad_memory.need_attacker) && (attacker_max_ticks < 200)
+    let attacker_spawn_ticks_before = 200
+    if (squad_memory.attacker_spawn_ticks_before) {
+      attacker_spawn_ticks_before = squad_memory.attacker_spawn_ticks_before
+    }
+
+    this.need_attacker = !(!squad_memory.need_attacker) && (attacker_max_ticks < attacker_spawn_ticks_before)
 
     switch (squad_memory.status) {
       case SquadStatus.NONE:
@@ -199,9 +213,9 @@ export class RemoteHarvesterSquad extends Squad {
         break
     }
 
-    if (this.harvester_energy_unit <= capacity) {
+    // if (this.harvester_energy_unit <= capacity) {
       this.setNextCreep()
-    }
+    // }
 
     const room_memory = Memory.rooms[this.room_name]
     this.is_room_attacked = !(!squad_memory.need_attacker) ? false : !(!room_memory.attacked_time)
@@ -275,7 +289,12 @@ export class RemoteHarvesterSquad extends Squad {
 
     if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
-      const builder_max = 3
+      let builder_max = 3
+
+      if (squad_memory.builder_max) {
+        builder_max = squad_memory.builder_max
+      }
+
       if (this.builders.length < builder_max) {
         this.next_creep = CreepType.WORKER
       }
@@ -456,8 +475,9 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   public description(): string {
+    const detail = ((this.creeps.size == 1) && !(!this.scout)) ? ` ${this.scout.pos}` : ''
     const number_of_creeps = `S${this.scout ? 1 : 0}K${this.keeper ? 1 : 0}A${this.attackers.length}RA${this.ranged_attackers.length}B${this.builders.length}H${this.harvesters.length}C${this.carriers.length}`
-    return `${super.description()}, ${this.room_name}, ${this.next_creep}, ${number_of_creeps}`
+    return `${super.description()}, ${this.room_name}, ${this.next_creep}, ${number_of_creeps}${detail}`
   }
 
   // ---
@@ -695,6 +715,9 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
+        if (creep.carry.energy > 0) {
+          creep.memory.status = CreepStatus.BUILD
+        }
         return
       }
 
@@ -997,6 +1020,29 @@ export class RemoteHarvesterSquad extends Squad {
         // if (creep.moveToRoom(this.destination.room.name) == ActionResult.IN_PROGRESS) {
         //   return
         // }
+
+        if (!this.destination) {
+          if (this.room_name == 'W47N5') {
+            if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+
+            const x = 34
+            const y = 7
+
+            if ( (creep.pos.x != x) || (creep.pos.y != y)) {
+              creep.moveTo(x, y, {maxRooms: 0, reusePath: 10})
+              return
+            }
+
+            creep.drop(RESOURCE_ENERGY)
+            return
+          }
+
+          creep.say(`ERR`)
+          console.log(`ERROR`)
+          return
+        }
 
         if (!has_minerals || !this.destination.room.storage) {
           const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
