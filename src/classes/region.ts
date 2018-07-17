@@ -1786,7 +1786,8 @@ export class Region {
             Memory.regions[this.name].last_spawn_time = Game.time
           }
           else {
-            console.log(`${spawn.name} in ${this.name} [${body}] and assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}`)
+            // @fixme: If
+            console.log(`${spawn.name} in ${this.name} assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}, [${body}]`)
           }
           return result
         })

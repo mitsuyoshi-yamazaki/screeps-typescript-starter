@@ -519,6 +519,10 @@ export function init() {
       this.moveTo(33, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W46N5') && (this.room.name == 'W47N2')) {
+      this.moveTo(17, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {

@@ -534,7 +534,7 @@ export class HarvesterSquad extends Squad {
         if (room && room.controller && room.controller.my) {
           switch (room.controller.level) {
             case 8:
-              this.mineral_harvester_energy_max = 4300
+              this.mineral_harvester_energy_max = 3300  // @fixme: 4300 causes bug
               break
 
             case 7:
