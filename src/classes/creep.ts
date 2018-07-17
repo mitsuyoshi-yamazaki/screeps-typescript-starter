@@ -1192,7 +1192,7 @@ export function init() {
           //   drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
           // }
           // else {
-            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 4, opt)[0] as Resource | undefined
+            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 5, opt)[0] as Resource | undefined
           // }
 
           if (drop) {

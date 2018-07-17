@@ -19,6 +19,11 @@ export class WorkerSquad extends Squad {
     super(name)
 
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
+    if (!squad_memory) {
+      this.number_of_workers = 0
+      return
+    }
+
     if (squad_memory.number_of_workers) {
       this.number_of_workers = squad_memory.number_of_workers
     }
@@ -50,6 +55,11 @@ export class WorkerSquad extends Squad {
   }
 
   public get spawnPriority(): SpawnPriority {
+    const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
+    if (!squad_memory) {
+      return SpawnPriority.NONE
+    }
+
     const room = Game.rooms[this.room_name]
 
     if ((this.room_name == 'W43N5') && room && room.controller && (room.controller.level < 4) && ((Game.time % 2) == 1)) {

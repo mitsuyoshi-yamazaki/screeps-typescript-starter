@@ -91,8 +91,10 @@ export class Region {
       }
     }
 
-    if (this.spawns.size == 0) {
-      this.room.owned_structures_not_found_error(STRUCTURE_SPAWN)
+    if ((this.spawns.size == 0)) {
+      if (this.room.controller && (this.room.controller.level >= 3)) {
+        this.room.owned_structures_not_found_error(STRUCTURE_SPAWN)
+      }
       this.room.find(FIND_MY_SPAWNS).forEach((spawn) => {
         this.spawns.set(spawn.name, spawn)
       })
@@ -328,7 +330,7 @@ export class Region {
           lhs: '5b378bd089b8230740d3f5dd', // 7, 14
           rhs: '5b376efd21b80f301e67dd92', // 8, 15
         }
-        this.temp_squad_target_room_name = 'W47N5'
+        // this.temp_squad_target_room_name = 'W47N5'
         break
 
       case 'W43N5':
@@ -1075,7 +1077,9 @@ export class Region {
     }
 
     if (!this.towers || (this.towers.length == 0)) {
-      this.room.owned_structures_not_found_error(STRUCTURE_TOWER)
+      if (this.room.controller && (this.room.controller.level >= 3)) {
+        this.room.owned_structures_not_found_error(STRUCTURE_TOWER)
+      }
 
       this.towers = this.room.find(FIND_MY_STRUCTURES, {
         filter: (structure) => {
@@ -1780,10 +1784,15 @@ export class Region {
         return
       }
 
+      let duration = 400
+      if (this.room.name == 'W51S29') {
+        duration = 500
+      }
+
       if (!region_memory.last_spawn_time) {
         error = `No last_spawn_time`
       }
-      else if ((Game.time - region_memory.last_spawn_time) > 400) {
+      else if ((Game.time - region_memory.last_spawn_time) > duration) {
         error = `No spawn in ${(Game.time - region_memory.last_spawn_time)} ticks (last_spawn_time: ${region_memory.last_spawn_time})`
       }
     }

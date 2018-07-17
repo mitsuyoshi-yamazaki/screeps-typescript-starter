@@ -223,7 +223,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N5': {
-        return energy_available >= 1000
+        return energy_available >= 2000
       }
 
       default:
@@ -361,9 +361,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N5': {
-                // 1000
+                // 2000
                 const body: BodyPartConstant[] = [
                   MOVE, MOVE, MOVE, MOVE, MOVE,
+                  MOVE, MOVE, MOVE, MOVE, MOVE,
+                  MOVE, MOVE, MOVE, MOVE, MOVE,
+                  CARRY, CARRY, CARRY, CARRY, CARRY,
+                  CARRY, CARRY, CARRY, CARRY, CARRY,
                   CARRY, CARRY, CARRY, CARRY, CARRY,
                   CARRY, CARRY, CARRY, CARRY, CARRY,
                   MOVE, MOVE, MOVE, MOVE, MOVE,
