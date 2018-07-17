@@ -60,7 +60,7 @@ export class RemoteHarvesterSquad extends Squad {
     const room = Game.rooms[this.room_name] as Room | undefined
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if ((this.base_room.name == 'W47N5') && room && room.controller && (room.controller.level < 7)) {
+    if ((this.base_room.name == 'W47N5') && this.base_room.controller && (this.base_room.controller.level < 7)) {
       this.harvester_energy_unit = 1000
       this.harvester_body_unit = [
         CARRY, CARRY,
