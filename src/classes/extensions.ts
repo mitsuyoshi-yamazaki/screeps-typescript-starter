@@ -33,6 +33,7 @@ declare global {
     trading: {stop: boolean}
     debug: {
       show_visuals: boolean,
+      show_costmatrix: string | null,
       test_send_resources: boolean,
       cpu: {
         show_usage: boolean,
@@ -235,7 +236,7 @@ export function tick(): void {
       (Memory.rooms[this.name] as RoomMemory).attacked_time = undefined
     }
 
-    const hostiles = this.find(FIND_HOSTILE_CREEPS, {
+    const hostiles: Creep[] = this.find(FIND_HOSTILE_CREEPS, {
       // filter: function(creep: Creep): boolean {
       //   if (creep.pos.x == 0) {
       //     return false
@@ -300,17 +301,86 @@ export function tick(): void {
     const suffix = (Number(this.name.slice(4,6)) - 4) % 10
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
 
+    const hoge = false
+
     if (this.is_keeperroom) {
       if (room_memory.cost_matrix) {
-        this.cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix)
+      // if (hoge) {
+        this.cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix) // @fixme: if it needed
       }
       else {
-        console.log(`HOGE create costmatrix ${this.name}`)
+        console.log(`${this.name} create costmatrix`)
+
+        let error_message: string | undefined
 
         this.cost_matrix = new PathFinder.CostMatrix;
         const margin = 5
-        const cost = 3
+        const room_size = 50
+
         const road_cost = 1
+        const plain_cost = 2
+        const swamp_cost = plain_cost * 5
+        const unwalkable_cost = 255
+
+        const hostile_cost = 12
+        const edge_hostile_cost = 3
+        const near_edge_hostile_cost = 5
+
+        const is_edge = (x: number, y: number) => {
+          if ((x == 0) || (x == 49)) {
+            return true
+          }
+          if ((y == 0) || (y == 49)) {
+            return true
+          }
+          return false
+        }
+
+        const is_near_edge = (x: number, y: number) => {
+          if ((x == 1) || (x == 48)) {
+            return true
+          }
+          if ((y == 1) || (y == 48)) {
+            return true
+          }
+          return false
+        }
+
+        for (let i = 0; i < room_size; i++) {
+          for (let j = 0; j < room_size; j++) {
+            const terrain = Game.map.getTerrainAt(i, j, this.name)
+            let cost: number
+
+            switch (terrain) {
+              case 'plain':
+                cost = plain_cost
+                break
+
+              case 'swamp':
+                cost = swamp_cost
+                break
+
+              case 'wall':
+                cost = unwalkable_cost
+                break
+
+              default: {
+                cost = unwalkable_cost
+                const message = `\n${this.name} ${i},${j} unknown terrain`
+                error_message = !(!error_message) ? (error_message + message) : message
+                break
+              }
+            }
+
+            this.cost_matrix.set(i, j, cost)
+          }
+        }
+
+        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
+          return structure.structureType == STRUCTURE_ROAD
+        }).forEach((structure: Structure) => {
+          this.cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
+        })
 
         this.find(FIND_STRUCTURES).filter((structure: Structure) => {
           return structure.structureType == STRUCTURE_KEEPER_LAIR
@@ -323,6 +393,18 @@ export function tick(): void {
             for (let j = (structure.pos.y - margin); j <= (structure.pos.y + margin); j++) {
               if ((j < 0) || (j > 49)) {
                 continue
+              }
+              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
+                continue
+              }
+
+              let cost = hostile_cost
+
+              if (is_edge(i, j)) {
+                cost = edge_hostile_cost
+              }
+              else if (is_near_edge(i, j)) {
+                cost = near_edge_hostile_cost
               }
 
               this.cost_matrix.set(i, j, cost)
@@ -340,6 +422,18 @@ export function tick(): void {
               if ((j < 0) || (j > 49)) {
                 continue
               }
+              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
+                continue
+              }
+
+              let cost = hostile_cost
+
+              if (is_edge(i, j)) {
+                cost = edge_hostile_cost
+              }
+              else if (is_near_edge(i, j)) {
+                cost = near_edge_hostile_cost
+              }
 
               this.cost_matrix.set(i, j, cost)
             }
@@ -356,19 +450,32 @@ export function tick(): void {
               if ((j < 0) || (j > 49)) {
                 continue
               }
+              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
+                continue
+              }
+
+              let cost = hostile_cost
+
+              if (is_edge(i, j)) {
+                cost = edge_hostile_cost
+              }
+              else if (is_near_edge(i, j)) {
+                cost = near_edge_hostile_cost
+              }
 
               this.cost_matrix.set(i, j, cost)
             }
           }
         })
 
-        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
-          return structure.structureType == STRUCTURE_ROAD
-        }).forEach((structure: Structure) => {
-          this.cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
-        })
-
         room_memory.cost_matrix = this.cost_matrix.serialize()
+
+        if (error_message) {
+          error_message = `Room.create_costmatrix error ${this.name}\n`
+
+          console.log(error_message)
+          Game.notify(error_message)
+        }
       }
     }
   }

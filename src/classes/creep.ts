@@ -551,7 +551,7 @@ export function init() {
         this.say(`E${result}`)
       }
       else {
-        console.log(`HOGE ${this.room} ${this.room.controller} ${this.pos}`)
+        console.log(`Creep.moveToRoom no path and no room controller ${this.room} ${this.room.controller} ${this.pos}`)
       }
       // this.moveTo(closest_exit, {
       //   // swampCost: 1,

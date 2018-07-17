@@ -164,13 +164,40 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }, `Creep.debug`)()
 
-  // ErrorMapper.wrapLoop(() => {
-  //   const before = Game.cpu.getUsed()
-  //   const a = Game.rooms['W44S7'].find(FIND_MY_STRUCTURES, {filter: (s=>true)})
-  //   const after = Game.cpu.getUsed()
+  if (Memory.debug.show_costmatrix) {
+    const room_name: string = Memory.debug.show_costmatrix
 
-  //   console.log(`HOGE ${after - before}`)
-  // })()
+    ErrorMapper.wrapLoop(() => {
+      const room = Game.rooms[room_name]
+      const room_memory = Memory.rooms[room_name]
+
+      if (!room) {
+        console.log(`Show costmatrix no room ${room_name} found`)
+      }
+      else if (!room_memory || !room_memory.cost_matrix) {
+        console.log(`NO costmatrix on the room ${room_name}`)
+      }
+      else {
+        console.log(`Showing costmatrix ${room_name}`)
+
+        const cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix)
+        const room_size = 50
+
+        for (let i = 0; i < room_size; i++) {
+          for (let j = 0; j < room_size; j++) {
+            const cost = cost_matrix.get(i, j)
+
+            room.visual.text(`${cost}`, i, j, {
+              color: '#ffffff',
+              align: 'center',
+              font: '12px',
+              opacity: 0.8,
+            })
+          }
+        }
+      }
+    }, `Show costmatrix ${room_name}`)()
+  }
 
   const all_cpu = Math.ceil(Game.cpu.getUsed())
   Memory.cpu_usages.push(all_cpu)

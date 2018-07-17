@@ -130,11 +130,11 @@ export class RemoteHarvesterSquad extends Squad {
       const memory = creep.memory as RemoteHarvesterMemory
 
       // Log current position
-      // if (this.room_name == 'W46N5') {
-      //   if (((Game.time % 13) == 11) && (creep.room.name != this.room_name)) {
-      //     console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
-      //   }
-      // }
+      if (this.room_name == 'W46N5') {
+        if (((Game.time % 13) == 11) && (creep.room.name != this.room_name)) {
+          console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
+        }
+      }
 
       switch (creep.memory.type) {
         case CreepType.WORKER:
@@ -879,7 +879,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
+      if ((_.sum(creep.carry) < (creep.carryCapacity - 100)) && (creep.room.name != 'W47N5')) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY
@@ -1022,8 +1022,8 @@ export class RemoteHarvesterSquad extends Squad {
         // }
 
         if (!this.destination) {
-          if (this.room_name == 'W47N5') {
-            if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+          if (this.base_room.name == 'W47N5') {
+            if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
               return
             }
 

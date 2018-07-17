@@ -756,6 +756,10 @@ export class ManualSquad extends Squad {
               return
             }
 
+            if (creep.moveToRoom(base_room.name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+
             if (creep.withdraw(base_room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
               creep.moveTo(base_room.storage!, {maxRooms: 4, reusePath: 10})
             }

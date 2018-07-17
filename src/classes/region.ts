@@ -786,7 +786,7 @@ export class Region {
 
     // --- Worker ---
     if (!worker_squad) {
-      const name = `worker_${this.room.name.toLowerCase}` //WorkerSquad.generateNewName()
+      const name = `worker_${this.room.name.toLowerCase()}` //WorkerSquad.generateNewName()
       const squad = new WorkerSquad(name, this.room.name)
 
       worker_squad = squad
@@ -806,7 +806,7 @@ export class Region {
 
     // --- Upgrader ---
     if (!upgrader_squad) {
-      const name = `upgrader_${this.room.name.toLowerCase}` //UpgraderSquad.generateNewName()
+      const name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()
       const squad = new UpgraderSquad(name, this.room.name)
 
       upgrader_squad = squad
@@ -831,7 +831,7 @@ export class Region {
 
     // --- Researcher ---
     if (!researcher_squad) {
-      const name = `researcher_${this.room.name.toLowerCase}` //ResearcherSquad.generateNewName()
+      const name = `researcher_${this.room.name.toLowerCase()}` //ResearcherSquad.generateNewName()
       const squad = new ResearcherSquad(name, this.room.name, research_input_targets, research_output_targets)
 
       researcher_squad = squad
@@ -924,7 +924,7 @@ export class Region {
 
     // --- Scout ---
     if ((!this.scout_squad) && (rooms_need_scout.length > 0)) {
-      const name = `scout_${this.room.name.toLowerCase}` //ScoutSquad.generateNewName()
+      const name = `scout_${this.room.name.toLowerCase()}` //ScoutSquad.generateNewName()
       const squad = new ScoutSquad(name, rooms_need_scout)
 
       this.scout_squad = squad
@@ -943,7 +943,7 @@ export class Region {
 
     // --- Attacker ---
     if (!this.defend_squad) {
-      const name = `attacker_${this.room.name.toLowerCase}` //AttackerSquad.generateNewName()
+      const name = `attacker_${this.room.name.toLowerCase()}` //AttackerSquad.generateNewName()
       const memory: SquadMemory = {
         name: name,
         type: SquadType.ATTACKER,
@@ -1736,7 +1736,11 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
-    const no_remote_harvester = (this.room.name == 'W47N5')
+    const no_remote_harvester = (this.room.name == 'W47N5') && this.room.controller && (this.room.controller.level < 7)
+
+    if (no_remote_harvester && ((Game.time % 97) == 3)) {
+      console.log(`\n\nNO REMOTE HARVESTER ${this.name}\n\n`)
+    }
 
     const availableEnergy = this.room.energyAvailable
     const energy_capacity = this.room.energyCapacityAvailable - 50

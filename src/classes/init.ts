@@ -3,7 +3,7 @@ import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
 export function init(): void {
-  Game.version = '2.20.6'
+  Game.version = '2.21.1'
   const now = Game.time
 
   Memory.last_tick = now
@@ -31,6 +31,7 @@ export function init(): void {
   if (!Memory.debug) {
     Memory.debug = {
       show_visuals: false,
+      show_costmatrix: null,
       test_send_resources: false,
       cpu: {
         show_usage: false,
@@ -58,6 +59,10 @@ export function tick(): void {
 
   if ((time % 997) == 0) {
     Memory.debug.show_visuals = false
+  }
+
+  if ((time % 97) == 29) {
+    Memory.debug.show_costmatrix = null
   }
 
   const cpu_ticks = 20
