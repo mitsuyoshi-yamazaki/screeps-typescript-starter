@@ -169,18 +169,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
     ErrorMapper.wrapLoop(() => {
       const room = Game.rooms[room_name]
-      const room_memory = Memory.rooms[room_name]
 
       if (!room) {
         console.log(`Show costmatrix no room ${room_name} found`)
       }
-      else if (!room_memory || !room_memory.cost_matrix) {
-        console.log(`NO costmatrix on the room ${room_name}`)
+      else if (!room.cost_matrix) {
       }
       else {
         console.log(`Showing costmatrix ${room_name}`)
 
-        const cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix)
+        const cost_matrix = room.cost_matrix
         const room_size = 50
 
         for (let i = 0; i < room_size; i++) {
