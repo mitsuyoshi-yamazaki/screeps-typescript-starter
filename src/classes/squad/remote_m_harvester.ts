@@ -98,6 +98,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
     if (!this.harvester) {
       return energy_available >= 3000
     }
+    if (this.room_name == 'W45S5') {
+      return energy_available >= 1500
+    }
     return energy_available >= 1000
   }
 
@@ -135,12 +138,23 @@ export class RemoteMineralHarvesterSquad extends Squad {
   }
 
   private addCarrier(energy_available: number, spawn_func: SpawnFunction): void {
-    const body: BodyPartConstant[] = [
+    let body: BodyPartConstant[] = [
       MOVE, MOVE, MOVE, MOVE, MOVE,
       CARRY, CARRY, CARRY, CARRY, CARRY,
       CARRY, CARRY, CARRY, CARRY, CARRY,
       MOVE, MOVE, MOVE, MOVE, MOVE,
     ]
+
+    if (this.room_name == 'W45S5') {
+      body = [
+        MOVE, MOVE, MOVE, MOVE, MOVE,
+        MOVE, MOVE, MOVE, MOVE, MOVE,
+        CARRY, CARRY, CARRY, CARRY, CARRY,
+        CARRY, CARRY, CARRY, CARRY, CARRY,
+        CARRY, CARRY, CARRY, CARRY, CARRY,
+        MOVE, MOVE, MOVE, MOVE, MOVE,
+      ]
+    }
 
     this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
   }
@@ -173,11 +187,12 @@ export class RemoteMineralHarvesterSquad extends Squad {
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
     this.carriers.forEach((creep) => {
+      const carry = _.sum(creep.carry)
+
       if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
         return
       }
 
-      const carry = _.sum(creep.carry)
       const no_resource = (this.mineral && (this.mineral.mineralAmount == 0) && (carry > 0))
 
       if ((carry > (creep.carryCapacity - 30)) || no_resource) {

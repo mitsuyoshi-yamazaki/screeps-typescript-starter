@@ -104,6 +104,7 @@ declare global {
     let_thy_die: boolean
     debug?: boolean
     stop?: boolean
+    destination_room_name?: string
   }
 }
 
@@ -153,6 +154,10 @@ export function init() {
 
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
+    if (this.memory.destination_room_name) {
+      destination_room_name = this.memory.destination_room_name
+    }
+
     if (this.room.name == destination_room_name) {
       const index = (Game.time % 3)
 
@@ -176,6 +181,8 @@ export function init() {
           return ActionResult.IN_PROGRESS
         }
       }
+
+      this.memory.destination_room_name = undefined
       return ActionResult.DONE
     }
 
@@ -508,6 +515,11 @@ export function init() {
       this.moveTo(41, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W46N5') && (this.room.name == 'W47N3') && (exit == RIGHT)) {
+      this.moveTo(33, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
+
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
@@ -1231,6 +1243,19 @@ export function init() {
             if (this.pickup(drop) == ERR_NOT_IN_RANGE) {
               this.moveTo(drop, move_to_opt)
               return
+            }
+          }
+          else {
+            const container = this.pos.findInRange(FIND_STRUCTURES, 5, {
+              filter: (structure: AnyStructure) => {
+                return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+              }
+            })[0]
+
+            if (container) {
+              if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(container, move_to_opt)
+              }
             }
           }
           // const tomb = this.pos.findInRange(FIND_TOMBSTONES, 4, {

@@ -299,8 +299,8 @@ export function tick(): void {
       })
     }
 
-    const prefix = (Number(this.name.slice(1,3)) - 4) % 10
-    const suffix = (Number(this.name.slice(4,6)) - 4) % 10
+    const prefix = (Number(this.name.slice(1,3)) + 6) % 10
+    const suffix = (Number(this.name.slice(4,6)) + 6) % 10
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
 
     const hoge = false

@@ -145,7 +145,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   //   }, `SendResources`)()
   // }
 
-  if ((Game.time % 47) == 5) {
+  if ((Game.time % 97) == 5) {
     ErrorMapper.wrapLoop(() => {
       // if ((Game.time % 7) == 0) {  // @fixme:
         trade()
@@ -281,7 +281,52 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_KEANIUM,
-    price: 0.1,
+    price: 0.03,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_ZYNTHIUM,
+    price: 0.03,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_UTRIUM,
+    price: 0.03,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_LEMERGIUM,
+    price: 0.03,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_CATALYST,
+    price: 0.03,
+    trader_room_names: [
+      zynthium_first_room_name,
+      utrium_first_room_name,
+    ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_POWER,
+    price: 0.03,
     trader_room_names: [
       zynthium_first_room_name,
       utrium_first_room_name,
@@ -290,11 +335,21 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.05,
+    price: 0.03,
     trader_room_names: [
       hydrogen_second_room_name,
       hydrogen_third_room_name,
     ],
+  }, credit_amount)
+
+  buyResource({
+    resource_type: RESOURCE_HYDROGEN,
+    price: 0.03,
+    trader_room_names: [
+      hydrogen_first_room_name,
+      hydrogen_second_room_name,
+      hydrogen_third_room_name,
+    ]
   }, credit_amount)
 }
 
@@ -404,7 +459,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
 
 // -- Buy
 function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
-  if (credit_amount < 195000) {
+  if (credit_amount < 190000) {
     const message = `main.tradeResource lack of credit ${credit_amount}`
     // console.log(message)
     // Game.notify(message)

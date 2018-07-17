@@ -134,6 +134,12 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
+        if (room.storage.store.energy > 700000) {
+          if (this.creeps.size < 2) {
+            return SpawnPriority.NORMAL
+          }
+        }
+
         return this.creeps.size < 3 ? SpawnPriority.LOW : SpawnPriority.NONE
         // return SpawnPriority.NONE
       }
@@ -593,15 +599,17 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const room = Game.rooms[this.original_room_name]
-        const lab = Game.getObjectById('5b3ec0561ca96b59438c5536') as StructureLab | undefined
 
-        if (!room || !room.terminal || !lab) {
-          this.say(`ERR`)
-          return
-        }
 
-        this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
+        // const room = Game.rooms[this.original_room_name]
+        // const lab = Game.getObjectById('5b3ec0561ca96b59438c5536') as StructureLab | undefined
+
+        // if (!room || !room.terminal || !lab) {
+        //   this.say(`ERR`)
+        //   return
+        // }
+
+        // this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
         return
       }
 
