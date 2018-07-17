@@ -1795,7 +1795,7 @@ export class Region {
 
       let duration = 400
       if (this.room.name == 'W51S29') {
-        duration = 500
+        duration = 600
       }
 
       if (!region_memory.last_spawn_time) {

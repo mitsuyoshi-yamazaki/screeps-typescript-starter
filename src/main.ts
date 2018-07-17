@@ -199,6 +199,25 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }, `Show costmatrix ${room_name}`)()
   }
 
+  if (Memory.debug.reset_costmatrix) {
+    console.log(`RESET costmatrix`)
+
+    ErrorMapper.wrapLoop(() => {
+      for (const room_name in Memory.rooms) {
+        const room_memory = Memory.rooms[room_name]
+
+        if (!room_memory) {
+          console.log(`Reset costmatrix no room memory for ${room_name}: probably writing wrong code`)
+          break
+        }
+
+        Memory.rooms[room_name].cost_matrix = undefined
+      }
+    }, `Reset costmatrix`)()
+
+    Memory.debug.reset_costmatrix = false
+  }
+
   const all_cpu = Math.ceil(Game.cpu.getUsed())
   Memory.cpu_usages.push(all_cpu)
 

@@ -185,6 +185,15 @@ export function init() {
       maxOps: 500,
     }
 
+    if (Memory.debug.show_path) {
+      opt.visualizePathStyle = {
+        fill: 'transparent',
+        stroke: '#c0c000',
+        lineStyle: 'dashed',
+        opacity: 0.4
+      }
+    }
+
     this.say(`${this.room.is_keeperroom ? 's' : ''}${destination_room_name}`)
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
@@ -254,9 +263,9 @@ export function init() {
     else if ((destination_room_name == 'W43N11') && (Number(this.room.name.slice(4,6)) < 10) && (Number(this.room.name.slice(1,3)) == 43)) {
       destination_room_name = 'W43N10'
     }
-    else if ((destination_room_name == 'W46N5') && (Number(this.room.name.slice(4,6)) < 5)) {
-      destination_room_name = 'W47N5'
-    }
+    // else if ((destination_room_name == 'W46N5') && (Number(this.room.name.slice(4,6)) < 5)) {
+    //   destination_room_name = 'W47N5'
+    // }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
@@ -477,6 +486,26 @@ export function init() {
     }
     else if ((destination_room_name == 'W48N12') && (this.room.name == 'W48N11')) {
       this.moveTo(30, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W47N2') && (this.room.name == 'W47N5')) {
+      if (this.pos.x > 41) {
+        this.move(BOTTOM_LEFT)  // wtf
+        return ActionResult.IN_PROGRESS
+      }
+      this.moveTo(41, 49, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((['W47N5', 'W46N5'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W47N4')) {
+      if (this.pos.y > 30) {
+        this.moveTo(30, 30, opt)
+        return ActionResult.IN_PROGRESS
+      }
+      else if (this.pos.y > 24) {
+        this.moveTo(31, 24, opt)
+        return ActionResult.IN_PROGRESS
+      }
+      this.moveTo(41, 0, opt)
       return ActionResult.IN_PROGRESS
     }
 

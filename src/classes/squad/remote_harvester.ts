@@ -47,12 +47,29 @@ export class RemoteHarvesterSquad extends Squad {
   private debug = false
   private next_creep: CreepType | undefined
   private harvester_energy_unit = 850
+  private harvester_body_unit: BodyPartConstant[] = [
+    MOVE, MOVE, MOVE,
+    CARRY, CARRY,
+    WORK, WORK, WORK,
+    WORK, WORK, WORK,
+  ]
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
     super(name)
 
     const room = Game.rooms[this.room_name] as Room | undefined
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+
+    if ((this.base_room.name == 'W47N5') && room && room.controller && (room.controller.level < 7)) {
+      this.harvester_energy_unit = 1000
+      this.harvester_body_unit = [
+        CARRY, CARRY,
+        MOVE, MOVE, MOVE,
+        MOVE, MOVE, MOVE,
+        WORK, WORK, WORK,
+        WORK, WORK, WORK,
+      ]
+    }
 
     if (squad_memory.destination_id) {
       const specified_destination = Game.getObjectById(squad_memory.destination_id) as HarvesterDestination | undefined
@@ -517,12 +534,6 @@ export class RemoteHarvesterSquad extends Squad {
       return
     }
 
-    const body_unit: BodyPartConstant[] = [
-      MOVE, MOVE, MOVE,
-      CARRY, CARRY,
-      WORK, WORK, WORK,
-      WORK, WORK, WORK,
-    ]
     const energy_unit = this.harvester_energy_unit
 
     const name = this.generateNewName()
@@ -542,7 +553,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     energy_available = Math.min(energy_available, energy_max)
     while (energy_available >= energy_unit) {
-      body = body.concat(body_unit)
+      body = body.concat(this.harvester_body_unit)
       energy_available -= energy_unit
     }
 
@@ -708,6 +719,7 @@ export class RemoteHarvesterSquad extends Squad {
 
   private runBuilder(): void {
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
+    let done = false
 
     this.builders.forEach((creep) => {
       if (creep.spawning) {
@@ -807,6 +819,7 @@ export class RemoteHarvesterSquad extends Squad {
           creep.say(`DONE`)
           console.log(`RemoteHarvesterSquad.runBuilder done ${this.name}, ${this.room_name}`)
           creep.memory.squad_name = this.region.worker_squad.name
+          done = true
           return
         }
 
@@ -829,6 +842,15 @@ export class RemoteHarvesterSquad extends Squad {
         creep.moveTo(construction_site)
       }
     })
+
+    if (done) {
+      const room_memory = Memory.rooms[this.room_name]
+
+      if (room_memory && room_memory.cost_matrix) {
+        Memory.rooms[this.room_name].cost_matrix = undefined
+        console.log(`RemoteHarvesterSquad reset costmatrix ${this.room_name} ${this.name}`)
+      }
+    }
   }
 
   private runHarvester() {

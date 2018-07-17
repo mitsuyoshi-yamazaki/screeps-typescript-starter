@@ -33,7 +33,9 @@ declare global {
     trading: {stop: boolean}
     debug: {
       show_visuals: boolean,
+      show_path: boolean,
       show_costmatrix: string | null,
+      reset_costmatrix: boolean,
       test_send_resources: boolean,
       cpu: {
         show_usage: boolean,
@@ -180,7 +182,7 @@ export function tick(): void {
       }
 
       const rcl = room.controller.level
-      const progress = (rcl >= 8) ? '' : ` ${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
+      const progress = (rcl >= 8) ? 'Max' : `${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
@@ -189,7 +191,7 @@ export function tick(): void {
         reaction_output = '-'
       }
 
-      console.log(`${room_name} RCL:<b>${room.controller.level}</b>${progress} ${reaction_output}`)
+      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b> ${progress}\t${reaction_output}`)
     }
   }
 
