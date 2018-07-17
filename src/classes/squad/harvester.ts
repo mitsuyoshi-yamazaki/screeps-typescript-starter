@@ -495,7 +495,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1a03882100e1594f36569') { // W44S7 top
       number_of_carriers = 0
     }
-
+    else if (this.source_info.id == '59f1a00882100e1594f35ee0') { // W47N5
+      number_of_carriers = (!(!room) && room.storage) ? 1 : 0  // To drop energy on the ground
+    }
 
     if (this.source_info.room_name == 'W47S49') {
       number_of_carriers = 3
@@ -930,9 +932,16 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
       if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
         const ignoreCreeps = ((Game.time % 3) == 0) ? false : creep.pos.getRangeTo(source) <= 2  // If the blocking creep is next to the source, ignore
 
-        creep.moveTo(source, {
-          ignoreCreeps: ignoreCreeps,
-        })
+        if (store && (store.structureType == STRUCTURE_CONTAINER)) {
+          creep.moveTo(store, {
+            ignoreCreeps: ignoreCreeps,
+          })
+        }
+        else {
+          creep.moveTo(source, {
+            ignoreCreeps: ignoreCreeps,
+          })
+        }
         return
       }
     }
@@ -1023,9 +1032,16 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
       if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
         const ignoreCreeps = ((Game.time % 3) == 0) ? false : creep.pos.getRangeTo(source) <= 2  // If the blocking creep is next to the source, ignore
 
-        creep.moveTo(source, {
-          ignoreCreeps: ignoreCreeps,
-        })
+        if (store && (store.structureType == STRUCTURE_CONTAINER)) {
+          creep.moveTo(store, {
+            ignoreCreeps: ignoreCreeps,
+          })
+        }
+        else {
+          creep.moveTo(source, {
+            ignoreCreeps: ignoreCreeps,
+          })
+        }
         return
       }
     }

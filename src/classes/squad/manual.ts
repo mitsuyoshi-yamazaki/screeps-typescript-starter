@@ -122,7 +122,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N2': {
-        return this.spawnPriorityForBoostCarrier(RESOURCE_GHODIUM_ACID)
+        return this.spawnPriorityForBoostCarrier(RESOURCE_CATALYZED_GHODIUM_ACID)
       }
 
       case 'W43N5': {
@@ -144,16 +144,17 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N5': {
-        const base_room = Game.rooms['W47N2']
-        if (!base_room || !base_room.storage) {
-          return SpawnPriority.NONE
-        }
+        // const base_room = Game.rooms['W47N2']
+        // if (!base_room || !base_room.storage) {
+        //   return SpawnPriority.NONE
+        // }
 
-        if (base_room.storage.store.energy < 200000) {
-          return SpawnPriority.NONE
-        }
+        // if (base_room.storage.store.energy < 200000) {
+        //   return SpawnPriority.NONE
+        // }
 
-        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        // return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       default:
@@ -215,7 +216,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 150
 
       case 'W43N5': {
-        return this.hasEnoughEnergyForUpgrader(energy_available, capacity)
+        return this.hasEnoughEnergyForUpgrader(energy_available, capacity, 3300)
       }
 
       case 'W48N11': {
@@ -341,7 +342,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43N5': {
-        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 1800)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 3300)
         return
       }
 
@@ -583,47 +584,11 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43S5': {
-        const target_room_name = 'W45S5'
-        const room = Game.rooms[this.original_room_name]
-        const mineral = Game.getObjectById('59f1c265a5165f24b259a4b8') as Mineral | undefined
-        const resource_type = RESOURCE_KEANIUM
-
-        const target_room_memory = Memory.rooms[target_room_name]
-        const is_under_attack = !(!target_room_memory) && target_room_memory.attacked_time
-
-        let move_to_opt: MoveToOpts = {
-          maxRooms: 0,
-          reusePath: 10,
-          maxOps: 1000,
-        }
-
         this.creeps.forEach((creep) => {
-          if (!room || !room.storage || !mineral) {
-            creep.say(`NO DEST`)
-            creep.moveTo(2, 14)
-            return
-          }
-
-          if ((_.sum(creep.carry) < creep.carryCapacity) && !is_under_attack && ((creep.ticksToLive || 0) > 130)) {
-            if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
-              return
-            }
-
-            if (creep.harvest(mineral) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(mineral, move_to_opt)
-            }
-          }
-          else {
-            if (creep.moveToRoom(this.original_room_name) == ActionResult.IN_PROGRESS) {
-              return
-            }
-
-            if (creep.transfer(room.storage, resource_type) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(room.storage, move_to_opt)
-            }
-          }
+          (creep.memory as {target_id?: string}).target_id = '5a412a0d45b7612ba7ee5934'
         })
 
+        this.dismantle('W42N3')
         return
       }
 
@@ -649,7 +614,7 @@ export class ManualSquad extends Squad {
           return
         }
 
-        this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
+        this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
         return
       }
 

@@ -148,7 +148,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       // Log current position
       if (this.room_name == 'W46N5') {
-        if (((Game.time % 13) == 11) && (creep.room.name != this.room_name)) {
+        if (((Game.time % 13) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
           console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
         }
       }
@@ -1045,15 +1045,16 @@ export class RemoteHarvesterSquad extends Squad {
 
         if (!this.destination) {
           if (this.base_room.name == 'W47N5') {
-            if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
-              return
-            }
+            // if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
+            //   return
+            // }
 
             const x = 34
             const y = 7
+            const room_position = new RoomPosition(x, y, this.base_room.name)
 
-            if ( (creep.pos.x != x) || (creep.pos.y != y)) {
-              creep.moveTo(x, y, {maxRooms: 0, reusePath: 10})
+            if ((creep.room.name != this.base_room.name) || (creep.pos.x != x) || (creep.pos.y != y)) {
+              creep.moveTo(room_position, {maxRooms: 1, reusePath: 10})
               return
             }
 

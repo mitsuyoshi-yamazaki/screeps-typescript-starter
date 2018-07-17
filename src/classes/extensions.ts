@@ -182,7 +182,7 @@ export function tick(): void {
       }
 
       const rcl = room.controller.level
-      const progress = (rcl >= 8) ? 'Max' : `${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}%`
+      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
@@ -191,7 +191,7 @@ export function tick(): void {
         reaction_output = '-'
       }
 
-      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b> ${progress}\t${reaction_output}`)
+      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}`)
     }
   }
 

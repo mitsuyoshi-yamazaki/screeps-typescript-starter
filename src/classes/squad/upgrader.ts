@@ -39,7 +39,7 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (['W43N5'].indexOf(this.room_name) >= 0) {
+    if (['W43N5'].indexOf(this.room_name) >= 0) { // W43N5 has no upgrader but manual squad
       return SpawnPriority.NONE
     }
 

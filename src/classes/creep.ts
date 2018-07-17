@@ -1224,7 +1224,7 @@ export function init() {
           //   drop = this.pos.findClosestByPath(FIND_DROPPED_RESOURCES, opt)
           // }
           // else {
-            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 7, opt)[0] as Resource | undefined
+            drop = this.pos.findInRange(FIND_DROPPED_RESOURCES, 11, opt)[0] as Resource | undefined
           // }
 
           if (drop) {
@@ -1332,7 +1332,7 @@ export function init() {
       // }
 
       let should_upgrade = true
-      if (['dummy'].indexOf(this.room.name) >= 0) {
+      if (['W43N5'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {

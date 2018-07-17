@@ -413,6 +413,9 @@ export class Region {
         break
 
       case 'W47N5':
+        harvester_targets = [
+          { id: '59f1a00882100e1594f35ee0', room_name: 'W47N5' },
+        ]
         this.room_names = [this.room.name]
         break
 
@@ -1434,8 +1437,18 @@ export class Region {
 
         const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
 
-        if (to_room && to_room.terminal && ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity)))) {
+        if (to_room && (!to_room.terminal || ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity))))) {
           const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
+          console.log(message)
+
+          if (resource_type != RESOURCE_ENERGY) {
+            Game.notify(message)
+          }
+          continue
+        }
+
+        if (to_room && (!to_room.storage || ((_.sum(to_room.storage.store) > (to_room.storage.storeCapacity - (capacity * 3)))))) {
+          const message = `Storage ${to_room.name} is full ${this.room.name} ${resource_type}`
           console.log(message)
 
           if (resource_type != RESOURCE_ENERGY) {
