@@ -1186,7 +1186,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      creep.heal(creep)
+      creep.healNearbyCreep()
     })
   }
 

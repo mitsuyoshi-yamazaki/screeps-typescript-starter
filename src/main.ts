@@ -217,7 +217,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_LEMERGIUM,
-    price: 0.02,
+    price: 0.015,
     trader_room_names: [
       zynthium_first_room_name,
       utrium_first_room_name,
