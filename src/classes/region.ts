@@ -26,6 +26,7 @@ export interface RegionMemory {
   support_link_ids?: string[]
   resource_transports?: {[room_name: string]: ResourceConstant[]}
   last_spawn_time: number
+  observe_target?: string
 }
 
 export class Region {
@@ -1389,6 +1390,10 @@ export class Region {
       })()
     }
 
+    ErrorMapper.wrapLoop(() => {
+      this.runObserver()
+    }, `${this.name}.runObserver`)()
+
     // ErrorMapper.wrapLoop(() => {
     //   if ((this.room.name == 'W48S47') || (this.room.name == 'W49S47') || (this.room.name == 'S49S48')) {
     //     this.room.find(FIND_STRUCTURES).forEach((s) => {
@@ -1399,6 +1404,45 @@ export class Region {
   }
 
   // --- Private ---
+  private runObserver(): void {
+    const region_memory = Memory.regions[this.name] as RegionMemory | undefined
+    if (!region_memory || !region_memory.observe_target) {
+      return
+    }
+
+    if (!this.room.owned_structures) {
+      return
+    }
+    const observers = this.room.owned_structures.get(STRUCTURE_OBSERVER) as StructureObserver[] | undefined
+    if (!observers) {
+      return
+    }
+
+    const observer = observers[0]
+    if (!observer) {
+      return
+    }
+
+    const result = observer.observeRoom(region_memory.observe_target)
+    if (result == OK) {
+      if (Memory.debug.show_visuals) {
+        const room = Game.rooms[region_memory.observe_target]
+
+        if (room) {
+          room.visual.text(`OBSERVING`, 48, 1, {
+            align: 'right',
+            opacity: 1.0,
+            font: '12px',
+            color: '#ffff00',
+          })
+        }
+      }
+    }
+    else {
+      console.log(`Region.runObserver failed with ${result}, ${this.name}`)
+    }
+  }
+
   private sendResources(): void {
     if (!this.room.terminal) {
       console.log(`Region.sendResources no terminal ${this.name} ${this.room.terminal}`)

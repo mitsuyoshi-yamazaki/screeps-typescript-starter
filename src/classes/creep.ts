@@ -276,6 +276,10 @@ export function init() {
     else if ((destination_room_name == 'W45N5') && (Number(this.room.name.slice(4,6)) < 5) && (Number(this.room.name.slice(1,3)) == 47)) {
       destination_room_name = 'W46N5'
     }
+    else if ((destination_room_name == 'W46N4') && (Number(this.room.name.slice(1,3)) < 46)) {
+      destination_room_name = 'W46N5'
+    }
+
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
@@ -528,6 +532,14 @@ export function init() {
     }
     else if ((destination_room_name == 'W47N5') && (this.room.name == 'W46N4')) {
       this.moveTo(17, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W45S6') && (this.room.name == 'W44S7')) {
+      this.moveTo(0, 19, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W45S6') && (this.room.name == 'W45S7')) {
+      this.moveTo(37, 0, opt)
       return ActionResult.IN_PROGRESS
     }
 

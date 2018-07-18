@@ -363,8 +363,8 @@ export class LightWeightHarvesterSquad extends Squad {
     if (!room) {
       additions = `, No visibility of ${this.source_info.room_name}`
     }
-    else if (room.heavyly_attacked) {
-      additions = `, Room ${this.source_info.room_name} is under attack`
+    else if (room.attacked) {
+      additions = `, under attack`
     }
 
     return `${super.description()}, ${this.source_info.room_name}${additions}`

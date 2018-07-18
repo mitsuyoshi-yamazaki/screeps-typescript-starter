@@ -48,10 +48,11 @@ export class RemoteHarvesterSquad extends Squad {
   private next_creep: CreepType | undefined
   private harvester_energy_unit = 850
   private harvester_body_unit: BodyPartConstant[] = [
-    MOVE, MOVE, MOVE,
+    MOVE, MOVE,
     CARRY, CARRY,
     WORK, WORK, WORK,
     WORK, WORK, WORK,
+    MOVE,
   ]
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
@@ -64,10 +65,11 @@ export class RemoteHarvesterSquad extends Squad {
       this.harvester_energy_unit = 1000
       this.harvester_body_unit = [
         CARRY, CARRY,
-        MOVE, MOVE, MOVE,
+        MOVE, MOVE,
         MOVE, MOVE, MOVE,
         WORK, WORK, WORK,
         WORK, WORK, WORK,
+        MOVE,
       ]
     }
 
@@ -417,7 +419,7 @@ export class RemoteHarvesterSquad extends Squad {
         energy_unit = this.harvester_energy_unit
 
         const room = Game.rooms[this.room_name]
-        const energy_max = (room && room.is_keeperroom) ? (energy_unit * 2) : energy_unit
+        const energy_max = (room && (room.is_keeperroom || room.is_centerroom)) ? (energy_unit * 2) : energy_unit
 
         max = energy_max
         break
@@ -497,7 +499,7 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   public description(): string {
-    const detail = ((this.creeps.size == 1) && !(!this.scout)) ? ` ${this.scout.pos}` : ''
+    const detail = !(!this.scout) ? ` ${this.scout.pos}` : ''
     const number_of_creeps = `S${this.scout ? 1 : 0}K${this.keeper ? 1 : 0}A${this.attackers.length}RA${this.ranged_attackers.length}B${this.builders.length}H${this.harvesters.length}C${this.carriers.length}`
     return `${super.description()}, ${this.room_name}, ${this.next_creep}, ${number_of_creeps}${detail}`
   }
@@ -554,7 +556,7 @@ export class RemoteHarvesterSquad extends Squad {
       debug: this.debug,
     }
 
-    const energy_max = (room && room.is_keeperroom) ? (energy_unit * 2) : energy_unit
+    const energy_max = (room && (room.is_keeperroom || room.is_centerroom)) ? (energy_unit * 2) : energy_unit
 
     energy_available = Math.min(energy_available, energy_max)
     while (energy_available >= energy_unit) {
@@ -726,6 +728,10 @@ export class RemoteHarvesterSquad extends Squad {
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
     let done = false
 
+    const move_to_ops: MoveToOpts = {
+      maxRooms: 0,
+    }
+
     this.builders.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -770,8 +776,16 @@ export class RemoteHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.BUILD
         }
         else {
-          if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
-            return
+          if (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0) {
+            if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
+          }
+
+          if (creep.room.name == 'W45S7') {
+            if (creep.moveToRoom(this.room_name) == ActionResult.IN_PROGRESS) {
+              return
+            }
           }
 
           const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -782,7 +796,7 @@ export class RemoteHarvesterSquad extends Squad {
 
           if (container) {
             if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(container)
+              creep.moveTo(container, move_to_ops)
             }
             return
           }
@@ -790,18 +804,18 @@ export class RemoteHarvesterSquad extends Squad {
           let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
           if (source) {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(source)
+              creep.moveTo(source, move_to_ops)
             }
             return
           }
 
-          source = creep.pos.findClosestByPath(FIND_SOURCES)
-          if (source) {
-            creep.moveTo(source)
-            return
-          }
+          // source = creep.pos.findClosestByPath(FIND_SOURCES)
+          // if (source) {
+          //   creep.moveTo(source, move_to_ops)
+          //   return
+          // }
 
-          creep.say(`ERR`)
+          creep.say(`NO SRC`)
           // console.log(`RemoteHarvesterSquad.runBuilder can not find source in ${creep.room.name}, ${this.name}`)
           return
         }
@@ -913,7 +927,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) < (creep.carryCapacity - 100)) && (creep.room.name != 'W47N5')) {
+      if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY

@@ -1,6 +1,7 @@
 import { SquadMemory } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
+import { ErrorMapper } from "utils/ErrorMapper";
 
 export interface AttackerInfo  {
   hostile_creeps: Creep[]
@@ -23,6 +24,8 @@ declare global {
     check_all_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     room_info: () => void
+    reset_costmatrix: (room_name: string) => void
+    reset_all_costmatrixes: () => void
   }
 
   interface Memory {
@@ -38,7 +41,6 @@ declare global {
       show_visuals: boolean,
       show_path: boolean,
       show_costmatrix: string | null,
-      reset_costmatrix: boolean,
       test_send_resources: boolean,
       cpu: {
         show_usage: boolean,
@@ -66,6 +68,7 @@ declare global {
     resourceful_tombstones: Tombstone[]
     attacker_info: AttackerInfo
     is_keeperroom: boolean
+    is_centerroom: boolean
     cost_matrix(): CostMatrix | undefined
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
@@ -204,6 +207,41 @@ export function tick(): void {
     }
   }
 
+  Game.reset_costmatrix = (room_name: string) => {
+    ErrorMapper.wrapLoop(() => {
+      console.log(`RESET costmatrix for ${room_name}`)
+
+      const room_memory = Memory.rooms[room_name]
+
+      if (!room_memory) {
+        console.log(`Reset costmatrix no room memory for ${room_name}: probably writing wrong code`)
+        return
+      }
+
+      Memory.rooms[room_name].cost_matrix = undefined
+      cost_matrixes.delete(room_name)
+
+    }, `Game.reset_costmatrix for ${room_name}`)()
+  }
+
+  Game.reset_all_costmatrixes = () => {
+    ErrorMapper.wrapLoop(() => {
+      console.log(`RESET ALL costmatrixes`)
+
+      for (const room_name in Memory.rooms) {
+        const room_memory = Memory.rooms[room_name]
+
+        if (!room_memory) {
+          console.log(`Reset costmatrix no room memory for ${room_name}: probably writing wrong code`)
+          break
+        }
+
+        Memory.rooms[room_name].cost_matrix = undefined
+        cost_matrixes.delete(room_name)
+      }
+    }, `Game.reset_all_costmatrix`)()
+  }
+
   Room.prototype.initialize = function() {
     let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
 
@@ -310,7 +348,8 @@ export function tick(): void {
 
     const prefix = (Number(this.name.slice(1,3)) + 6) % 10
     const suffix = (Number(this.name.slice(4,6)) + 6) % 10
-    this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
+    this.is_centerroom = ((prefix == 1) && (suffix == 1))
+    this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !this.is_centerroom
   }
 
   Room.prototype.cost_matrix = function(): CostMatrix | undefined {

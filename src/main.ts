@@ -97,10 +97,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
       else {
         const cost_matrix: CostMatrix | undefined = room.cost_matrix()
+        console.log(`Showing costmatrix ${room_name}`)
 
         if (cost_matrix) {
-          console.log(`Showing costmatrix ${room_name}`)
-
           const room_size = 50
 
           for (let i = 0; i < room_size; i++) {
@@ -116,27 +115,16 @@ export const loop = ErrorMapper.wrapLoop(() => {
             }
           }
         }
+        else {
+          room.visual.text(`NO costmatrix for ${room_name}`, 25, 25, {
+            color: '#ff0000',
+            align: 'center',
+            font: '12px',
+            opacity: 0.8,
+          })
+        }
       }
     }, `Show costmatrix ${room_name}`)()
-  }
-
-  if (Memory.debug.reset_costmatrix) {
-    console.log(`RESET costmatrix`)
-
-    ErrorMapper.wrapLoop(() => {
-      for (const room_name in Memory.rooms) {
-        const room_memory = Memory.rooms[room_name]
-
-        if (!room_memory) {
-          console.log(`Reset costmatrix no room memory for ${room_name}: probably writing wrong code`)
-          break
-        }
-
-        Memory.rooms[room_name].cost_matrix = undefined
-      }
-    }, `Reset costmatrix`)()
-
-    Memory.debug.reset_costmatrix = false
   }
 
   const all_cpu = Math.ceil(Game.cpu.getUsed())
