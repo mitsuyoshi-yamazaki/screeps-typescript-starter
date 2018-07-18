@@ -217,7 +217,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_LEMERGIUM,
-    price: 0.015,
+    price: 0.01,
     trader_room_names: [
       zynthium_first_room_name,
       utrium_first_room_name,
@@ -368,7 +368,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
 
 // -- Buy
 function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
-  if (credit_amount < 190000) {
+  if (credit_amount < 185000) {
     const message = `main.tradeResource lack of credit ${credit_amount}`
     // console.log(message)
     // Game.notify(message)
