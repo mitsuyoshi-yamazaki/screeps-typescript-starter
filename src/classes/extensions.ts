@@ -11,12 +11,15 @@ export interface AttackerInfo  {
   work: number
 }
 
+const cost_matrixes = new Map<string, CostMatrix>()
+console.log(`Initialize cost_matrixes`)
+
 declare global {
   interface Game {
     version: string
     reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
     squad_creeps: {[squad_name: string]: Creep[]}
-    check_resources: (resource_type: ResourceConstant) => void
+    check_resources: (resource_type: ResourceConstant) => {[room_name: string]: number}
     check_all_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     room_info: () => void
@@ -63,7 +66,7 @@ declare global {
     resourceful_tombstones: Tombstone[]
     attacker_info: AttackerInfo
     is_keeperroom: boolean
-    cost_matrix: CostMatrix | undefined
+    cost_matrix(): CostMatrix | undefined
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
@@ -81,6 +84,8 @@ export function init() {
 
 export function tick(): void {
   Game.check_resources = (resource_type: ResourceConstant) => {
+    let resources: {[room_name: string]: number} = {}
+
     let details = ""
     let sum = 0
 
@@ -102,8 +107,12 @@ export function tick(): void {
 
       details += `\n${room_name}: ${amount}`
       sum += amount
+
+      resources[room_name] = amount
     }
     console.log(`Resource ${resource_type}: ${sum}${details}`)
+
+    return resources
   }
 
   Game.check_all_resources = () => {
@@ -302,184 +311,45 @@ export function tick(): void {
     const prefix = (Number(this.name.slice(1,3)) + 6) % 10
     const suffix = (Number(this.name.slice(4,6)) + 6) % 10
     this.is_keeperroom = (prefix <= 2) && (suffix <= 2) && !((prefix == 1) && (suffix == 1))
+  }
 
-    const hoge = false
+  Room.prototype.cost_matrix = function(): CostMatrix | undefined {
+    if (!this.is_keeperroom) {
+      return undefined
+    }
 
-    if (this.is_keeperroom) {
-      if (room_memory.cost_matrix) {
-      // if (hoge) {
-        this.cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix) // @fixme: if it needed
+    let cost_matrix: CostMatrix | undefined = cost_matrixes.get(this.name)
+    if (cost_matrix) {
+      return cost_matrix
+    }
+
+    let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
+    if (!room_memory) {
+      console.log(`Room.cost_matrix() unexpectedly find null room memory ${this.name}`)
+      return undefined
+    }
+    if (room_memory.cost_matrix) {
+      let cost_matrix = PathFinder.CostMatrix.deserialize(room_memory.cost_matrix)
+
+      if (cost_matrix) {
+        cost_matrixes.set(this.name, cost_matrix)
+        return cost_matrix
       }
       else {
-        console.log(`${this.name} create costmatrix`)
-
-        let error_message: string | undefined
-
-        this.cost_matrix = new PathFinder.CostMatrix;
-        const margin = 5
-        const room_size = 50
-
-        const road_cost = 1
-        const plain_cost = 2
-        const swamp_cost = plain_cost * 5
-        const unwalkable_cost = 255
-
-        const hostile_cost = 12
-        const edge_hostile_cost = 3
-        const near_edge_hostile_cost = 5
-
-        const is_edge = (x: number, y: number) => {
-          if ((x == 0) || (x == 49)) {
-            return true
-          }
-          if ((y == 0) || (y == 49)) {
-            return true
-          }
-          return false
-        }
-
-        const is_near_edge = (x: number, y: number) => {
-          if ((x == 1) || (x == 48)) {
-            return true
-          }
-          if ((y == 1) || (y == 48)) {
-            return true
-          }
-          return false
-        }
-
-        for (let i = 0; i < room_size; i++) {
-          for (let j = 0; j < room_size; j++) {
-            const terrain = Game.map.getTerrainAt(i, j, this.name)
-            let cost: number
-
-            switch (terrain) {
-              case 'plain':
-                cost = plain_cost
-                break
-
-              case 'swamp':
-                cost = swamp_cost
-                break
-
-              case 'wall':
-                cost = unwalkable_cost
-                break
-
-              default: {
-                cost = unwalkable_cost
-                const message = `\n${this.name} ${i},${j} unknown terrain`
-                error_message = !(!error_message) ? (error_message + message) : message
-                break
-              }
-            }
-
-            this.cost_matrix.set(i, j, cost)
-          }
-        }
-
-        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
-          return structure.structureType == STRUCTURE_ROAD
-        }).forEach((structure: Structure) => {
-          this.cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
-        })
-
-        this.find(FIND_STRUCTURES).filter((structure: Structure) => {
-          return structure.structureType == STRUCTURE_KEEPER_LAIR
-        }).forEach((structure: Structure) => {
-          for (let i = (structure.pos.x - margin); i <= (structure.pos.x + margin); i++) {
-            if ((i < 0) || (i > 49)) {
-              continue
-            }
-
-            for (let j = (structure.pos.y - margin); j <= (structure.pos.y + margin); j++) {
-              if ((j < 0) || (j > 49)) {
-                continue
-              }
-              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
-                continue
-              }
-
-              let cost = hostile_cost
-
-              if (is_edge(i, j)) {
-                cost = edge_hostile_cost
-              }
-              else if (is_near_edge(i, j)) {
-                cost = near_edge_hostile_cost
-              }
-
-              this.cost_matrix.set(i, j, cost)
-            }
-          }
-        })
-
-        this.find(FIND_SOURCES).forEach((source: Source) => {
-          for (let i = (source.pos.x - margin); i <= (source.pos.x + margin); i++) {
-            if ((i < 0) || (i > 49)) {
-              continue
-            }
-
-            for (let j = (source.pos.y - margin); j <= (source.pos.y + margin); j++) {
-              if ((j < 0) || (j > 49)) {
-                continue
-              }
-              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
-                continue
-              }
-
-              let cost = hostile_cost
-
-              if (is_edge(i, j)) {
-                cost = edge_hostile_cost
-              }
-              else if (is_near_edge(i, j)) {
-                cost = near_edge_hostile_cost
-              }
-
-              this.cost_matrix.set(i, j, cost)
-            }
-          }
-        })
-
-        this.find(FIND_MINERALS).forEach((minearl: Mineral) => {
-          for (let i = (minearl.pos.x - margin); i <= (minearl.pos.x + margin); i++) {
-            if ((i < 0) || (i > 49)) {
-              continue
-            }
-
-            for (let j = (minearl.pos.y - margin); j <= (minearl.pos.y + margin); j++) {
-              if ((j < 0) || (j > 49)) {
-                continue
-              }
-              if (this.cost_matrix.get(i, j) == unwalkable_cost) {
-                continue
-              }
-
-              let cost = hostile_cost
-
-              if (is_edge(i, j)) {
-                cost = edge_hostile_cost
-              }
-              else if (is_near_edge(i, j)) {
-                cost = near_edge_hostile_cost
-              }
-
-              this.cost_matrix.set(i, j, cost)
-            }
-          }
-        })
-
-        room_memory.cost_matrix = this.cost_matrix.serialize()
-
-        if (error_message) {
-          error_message = `Room.create_costmatrix error ${this.name}\n`
-
-          console.log(error_message)
-          Game.notify(error_message)
-        }
+        console.log(`Room.cost_matrix() unexpectedly find null cost matrix from PathFinder.CostMatrix.deserialize() ${this.name}`)
       }
     }
+
+    cost_matrix = create_cost_matrix_for(this)
+    if (!cost_matrix) {
+      console.log(`Room.cost_matrix() unexpectedly find null cost matrix from create_cost_matrix_for() ${this.name}`)
+      return undefined
+    }
+
+    room_memory.cost_matrix = cost_matrix.serialize()
+    cost_matrixes.set(this.name, cost_matrix)
+
+    return cost_matrix
   }
 
   Room.prototype.owned_structures_not_found_error = function(structure_type: StructureConstant): void {
@@ -501,4 +371,174 @@ export function tick(): void {
     const room = Game.rooms[room_name]
     room.spawns = []
   }
+}
+
+function create_cost_matrix_for(room: Room): CostMatrix {
+  console.log(`${room.name} create costmatrix`)
+
+  let error_message: string | undefined
+
+  let cost_matrix: CostMatrix = new PathFinder.CostMatrix;
+  const margin = 5
+  const room_size = 50
+
+  const road_cost = 1
+  const plain_cost = 2
+  const swamp_cost = plain_cost * 5
+  const unwalkable_cost = 255
+
+  const hostile_cost = 12
+  const edge_hostile_cost = 3
+  const near_edge_hostile_cost = 5
+
+  const is_edge = (x: number, y: number) => {
+    if ((x == 0) || (x == 49)) {
+      return true
+    }
+    if ((y == 0) || (y == 49)) {
+      return true
+    }
+    return false
+  }
+
+  const is_near_edge = (x: number, y: number) => {
+    if ((x == 1) || (x == 48)) {
+      return true
+    }
+    if ((y == 1) || (y == 48)) {
+      return true
+    }
+    return false
+  }
+
+  for (let i = 0; i < room_size; i++) {
+    for (let j = 0; j < room_size; j++) {
+      const terrain = Game.map.getTerrainAt(i, j, room.name)
+      let cost: number
+
+      switch (terrain) {
+        case 'plain':
+          cost = plain_cost
+          break
+
+        case 'swamp':
+          cost = swamp_cost
+          break
+
+        case 'wall':
+          cost = unwalkable_cost
+          break
+
+        default: {
+          cost = unwalkable_cost
+          const message = `\n${room.name} ${i},${j} unknown terrain`
+          error_message = !(!error_message) ? (error_message + message) : message
+          break
+        }
+      }
+
+      cost_matrix.set(i, j, cost)
+    }
+  }
+
+  room.find(FIND_STRUCTURES).filter((structure: Structure) => {
+    return structure.structureType == STRUCTURE_ROAD
+  }).forEach((structure: Structure) => {
+    cost_matrix.set(structure.pos.x, structure.pos.y, road_cost)
+  })
+
+  room.find(FIND_STRUCTURES).filter((structure: Structure) => {
+    return structure.structureType == STRUCTURE_KEEPER_LAIR
+  }).forEach((structure: Structure) => {
+    for (let i = (structure.pos.x - margin); i <= (structure.pos.x + margin); i++) {
+      if ((i < 0) || (i > 49)) {
+        continue
+      }
+
+      for (let j = (structure.pos.y - margin); j <= (structure.pos.y + margin); j++) {
+        if ((j < 0) || (j > 49)) {
+          continue
+        }
+        if (cost_matrix.get(i, j) == unwalkable_cost) {
+          continue
+        }
+
+        let cost = hostile_cost
+
+        if (is_edge(i, j)) {
+          cost = edge_hostile_cost
+        }
+        else if (is_near_edge(i, j)) {
+          cost = near_edge_hostile_cost
+        }
+
+        cost_matrix.set(i, j, cost)
+      }
+    }
+  })
+
+  room.find(FIND_SOURCES).forEach((source: Source) => {
+    for (let i = (source.pos.x - margin); i <= (source.pos.x + margin); i++) {
+      if ((i < 0) || (i > 49)) {
+        continue
+      }
+
+      for (let j = (source.pos.y - margin); j <= (source.pos.y + margin); j++) {
+        if ((j < 0) || (j > 49)) {
+          continue
+        }
+        if (cost_matrix.get(i, j) == unwalkable_cost) {
+          continue
+        }
+
+        let cost = hostile_cost
+
+        if (is_edge(i, j)) {
+          cost = edge_hostile_cost
+        }
+        else if (is_near_edge(i, j)) {
+          cost = near_edge_hostile_cost
+        }
+
+        cost_matrix.set(i, j, cost)
+      }
+    }
+  })
+
+  room.find(FIND_MINERALS).forEach((minearl: Mineral) => {
+    for (let i = (minearl.pos.x - margin); i <= (minearl.pos.x + margin); i++) {
+      if ((i < 0) || (i > 49)) {
+        continue
+      }
+
+      for (let j = (minearl.pos.y - margin); j <= (minearl.pos.y + margin); j++) {
+        if ((j < 0) || (j > 49)) {
+          continue
+        }
+        if (cost_matrix.get(i, j) == unwalkable_cost) {
+          continue
+        }
+
+        let cost = hostile_cost
+
+        if (is_edge(i, j)) {
+          cost = edge_hostile_cost
+        }
+        else if (is_near_edge(i, j)) {
+          cost = near_edge_hostile_cost
+        }
+
+        cost_matrix.set(i, j, cost)
+      }
+    }
+  })
+
+  if (error_message) {
+    error_message = `Room.create_costmatrix error ${room.name}\n`
+
+    console.log(error_message)
+    Game.notify(error_message)
+  }
+
+  return cost_matrix
 }

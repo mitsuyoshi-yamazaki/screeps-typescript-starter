@@ -47,7 +47,11 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
     const room = Game.rooms[this.room_name]
     if (room) {
-      this.showDescription(room, 1)
+      let index = 1
+      if (this.name == 'remote_m_harvester04') {
+        index = 2
+      }
+      this.showDescription(room, index)
     }
   }
 

@@ -2,27 +2,38 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface NukerChargerSquadMemory extends SquadMemory {
+  nuker_id: string
+}
 
 export class NukerChargerSquad extends Squad {
-  public static needSquad(nuker: StructureNuker | undefined, terminal: StructureTerminal | undefined, storage: StructureStorage | undefined): boolean {
-    if (!nuker || !terminal || !storage) {
-      return false
-    }
+  // public static needSquad(nuker: StructureNuker | undefined, terminal: StructureTerminal | undefined, storage: StructureStorage | undefined): boolean {
+  //   if (!nuker || !terminal || !storage) {
+  //     return false
+  //   }
 
-    if (storage.store.energy < 300000) {
-      return false
-    }
+  //   if (storage.store.energy < 300000) {
+  //     return false
+  //   }
 
-    if ((nuker.ghodium == nuker.ghodiumCapacity) && (nuker.energy == nuker.energyCapacity)) {
-      return false
-    }
+  //   if ((nuker.ghodium == nuker.ghodiumCapacity) && (nuker.energy == nuker.energyCapacity)) {
+  //     return false
+  //   }
 
-    // @todo:
-    return false
-  }
+  //   // @todo:
+  //   return false
+  // }
 
-  constructor(readonly name: string, readonly room: Room, readonly nuker: StructureNuker) {
+  private nuker: StructureNuker | undefined
+
+  constructor(readonly name: string, readonly room: Room) {
     super(name)
+
+    const squad_memory = Memory.squads[this.name] as NukerChargerSquadMemory
+
+    if (squad_memory && squad_memory.nuker_id) {
+      this.nuker = Game.getObjectById(squad_memory.nuker_id) as StructureNuker | undefined
+    }
   }
 
   public get type(): SquadType {
@@ -39,7 +50,7 @@ export class NukerChargerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (!this.room.terminal || !this.room.storage) {
+    if (!this.room.terminal || !this.room.storage || !this.nuker) {
       return SpawnPriority.NONE
     }
 
@@ -80,10 +91,14 @@ export class NukerChargerSquad extends Squad {
   }
 
   public run(): void {
-    if (!this.room.terminal || !this.room.storage) {
-      console.log(`NukerChargerSquad.run ${this.room.name} no storage`)
+    if (!this.room.terminal || !this.room.storage || !this.nuker) {
+      console.log(`NukerChargerSquad.run ${this.room.name} no storage, terminal nor nuker`)
       return
     }
+
+    const terminal = this.room.terminal
+    const storage = this.room.storage
+    const nuker = this.nuker
 
     const opt: MoveToOpts = {
       maxOps: 200,
@@ -94,42 +109,42 @@ export class NukerChargerSquad extends Squad {
     this.creeps.forEach((creep) => {
       const carry = _.sum(creep.carry)
 
-      // if (carry > 0) {
-      //   if (creep.carry.energy > 0) {
-      //     if (creep.transfer(nuker, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(nuker, opt)
-      //     }
-      //     else {
-      //       creep.moveTo(room.storage!, opt)
-      //     }
-      //   }
-      //   else {
-      //     if (creep.transfer(nuker, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(nuker, opt)
-      //     }
-      //     else {
-      //       creep.moveTo(room.storage!, opt)
-      //     }
-      //   }
-      // }
-      // else {
-      //   if (nuker.ghodium == nuker.ghodiumCapacity) {
-      //     if (creep.withdraw(room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(room.storage!, opt)
-      //     }
-      //     else {
-      //       creep.moveTo(nuker, opt)
-      //     }
-      //   }
-      //   else {
-      //     if (creep.withdraw(room.terminal!, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
-      //       creep.moveTo(room.terminal!, opt)
-      //     }
-      //     else {
-      //       creep.moveTo(nuker, opt)
-      //     }
-      //   }
-      // }
+      if (carry > 0) {
+        if (creep.carry.energy > 0) {
+          if (creep.transfer(nuker, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(nuker, opt)
+          }
+          else {
+            creep.moveTo(storage, opt)
+          }
+        }
+        else {
+          if (creep.transfer(nuker, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(nuker, opt)
+          }
+          else {
+            creep.moveTo(storage, opt)
+          }
+        }
+      }
+      else {
+        if (nuker.ghodium == nuker.ghodiumCapacity) {
+          if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(storage, opt)
+          }
+          else {
+            creep.moveTo(nuker, opt)
+          }
+        }
+        else {
+          if (creep.withdraw(terminal, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(terminal, opt)
+          }
+          else {
+            creep.moveTo(nuker, opt)
+          }
+        }
+      }
     })
   }
 }

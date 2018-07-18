@@ -147,11 +147,11 @@ export class RemoteHarvesterSquad extends Squad {
       const memory = creep.memory as RemoteHarvesterMemory
 
       // Log current position
-      if (this.base_room.name == 'W47N5') {
-        if (((Game.time % 29) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
-          console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
-        }
-      }
+      // if (this.base_room.name == 'W47N5') {
+      //   if (((Game.time % 29) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
+      //     console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
+      //   }
+      // }
 
       switch (creep.memory.type) {
         case CreepType.WORKER:
@@ -410,7 +410,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       case CreepType.WORKER:
         energy_unit = 200
-        max = energy_unit * 5
+        max = energy_unit * 8
         break
 
       case CreepType.HARVESTER: {
@@ -586,7 +586,7 @@ export class RemoteHarvesterSquad extends Squad {
       debug: this.debug,
     }
 
-    energy_available = Math.min(energy_available, energy_unit * 5)
+    energy_available = Math.min(energy_available, energy_unit * 8)
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
       energy_available -= energy_unit

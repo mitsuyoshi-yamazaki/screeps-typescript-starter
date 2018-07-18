@@ -18,6 +18,7 @@ import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
 import { RemoteDefenderSqauad } from "./squad/remote_defender";
+import { NukerChargerSquad } from "./squad/nuker_charger";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -736,8 +737,14 @@ export class Region {
             }
             break
           }
+          case SquadType.NUKER_CHARGER_SQUAD: {
+            const squad = new NukerChargerSquad(squad_memory.name, this.room)
+
+            this.squads.set(squad.name, squad)
+            break
+          }
           default:
-            console.log(`Unexpected squad type ${squad_memory}`)
+            console.log(`Unexpected squad type ${squad_memory.type}, ${squad_memory.name}, ${this.name}`)
             break
           }
         }, `Squad.init ${this.room.name} ${squad_memory.name}`)()
@@ -1441,7 +1448,7 @@ export class Region {
           }
         }
 
-        const capacity = (resource_type == RESOURCE_ENERGY) ? 100000 : 10000
+        const capacity = (resource_type == RESOURCE_ENERGY) ? 50000 : 10000
 
         if (to_room && (!to_room.terminal || ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity))))) {
           const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
@@ -1469,9 +1476,9 @@ export class Region {
         let amount_send: number = is_raw_resource ? 2000 : Math.min((this.room.terminal.store[resource_type] || 0), 5000)
 
         if (resource_type == RESOURCE_ENERGY) {
-          amount_needed = 140000
-          resource_capacity = 160000
-          amount_send = 100000
+          amount_needed = 70000
+          resource_capacity = 80000
+          amount_send = 50000
         }
 
         const from_room_ready: boolean = ((this.room.terminal.store[resource_type] || 0) > amount_needed)
@@ -1815,7 +1822,7 @@ export class Region {
 
       let duration = 400
       if (this.room.name == 'W51S29') {
-        duration = 700
+        duration = 770
       }
 
       if (!region_memory.last_spawn_time) {

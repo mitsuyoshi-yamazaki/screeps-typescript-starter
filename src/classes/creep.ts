@@ -526,6 +526,10 @@ export function init() {
       this.moveTo(17, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if ((destination_room_name == 'W47N5') && (this.room.name == 'W46N4')) {
+      this.moveTo(17, 0, opt)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
@@ -535,8 +539,11 @@ export function init() {
 
     if (this.room.is_keeperroom && ((this.room.name != 'W44S6') || ((Game.time % 5) < 2))) {
       const callback = (room_name: string): boolean | CostMatrix => {
-        if ((this.room.name == room_name) && this.room.cost_matrix) {
-          return this.room.cost_matrix
+        if ((this.room.name == room_name)) {
+          const matrix = this.room.cost_matrix()
+          if (matrix) {
+            return matrix
+          }
         }
         return false
       }
@@ -1150,7 +1157,10 @@ export function init() {
         maxRooms: 0,
       })
     }
-    this.upgradeController(this.room.controller)
+    const upgrade_result = this.upgradeController(this.room.controller)
+    if (upgrade_result != OK) {
+      this.say(`E${upgrade_result}`)
+    }
 
     return ActionResult.IN_PROGRESS
   }
@@ -1230,7 +1240,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W47N5')) {
+        if ((this.room.name == 'dummy')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
