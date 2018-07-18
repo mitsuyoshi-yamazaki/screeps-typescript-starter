@@ -518,11 +518,11 @@ export function init() {
       this.moveTo(41, 0, opt)
       return ActionResult.IN_PROGRESS
     }
-    else if ((destination_room_name == 'W46N5') && (this.room.name == 'W47N3') && (exit == RIGHT)) {
+    else if ((['W46N5', 'W46N4'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W47N3') && (exit == RIGHT)) {
       this.moveTo(33, 0, opt)
       return ActionResult.IN_PROGRESS
     }
-    else if ((destination_room_name == 'W46N5') && (this.room.name == 'W47N2')) {
+    else if ((['W46N5', 'W46N4'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W47N2')) {
       this.moveTo(17, 0, opt)
       return ActionResult.IN_PROGRESS
     }
@@ -1414,7 +1414,7 @@ export function init() {
 
       }
       else {
-        const target = this.pos.findClosestByRange(this.room.construction_sites)
+        let target: ConstructionSite = this.pos.findClosestByRange(this.room.construction_sites)
 
         if (target) {
           this.build(target)

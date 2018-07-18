@@ -486,7 +486,7 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
     Game.notify(message)
   }
   else {
-    console.log(`No ${opt.resource_type} sell orders (${opt.price})`)
+    // console.log(`No ${opt.resource_type} sell orders (${opt.price})`)
   }
 }
 

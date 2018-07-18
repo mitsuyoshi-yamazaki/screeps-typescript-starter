@@ -148,7 +148,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       // Log current position
       if (this.base_room.name == 'W47N5') {
-        if (((Game.time % 13) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
+        if (((Game.time % 29) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
           console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
         }
       }
