@@ -1120,7 +1120,13 @@ export class Region {
     }) as (StructureRampart | StructureWall)[]
 
     let hits_max = 150000
-    if (this.room.storage && (this.room.storage.store.energy > 700000)) {
+    if (this.room.storage && (this.room.storage.store.energy > 900000)) {
+      hits_max = 800000
+    }
+    else if (this.room.storage && (this.room.storage.store.energy > 800000)) {
+      hits_max = 600000
+    }
+    else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
       hits_max = 500000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
@@ -1809,7 +1815,7 @@ export class Region {
 
       let duration = 400
       if (this.room.name == 'W51S29') {
-        duration = 600
+        duration = 700
       }
 
       if (!region_memory.last_spawn_time) {

@@ -147,7 +147,7 @@ export class RemoteHarvesterSquad extends Squad {
       const memory = creep.memory as RemoteHarvesterMemory
 
       // Log current position
-      if (this.room_name == 'W46N5') {
+      if (this.base_room.name == 'W47N5') {
         if (((Game.time % 13) == 11) && ([this.room_name, this.base_room.name].indexOf(creep.room.name) < 0)) {
           console.log(`${this.room_name} ${creep.memory.type} ${creep.pos}`)
         }
@@ -866,11 +866,13 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
-          if (creep.carry.energy > 0) {
-            creep.drop(RESOURCE_ENERGY)
+        if (creep.room.name == this.room_name) {
+          if ((this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS)) {
+            if (creep.carry.energy > 0) {
+              creep.drop(RESOURCE_ENERGY)
+            }
+            return
           }
-          return
         }
 
         runHarvester(creep, this.room_name, info.target, info.container, info.container, {
@@ -886,8 +888,10 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
-        return
+      if (creep.room.name == this.room_name) {
+        if ((this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS)) {
+          return
+        }
       }
 
       if ((creep.room.name == 'W45S5') && (creep.carry.energy > (creep.carryCapacity * 0.9))) {

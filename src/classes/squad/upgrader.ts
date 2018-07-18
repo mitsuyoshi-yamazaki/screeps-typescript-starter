@@ -64,9 +64,6 @@ export class UpgraderSquad extends Squad {
     else if (this.room_name == 'W51S29') {
       max = (room.storage.store.energy > 400000) ? 1 : 0
     }
-    else if (this.room_name == 'W43S5') {
-      max = (room.storage.store.energy > 100000) ? 1 : 0
-    }
 
     return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }

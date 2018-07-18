@@ -273,6 +273,9 @@ export function init() {
     // else if ((destination_room_name == 'W46N5') && (Number(this.room.name.slice(4,6)) < 5)) {
     //   destination_room_name = 'W47N5'
     // }
+    else if ((destination_room_name == 'W45N5') && (Number(this.room.name.slice(4,6)) < 5) && (Number(this.room.name.slice(1,3)) == 47)) {
+      destination_room_name = 'W46N5'
+    }
 
     if ((this.room.name == 'W44S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(0, 28, opt)
