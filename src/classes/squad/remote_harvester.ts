@@ -238,7 +238,12 @@ export class RemoteHarvesterSquad extends Squad {
     this.is_room_attacked = !(!squad_memory.need_attacker) ? false : !(!room_memory.attacked_time)
 
     if (room) {
-      this.showDescription(room, 0)
+      let index = 0
+
+      if ((this.room_name == 'W45N5') && (this.base_room.name == 'W47N5')) {
+        index = -1
+      }
+      this.showDescription(room, index)
     }
   }
 
@@ -1056,12 +1061,36 @@ export class RemoteHarvesterSquad extends Squad {
             const y = 7
             const room_position = new RoomPosition(x, y, this.base_room.name)
 
-            if ((creep.room.name != this.base_room.name) || (creep.pos.x != x) || (creep.pos.y != y)) {
+            if ((creep.room.name != this.base_room.name)) {
+              creep.moveTo(room_position, {maxRooms: 1, reusePath: 10})
+              return
+            }
+
+            if ((creep.carry.energy == 0) && (_.sum(creep.carry) > 0)) {
+              const container: StructureContainer | undefined = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure) => {
+                  return (structure.structureType == STRUCTURE_CONTAINER) && (_.sum(structure.store) < structure.storeCapacity)
+                }
+              }) as StructureContainer | undefined
+
+              if (container) {
+                if (creep.transferResources(container) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(container)
+                }
+              }
+              else {
+                creep.dropResources()
+              }
+              return
+            }
+
+            if ((creep.pos.x != x) || (creep.pos.y != y)) {
               creep.moveTo(room_position, {maxRooms: 1, reusePath: 10})
               return
             }
 
             creep.drop(RESOURCE_ENERGY)
+
             return
           }
 

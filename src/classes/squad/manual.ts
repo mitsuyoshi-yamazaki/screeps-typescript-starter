@@ -222,7 +222,7 @@ export class ManualSquad extends Squad {
         return energy_available >= 150
 
       case 'W43N5': {
-        return this.hasEnoughEnergyForUpgrader(energy_available, capacity, 3300)
+        return this.hasEnoughEnergyForUpgrader(energy_available, capacity, 2800)
       }
 
       case 'W48N11': {
@@ -348,7 +348,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43N5': {
-        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 3300)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 2800)
         return
       }
 
