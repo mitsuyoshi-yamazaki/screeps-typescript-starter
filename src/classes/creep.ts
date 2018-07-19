@@ -729,7 +729,7 @@ export function init() {
             }
             const is_rcl8 = !(!structure.room.controller) && structure.room.controller.my && (structure.room.controller.level == 8)
 
-            const energy = (is_rcl8 && (structure.room.storage.store.energy > 200000)) ? 150000 : 100000
+            const energy = 100000//(is_rcl8 && (structure.room.storage.store.energy > 200000)) ? 150000 : 100000
             return (structure.store.energy < energy)
           }
           else if (structure.structureType == STRUCTURE_LAB) {
@@ -991,7 +991,7 @@ export function init() {
 
           if (resource_type == RESOURCE_ENERGY) {
             const is_rcl8 = !(!this.room.controller) && this.room.controller.my && (this.room.controller.level == 8)
-            const multiply = (is_rcl8 && (storage.store.energy > 200000)) ? 15 : 10
+            const multiply = 10//(is_rcl8 && (storage.store.energy > 200000)) ? 15 : 10
 
             amount_min *= multiply
             amount_max = amount_min + 2000

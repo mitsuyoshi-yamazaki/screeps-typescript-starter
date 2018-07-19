@@ -22,6 +22,7 @@ declare global {
     squad_creeps: {[squad_name: string]: Creep[]}
     check_resources: (resource_type: ResourceConstant) => {[room_name: string]: number}
     check_all_resources: () => void
+    check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     room_info: () => void
     reset_costmatrix: (room_name: string) => void
@@ -120,6 +121,37 @@ export function tick(): void {
 
   Game.check_all_resources = () => {
     RESOURCES_ALL.forEach((resource_type) => {
+
+      let amount = 0
+
+      for (const room_name of Object.keys(Game.rooms)) {
+        const room = Game.rooms[room_name]
+        if (!room || !room.controller || !room.controller.my) {
+          continue
+        }
+
+        if (room.terminal && room.terminal.my) {
+          amount += room.terminal.store[resource_type] || 0
+        }
+
+        if (room.storage && room.storage.my) {
+          amount += room.storage.store[resource_type] || 0
+        }
+      }
+
+      console.log(`${resource_type}: ${amount}`)
+    })
+  }
+
+  Game.check_boost_resources = () => {
+    [
+      RESOURCE_CATALYZED_UTRIUM_ACID,
+      RESOURCE_CATALYZED_KEANIUM_ALKALIDE,
+      RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE,
+      RESOURCE_CATALYZED_ZYNTHIUM_ACID,
+      RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE,
+      RESOURCE_CATALYZED_GHODIUM_ALKALIDE,
+    ].forEach((resource_type) => {
 
       let amount = 0
 

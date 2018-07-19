@@ -28,6 +28,7 @@ export interface RegionMemory {
   resource_transports?: {[room_name: string]: ResourceConstant[]}
   last_spawn_time: number
   observe_target?: string
+  send_resources_to?: string[]
 }
 
 export interface RegionOpt {
@@ -1413,6 +1414,10 @@ export class Region {
     }
 
     ErrorMapper.wrapLoop(() => {
+      this.sendResourcesTo()
+    }, `${this.name}.sendResourcesTo`)()
+
+    ErrorMapper.wrapLoop(() => {
       this.runObserver()
     }, `${this.name}.runObserver`)()
 
@@ -1560,6 +1565,56 @@ export class Region {
         }
       }
     }
+  }
+
+  private sendResourcesTo() {
+    if (!this.room.terminal || (this.room.terminal.cooldown > 0)) {
+      return
+    }
+    const terminal = this.room.terminal
+
+    const region_memory = Memory.regions[this.name]
+    if (!region_memory || !region_memory.send_resources_to) {
+      return
+    }
+
+    let done = false
+
+    region_memory.send_resources_to.forEach((room_name) => {
+      if (done) {
+        return
+      }
+
+      const receiver_room = Game.rooms[room_name]
+      if (!receiver_room || !receiver_room.terminal) {
+        return
+      }
+
+      const capacity = receiver_room.terminal.storeCapacity - _.sum(receiver_room.terminal.store) - 10000
+
+      for (const resource_type of Object.keys(terminal.store)) {
+        if (resource_type == RESOURCE_ENERGY) {
+          continue
+        }
+
+        const amount = (terminal.store[resource_type as ResourceConstant] || 0)
+
+        if (amount < 100) {
+          continue
+        }
+        if (amount > capacity) {
+          continue
+        }
+
+        const result = terminal.send(resource_type as ResourceConstant, amount, receiver_room.name)
+        if (result == OK) {
+          console.log(`${amount} * ${resource_type} sent from ${this.room.name} to ${receiver_room.name}`)
+
+          done = true
+          break
+        }
+      }
+    })
   }
 
   private placeConstructionSite() {

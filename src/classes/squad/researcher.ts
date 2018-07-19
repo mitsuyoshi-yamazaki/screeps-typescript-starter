@@ -370,7 +370,7 @@ export class ResearcherSquad extends Squad {
           creep.moveTo(creep.room.terminal!)
         }
         else {
-          console.log(`ResearcherSquad.chargeLabs transfer micelleous resource failed with ${transfer_result}, resource: ${resource_type}, ${this.name}, ${creep.name}`)
+          console.log(`ResearcherSquad.chargeLabs transfer micelleous resource failed with ${transfer_result}, resource: ${resource_type}, ${this.name}, ${creep.name}, ${creep.pos}`)
         }
         return
       }
