@@ -419,6 +419,8 @@ export class Region {
           { id: '59f1a00882100e1594f35ee0', room_name: 'W47N5' },
         ]
         this.room_names = [this.room.name]
+        charger_position = {x: 34, y: 7}
+        this.destination_link_id = '5b4fc7abd84b2a61f82feadd'
         break
 
       default:
