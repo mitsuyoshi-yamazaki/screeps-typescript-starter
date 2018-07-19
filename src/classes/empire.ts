@@ -16,6 +16,7 @@ export class Empire {
       'W42N1',
       'W47N2',
       'W43S5',
+      'W43N5',
       'W44S7',
       'W48S6',
     ]

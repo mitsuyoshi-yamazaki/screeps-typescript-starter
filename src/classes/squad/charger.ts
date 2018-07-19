@@ -74,16 +74,16 @@ export class ChargerSquad extends Squad {
     if (this.room.name == 'W43N5') {
       link = undefined
 
-      const charge_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
+      const charge_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
       if (charge_link) {
         opt.additional_links = [
           charge_link
         ]
       }
       else {
-        if (this.room.name != 'W43N5') {
+        // if (this.room.name != 'W43N5') {
           console.log(`NO charge link ${this.name} ${this.room.name}`)  // @fixme:
-        }
+        // }
       }
     }
 
