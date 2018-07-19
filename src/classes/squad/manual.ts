@@ -614,15 +614,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N2': {
-        const room = Game.rooms[this.original_room_name]
-        const lab = Game.getObjectById('5b430aad8f11f24a0236521a') as StructureLab | undefined
+        // const room = Game.rooms[this.original_room_name]
+        // const lab = Game.getObjectById('5b430aad8f11f24a0236521a') as StructureLab | undefined
 
-        if (!room || !room.terminal || !lab) {
-          this.say(`ERR`)
-          return
-        }
+        // if (!room || !room.terminal || !lab) {
+        //   this.say(`ERR`)
+        //   return
+        // }
 
-        this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
+        // this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
         return
       }
 

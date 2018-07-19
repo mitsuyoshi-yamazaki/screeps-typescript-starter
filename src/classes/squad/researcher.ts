@@ -294,9 +294,15 @@ export class ResearcherSquad extends Squad {
           console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
         }
         else {
-          const room = Game.rooms[this.room_name]!
-          const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
-          const storage_has_resource = (room.storage!.store[room_resource] || 0) > 5000
+          const room = Game.rooms[this.room_name]
+          if (!room || !room.terminal || !room.storage) {
+            if (this.room_name != 'W42N1') {
+              console.log(`ERROR 1111`)
+            }
+            return
+          }
+          const terminal_needs_resource = (room.terminal.store[room_resource] || 0) < 5000
+          const storage_has_resource = (room.storage.store[room_resource] || 0) > 5000
 
           if (terminal_needs_resource && storage_has_resource) {
             this.transferRoomResource(creep, room_resource)

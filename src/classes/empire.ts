@@ -1,6 +1,6 @@
 
 import { ErrorMapper } from "utils/ErrorMapper"
-import { Region } from "./region"
+import { Region, RegionOpt } from "./region"
 import { Squad, SpawnPriority, SquadType } from "./squad/squad";
 
 enum State {
@@ -11,6 +11,16 @@ export class Empire {
   private regions = new Map<string, Region>()
 
   constructor(readonly name: string) {
+
+    const attacker_room_names = [
+      'W42N1',
+      'W47N2',
+      'W43S5',
+      'W44S7',
+      'W48S6',
+    ]
+    const attack_to = 'W44N3'
+
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
@@ -18,9 +28,13 @@ export class Empire {
       }
 
       const controller = room.controller
+      const opt: RegionOpt = {
+        produce_attacker: (attacker_room_names.indexOf(room.name) >= 0),
+        attack_to: attack_to,
+      }
 
       ErrorMapper.wrapLoop(() => {
-        const region = new Region(controller)
+        const region = new Region(controller, opt)
         this.regions.set(region.name, region)
       }, `${room.name}.init`)()
     }
@@ -67,15 +81,17 @@ export class Empire {
     const w49n1 = 'W49N1'
     const w48n11 = 'W48N11'
     const w47n5 = 'W47N5'
+    const w47s6 = 'W47S6'
 
-    set_delegate(w47n2, w47n5)//, [
+    set_delegate(w48s6, w47s6)
+    // set_delegate(w47n2, w47n5)//, [
     //   SquadType.ATTACKER,
     //   SquadType.SCOUT,
     //   SquadType.TEMP,
     //   SquadType.REMOET_HARVESTER,
     //   // SquadType.REMOET_M_HARVESTER,
     // ])
-    set_delegate(w43n5, w47n5)
+    // set_delegate(w43n5, w47n5)
 
     if ((Game.time % 2) == 0) {
       // set_delegate(w47n2, w44n3)

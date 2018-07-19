@@ -19,6 +19,7 @@ import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote
 import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
 import { RemoteDefenderSqauad } from "./squad/remote_defender";
 import { NukerChargerSquad } from "./squad/nuker_charger";
+import { RemoteAttackerSquad } from "./squad/remote_attacker";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -27,6 +28,11 @@ export interface RegionMemory {
   resource_transports?: {[room_name: string]: ResourceConstant[]}
   last_spawn_time: number
   observe_target?: string
+}
+
+export interface RegionOpt {
+  produce_attacker: boolean,
+  attack_to: string | null,
 }
 
 export class Region {
@@ -62,7 +68,7 @@ export class Region {
     return region_memory.support_link_ids
   }
 
-  constructor(readonly controller: StructureController) {
+  constructor(readonly controller: StructureController, readonly region_opt: RegionOpt) {
     if (!controller || !controller.my) {
       const message = `Region() controller not provided or not mine ${controller}`
       console.log(message)
@@ -225,6 +231,7 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
+        // this.temp_squad_target_room_name = 'W47S6'
         break
 
       case 'W43S5':
@@ -421,6 +428,10 @@ export class Region {
         this.room_names = [this.room.name]
         charger_position = {x: 34, y: 7}
         this.destination_link_id = '5b4fc7abd84b2a61f82feadd'
+        break
+
+      case 'W47S6':
+        this.room_names = [this.room.name]
         break
 
       default:
@@ -744,6 +755,14 @@ export class Region {
             const squad = new NukerChargerSquad(squad_memory.name, this.room)
 
             this.squads.set(squad.name, squad)
+            break
+          }
+          case SquadType.REMOTE_ATTACKER: {
+            if (this.region_opt.produce_attacker && this.region_opt.attack_to) {
+              const squad = new RemoteAttackerSquad(squad_memory.name, this.room, this.region_opt.attack_to)
+
+              this.squads.set(squad.name, squad)
+            }
             break
           }
           default:
@@ -1320,6 +1339,7 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       const nuke: Nuke = this.room.find(FIND_NUKES, {
         filter: (nuke) => {
+          console.log(`Nuke detected ${this.room.name}`)
           return (nuke.timeToLand < 100)
         }
       })[0]
@@ -1551,9 +1571,6 @@ export class Region {
       if ((flag.room.name != this.room.name)) {
         continue
       }
-      if (this.room.spawns.length == 0) {
-        continue
-      }
       if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
         continue
       }
@@ -1606,19 +1623,10 @@ export class Region {
   }
 
   private activateSafeModeIfNeeded() {
-    if (this.room.name == 'W49S34') {
+    if (this.room.name == 'W48N11') {
       return
     }
-    if (this.room.name == 'W46S33') {
-      return
-    }
-    if (this.room.name == 'W48S47') {
-      return
-    }
-    if (this.room.name == 'W49S47') {
-      return
-    }
-    if (this.room.name == 'W49S48') {
+    if (this.room.name == 'W42N1') {
       return
     }
     // if (this.room.controller && (this.room.controller.level < 4)) {
@@ -1734,6 +1742,9 @@ export class Region {
 
     const destination = support_link || destination_link
     if (!destination) {
+      if (['W48N11'].indexOf(this.room.name) >= 0) {
+        return
+      }
       console.log(`Region.transferLinks no destination found ${this.name} for ${this.destination_link_id}`)
       return
     }
@@ -1801,8 +1812,15 @@ export class Region {
     }
 
     if (!transfer_succeeded) {
-      if (destination_link && support_link && (destination_link.energy > 200) && (support_link.energy < (support_link.energyCapacity * 0.5))) {
-        destination_link.transferEnergy(support_link)
+      if (destination_link && support_link && (destination_link.cooldown == 0) && (destination_link.energy > 0) && ((support_link.energyCapacity - support_link.energy) >= destination_link.energy)) {
+        const result = destination_link.transferEnergy(support_link)
+
+        if (result != OK) {
+          // console.log(`Region.transferLinks failed ${result} ${this.name}`)
+        }
+        else {
+          // console.log(`Region.transferLinks succeeded ${result} ${this.name}`)
+        }
       }
     }
   }

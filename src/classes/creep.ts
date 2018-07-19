@@ -967,9 +967,15 @@ export function init() {
     // withdraw
     if ((_.sum(this.carry) == 0) && (this.ticksToLive || 0) > 2) {
       let withdrawn = false
-      const min_link_energy = (link && opt.has_support_links) ? (link.energyCapacity * 0.5) : 0
+      let should_withdraw = true
 
-      if (link && (link.energy > min_link_energy)) {
+      if (link && opt.has_support_links) {
+        if (((link.energyCapacity * 0.5) < link.energy) && ((Game.time % 3) == 1)) {
+          should_withdraw = false
+        }
+      }
+
+      if (link && (link.energy > 0) && should_withdraw) {
         const withdraw_result = this.withdraw(link, RESOURCE_ENERGY)
         if (withdraw_result == OK) {
           withdrawn = true
@@ -1029,6 +1035,11 @@ export function init() {
           if (this.transfer(additional_link, RESOURCE_ENERGY) == OK) {
             return
           }
+        }
+
+        if (opt.has_support_links && link && (link.energy == 0) && (link.cooldown == 0)) {
+          this.transfer(link, RESOURCE_ENERGY)
+          return
         }
 
         this.transfer(storage, RESOURCE_ENERGY)
@@ -1410,6 +1421,10 @@ export function init() {
         }
       }
 
+
+      // if (this.room.name == 'W43N5') {
+      //   should_upgrade = false
+      // }
 
       if (!this.room.construction_sites || (this.room.construction_sites.length == 0)) {
         if (should_upgrade) {
