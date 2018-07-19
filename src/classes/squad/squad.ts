@@ -151,7 +151,10 @@ export abstract class Squad {
   }
 
   public hasEnoughEnergyForUpgrader(energyAvailable: number, capacity: number, max_energy?: number): boolean {
-    capacity = Math.min(capacity, 2150)
+    max_energy = max_energy || 2150
+
+    capacity = Math.min(capacity, max_energy)
+    capacity = Math.min(capacity, 4000)
 
     const energy_unit = 250
     const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
@@ -166,6 +169,7 @@ export abstract class Squad {
     const upgraded = max_energy > 2300
 
     energyAvailable = Math.min(energyAvailable, max_energy)
+    energyAvailable = Math.min(energyAvailable, 4000)
 
     const move: BodyPartConstant[] = [MOVE]
     const work: BodyPartConstant[] = [WORK, WORK]

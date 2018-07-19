@@ -1523,7 +1523,7 @@ export class Region {
 
         if (resource_type == RESOURCE_ENERGY) {
           amount_needed = 70000
-          resource_capacity = 80000
+          resource_capacity = 200000
           amount_send = 50000
         }
 

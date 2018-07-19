@@ -20,7 +20,7 @@ export class UpgraderSquad extends Squad {
         this.max_energy = 2150
       }
       else if (room.controller.level >= 7) {
-        this.max_energy = 3300
+        this.max_energy = 4300
       }
     }
   }
@@ -54,7 +54,7 @@ export class UpgraderSquad extends Squad {
     let available = (energy - 200000)
 
     if (available > 0) {
-      max = Math.floor(available / 200000)
+      max = Math.floor(available / 130000)
     }
 
     if (this.room_name == 'W51S29') {
