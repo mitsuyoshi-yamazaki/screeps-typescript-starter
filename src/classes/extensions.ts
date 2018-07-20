@@ -425,7 +425,7 @@ export function tick(): void {
   }
 
   Room.prototype.owned_structures_not_found_error = function(structure_type: StructureConstant): void {
-    if ((this.name == 'W42N1') || (this.name == 'W48N11')) {
+    if ((this.name == 'W42N1') || (this.name == 'W48N11') || (this.name == 'W47N5')) {
       return  // @fixme:
     }
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)

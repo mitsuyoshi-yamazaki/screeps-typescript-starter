@@ -81,9 +81,9 @@ export class ChargerSquad extends Squad {
         ]
       }
       else {
-        // if (this.room.name != 'W43N5') {
+        if (this.room.name != 'W43N5') {
           console.log(`NO charge link ${this.name} ${this.room.name}`)  // @fixme:
-        // }
+        }
       }
     }
 

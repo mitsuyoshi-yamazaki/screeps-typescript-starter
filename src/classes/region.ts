@@ -29,6 +29,7 @@ export interface RegionMemory {
   last_spawn_time: number
   observe_target?: string
   send_resources_to?: string[]
+  send_resources_to_excludes?: string[]
 }
 
 export interface RegionOpt {
@@ -364,6 +365,7 @@ export class Region {
           'W42N5',
           'W43N4',
           'W41N5',
+          'W44N3',
           // 'W43N7',
           // 'W48N11',
         ]
@@ -428,7 +430,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         charger_position = {x: 34, y: 7}
-        this.destination_link_id = '5b4fc7abd84b2a61f82feadd'
+        // this.destination_link_id = '5b4fc7abd84b2a61f82feadd'
         break
 
       case 'W47S6':
@@ -675,7 +677,9 @@ export class Region {
           }
           case SquadType.REMOET_M_HARVESTER: {
             if (!this.room.storage) {
-              console.log(`ERROR!!!3`)
+              if ((this.controller.level > 4) && ((Game.time % 41) == 5)) {
+                console.log(`NO storage in ${this.room.name} stop remote harvester squad`)
+              }
               break
             }
 
@@ -1151,16 +1155,16 @@ export class Region {
 
     let hits_max = 150000
     if (this.room.storage && (this.room.storage.store.energy > 900000)) {
-      hits_max = 800000
+      hits_max = 1100000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 800000)) {
-      hits_max = 600000
+      hits_max = 900000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-      hits_max = 500000
+      hits_max = 7500000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
-      hits_max = 400000
+      hits_max = 500000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
       hits_max = 300000
@@ -1578,6 +1582,7 @@ export class Region {
       return
     }
 
+    const excludes = region_memory.send_resources_to_excludes || []
     let done = false
 
     region_memory.send_resources_to.forEach((room_name) => {
@@ -1594,6 +1599,9 @@ export class Region {
 
       for (const resource_type of Object.keys(terminal.store)) {
         if (resource_type == RESOURCE_ENERGY) {
+          continue
+        }
+        if (excludes && (excludes.indexOf(resource_type) >= 0)) {
           continue
         }
 
@@ -1682,6 +1690,12 @@ export class Region {
       return
     }
     if (this.room.name == 'W42N1') {
+      return
+    }
+    if (this.room.name == 'W47N5') {
+      return
+    }
+    if (this.room.name == 'W43N5') {
       return
     }
     // if (this.room.controller && (this.room.controller.level < 4)) {
@@ -1958,7 +1972,11 @@ export class Region {
 
     const message = `[ERROR] Region ${this.name} ${error}`
     console.log(message)
-    Game.notify(message)
+
+    const excludes = ['W42N1']
+    if (excludes.indexOf(this.room.name) < 0) {
+      Game.notify(message)
+    }
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms

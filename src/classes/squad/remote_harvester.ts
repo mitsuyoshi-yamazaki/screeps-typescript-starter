@@ -927,7 +927,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) < (creep.carryCapacity - 100))) {
+      if ((_.sum(creep.carry) < (creep.carryCapacity - 100)) && (creep.room.name != 'W47S6')) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY

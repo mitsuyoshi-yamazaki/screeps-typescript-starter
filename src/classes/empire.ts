@@ -13,12 +13,12 @@ export class Empire {
   constructor(readonly name: string) {
 
     const attacker_room_names = [
-      'W42N1',
+      // 'W42N1',
       'W47N2',
-      'W43S5',
-      'W43N5',
-      'W44S7',
-      'W48S6',
+      // 'W43S5',
+      // 'W43N5',
+      // 'W44S7',
+      // 'W48S6',
     ]
     const attack_to = 'W44N3'
 
