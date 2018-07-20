@@ -606,38 +606,38 @@ export class ManualSquad extends Squad {
 
       case 'W43N5': {
 
-        const sender_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
-        const receiver_link = Game.getObjectById('5b360f3491f023098d6515f2') as StructureLink | undefined
+        // const sender_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
+        // const receiver_link = Game.getObjectById('5b360f3491f023098d6515f2') as StructureLink | undefined
 
-        if (!sender_link || !receiver_link) {
-          if ((Game.time % 71) == 0) {
-            const message = `ManualSquad.run ${this.original_room_name} link not found ${this.name}`
-            console.log(message)
-            Game.notify(message)
-          }
-        }
-        else if ((sender_link.cooldown == 0)) {
-          if ((sender_link.energy > (sender_link.energyCapacity * 0.5))) {
-            sender_link.transferEnergy(receiver_link)
-          }
-        }
+        // if (!sender_link || !receiver_link) {
+        //   if ((Game.time % 71) == 0) {
+        //     const message = `ManualSquad.run ${this.original_room_name} link not found ${this.name}`
+        //     console.log(message)
+        //     Game.notify(message)
+        //   }
+        // }
+        // else if ((sender_link.cooldown == 0)) {
+        //   if ((sender_link.energy > (sender_link.energyCapacity * 0.5))) {
+        //     sender_link.transferEnergy(receiver_link)
+        //   }
+        // }
 
-        this.creeps.forEach((creep) => {
-          if (!receiver_link || !creep.room.controller || !creep.room.controller.my) {
-            return
-          }
+        // this.creeps.forEach((creep) => {
+        //   if (!receiver_link || !creep.room.controller || !creep.room.controller.my) {
+        //     return
+        //   }
 
-          const withdraw_result = creep.withdraw(receiver_link, RESOURCE_ENERGY)
-          creep.upgradeController(creep.room.controller)
+        //   const withdraw_result = creep.withdraw(receiver_link, RESOURCE_ENERGY)
+        //   creep.upgradeController(creep.room.controller)
 
-          if (!creep.memory.stop) {
-            creep.moveTo(receiver_link)
+        //   if (!creep.memory.stop) {
+        //     creep.moveTo(receiver_link)
 
-            if (withdraw_result == OK) {
-              creep.memory.stop = true
-            }
-          }
-        })
+        //     if (withdraw_result == OK) {
+        //       creep.memory.stop = true
+        //     }
+        //   }
+        // })
         return
       }
 

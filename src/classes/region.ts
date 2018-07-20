@@ -592,11 +592,20 @@ export class Region {
       room_name: 'W46S46',
     }
 
+    const most_priority_squads = [
+      SquadType.WORKER,
+      SquadType.MANUAL,
+    ]
+
     for (const squad_name in Memory.squads) {
       const squad_memory = Memory.squads[squad_name]
       if (squad_memory.owner_name != this.name) {
         continue
       }
+
+      // if ((energy_capacity <= 0) && (most_priority_squads.indexOf(squad_memory.type) < 0)) {
+      //   continue
+      // }
 
       ErrorMapper.wrapLoop(() => {
         switch (squad_memory.type) {
@@ -1973,7 +1982,7 @@ export class Region {
     const message = `[ERROR] Region ${this.name} ${error}`
     console.log(message)
 
-    const excludes = ['W42N1']
+    const excludes = ['W42N1', 'W43N5']
     if (excludes.indexOf(this.room.name) < 0) {
       Game.notify(message)
     }
