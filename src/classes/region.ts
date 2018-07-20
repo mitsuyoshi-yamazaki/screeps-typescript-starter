@@ -1426,7 +1426,7 @@ export class Region {
     }, `${this.name}.runObserver`)()
 
     // ErrorMapper.wrapLoop(() => {
-    //   if ((this.room.name == 'W48S47') || (this.room.name == 'W49S47') || (this.room.name == 'S49S48')) {
+    //   if ((this.room.name == 'W43N5') || (this.room.name == 'W47N5')) {
     //     this.room.find(FIND_STRUCTURES).forEach((s) => {
     //       s.notifyWhenAttacked(false)
     //     })
