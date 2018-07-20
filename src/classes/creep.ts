@@ -542,6 +542,15 @@ export function init() {
       this.moveTo(37, 0, opt)
       return ActionResult.IN_PROGRESS
     }
+    else if (this.room.memory.exits) {
+      const exit_pos = this.room.memory.exits[exit]
+
+      if (exit_pos) {
+        this.moveTo(exit_pos.x, exit_pos.y, opt)
+        this.say(`MEM ${exit_pos.x},${exit_pos.y}`)
+        return ActionResult.IN_PROGRESS
+      }
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
@@ -1242,7 +1251,7 @@ export function init() {
           this.say('H2C')
         }
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5', 'W47N5'].indexOf(this.room.name) < 0)
+        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5', 'W47N5', 'W47S6'].indexOf(this.room.name) < 0)
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
@@ -1266,7 +1275,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'dummy')) {
+        if ((this.room.name == 'W47S6')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {

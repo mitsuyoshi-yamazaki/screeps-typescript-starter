@@ -18,6 +18,7 @@ interface ManualSquadMemory extends SquadMemory {
 }
 
 type MineralContainer = StructureTerminal | StructureStorage | StructureContainer
+type MineralStore = MineralContainer | StructurePowerSpawn
 
 export class ManualSquad extends Squad {
   private any_creep: Creep | undefined
@@ -528,64 +529,28 @@ export class ManualSquad extends Squad {
       }
 
       case 'W44S7': {
-        const nuker = Game.getObjectById('5b4a627a8899194a2fa7f524') as StructureNuker | undefined
-        if (!nuker) {
-          console.log(`ManualSquad.run ${this.original_room_name} no nuker`)
-          return
-        }
-
         const room = Game.rooms[this.original_room_name]
-        if (!room || !room.storage || !room.terminal) {
-          console.log(`ManualSquad.run ${this.original_room_name} no storage`)
+        if (!room) {
+          console.log(`ManualSquad.run no room ${this.original_room_name}`)
           return
         }
 
-        const opt: MoveToOpts = {
-          maxOps: 200,
-          maxRooms: 0,
-          reusePath: 3,
+        const terminal = room.terminal
+        const power_spawn = Game.getObjectById('5b4c720b364bfc2d1ef33201') as StructurePowerSpawn | undefined
+
+        if (!terminal || !power_spawn) {
+          console.log(`ManualSquad.run no terminal or power_spawn ${terminal}, ${power_spawn}, ${this.original_room_name}`)
+          return
         }
 
-        this.creeps.forEach((creep) => {
-          const carry = _.sum(creep.carry)
+        if (this.any_creep && ((this.any_creep.ticksToLive || 0) < 150) ) {
+          if (this.any_creep.transferResources(terminal) == ERR_NOT_IN_RANGE) {
+            this.any_creep.moveTo(terminal)
+          }
+          return
+        }
 
-          if (carry > 0) {
-            if (creep.carry.energy > 0) {
-              if (creep.transfer(nuker, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(nuker, opt)
-              }
-              else {
-                creep.moveTo(room.storage!, opt)
-              }
-            }
-            else {
-              if (creep.transfer(nuker, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(nuker, opt)
-              }
-              else {
-                creep.moveTo(room.storage!, opt)
-              }
-            }
-          }
-          else {
-            if (nuker.ghodium == nuker.ghodiumCapacity) {
-              if (creep.withdraw(room.storage!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(room.storage!, opt)
-              }
-              else {
-                creep.moveTo(nuker, opt)
-              }
-            }
-            else {
-              if (creep.withdraw(room.terminal!, RESOURCE_GHODIUM) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(room.terminal!, opt)
-              }
-              else {
-                creep.moveTo(nuker, opt)
-              }
-            }
-          }
-        })
+        this.transferMineral(terminal, power_spawn, RESOURCE_POWER)
         return
       }
 
@@ -641,7 +606,7 @@ export class ManualSquad extends Squad {
 
       case 'W43N5': {
 
-        const sender_link = Game.getObjectById('5b35fbc412561956d24fa72a') as StructureLink | undefined
+        const sender_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
         const receiver_link = Game.getObjectById('5b360f3491f023098d6515f2') as StructureLink | undefined
 
         if (!sender_link || !receiver_link) {
@@ -1305,7 +1270,7 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private transferMineral(from: MineralContainer, to: MineralContainer, resource_type: ResourceConstant): void {
+  private transferMineral(from: MineralContainer, to: MineralStore, resource_type: ResourceConstant): void {
     // const switch_structure = function(structure: MineralContainer, case_lab: (lab: StructureLab) => void, case_other: (structure: {store: StoreDefinition}) => void): void {
     //   if ((structure as StructureLab).mineralCapacity) {
     //     case_lab((structure as StructureLab))
@@ -1327,6 +1292,17 @@ export class ManualSquad extends Squad {
           return
         }
 
+        if (to.structureType == STRUCTURE_POWER_SPAWN) {
+          if (resource_type == RESOURCE_POWER) {
+            if (creep.transfer(to, resource_type) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(to)
+            }
+          }
+          else {
+            console.log(`ManualSquad.run failed ${resource_type} cannot be transfered to PowerSpawn ${to} ${this.original_room_name}`)
+          }
+          return
+        }
         if (creep.transferResources(to) == ERR_NOT_IN_RANGE) {
           creep.moveTo(to)
         }

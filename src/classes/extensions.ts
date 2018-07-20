@@ -58,6 +58,7 @@ declare global {
     attacked_time?: number
     last_attacked_time?: number
     description_position?: {x:number, y:number}
+    exits?: {[exit: number]: {x:number, y:number}}
   }
 
   interface Room {

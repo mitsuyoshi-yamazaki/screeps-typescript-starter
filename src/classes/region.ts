@@ -1881,7 +1881,7 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
-    const no_remote_harvester = (this.room.name == 'W47N5') && this.room.controller && (this.room.controller.level < 7)
+    const no_remote_harvester = (['W47N5', 'W47S6'].indexOf(this.room.name) >= 0) && this.room.controller && (this.room.controller.level < 7)
 
     if (no_remote_harvester && ((Game.time % 97) == 3)) {
       console.log(`\n\nNO REMOTE HARVESTER ${this.name}\n\n`)
