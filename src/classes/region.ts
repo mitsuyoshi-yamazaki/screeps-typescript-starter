@@ -151,7 +151,7 @@ export class Region {
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
-        this.temp_squad_target_room_name = 'W45S27'
+        // this.temp_squad_target_room_name = 'W45S27'
         break
 
       case 'W44S7':
@@ -182,6 +182,7 @@ export class Region {
           'W46S7',
           // 'W44S8',
           'W42S7',
+          // 'W31S9',
         ]
         rooms_need_to_be_defended = [
           'W43S7',
@@ -198,6 +199,7 @@ export class Region {
           lhs: '5b3b4987f8c7fa739a68e406', // 18, 32
           rhs: '5b32af23c3f6e64781782851', // 17, 33
         }
+        // this.temp_squad_target_room_name = 'W39S9'
         break
 
       case 'W48S6':
@@ -234,7 +236,7 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_target_room_name = 'W47S6'
+        // this.temp_squad_target_room_name = 'W47S14'
         break
 
       case 'W43S5':
@@ -445,6 +447,14 @@ export class Region {
         break
 
       case 'W45S27':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W47S14':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W39S9':
         this.room_names = [this.room.name]
         break
 

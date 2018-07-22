@@ -84,9 +84,19 @@ export class Empire {
     const w47n5 = 'W47N5'
     const w47s6 = 'W47S6'
     const w45s27 = 'W45S27'
+    const w39s9 = 'W39S9'
+    const w47s14 = 'W47S14'
 
-    set_delegate(w48s6, w47s6)
-    set_delegate(w51s29, w45s27)
+    const time = (Game.time % 3)
+
+    if (time == 2) {
+      set_delegate(w48s6, w47s6)
+      set_delegate(w51s29, w45s27)
+      set_delegate(w44s7, w39s9)
+    }
+    else if (time == 0) {
+      set_delegate(w48s6, w47s14)
+    }
 
     // set_delegate(w47n2, w47n5)//, [
     //   SquadType.ATTACKER,

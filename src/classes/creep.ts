@@ -1213,7 +1213,13 @@ export function init() {
     let move_to_opt: MoveToOpts = {
       maxRooms: 0,
       reusePath: 2,
-      maxOps: 200,
+      maxOps: 500,
+      // visualizePathStyle: {
+      //   fill: 'transparent',
+      //   stroke: '#c0c000',
+      //   lineStyle: 'dashed',
+      //   opacity: 0.4
+      // }
     }
 
     if ((_.sum(this.carry) > this.carry.energy) && this.room.storage) {
@@ -1279,7 +1285,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W47S6')) {
+        if ((this.room.name == 'W45S27')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {

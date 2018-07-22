@@ -260,6 +260,16 @@ function trade():void {
       hydrogen_third_room_name,
     ]
   }, credit_amount)
+
+  // //
+  // const a_room = Game.rooms['W39S9']
+  // a_room.find(FIND_STRUCTURES, {
+  //   filter: (structure) => {
+  //     return (structure.structureType == STRUCTURE_EXTENSION) && !structure.my
+  //   }
+  // }).forEach((extension) => {
+  //   extension.destroy()
+  // })
 }
 
 // type OrderTypeConstant = ORDER_SELL | ORDER_BUY  // not working

@@ -111,6 +111,12 @@ export class ScoutSquad extends Squad {
           const y = (creep.pos.y - creep.room.controller.pos.y) + creep.pos.y
 
           creep.moveTo(x, y)
+
+          if (creep.room.name == 'W31S9') {
+            const message = `ScoutSquad.run arrived ${creep.room.name} at ${Game.time} with ${creep.ticksToLive}`
+            console.log(message)
+            Game.notify(message)
+          }
         }
 
         return
