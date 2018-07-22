@@ -193,10 +193,14 @@ export class WorkerSquad extends Squad {
         room_to_escape = 'W47S15'
         break
 
-        case 'W39S9':
-          room_to_escape = 'W38S9'
-          break
-    }
+      case 'W39S9':
+        room_to_escape = 'W38S9'
+        break
+
+      case 'W47S9':
+        room_to_escape = 'W46S9'
+        break
+      }
 
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
     if (squad_memory.room_to_escape) {

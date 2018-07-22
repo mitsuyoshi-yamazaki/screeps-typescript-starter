@@ -236,7 +236,7 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_target_room_name = 'W47S14'
+        this.temp_squad_target_room_name = 'W47S9'
         break
 
       case 'W43S5':
@@ -455,6 +455,10 @@ export class Region {
         break
 
       case 'W39S9':
+        this.room_names = [this.room.name]
+        break
+
+      case 'W47S9':
         this.room_names = [this.room.name]
         break
 
@@ -1505,6 +1509,9 @@ export class Region {
   }
 
   private sendResources(): void {
+    if (CONTROLLER_STRUCTURES[STRUCTURE_TERMINAL][this.controller.level] < 1) {
+      return
+    }
     if (!this.room.terminal) {
       console.log(`Region.sendResources no terminal ${this.name} ${this.room.terminal}`)
       return
