@@ -203,6 +203,10 @@ export function init() {
 
     this.say(`${this.room.is_keeperroom ? 's' : ''}${destination_room_name}`)
 
+    if ((destination_room_name == 'W45S27') && (this.room.name == 'W51S29')) {
+      this.memory.destination_room_name = 'W44S30'
+    }
+
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
     }

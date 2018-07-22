@@ -266,6 +266,12 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
+    else if (this.source_info.id == '59f1a00982100e1594f35f04') { // W47S6 left
+      const link = Game.getObjectById('5b54101f184d6318688b74cf') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
 
 
     // --

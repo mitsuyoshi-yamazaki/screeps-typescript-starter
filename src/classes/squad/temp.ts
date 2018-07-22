@@ -2,6 +2,10 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface TempSquadMemory extends CreepMemory {
+  arrived: boolean
+}
+
 export class TempSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string, readonly target_room_name: string) {
     super(name)
@@ -51,13 +55,14 @@ export class TempSquad extends Squad {
   private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
     let body: BodyPartConstant[] = (energyAvailable >= 850) ? [MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM] : [MOVE, MOVE, MOVE, CLAIM]
     const name = this.generateNewName()
-    const memory: CreepMemory = {
+    const memory: TempSquadMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: CreepType.CLAIMER,
       should_notify_attack: false,
       let_thy_die: true,
+      arrived: false,
     }
 
     if (this.room_name == 'W47N2') {
@@ -81,6 +86,15 @@ export class TempSquad extends Squad {
     this.creeps.forEach((creep) => {
       if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
         return
+      }
+
+      const memory = creep.memory as TempSquadMemory
+      if (!memory.arrived) {
+        (creep.memory as TempSquadMemory).arrived = true
+
+        const message = `TempSquad.run arrived ${target_room_name} with ${creep.ticksToLive}, ${this.name}`
+        console.log(message)
+        Game.notify(message)
       }
 
       creep.claim(target_room_name, true)

@@ -83,8 +83,11 @@ export class Empire {
     const w48n11 = 'W48N11'
     const w47n5 = 'W47N5'
     const w47s6 = 'W47S6'
+    const w45s27 = 'W45S27'
 
     set_delegate(w48s6, w47s6)
+    set_delegate(w51s29, w45s27)
+
     // set_delegate(w47n2, w47n5)//, [
     //   SquadType.ATTACKER,
     //   SquadType.SCOUT,

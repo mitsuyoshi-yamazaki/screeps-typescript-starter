@@ -151,6 +151,7 @@ export class Region {
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
+        this.temp_squad_target_room_name = 'W45S27'
         break
 
       case 'W44S7':
@@ -335,7 +336,7 @@ export class Region {
           'W46N1',
           'W47N1',
         ]
-        this.destination_link_id = '5b33369c91f5f036a9375bda'
+        // this.destination_link_id = '5b33369c91f5f036a9375bda'
         charger_position = {x: 16, y: 8}
         input_lab_ids = {
           lhs: '5b378bd089b8230740d3f5dd', // 7, 14
@@ -434,6 +435,16 @@ export class Region {
         break
 
       case 'W47S6':
+        harvester_targets = [
+          { id: '59f1a00982100e1594f35f04', room_name: 'W47S6' }, // left
+          { id: '59f1a00982100e1594f35f03', room_name: 'W47S6' }, // center
+        ]
+        this.room_names = [this.room.name]
+        this.destination_link_id = '5b540f0e36c4ca4dbc341b2c'
+        charger_position = {x: 11, y: 20}
+        break
+
+      case 'W45S27':
         this.room_names = [this.room.name]
         break
 
@@ -1982,7 +1993,7 @@ export class Region {
     const message = `[ERROR] Region ${this.name} ${error}`
     console.log(message)
 
-    const excludes = ['W42N1', 'W43N5']
+    const excludes = ['W42N1', 'W43N5', 'W47N5', 'W47N2']
     if (excludes.indexOf(this.room.name) < 0) {
       Game.notify(message)
     }
