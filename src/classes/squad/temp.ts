@@ -97,7 +97,14 @@ export class TempSquad extends Squad {
         Game.notify(message)
       }
 
-      creep.claim(target_room_name, true)
+      if (creep.claim(target_room_name, true) == ActionResult.DONE) {
+        if (!Memory.rooms[target_room_name]) {
+          Memory.rooms[target_room_name] = {
+            harvesting_source_ids: [],
+          }
+        }
+        Memory.rooms[target_room_name].ancestor = this.owner_room_name
+      }
 
       if (((Game.time % 41) == 1) && (creep.room.name == target_room_name) && creep.room.controller) {
         if (!creep.room.controller.sign || (Memory.versions.indexOf(creep.room.controller.sign.text) < 0)) {

@@ -30,6 +30,7 @@ export interface RegionMemory {
   observe_target?: string
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
+  ancestor: string
 }
 
 export interface RegionOpt {
@@ -82,9 +83,14 @@ export class Region {
       return
     }
 
+    const room_memory = Memory.rooms[this.room.name] as RoomMemory | undefined
+
     if (!Memory.regions[this.name]) {
+      const ancestor = (!(!room_memory) && !(!room_memory.ancestor)) ? room_memory.ancestor : 'origin'
+
       Memory.regions[this.name] = {
         last_spawn_time: Game.time,
+        ancestor: ancestor,
       }
     }
     const region_memory = Memory.regions[this.name]
@@ -182,7 +188,7 @@ export class Region {
           'W46S7',
           // 'W44S8',
           'W42S7',
-          // 'W31S9',
+          'W31S9',
         ]
         rooms_need_to_be_defended = [
           'W43S7',
@@ -1993,6 +1999,9 @@ export class Region {
       let duration = 400
       if (this.room.name == 'W51S29') {
         duration = 770
+      }
+      else if ((this.room.name == 'W47S6') && (this.controller.level < 7)) {
+        duration = 700
       }
 
       if (!region_memory.last_spawn_time) {

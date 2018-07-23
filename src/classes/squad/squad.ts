@@ -93,6 +93,11 @@ export abstract class Squad {
     }
   }
 
+  public get owner_room_name(): string {
+    const squad_memory = Memory.squads[this.name]
+    return squad_memory.owner_name
+  }
+
   public description(): string {
     const priority = Memory.squads[this.name].stop_spawming ? 'stop' : `${this.spawnPriority}`
     return `${this.name} ${this.creeps.size} crp, pri: ${priority}`

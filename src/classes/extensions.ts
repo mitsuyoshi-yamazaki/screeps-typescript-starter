@@ -59,6 +59,7 @@ declare global {
     last_attacked_time?: number
     description_position?: {x:number, y:number}
     exits?: {[exit: number]: {x:number, y:number}}
+    ancestor?: string
   }
 
   interface Room {
@@ -280,7 +281,7 @@ export function tick(): void {
 
     if (!room_memory) {
       room_memory = {
-        harvesting_source_ids: []
+        harvesting_source_ids: [],
       }
       Memory.rooms[this.name] = room_memory
     }
