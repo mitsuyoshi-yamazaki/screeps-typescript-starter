@@ -61,7 +61,7 @@ export class Region {
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
-  private temp_squad_target_room_name: string | undefined
+  private temp_squad_opt: {target_room_name: string, forced?: boolean} | undefined
 
   private get support_link_ids(): string[] {
     const region_memory = Memory.regions[this.name]
@@ -242,7 +242,7 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        this.temp_squad_target_room_name = 'W49S6'
+        // this.temp_squad_target_room_name = 'W49S6'
         break
 
       case 'W43S5':
@@ -273,6 +273,10 @@ export class Region {
         input_lab_ids = {
           lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
+        }
+        this.temp_squad_opt = {
+          target_room_name: 'W45S3',
+          forced: true,
         }
         break
 
@@ -463,6 +467,11 @@ export class Region {
       case 'W47S9':
         this.room_names = [this.room.name]
         break
+
+      case 'W45S3':
+        this.room_names = [this.room.name]
+        break
+
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
@@ -781,12 +790,14 @@ export class Region {
             break
           }
           case SquadType.TEMP: {
-            if (this.temp_squad_target_room_name) {
+            if (this.temp_squad_opt) {
               // Creating squad costs CPU
-              const temp_squad_target_room = Game.rooms[this.temp_squad_target_room_name]
+              const temp_squad_target_room = Game.rooms[this.temp_squad_opt.target_room_name]
+              const not_my_room = (!temp_squad_target_room || !temp_squad_target_room.controller || !temp_squad_target_room.controller.my)
+              const owned = !(!this.temp_squad_opt.forced) && temp_squad_target_room && (temp_squad_target_room.controller && (temp_squad_target_room.controller.level >= 5))
 
-              if (!temp_squad_target_room || !temp_squad_target_room.controller || !temp_squad_target_room.controller.my) {
-                const squad = new TempSquad(squad_memory.name, this.room.name, this.temp_squad_target_room_name)
+              if (not_my_room || !owned) {
+                const squad = new TempSquad(squad_memory.name, this.room.name, this.temp_squad_opt.target_room_name, !(!this.temp_squad_opt.forced))
                 this.squads.set(squad.name, squad)
               }
             }
@@ -1197,7 +1208,7 @@ export class Region {
       hits_max = 900000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-      hits_max = 7500000
+      hits_max = 750000
     }
     else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
       hits_max = 500000
@@ -2055,7 +2066,7 @@ export class Region {
     const squad_descriptions = this.squadDescriptions(Array.from(this.squads.values()))
     lines = lines.concat(squad_descriptions)
 
-    if (!this.temp_squad_target_room_name) {
+    if (!this.temp_squad_opt) {
       lines.push(`  - no temp squad`)
     }
 

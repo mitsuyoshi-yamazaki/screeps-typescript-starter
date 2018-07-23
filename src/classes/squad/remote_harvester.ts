@@ -431,7 +431,7 @@ export class RemoteHarvesterSquad extends Squad {
         break
 
       case CreepType.ATTACKER:
-        return energy_available >= 3820
+        return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
 
       case CreepType.RANGED_ATTACKER:
         return this.hasEnoughEnergyForRangedAttacker(energy_available, capacity)
@@ -475,7 +475,7 @@ export class RemoteHarvesterSquad extends Squad {
         return
 
       case CreepType.ATTACKER:
-        this.addAttacker(energy_available, spawn_func)
+        this.addGeneralAttacker(energy_available, spawn_func)
         return
 
       case CreepType.RANGED_ATTACKER:
@@ -637,24 +637,6 @@ export class RemoteHarvesterSquad extends Squad {
     const result = spawn_func(body, name, {
       memory: memory
     })
-  }
-
-  private addAttacker(energy_available: number, spawn_func: SpawnFunction): void {
-    const body: BodyPartConstant[] = [
-      TOUGH, TOUGH, TOUGH, TOUGH,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE,
-      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
-      ATTACK,
-      MOVE,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-    ]
-    this.addGeneralCreep(spawn_func, body, CreepType.ATTACKER)
   }
 
   // --

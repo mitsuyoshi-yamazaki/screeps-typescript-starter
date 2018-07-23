@@ -206,6 +206,9 @@ export function init() {
     if ((destination_room_name == 'W45S27') && (this.room.name == 'W51S29')) {
       this.memory.destination_room_name = 'W44S30'
     }
+    else if ((destination_room_name == 'W45S3') && (this.room.name == 'W43S5')) {
+      this.memory.destination_room_name = 'W45S4'
+    }
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint

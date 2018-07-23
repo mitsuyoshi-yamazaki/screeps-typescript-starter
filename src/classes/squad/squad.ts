@@ -263,6 +263,28 @@ export abstract class Squad {
     this.addGeneralCreep(spawn_func, body, CreepType.RANGED_ATTACKER)
   }
 
+  public hasEnoughEnergyForGeneralAttacker(energy_available: number, capacity: number): boolean {
+    return energy_available >= 3820
+  }
+
+  public addGeneralAttacker(energy_available: number, spawn_func: SpawnFunction): void {
+    const body: BodyPartConstant[] = [
+      TOUGH, TOUGH, TOUGH, TOUGH,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE,
+      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+      ATTACK, ATTACK, ATTACK, ATTACK, ATTACK,
+      ATTACK,
+      MOVE,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+    ]
+    this.addGeneralCreep(spawn_func, body, CreepType.ATTACKER)
+  }
+
   // ---
   public escapeFromHostileIfNeeded(creep: Creep, room_name: string, keeper_lairs?: StructureKeeperLair[]): ActionResult {
 
