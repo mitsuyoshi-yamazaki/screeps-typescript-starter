@@ -2,7 +2,10 @@ import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
+const version = '2.25.3'
+
 export function init(): void {
+  Game.version = version
   const now = Game.time
 
   Memory.last_tick = now
@@ -55,7 +58,7 @@ export function init(): void {
 }
 
 export function tick(): void {
-  Game.version = '2.25.1'
+  Game.version = version
 
   const time = Game.time
 

@@ -121,7 +121,7 @@ export class ManualSquad extends Squad {
         if (room.storage.store.energy < 200000) {
           return SpawnPriority.NONE
         }
-        if (target_room && (target_room.controller) && (target_room.controller.level < 6)) {
+        if (target_room && (target_room.controller) && (target_room.controller.level > 5)) {
           return SpawnPriority.NONE
         }
         return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE

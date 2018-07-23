@@ -31,6 +31,7 @@ export interface RegionMemory {
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
   ancestor: string
+  minimum_wall_hits: number
 }
 
 export interface RegionOpt {
@@ -91,6 +92,7 @@ export class Region {
       Memory.regions[this.name] = {
         last_spawn_time: Game.time,
         ancestor: ancestor,
+        minimum_wall_hits: 0
       }
     }
     const region_memory = Memory.regions[this.name]
@@ -231,7 +233,7 @@ export class Region {
           'W49S5',
         ]
         rooms_need_to_be_defended = [
-          // 'W49S6',
+          'W49S6',
           'W48S5',
           'W48S7',
           'W49S5',

@@ -147,7 +147,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         message = `CPU Bucket ${Game.cpu.bucket}`
       }
 
-      if (credit < 190000) {
+      if (credit < 180000) {
         const credit_message = `Credit ${credit}`
         message = message ? (message + credit_message) : credit_message
       }
@@ -378,7 +378,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
 
 // -- Buy
 function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
-  if (credit_amount < 185000) {
+  if (credit_amount < 180000) {
     const message = `main.tradeResource lack of credit ${credit_amount}`
     // console.log(message)
     // Game.notify(message)

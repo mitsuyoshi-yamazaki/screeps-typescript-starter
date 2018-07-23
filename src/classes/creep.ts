@@ -1890,14 +1890,36 @@ export function init() {
     if ((target.owner && target.owner.username) && (target.ticksToDowngrade > 1000)) {
       action = 'attackController'
       result = this.attackController(target)
+
+      if (result != OK) {
+        this.say(`A.1${result}`)
+      }
     }
     else if (should_claim) {
-      action = 'claimController'
-      result = this.claimController(target)
+      if (target.reservation && (target.reservation.ticksToEnd > 0)) {
+        action = 'attackController'
+        result = this.attackController(target)
+
+        if (result != OK) {
+          this.say(`A.2${result}`)
+        }
+      }
+      else {
+        action = 'claimController'
+        result = this.claimController(target)
+
+        if (result != OK) {
+          this.say(`C${result}`)
+        }
+      }
     }
     else {
       action = 'reserveController'
       result = this.reserveController(target)
+
+      if (result != OK) {
+        this.say(`R${result}`)
+      }
     }
 
     switch (result) {
