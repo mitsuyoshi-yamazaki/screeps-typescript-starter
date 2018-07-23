@@ -98,6 +98,8 @@ export class TempSquad extends Squad {
       }
 
       if (creep.claim(target_room_name, true) == ActionResult.DONE) {
+        // @fixme: not working: region stop instantiate TempSquad after it claims a new room
+
         if (!Memory.rooms[target_room_name]) {
           Memory.rooms[target_room_name] = {
             harvesting_source_ids: [],

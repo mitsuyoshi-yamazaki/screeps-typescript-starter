@@ -30,6 +30,7 @@ export enum SquadType {
   TEMP              = "temp",
   NUKER_CHARGER_SQUAD = "nuker_charger",
   REMOTE_ATTACKER   = 'remote_attacker',
+  FARMER            = 'farmer',
 }
 
 export enum SquadStatus {

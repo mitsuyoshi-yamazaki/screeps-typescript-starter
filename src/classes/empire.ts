@@ -28,6 +28,11 @@ export class Empire {
         continue
       }
 
+      const room_memory = Memory.rooms[room_name]
+      if (room_memory && room_memory.is_gcl_farm) {
+        continue
+      }
+
       const controller = room.controller
       const opt: RegionOpt = {
         produce_attacker: (attacker_room_names.indexOf(room.name) >= 0),
@@ -84,7 +89,7 @@ export class Empire {
     const w47n5 = 'W47N5'
     const w47s6 = 'W47S6'
     const w45s27 = 'W45S27'
-    const w39s9 = 'W39S9'
+    // const w39s9 = 'W39S9'
     // const w47s14 = 'W47S14'
     const w47s9 = 'W47S9'
 
@@ -93,7 +98,6 @@ export class Empire {
     if (time == 2) {
       set_delegate(w48s6, w47s6)
       set_delegate(w51s29, w45s27)
-      set_delegate(w44s7, w39s9)
     }
     else if (time == 0) {
       // set_delegate(w48s6, w47s14)

@@ -60,6 +60,7 @@ declare global {
     description_position?: {x:number, y:number}
     exits?: {[exit: number]: {x:number, y:number}}
     ancestor?: string
+    is_gcl_farm?: boolean
   }
 
   interface Room {
