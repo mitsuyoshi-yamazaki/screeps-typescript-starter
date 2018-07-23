@@ -40,6 +40,7 @@ export interface CreepSearchAndDestroyOption extends CreepDestroyOption {
   // structure_first?: boolean, // not implemented yet: use target_id
   ignore_source_keeper?: boolean  // default: false
   move_while_healing?: boolean    // default: false
+  include_non_ownable_structure?: boolean // default: false
 }
 
 export interface CreepTransferOption {
@@ -732,7 +733,7 @@ export function init() {
         else if (structure.structureType == STRUCTURE_TOWER) {
           let margin = this.room.attacked ? 100 : 200
           const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
-          return structure.energy < capacity
+          return structure.energy <= capacity
         }
         else if (!is_attacked) {
           if (structure.structureType == STRUCTURE_POWER_SPAWN) {
@@ -1703,64 +1704,70 @@ export function init() {
       return this.destroy(hostile_creep)
     }
 
-    const hostile_structure: AnyStructure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (structure) => {
-        if (structure.room.controller && structure.room.controller.my) {
-          return false
-        }
-        if ((structure as AnyOwnedStructure).my) {
-          return false
-        }
+    if (opt.include_non_ownable_structure) {
+      const hostile_structure: AnyStructure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) => {
+          if (structure.room.controller && structure.room.controller.my) {
+            return false
+          }
+          if ((structure as AnyOwnedStructure).my) {
+            return false
+          }
 
-        const ignore: StructureConstant[] = [
-          STRUCTURE_CONTROLLER,
-          STRUCTURE_RAMPART,
-          STRUCTURE_WALL,
-          STRUCTURE_KEEPER_LAIR,
-          STRUCTURE_POWER_BANK,
-          STRUCTURE_EXTRACTOR,
-        ]
-        if (ignore.indexOf(structure.structureType) >= 0) {
-          return false
-        }
-        // if (structure.structureType == STRUCTURE_EXTRACTOR) {  // creeps try destroying extractor in the center room
-        //   if (this.room.is_keeperroom) {
-        //     return false
-        //   }
-        // }
-        if ((structure.structureType) == STRUCTURE_CONTAINER) {
-          if (structure.room.controller) {
-            if (structure.room.controller.my) {
-              return false
-            }
-            else if (structure.room.controller.owner) {
-              return true
-            }
-            else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
-              return true
-            }
+          const ignore: StructureConstant[] = [
+            STRUCTURE_CONTROLLER,
+            STRUCTURE_RAMPART,
+            STRUCTURE_WALL,
+            STRUCTURE_KEEPER_LAIR,
+            STRUCTURE_POWER_BANK,
+            STRUCTURE_EXTRACTOR,
+          ]
+          if (ignore.indexOf(structure.structureType) >= 0) {
+            return false
           }
-          return false
-        }
-        if ((structure.structureType) == STRUCTURE_ROAD) {
-          if (structure.room.controller) {
-            if (structure.room.controller.my) {
-              return false
-            }
-            else if (structure.room.controller.owner) {
-              return true
-            }
-            else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
-              return true
-            }
+          // if (structure.structureType == STRUCTURE_EXTRACTOR) {  // creeps try destroying extractor in the center room
+          //   if (this.room.is_keeperroom) {
+          //     return false
+          //   }
+          // }
+          if ((structure as {my?: boolean}).my) {
+            return false
           }
-          return false
+
+          if ((structure.structureType) == STRUCTURE_CONTAINER) {
+            if (structure.room.controller) {
+              if (structure.room.controller.my) {
+                return false
+              }
+              else if (structure.room.controller.owner) {
+                return true
+              }
+              else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
+                return true
+              }
+            }
+            return false
+          }
+          if ((structure.structureType) == STRUCTURE_ROAD) {
+            if (structure.room.controller) {
+              if (structure.room.controller.my) {
+                return false
+              }
+              else if (structure.room.controller.owner) {
+                return true
+              }
+              else if (structure.room.controller.reservation && (structure.room.controller.reservation.username != 'Mitsuyoshi')) {
+                return true
+              }
+            }
+            return false
+          }
+          return true
         }
-        return true
+      })
+      if (hostile_structure) {
+        return this.destroy(hostile_structure)
       }
-    })
-    if (hostile_structure) {
-      return this.destroy(hostile_structure)
     }
 
     this.healNearbyCreep()

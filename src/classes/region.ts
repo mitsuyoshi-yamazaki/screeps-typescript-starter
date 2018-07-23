@@ -31,7 +31,6 @@ export interface RegionMemory {
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
   ancestor: string
-  minimum_wall_hits: number
 }
 
 export interface RegionOpt {
@@ -92,7 +91,6 @@ export class Region {
       Memory.regions[this.name] = {
         last_spawn_time: Game.time,
         ancestor: ancestor,
-        minimum_wall_hits: 0
       }
     }
     const region_memory = Memory.regions[this.name]
@@ -1190,18 +1188,6 @@ export class Region {
       }
     })
 
-    const heavyry_damaged_ramparts: (StructureRampart | StructureWall)[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
-      filter: (structure) => {
-        if (structure.structureType == STRUCTURE_RAMPART) {
-          return structure.hits < 1000
-        }
-        if (structure.structureType == STRUCTURE_WALL) {
-          return structure.hits < 1000
-        }
-        return false
-      }
-    }) as (StructureRampart | StructureWall)[]
-
     let hits_max = 150000
     if (this.room.storage && (this.room.storage.store.energy > 900000)) {
       hits_max = 1100000
@@ -1231,26 +1217,33 @@ export class Region {
 
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
-        if (this.room.name == 'W48N11') {
-          if ((structure.pos.x <= 3)) {
-            return false
-          }
-          if ((structure.pos.x >= 47)) {
-            return false
-          }
-          if ((structure.pos.y <= 3)) {
-            return false
-          }
-          if ((structure.pos.y >= 47)) {
-            return false
-          }
-        }
-
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-        const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
+        if (is_wall) {
+          return false
+        }
+        const max = (structure.hitsMax * 0.7)
         return (structure.hits < Math.min(structure.hitsMax, max))
       }
     })
+
+    let damaged_wall: StructureWall | StructureRampart | undefined
+
+    if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+      const walls: (StructureWall | StructureRampart)[] = (this.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          if (structure.hits == structure.hitsMax) {
+            return false
+          }
+          const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
+          return is_wall
+        }
+      }) as (StructureWall | StructureRampart)[]).sort((lhs, rhs) => {
+        if (lhs.hits > rhs.hits) return 1
+        return -1
+      })
+
+      damaged_wall = walls[0]
+    }
 
     const should_attack_hostile = this.room.attacked && ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 3))
 
@@ -1300,29 +1293,23 @@ export class Region {
         }
       }
 
-      if ((tower.energy < (tower.energyCapacity * 0.66))) {
-        return
-      }
-
-      if (heavyry_damaged_ramparts.length > 0) {
-        const rampart = tower.pos.findClosestByRange(heavyry_damaged_ramparts)
-        if (rampart) {
-          tower.repair(rampart)
-          return
-        }
-        else {
-          console.log(`Region ${this.name} unexpected error: damaged rampart not found ${heavyry_damaged_ramparts}.`)
+      if ((tower.energy > (tower.energyCapacity * 0.66))) {
+        if (damaged_structures.length > 0) {
+          const structure = tower.pos.findClosestByRange(damaged_structures)
+          if (structure) {
+            tower.repair(structure)
+            return
+          }
+          else {
+            console.log(`Region ${this.name} unexpected error: damaged structure not found ${damaged_structures}.`)
+          }
         }
       }
 
-      if (damaged_structures.length > 0) {
-        const structure = tower.pos.findClosestByRange(damaged_structures)
-        if (structure) {
-          tower.repair(structure)
+      if ((tower.energy > (tower.energyCapacity * 0.80))) {
+        if (damaged_wall) {
+          tower.repair(damaged_wall)
           return
-        }
-        else {
-          console.log(`Region ${this.name} unexpected error: damaged structure not found ${damaged_structures}.`)
         }
       }
     })
