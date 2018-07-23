@@ -111,8 +111,21 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
       }
 
-      case 'W48S6':
-        return this.spawnPriorityForBoostCarrier(RESOURCE_GHODIUM_ACID)
+      case 'W48S6': {
+        const room = Game.rooms[this.original_room_name]
+        const target_room = Game.rooms['W47S9']
+
+        if (!room || !room.storage) {
+          return SpawnPriority.NONE
+        }
+        if (room.storage.store.energy < 200000) {
+          return SpawnPriority.NONE
+        }
+        if (target_room && (target_room.controller) && (target_room.controller.level < 6)) {
+          return SpawnPriority.NONE
+        }
+        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
 
       case 'W43S2': {
         return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
@@ -210,7 +223,7 @@ export class ManualSquad extends Squad {
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
 
       case 'W48S6':
-        return energy_available >= 150
+        return energy_available >= 2000
 
       case 'W43S2':
         const energy = (capacity >= 1200) ? 1200 : 800
@@ -298,7 +311,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
+        const body: BodyPartConstant[] = [
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
         return
       }
 
@@ -564,17 +583,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
+        const room = Game.rooms[this.original_room_name]
+        const target_room = Game.rooms['W47S9']
 
+        if (!room || !target_room) {
+          console.log(`ManualSquad.run ${this.original_room_name} unexpectedly null rooms ${room}, ${target_room}, ${this.name}`)
+          return
+        }
 
-        // const room = Game.rooms[this.original_room_name]
-        // const lab = Game.getObjectById('5b3ec0561ca96b59438c5536') as StructureLab | undefined
-
-        // if (!room || !room.terminal || !lab) {
-        //   this.say(`ERR`)
-        //   return
-        // }
-
-        // this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
+        this.transferRoom(room, target_room, {x: 36, y: 8}, 200, 'worker72220381')
         return
       }
 
@@ -1005,6 +1022,54 @@ export class ManualSquad extends Squad {
         else {
 
         }
+      }
+    })
+  }
+
+  private transferRoom(from: Room, to: Room, destination_position: {x:number, y:number}, estimated_ticks: number, worker_squad_name: string): void {
+    this.creeps.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
+      if (creep.carry.energy == 0) {
+        if (creep.moveToRoom(from.name) == ActionResult.IN_PROGRESS) {
+          return
+        }
+
+        if ((creep.ticksToLive || 1500) < estimated_ticks) {
+          creep.memory.squad_name = worker_squad_name
+          return
+        }
+
+        if (!from.storage) {
+          creep.say(`NO SRC`)
+          console.log(`ManualSquad.transferRoom no storage in room ${from.name} ${this.name}`)
+          return
+        }
+
+        if (creep.withdraw(from.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(from.storage)
+        }
+      }
+      else {
+        if (creep.moveToRoom(to.name) == ActionResult.IN_PROGRESS) {
+          return
+        }
+
+        if (to.storage) {
+          if (creep.transfer(to.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(to.storage)
+          }
+          return
+        }
+
+        if ((creep.pos.x != destination_position.x) || (creep.pos.y != destination_position.y)) {
+          creep.moveTo(destination_position.x, destination_position.y)
+          return
+        }
+
+        creep.drop(RESOURCE_ENERGY)
       }
     })
   }

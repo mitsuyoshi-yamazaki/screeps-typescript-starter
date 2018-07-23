@@ -1566,14 +1566,14 @@ export class Region {
           }
         }
 
-        const capacity = (resource_type == RESOURCE_ENERGY) ? 50000 : 10000
+        const capacity = (resource_type == RESOURCE_ENERGY) ? 40000 : 10000
 
         if (to_room && (!to_room.terminal || ((_.sum(to_room.terminal.store) > (to_room.terminal.storeCapacity - capacity))))) {
           const message = `Terminal ${to_room.name} is full ${this.room.name} ${resource_type}`
           console.log(message)
 
           if (resource_type != RESOURCE_ENERGY) {
-            Game.notify(message)
+            // Game.notify(message)
           }
           continue
         }
@@ -1583,7 +1583,7 @@ export class Region {
           console.log(message)
 
           if (resource_type != RESOURCE_ENERGY) {
-            Game.notify(message)
+            // Game.notify(message)
           }
           continue
         }
@@ -1596,7 +1596,7 @@ export class Region {
         if (resource_type == RESOURCE_ENERGY) {
           amount_needed = 70000
           resource_capacity = 200000
-          amount_send = 50000
+          amount_send = 40000
         }
 
         const from_room_ready: boolean = ((this.room.terminal.store[resource_type] || 0) > amount_needed)
@@ -2033,13 +2033,10 @@ export class Region {
     const region_memory = Memory.regions[this.name] as RegionMemory
     const room_memory = Memory.rooms[this.room.name]
 
+    const ancestor = region_memory.ancestor || 'unknown'
     let pos: {x: number, y: number} = {x: 1, y: 1}
 
     switch(this.room.name) {
-
-      case 'W49S19':
-        pos = {x: 27, y: 24}
-        break
 
       case 'W44S7':
         pos = {x: 25, y: 1}
@@ -2047,18 +2044,6 @@ export class Region {
 
       case 'W43S5':
         pos = {x: 25, y: 25}
-        break
-
-      case 'W47N2':
-        pos = {x: 1, y: 26}
-        break
-
-      case 'W43N5':
-        pos = {x: 2, y: 28}
-        break
-
-      case 'W42N1':
-        pos = {x: 28, y: 1}
         break
 
       default:
@@ -2070,7 +2055,7 @@ export class Region {
     }
 
     let lines: string[] = [
-      `${this.name} in ${this.room.name}`,
+      `${this.name} in ${this.room.name}: ${ancestor}`,
       `  Rooms: ${this.room_names}, Capacity: ${this.room.energyCapacityAvailable}, Reaction: ${region_memory.reaction_outputs}`,
       `  Squads: ${this.squads.size}, Creeps: ${_.sum(Array.from(this.squads.values()).map(s=>s.creeps.size))}`,
     ]

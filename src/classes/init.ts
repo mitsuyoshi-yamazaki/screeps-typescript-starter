@@ -55,7 +55,7 @@ export function init(): void {
 }
 
 export function tick(): void {
-  Game.version = '2.24.6'
+  Game.version = '2.24.7'
 
   const time = Game.time
 

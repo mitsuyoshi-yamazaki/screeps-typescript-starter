@@ -104,6 +104,28 @@ export class TempSquad extends Squad {
           }
         }
         Memory.rooms[target_room_name].ancestor = this.owner_room_name
+
+        const target_room = Game.rooms[this.target_room_name]
+        if (target_room && (target_room.name == creep.room.name)) {
+          target_room.find(FIND_HOSTILE_STRUCTURES, {
+            filter: (structure) => {
+              if (structure.my) {
+                return false
+              }
+              const structures_to_destroy: StructureConstant[] = [
+                STRUCTURE_EXTENSION,
+                STRUCTURE_TOWER,
+              ]
+
+              if (structures_to_destroy.indexOf(structure.structureType) >= 0) {
+                return true
+              }
+              return false
+            }
+          }).forEach((structure) => {
+            structure.destroy()
+          })
+        }
       }
 
       if (((Game.time % 41) == 1) && (creep.room.name == target_room_name) && creep.room.controller) {

@@ -1050,10 +1050,10 @@ export function init() {
           }
         }
 
-        if (opt.has_support_links && link && (link.energy == 0) && (link.cooldown == 0)) {
-          this.transfer(link, RESOURCE_ENERGY)
-          return
-        }
+        // if (opt.has_support_links && link && (link.energy == 0) && (link.cooldown == 0)) {
+        //   this.transfer(link, RESOURCE_ENERGY)
+        //   return
+        // }
 
         this.transfer(storage, RESOURCE_ENERGY)
       }
@@ -1285,7 +1285,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.name == 'W45S27')) {
+        if (this.room.controller && this.room.controller.my && (this.room.controller.level < 4)) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
