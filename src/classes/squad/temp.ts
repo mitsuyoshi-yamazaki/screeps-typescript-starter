@@ -50,8 +50,12 @@ export class TempSquad extends Squad {
 
     const room = Game.rooms[this.target_room_name]
 
-    if (this.need_attacker && (this.attacker.length < 1)) {
-      if (room && room.controller && (room.controller.level < 5)) {
+    if (room && room.controller && (room.controller.level < 5)) {
+      if (this.need_attacker && (this.attacker.length < 1)) {
+        return SpawnPriority.NORMAL
+      }
+
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
         return SpawnPriority.NORMAL
       }
     }
@@ -68,8 +72,20 @@ export class TempSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    if (this.need_attacker && (this.attacker.length < 1)) {
-      return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
+    const room = Game.rooms[this.target_room_name]
+
+    if (room && room.controller && (room.controller.level < 5)) {
+      if (this.need_attacker && (this.attacker.length < 1)) {
+        return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
+      }
+
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
+        return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
+      }
+    }
+
+    if (room && room.controller && room.controller.my) {
+      return false
     }
 
     let energy = (capacity >= 850) ? 850 : 750
@@ -80,10 +96,24 @@ export class TempSquad extends Squad {
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
-    if (this.need_attacker && (this.attacker.length < 1)) {
-      this.addGeneralAttacker(energy_available, spawn_func)
+    const room = Game.rooms[this.target_room_name]
+
+    if (room && room.controller && (room.controller.level < 5)) {
+      if (this.need_attacker && (this.attacker.length < 1)) {
+        this.addGeneralAttacker(energy_available, spawn_func)
+        return
+        }
+
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
+        this.addGeneralAttacker(energy_available, spawn_func)
+        return
+      }
+    }
+
+    if (room && room.controller && room.controller.my) {
       return
     }
+
 
     this.addCreepForClaim(energy_available, spawn_func)
   }
@@ -125,7 +155,17 @@ export class TempSquad extends Squad {
   // ---
   private runAttacker(): void {
     this.attacker.forEach((creep) => {
-      creep.searchAndDestroyTo(this.target_room_name, false)
+      if (creep.searchAndDestroyTo(this.target_room_name, false) == ActionResult.IN_PROGRESS) {
+        return
+      }
+
+      if (creep.room.spawns) {
+        const spawn = creep.room.spawns[0]
+
+        if (spawn && (creep.pos.getRangeTo(spawn) > 1)) {
+          creep.moveTo(spawn)
+        }
+      }
     })
   }
 
