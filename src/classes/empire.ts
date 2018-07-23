@@ -65,7 +65,12 @@ export class Empire {
           return
         }
 
-        if ((colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= 5)) {//4)) {
+        let max_level = 5
+        if (colony_region.room.name == 'W47S6') {
+          max_level = 6
+        }
+
+        if ((colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= max_level)) {//4)) {
           const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
             return excludes_opt.indexOf(squad.type) < 0
           })
