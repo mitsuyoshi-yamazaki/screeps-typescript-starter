@@ -20,6 +20,7 @@ import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "
 import { RemoteDefenderSqauad } from "./squad/remote_defender";
 import { NukerChargerSquad } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
+import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -222,6 +223,8 @@ export class Region {
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
           { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
           { id: '59f1c0ce7d0b3d79de5f0228', room_name: 'W48S6' }, // hydrogen
+          { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
+          { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
@@ -231,7 +234,7 @@ export class Region {
           'W49S5',
         ]
         rooms_need_to_be_defended = [
-          'W49S6',
+          // 'W49S6',
           'W48S5',
           'W48S7',
           'W49S5',
@@ -837,6 +840,13 @@ export class Region {
 
               this.squads.set(squad.name, squad)
             }
+            break
+          }
+          case SquadType.FARMER: {
+            const farmer_squad_memory = squad_memory as FarmerSquadMemory
+            const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
+
+            this.squads.set(squad.name, squad)
             break
           }
           default:

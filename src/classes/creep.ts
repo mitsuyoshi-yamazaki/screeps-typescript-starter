@@ -1239,9 +1239,9 @@ export function init() {
 
     let debug_say = false
 
-    // if (this.room.name == 'W33S7') {
-    //   debug_say = true
-    // }
+    if (this.room.name == 'W49S6') {
+      debug_say = true
+    }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
@@ -1395,7 +1395,7 @@ export function init() {
 
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
-      if (this.room.attacked && ((this.memory.birth_time % 2) == 0)) {
+      if (this.room.attacked && ((this.memory.birth_time % 2) == 0) && (this.room.name != 'W49S6')) {
         this.memory.status = CreepStatus.CHARGE
         return
       }

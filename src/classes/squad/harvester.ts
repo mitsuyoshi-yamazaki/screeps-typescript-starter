@@ -61,6 +61,18 @@ export class HarvesterSquad extends Squad {
         }
       }
     }
+    else if ((this.source_info.room_name == 'W49S6')) {
+      const room = Game.rooms[this.source_info.room_name] as Room | undefined
+      if (room && room.storage) {
+        this.destination = room.storage
+      }
+      else {
+        const destination = Game.getObjectById('5b574744914d5a727c4a581e') as StructureContainer | undefined
+        if (destination) {
+          this.destination = destination
+        }
+      }
+    }
 
     const is_alive = (this.energy_capacity > 300)
 
