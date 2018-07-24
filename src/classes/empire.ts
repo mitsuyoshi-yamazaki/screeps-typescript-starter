@@ -89,11 +89,13 @@ export class Empire {
     // const w39s9 = 'W39S9'
     // const w47s14 = 'W47S14'
     const w47s9 = 'W47S9'
-    const w45s3 = 'W45S3'
+    // const w45s3 = 'W45S3'
+    const w49s6 = 'W49S6'
+    const w46s3 = 'W46S3'
 
     const time = (Game.time % 3)
 
-    set_delegate(w43s5, w45s3)
+    set_delegate(w43s5, w46s3)
 
     if (time == 2) {
       set_delegate(w48s6, w47s6)
@@ -101,6 +103,7 @@ export class Empire {
     }
     else if (time == 0) {
       // set_delegate(w48s6, w47s14)
+      set_delegate(w48s6, w49s6)
     }
     else {
       set_delegate(w48s6, w47s9)

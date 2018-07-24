@@ -148,6 +148,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0219') { // W48N11 Oxygen
       this.resource_type = RESOURCE_OXYGEN
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0294') { // W47S6 Lemergium
+      this.resource_type = RESOURCE_LEMERGIUM
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -268,6 +271,12 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f1a00982100e1594f35f04') { // W47S6 left
       const link = Game.getObjectById('5b54101f184d6318688b74cf') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
+    else if (this.source_info.id == '59f1a00982100e1594f35f03') { // W47S6 right
+      const link = Game.getObjectById('5b568b1c22e1946e01461f2b') as StructureLink | undefined
       if (link) {
         this.store = link
       }

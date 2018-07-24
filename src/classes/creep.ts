@@ -210,6 +210,9 @@ export function init() {
     else if ((destination_room_name == 'W45S3') && (this.room.name == 'W43S5')) {
       this.memory.destination_room_name = 'W45S4'
     }
+    else if ((destination_room_name == 'W46S3') && (this.room.name == 'W43S5')) {
+      this.memory.destination_room_name = 'W46S4'
+    }
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
@@ -1289,7 +1292,7 @@ export function init() {
         }
       }
       else {
-        if (this.room.controller && this.room.controller.my && (this.room.controller.level < 4)) {
+        if (this.room.controller && this.room.controller.my && (this.room.controller.level <= 4)) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {

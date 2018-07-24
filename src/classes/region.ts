@@ -210,8 +210,8 @@ export class Region {
 
       case 'W48S6':
         lightweight_harvester_targets = [
-          { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
-          { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
+          // { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
+          // { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
           // { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
           // { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
           { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
@@ -274,10 +274,10 @@ export class Region {
           lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
         }
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W45S3',
-        //   forced: true,
-        // }
+        this.temp_squad_opt = {
+          target_room_name: 'W46S3',
+          forced: true,
+        }
         break
 
       case 'W42N1':
@@ -396,14 +396,6 @@ export class Region {
         }
         break
 
-      case 'W44N3':
-        this.room_names = [this.room.name]
-        break
-
-      case 'W49N1':
-        this.room_names = [this.room.name]
-        break
-
       case 'W48N11':
         harvester_targets = [
           { id: '59f19ff882100e1594f35d48', room_name: 'W48N11' },  // left
@@ -450,10 +442,15 @@ export class Region {
         harvester_targets = [
           { id: '59f1a00982100e1594f35f04', room_name: 'W47S6' }, // left
           { id: '59f1a00982100e1594f35f03', room_name: 'W47S6' }, // center
+          { id: '59f1c0ce7d0b3d79de5f0294', room_name: 'W47S6' }, // lemergium
         ]
         this.room_names = [this.room.name]
         this.destination_link_id = '5b540f0e36c4ca4dbc341b2c'
         charger_position = {x: 11, y: 20}
+        input_lab_ids = {
+          lhs: '5b56ca191a797e4b745737e9', // 9, 26
+          rhs: '5b56d9e4c5d418727d66f8ec', // 10, 27
+        }
         break
 
       case 'W45S27':
@@ -468,10 +465,13 @@ export class Region {
         this.room_names = [this.room.name]
         break
 
-      case 'W45S3':
+      case 'W49S6':
         this.room_names = [this.room.name]
         break
 
+      case 'W46S3':
+        this.room_names = [this.room.name]
+        break
 
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
