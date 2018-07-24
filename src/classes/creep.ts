@@ -1239,9 +1239,9 @@ export function init() {
 
     let debug_say = false
 
-    if (this.room.name == 'W49S6') {
-      debug_say = true
-    }
+    // if (this.room.name == 'W49S6') {
+    //   debug_say = true
+    // }
 
     if ((this.memory.status == CreepStatus.NONE) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
