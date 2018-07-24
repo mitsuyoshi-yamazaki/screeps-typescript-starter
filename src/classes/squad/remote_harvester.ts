@@ -11,7 +11,6 @@ export interface RemoteHarvesterMemory extends CreepMemory {
 }
 
 export interface RemoteHarvesterSquadMemory extends SquadMemory {
-  status: SquadStatus
   room_name: string
   sources: {[index: string]: {container_id?: string}}
   room_contains_construction_sites: string[]
@@ -145,7 +144,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     let attacker_max_ticks = 0
 
-    this.creeps.forEach((creep, _) => {
+    this.creeps.forEach((creep) => {
       const memory = creep.memory as RemoteHarvesterMemory
 
       // Log current position
@@ -202,7 +201,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
 
         default:
-          console.log(`RemoteHarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}`)
+          console.log(`RemoteHarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}, ${creep.pos}`)
           break
       }
     })
@@ -213,24 +212,6 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     this.need_attacker = !(!squad_memory.need_attacker) && (attacker_max_ticks < attacker_spawn_ticks_before)
-
-    switch (squad_memory.status) {
-      case SquadStatus.NONE:
-        break
-
-      case SquadStatus.BUILD:
-        break
-
-      case SquadStatus.HARVEST:
-        break
-
-      case SquadStatus.ESCAPE:
-        break
-
-      default:
-        (Memory.squads[this.name] as RemoteHarvesterSquadMemory).status = SquadStatus.NONE
-        break
-    }
 
     // if (this.harvester_energy_unit <= capacity) {
       this.setNextCreep()

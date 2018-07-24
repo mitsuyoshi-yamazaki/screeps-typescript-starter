@@ -126,7 +126,7 @@ export class Empire {
       set_delegate(w48s6, w49s6)
     }
     else {
-      set_delegate(w48s6, w47s9)
+      // set_delegate(w48s6, w47s9)
     }
   }
 

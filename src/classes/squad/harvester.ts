@@ -84,7 +84,7 @@ export class HarvesterSquad extends Squad {
           break
 
         default:
-          console.log(`HarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}`)
+          console.log(`HarvesterSquad unexpected creep type ${creep.memory.type}, ${this.name}, ${creep.pos}`)
           break
       }
     })

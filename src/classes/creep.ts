@@ -22,6 +22,7 @@ export enum ActionResult {
 export enum CreepType {
   CLAIMER           = 'claimer',
   WORKER            = 'worker',
+  UPGRADER          = 'upgrader',
   CONTROLLER_KEEPER = 'controller_keeper',
   HARVESTER         = 'harvester',
   CARRIER           = 'carrier',

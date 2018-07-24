@@ -1,7 +1,8 @@
-import { SquadMemory } from "./squad/squad";
+import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
 import { ErrorMapper } from "utils/ErrorMapper";
+import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
 
 export interface AttackerInfo  {
   hostile_creeps: Creep[]
@@ -77,6 +78,7 @@ declare global {
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
+    add_remote_harvester(owner_room_name: string, carrier_max: number): string
 
     initialize(): void
   }
@@ -431,6 +433,40 @@ export function tick(): void {
       return  // @fixme:
     }
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
+  }
+
+  Room.prototype.add_remote_harvester = function(owner_room_name: string, carrier_max: number): string {
+    const room = this as Room
+
+    let squad_name = `remote_harvester_${room.name.toLowerCase()}`
+
+    while (Memory.squads[squad_name]) {
+      squad_name = `${squad_name}_1`
+    }
+
+    const sources: {[index: string]: {container_id?: string}} = {}
+
+    room.find(FIND_SOURCES).forEach((source) => {
+      sources[source.id] = {}
+    })
+
+    const squad_memory: RemoteHarvesterSquadMemory = {
+      name: squad_name,
+      type: SquadType.REMOET_HARVESTER,
+      owner_name: owner_room_name,
+      number_of_creeps: 0,
+      stop_spawming: true,
+      room_name: room.name,
+      sources,
+      room_contains_construction_sites: [],
+      carrier_max,
+      need_attacker: room.is_keeperroom,
+      builder_max: room.is_keeperroom ? 5 : 3,
+    }
+
+    Memory.squads[squad_name] = squad_memory
+
+    return squad_name
   }
 
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {

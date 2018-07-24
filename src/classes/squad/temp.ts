@@ -10,6 +10,8 @@ export class TempSquad extends Squad {
   private claimer: Creep | undefined
   private attacker: Creep[] = []
 
+  private spawn_attacker_ticks_before = 500
+
   constructor(readonly name: string, readonly room_name: string, readonly target_room_name: string, readonly need_attacker: boolean) {
     super(name)
 
@@ -55,7 +57,7 @@ export class TempSquad extends Squad {
         return SpawnPriority.NORMAL
       }
 
-      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < this.spawn_attacker_ticks_before)) {
         return SpawnPriority.NORMAL
       }
     }
@@ -79,7 +81,7 @@ export class TempSquad extends Squad {
         return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
       }
 
-      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < this.spawn_attacker_ticks_before)) {
         return this.hasEnoughEnergyForGeneralAttacker(energy_available, capacity)
       }
     }
@@ -104,7 +106,7 @@ export class TempSquad extends Squad {
         return
         }
 
-      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < 600)) {
+      if ((this.attacker.length == 1) && ((this.attacker[0].ticksToLive || 1500) < this.spawn_attacker_ticks_before)) {
         this.addGeneralAttacker(energy_available, spawn_func)
         return
       }
