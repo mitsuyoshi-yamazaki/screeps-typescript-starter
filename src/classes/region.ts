@@ -274,10 +274,10 @@ export class Region {
           lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
         }
-        this.temp_squad_opt = {
-          target_room_name: 'W45S3',
-          forced: true,
-        }
+        // this.temp_squad_opt = {
+        //   target_room_name: 'W45S3',
+        //   forced: true,
+        // }
         break
 
       case 'W42N1':

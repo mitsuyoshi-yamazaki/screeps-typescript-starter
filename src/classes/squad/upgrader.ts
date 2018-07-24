@@ -113,23 +113,26 @@ export class UpgraderSquad extends Squad {
 
         if (!lab && !no_lab) {
           const labs = room.owned_structures.get(STRUCTURE_LAB) as StructureLab[]
-          lab = labs.filter((l) => {
-            if (!l || !l.mineralType) {
-              return false
-            }
-            if (boost_compounds.indexOf(l.mineralType) < 0) {
-              return false
-            }
-            return true
-          }).sort(function(lhs, rhs){
-            if( lhs!.mineralAmount > rhs!.mineralAmount ) return -1
-            if( lhs!.mineralAmount < rhs!.mineralAmount ) return 1
-            return 0
-          })[0]
 
-          if (!lab || (lab.mineralAmount < 90)) {
-            no_lab = true
-            lab = undefined
+          if (labs) { // why?
+            lab = labs.filter((l) => {
+              if (!l || !l.mineralType) {
+                return false
+              }
+              if (boost_compounds.indexOf(l.mineralType) < 0) {
+                return false
+              }
+              return true
+            }).sort(function(lhs, rhs){
+              if( lhs!.mineralAmount > rhs!.mineralAmount ) return -1
+              if( lhs!.mineralAmount < rhs!.mineralAmount ) return 1
+              return 0
+            })[0]
+
+            if (!lab || (lab.mineralAmount < 90)) {
+              no_lab = true
+              lab = undefined
+            }
           }
         }
 
