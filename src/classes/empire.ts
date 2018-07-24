@@ -47,13 +47,6 @@ export class Empire {
 
     const set_delegate = (base_region_name: string, colony_region_name: string, excludes?: SquadType[]) => {
       ErrorMapper.wrapLoop(() => {
-        const excludes_opt = excludes || [
-          SquadType.ATTACKER,
-          SquadType.SCOUT,
-          SquadType.TEMP,
-          SquadType.CHARGER,
-        ]
-
         const base_region = this.regions.get(base_region_name)
         const colony_region = this.regions.get(colony_region_name)
 
@@ -70,6 +63,23 @@ export class Empire {
           SquadType.REMOET_HARVESTER,
           SquadType.REMOET_M_HARVESTER,
         ]
+
+        let excludes_opt: SquadType[]
+        if (excludes) {
+          excludes_opt = excludes
+        }
+        else {
+          excludes_opt = [
+            SquadType.ATTACKER,
+            SquadType.SCOUT,
+            SquadType.TEMP,
+            SquadType.CHARGER,
+          ]
+
+          if ((colony_region.controller.level >= 4)) {
+            excludes_opt.push(SquadType.HARVESTER)
+          }
+        }
 
         if ((colony_region.controller.level <= 5)) {
           const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {

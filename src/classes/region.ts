@@ -445,6 +445,9 @@ export class Region {
           { id: '59f1c0ce7d0b3d79de5f0294', room_name: 'W47S6' }, // lemergium
         ]
         this.room_names = [this.room.name]
+        rooms_need_to_be_defended = [
+          'W47S7'
+        ]
         this.destination_link_id = '5b540f0e36c4ca4dbc341b2c'
         charger_position = {x: 11, y: 20}
         input_lab_ids = {
@@ -476,6 +479,25 @@ export class Region {
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
+    }
+
+    const time = (Game.time % 997)
+    const check_harvester = (time == 23) || (time == 24)
+
+    if (check_harvester && (this.controller.level == 4) && (this.room.energyCapacityAvailable >= 1200)) {
+      // Add harvester targets
+      const harvester_target_ids = harvester_targets.map((target) => {
+        return target.id
+      })
+
+      this.room.sources.forEach((source) => {
+        if (harvester_target_ids.indexOf(source.id) >= 0) {
+          return
+        }
+
+        harvester_targets.push({ id: source.id, room_name: this.room.name })
+      })
+      // console.log(`${this.name}: ${fuga.map(t=>[t.id, t.room_name])}`)
     }
 
     if (region_memory.reaction_outputs && input_lab_ids && this.room.terminal) {
@@ -610,7 +632,7 @@ export class Region {
     this.attacked_rooms = this.attacked_rooms.concat(attacked)
 
     if ((this.attacked_rooms.length > 0) && ((Game.time % 13) == 5)) {
-      const message = `Room ${this.attacked_rooms} are attacked!! ${this.name}`
+      const message = ((this.attacked_rooms.indexOf(this.room.name)) >= 0) ?  `<b>Room ${this.attacked_rooms} are attacked!! ${this.name}</b>` : `Room ${this.attacked_rooms} are attacked!! ${this.name}`
       console.log(message)
       // Game.notify(message)
     }
@@ -1188,7 +1210,7 @@ export class Region {
       }
     })
 
-    let hits_max = 150000
+    let hits_max = 114000
     // if (this.room.storage && (this.room.storage.store.energy > 900000)) {
     //   hits_max = 1100000
     // }
@@ -1202,7 +1224,7 @@ export class Region {
     //   hits_max = 500000
     // }
     if (this.room.storage && (this.room.storage.store.energy > 400000)) {
-      hits_max = 300000
+      hits_max = 386000
     }
 
     if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
@@ -1220,12 +1242,15 @@ export class Region {
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-        if (is_wall && !has_much_energy) {
+        if (is_wall && has_much_energy) {
           return false
         }
         const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
         return (structure.hits < Math.min(structure.hitsMax, max))
       }
+    }).sort((lhs, rhs) => {
+      if (lhs.hits > rhs.hits) return 1
+      return -1
     })
 
     let damaged_wall: StructureWall | StructureRampart | undefined
@@ -1296,16 +1321,11 @@ export class Region {
       }
 
       if ((tower.energy > (tower.energyCapacity * 0.66))) {
-        if (damaged_structures.length > 0) {
-          const structure = tower.pos.findClosestByRange(damaged_structures)
+        const structure = damaged_structures[0]
           if (structure) {
             tower.repair(structure)
             return
           }
-          else {
-            console.log(`Region ${this.name} unexpected error: damaged structure not found ${damaged_structures}.`)
-          }
-        }
       }
 
       if ((tower.energy > (tower.energyCapacity * 0.80))) {
