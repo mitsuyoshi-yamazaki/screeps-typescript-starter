@@ -225,7 +225,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_scout = [
-          'W49S6',
+          // 'W49S6',
           // 'W48S5',
           'W48S7',
           'W49S5',

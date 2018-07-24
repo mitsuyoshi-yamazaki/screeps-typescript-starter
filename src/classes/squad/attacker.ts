@@ -153,40 +153,8 @@ export class AttackerSquad extends Squad {
       if (!this.destination_room_name) {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {
           switch (attacker.room.name) {
-            case 'W48S47':
-              attacker.moveTo(42, 16)
-              break
-
-            case 'W49S47':
-              attacker.moveTo(17, 26)
-              break
-
-            case 'W48S39':
-              attacker.moveTo(36, 45)
-              break
-
-            case 'W49S48':
-              attacker.moveTo(1, 5)
-              break
-
-            case 'W49S34':
-              attacker.moveTo(35, 36)
-              break
-
-            case 'W46S33':
-              attacker.moveTo(18, 20)
-              break
-
             case 'W51S29':
               attacker.moveTo(9, 30)
-              break
-
-            case 'W49S26':
-              attacker.moveTo(2, 36)
-              break
-
-            case 'W48S12':
-              attacker.moveTo(47, 21)
               break
 
             case 'W44S7':
@@ -197,40 +165,8 @@ export class AttackerSquad extends Squad {
               attacker.moveTo(24, 28)
               break
 
-            case 'W43S2':
-              attacker.moveTo(27, 34)
-              break
-
-            case 'W42N1':
-              attacker.moveTo(35, 23)
-              break
-
-            case 'W47N2':
-              attacker.moveTo(27, 8)
-              break
-
-            case 'W43N5': {
-              attacker.moveTo(35, 19)
-
-              // if ((attacker.hits == attacker.hitsMax) && ((attacker.ticksToLive || 0) > 1200)) {
-              //   const colony_attacker_memory = Memory.squads['attacker771957138']
-              //   if (colony_attacker_memory && (colony_attacker_memory.number_of_creeps < 2)) {
-              //     attacker.memory.squad_name = colony_attacker_memory.name
-              //   }
-              // }
-              break
-            }
-
             case 'W43S5':
               attacker.moveTo(19, 20)
-              break
-
-            case 'W48N11':
-              attacker.moveTo(31, 25)
-              break
-
-            case 'W47N5':
-              attacker.moveTo(44, 14)
               break
 
             case 'W47S6':
@@ -247,6 +183,10 @@ export class AttackerSquad extends Squad {
 
             case 'W47S9':
               attacker.moveTo(39, 5)
+              break
+
+            case 'W46S3':
+              attacker.moveTo(39, 44)
               break
 
             default:

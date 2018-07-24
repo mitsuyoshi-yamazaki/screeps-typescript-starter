@@ -237,7 +237,12 @@ export class RemoteHarvesterSquad extends Squad {
     // }
 
     const room_memory = Memory.rooms[this.room_name]
-    this.is_room_attacked = !(!squad_memory.need_attacker) ? false : !(!room_memory.attacked_time)
+    if (room_memory) {
+      this.is_room_attacked = !(!squad_memory.need_attacker) ? false : !(!room_memory.attacked_time)
+    }
+    else {
+      this.is_room_attacked = false
+    }
 
     if (room) {
       let index = 0
@@ -256,7 +261,6 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     const room = Game.rooms[this.room_name] as Room | undefined
-    const room_memory = Memory.rooms[this.room_name]
 
     if ((this.creeps.size == 1) && this.scout && (this.scout.room.name != this.room_name)) {
       // Don't spawn creep before the scout arrives the room
@@ -369,12 +373,6 @@ export class RemoteHarvesterSquad extends Squad {
     if (!this.next_creep) {
       return SpawnPriority.NONE
     }
-
-    const room_memory = Memory.rooms[this.room_name]
-
-    // if (([CreepType.ATTACKER, CreepType.RANGED_ATTACKER].indexOf(this.next_creep) < 0)) {
-    //   return SpawnPriority.NONE
-    // }
 
     switch (this.next_creep) {
       case CreepType.SCOUT:
@@ -909,7 +907,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      if ((_.sum(creep.carry) < (creep.carryCapacity - 100)) && (creep.room.name != 'W47S6')) {
+      if ((_.sum(creep.carry) < (creep.carryCapacity - 100)) && ((creep.room.name != this.base_room.name) || this.base_room.storage)) {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4, {
           filter: (d: Resource) => {
             return d.resourceType == RESOURCE_ENERGY

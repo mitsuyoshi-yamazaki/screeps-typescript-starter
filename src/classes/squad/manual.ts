@@ -315,6 +315,10 @@ export class ManualSquad extends Squad {
           MOVE, MOVE, MOVE, MOVE, MOVE,
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
         ]
         this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
@@ -1033,8 +1037,10 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.carry.energy == 0) {
-        if (creep.moveToRoom(from.name) == ActionResult.IN_PROGRESS) {
-          return
+        if (creep.room.is_keeperroom) {
+          if (creep.moveToRoom(from.name) == ActionResult.IN_PROGRESS) {
+            return
+          }
         }
 
         if ((creep.ticksToLive || 1500) < estimated_ticks) {
@@ -1053,8 +1059,10 @@ export class ManualSquad extends Squad {
         }
       }
       else {
-        if (creep.moveToRoom(to.name) == ActionResult.IN_PROGRESS) {
-          return
+        if (creep.room.is_keeperroom) {
+          if (creep.moveToRoom(to.name) == ActionResult.IN_PROGRESS) {
+            return
+          }
         }
 
         if (to.storage) {
@@ -1065,7 +1073,8 @@ export class ManualSquad extends Squad {
         }
 
         if ((creep.pos.x != destination_position.x) || (creep.pos.y != destination_position.y)) {
-          creep.moveTo(destination_position.x, destination_position.y)
+          const pos = new RoomPosition(destination_position.x, destination_position.y, to.name)
+          creep.moveTo(pos)
           return
         }
 

@@ -17,15 +17,7 @@ export class HarvesterSquad extends Squad {
   private destination_storage: StructureStorage | undefined
   private mineral_harvester_energy_max = 2300
 
-  private get needs_harvester(): boolean {
-    if (this.source_info.room_name == 'W49S34') {
-      const room = Game.rooms[this.source_info.room_name]
-      if (room && (room.energyCapacityAvailable < 1200)) {
-        return this.harvesters.length < 2
-      }
-    }
-    return this.harvesters.length < 1
-  }
+  private needs_harvester: boolean
 
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number) {
     super(name)
@@ -96,6 +88,23 @@ export class HarvesterSquad extends Squad {
           break
       }
     })
+
+    if (this.harvesters.length >= 2) {
+      this.needs_harvester = false
+    }
+    else {
+      const harvester = this.harvesters[0]
+
+      if (!harvester) {
+        this.needs_harvester = true
+      }
+      else if ((harvester.ticksToLive || 1500) < 50) {
+        this.needs_harvester = true
+      }
+      else {
+        this.needs_harvester = false
+      }
+    }
 
     this.get_sources()
   }

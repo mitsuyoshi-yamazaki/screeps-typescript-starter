@@ -112,14 +112,17 @@ export class WorkerSquad extends Squad {
     let type = CreepType.WORKER
     let let_thy_die = true
 
-    const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
     const room = Game.rooms[this.room_name]
     const rcl = (!(!room) && !(!room.controller)) ? room.controller.level : 1
 
-    if ((rcl >= 7) && (this.creeps.size > 1) && (number_of_carriers == 0)) {
-      body_unit = [CARRY, CARRY, MOVE]
-      energy_unit = 150
-      type = CreepType.CARRIER
+    if (rcl >= 7) {
+      const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
+
+      if (((this.creeps.size > 1) && (number_of_carriers == 0)) || ((this.creeps.size > 2) && (number_of_carriers == 1))) {
+        body_unit = [CARRY, CARRY, MOVE]
+        energy_unit = 150
+        type = CreepType.CARRIER
+      }
     }
 
 
