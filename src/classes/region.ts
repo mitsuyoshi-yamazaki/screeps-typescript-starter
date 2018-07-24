@@ -1189,19 +1189,19 @@ export class Region {
     })
 
     let hits_max = 150000
-    if (this.room.storage && (this.room.storage.store.energy > 900000)) {
-      hits_max = 1100000
-    }
-    else if (this.room.storage && (this.room.storage.store.energy > 800000)) {
-      hits_max = 900000
-    }
-    else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-      hits_max = 750000
-    }
-    else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
-      hits_max = 500000
-    }
-    else if (this.room.storage && (this.room.storage.store.energy > 400000)) {
+    // if (this.room.storage && (this.room.storage.store.energy > 900000)) {
+    //   hits_max = 1100000
+    // }
+    // else if (this.room.storage && (this.room.storage.store.energy > 800000)) {
+    //   hits_max = 900000
+    // }
+    // else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
+    //   hits_max = 750000
+    // }
+    // else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+    //   hits_max = 500000
+    // }
+    if (this.room.storage && (this.room.storage.store.energy > 400000)) {
       hits_max = 300000
     }
 
@@ -1215,20 +1215,22 @@ export class Region {
       hits_max = 100000
     }
 
+    const has_much_energy = !(!this.room.storage) && (this.room.storage.store.energy > 500000)
+
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-        if (is_wall) {
+        if (is_wall && !has_much_energy) {
           return false
         }
-        const max = (structure.hitsMax * 0.7)
+        const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
         return (structure.hits < Math.min(structure.hitsMax, max))
       }
     })
 
     let damaged_wall: StructureWall | StructureRampart | undefined
 
-    if (this.room.storage && (this.room.storage.store.energy > 500000)) {
+    if (has_much_energy) {
       const walls: (StructureWall | StructureRampart)[] = (this.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
           if (structure.hits == structure.hitsMax) {

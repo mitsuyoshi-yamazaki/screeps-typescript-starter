@@ -51,12 +51,13 @@ export class Empire {
           SquadType.ATTACKER,
           SquadType.SCOUT,
           SquadType.TEMP,
+          SquadType.CHARGER,
         ]
 
         const base_region = this.regions.get(base_region_name)
         const colony_region = this.regions.get(colony_region_name)
 
-        if (!base_region || !colony_region) {
+        if (!base_region || !colony_region || !colony_region.controller.my) {
           if ((Game.time % 29) == 13) {
             const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
             console.log(message)
@@ -65,14 +66,21 @@ export class Empire {
           return
         }
 
-        let max_level = 5
-        if (colony_region.room.name == 'W47S6') {
-          max_level = 6
-        }
+        const includes_opt = [
+          SquadType.REMOET_HARVESTER,
+          SquadType.REMOET_M_HARVESTER,
+        ]
 
-        if ((colony_region.room.controller) && (colony_region.room.controller.my) && (colony_region.room.controller.level <= max_level)) {//4)) {
+        if ((colony_region.controller.level <= 5)) {
           const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
             return excludes_opt.indexOf(squad.type) < 0
+          })
+
+          base_region.delegated_squads = squads
+        }
+        else if (colony_region.controller.level <= 6) {
+          const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+            return includes_opt.indexOf(squad.type) >= 0
           })
 
           base_region.delegated_squads = squads
