@@ -224,6 +224,19 @@ export function tick(): void {
   }
 
   Game.room_info = () => {
+    const info = 'info'
+    const warn = 'warn'
+    const error = 'error'
+    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
+      const colors: {[index: string]: string} = {
+        info: 'white',
+        warn: '#F9E79F',
+        error: '#E74C3C',
+      }
+
+      return `<span style='color:${colors[level]}'>${text}</span>`
+    }
+
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
@@ -234,13 +247,39 @@ export function tick(): void {
       const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
-      let reaction_output: string | undefined = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? region_memory.reaction_outputs[0] : undefined
+      let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:yellow'>none</span>`) : `<span style='color:yellow'>none</span>`
 
       if (rcl < 6) {
         reaction_output = '-'
       }
 
-      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}`)
+      const storage_amount = !room.storage ? "" : `${Math.round((_.sum(room.storage.store) / room.storage.storeCapacity) * 100)}%`
+      const storage_capacity = !room.storage ? "" : ` ${Math.round(room.storage.store.energy / 1000)}kE`
+
+      let spawn_busy_time = 0
+      let spawn_time = 0
+
+      room.spawns.forEach((spawn) => {
+        spawn_busy_time += spawn.memory.spawning.filter(s=>s).length
+        spawn_time += 1000
+      })
+
+      const spawn_usage = Math.round((spawn_busy_time / spawn_time) * 100)
+      let spawn_log_level: 'info' | 'warn' | 'error'
+
+      if (spawn_usage > 90) {
+        spawn_log_level = 'error'
+      }
+      else if (spawn_usage > 75) {
+        spawn_log_level = 'warn'
+      }
+      else {
+        spawn_log_level = 'info'
+      }
+
+      const spawn = `Spawn usage ${colored_text(spawn_usage.toString(10), spawn_log_level)} % (${room.spawns.length})`
+
+      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}`)
     }
   }
 

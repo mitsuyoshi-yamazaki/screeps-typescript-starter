@@ -1518,8 +1518,10 @@ export function init() {
       }
       else {
         this.upgradeController(room.controller!)
+        // if ((this.room.name == 'W49S6') && room.controller) {
+        //   this.signController(room.controller, `GCL farm ${Game.version}`)
+        // }
         if (((Game.time % 41) == 0) && room.controller) {
-        // if ((this.room.name == 'W47N5') && room.controller) {
           if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
             this.signController(room.controller, Game.version)
           }

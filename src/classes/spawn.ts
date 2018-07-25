@@ -5,11 +5,26 @@ declare global {
     initialize(): void
     renewSurroundingCreeps(): ActionResult
   }
+
+  interface SpawnMemory {
+    spawning: boolean[]
+  }
 }
 
 export function init() {
   StructureSpawn.prototype.initialize = function() {
     this.room.spawns.push(this)
+
+    if (!this.memory.spawning) {
+      this.memory.spawning = []
+    }
+
+    if (this.memory.spawning.length >= 1000) {
+      this.memory.spawning.shift()
+    }
+
+    const spawning: boolean = !(!this.spawning)
+    this.memory.spawning.push(spawning)
   }
 
   StructureSpawn.prototype.renewSurroundingCreeps = function(): ActionResult {
