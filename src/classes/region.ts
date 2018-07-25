@@ -32,6 +32,7 @@ export interface RegionMemory {
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
   ancestor: string
+  observe_index: number
 }
 
 export interface RegionOpt {
@@ -92,6 +93,7 @@ export class Region {
       Memory.regions[this.name] = {
         last_spawn_time: Game.time,
         ancestor: ancestor,
+        observe_index: 0,
       }
     }
     const region_memory = Memory.regions[this.name]
@@ -1504,11 +1506,6 @@ export class Region {
 
   // --- Private ---
   private runObserver(): void {
-    const region_memory = Memory.regions[this.name] as RegionMemory | undefined
-    if (!region_memory || !region_memory.observe_target) {
-      return
-    }
-
     if (!this.room.owned_structures) {
       return
     }
@@ -1522,20 +1519,59 @@ export class Region {
       return
     }
 
-    const result = observer.observeRoom(region_memory.observe_target)
-    if (result == OK) {
-      if (Memory.debug.show_visuals) {
-        const room = Game.rooms[region_memory.observe_target]
+    const region_memory = Memory.regions[this.name] as RegionMemory | undefined
+    if (!region_memory) {
+      console.log(`Region.runObserver unexpectedly no region_memory, ${this.name}`)
+      return
+    }
 
-        if (room) {
-          room.visual.text(`OBSERVING`, 48, 1, {
-            align: 'right',
-            opacity: 1.0,
-            font: '12px',
-            color: '#ffff00',
-          })
+    if (region_memory.observe_target) {
+      const result = observer.observeRoom(region_memory.observe_target)
+      if (result == OK) {
+        if (Memory.debug.show_visuals) {
+          const room = Game.rooms[region_memory.observe_target]
+
+          if (room) {
+            room.visual.text(`OBSERVING`, 48, 1, {
+              align: 'right',
+              opacity: 1.0,
+              font: '12px',
+              color: '#ffff00',
+            })
+          }
         }
       }
+      else {
+        console.log(`Region.runObserver failed with ${result}, ${this.name}`)
+      }
+      return
+    }
+
+    if (!region_memory.observe_index) {
+      region_memory.observe_index = 0
+    }
+
+    const positions: {x: number, y: number}[] = [
+      {x:-1, y:-1},
+      {x:+0, y:-1},
+      {x:+1, y:-1},
+      {x:+1, y:+0},
+      {x:+1, y:+1},
+      {x:+0, y:+1},
+      {x:-1, y:+1},
+      {x:-1, y:+0},
+    ]
+
+    region_memory.observe_index = (region_memory.observe_index + 1) % positions.length
+
+    const position = positions[region_memory.observe_index]
+    const x = Number(this.room.name.slice(1,3)) + position.x
+    const y = Number(this.room.name.slice(4,6)) + position.y
+
+    const target_room_name = `W${x}S${y}` // @fixme: WxxNyy
+
+    const result = observer.observeRoom(target_room_name)
+    if (result == OK) {
     }
     else {
       console.log(`Region.runObserver failed with ${result}, ${this.name}`)
@@ -1962,18 +1998,14 @@ export class Region {
   }
 
   private spawnAndRenew(): void {
-    const no_remote_harvester = (['W47N5', 'W47S6'].indexOf(this.room.name) >= 0) && this.room.controller && (this.room.controller.level < 7)
-
-    if (no_remote_harvester && ((Game.time % 97) == 3)) {
-      console.log(`\n\nNO REMOTE HARVESTER ${this.name}\n\n`)
-    }
+    const no_remote_harvester = this.room.controller && (this.room.controller.level < 6)
 
     const availableEnergy = this.room.energyAvailable
     const energy_capacity = this.room.energyCapacityAvailable - 50
 
     let squad_needs_spawn = this.delegated_squads.concat(this.squads_need_spawn)
     squad_needs_spawn = squad_needs_spawn.filter((squad) => {
-      if (no_remote_harvester && ([SquadType.REMOET_HARVESTER].indexOf(squad.type) >= 0)) {
+      if (no_remote_harvester && ([SquadType.REMOET_HARVESTER].indexOf(squad.type) >= 0) && (squad as RemoteHarvesterSquad).is_keeper_room) {
         return false
       }
       return (squad.hasEnoughEnergy(availableEnergy, energy_capacity))

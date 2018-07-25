@@ -30,6 +30,8 @@ interface SourceInfo {
 }
 
 export class RemoteHarvesterSquad extends Squad {
+  public is_keeper_room: boolean
+
   private scout: Creep | undefined
   private builders: Creep[] = []
   private harvesters: Creep[] = []
@@ -60,7 +62,9 @@ export class RemoteHarvesterSquad extends Squad {
     const room = Game.rooms[this.room_name] as Room | undefined
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if ((['W47N5', 'W47S6'].indexOf(this.base_room.name) >= 0) && this.base_room.controller && (this.base_room.controller.level < 7)) {
+    this.is_keeper_room = !(!squad_memory) && !(!squad_memory.need_attacker)
+
+    if ((['W47S6'].indexOf(this.base_room.name) >= 0) && this.base_room.controller && (this.base_room.controller.level < 6)) {
       this.harvester_energy_unit = 1000
       this.harvester_body_unit = [
         CARRY, CARRY,
