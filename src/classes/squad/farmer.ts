@@ -70,7 +70,7 @@ export class FarmerSquad extends Squad {
       return CreepType.UPGRADER
     }
 
-    const carrier_max = 3
+    const carrier_max = 5
     if (room && !room.terminal && (this.carriers.length < carrier_max)) {
       return CreepType.CARRIER
     }
