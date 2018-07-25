@@ -180,7 +180,7 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.195,
+    price: 0.190,
     trader_room_names: [
       hydrogen_first_room_name,
       hydrogen_second_room_name,
@@ -217,7 +217,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_LEMERGIUM,
-    price: 0.01,
+    price: 0.03,
     trader_room_names: [
       zynthium_first_room_name,
       utrium_first_room_name,
@@ -235,7 +235,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_POWER,
-    price: 0.03,
+    price: 0.09,
     trader_room_names: [
       zynthium_first_room_name,
       utrium_first_room_name,
@@ -244,7 +244,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.03,
+    price: 0.05,
     trader_room_names: [
       hydrogen_second_room_name,
       hydrogen_third_room_name,
