@@ -8,6 +8,7 @@ interface AttackerSquadMemory extends SquadMemory {
 
 export class AttackerSquad extends Squad {
   private destination_room_name: string | undefined
+  private attack_unit: BodyPartConstant[] = [ATTACK]
   private energy_unit = 130
   private fix_part_energy = 320
   private max_energy = 1100
@@ -16,9 +17,11 @@ export class AttackerSquad extends Squad {
     super(name)
 
     const memory = (Memory.squads[this.name] as AttackerSquadMemory)
+    let base_room_attacked = false
 
     if ((this.rooms_to_defend.indexOf(this.base_room.name) >= 0)) {
       this.destination_room_name = this.base_room.name
+      base_room_attacked = true
     }
     else if (memory.target_room_name) {
       const room = Game.rooms[memory.target_room_name]
@@ -42,14 +45,28 @@ export class AttackerSquad extends Squad {
     }
     (Memory.squads[this.name] as AttackerSquadMemory).target_room_name = this.destination_room_name
 
-    const attacker = Array.from(this.creeps.values())[0]
+    if (base_room_attacked) {
+      const heal_part_count = this.base_room.attacker_info.heal + this.base_room.attacker_info.tough
+      let attack_needs = heal_part_count / 2
 
-    // if (this.rooms_to_defend.length > 0) {
-    //   if ((Game.time % 7) == 0) {
-    //     const attacker_description = attacker ? `${attacker.name}, ${attacker.pos}` : ''
-    //     console.log(`Room Attacked!! ${this.rooms_to_defend}, ${attacker_description}`)
-    //   }
-    // }
+      if (this.base_room.attacker_info.hostile_teams.indexOf('Invader') >= 0) {
+        attack_needs * 0.7
+      }
+      attack_needs = Math.floor(attack_needs)
+
+      if (attack_needs > 6) {
+        this.attack_unit = [ATTACK, ATTACK]
+        this.energy_unit = 210
+
+        const max = (attack_needs * this.energy_unit) + this.fix_part_energy
+        this.max_energy = Math.min((this.energy_capacity - 150), max)
+
+        // console.log(`Attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}`)
+      }
+      else {
+        // console.log(`No big attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}`)
+      }
+    }
   }
 
   public get type(): SquadType {
@@ -96,7 +113,6 @@ export class AttackerSquad extends Squad {
   public addCreep(energyAvailable: number, spawnFunc: SpawnFunction): void {
     const front_part: BodyPartConstant[] = [TOUGH, TOUGH, MOVE, MOVE]
     const move: BodyPartConstant[] = [MOVE]
-    const attack: BodyPartConstant[] = [ATTACK]
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = []
@@ -118,7 +134,7 @@ export class AttackerSquad extends Squad {
 
       while(energyAvailable >= this.energy_unit) {
         body = move.concat(body)
-        body = body.concat(attack)
+        body = body.concat(this.attack_unit)
 
         energyAvailable -= this.energy_unit
       }

@@ -11,6 +11,7 @@ export interface AttackerInfo  {
   ranged_attack: number
   heal: number
   work: number
+  tough: number
 }
 
 const cost_matrixes = new Map<string, CostMatrix>()
@@ -337,6 +338,7 @@ export function tick(): void {
       ranged_attack: 0,
       heal: 0,
       work: 0,
+      tough: 0,
     }
 
     attacker_info.hostile_creeps = this.find(FIND_HOSTILE_CREEPS)
@@ -350,6 +352,7 @@ export function tick(): void {
       attacker_info.ranged_attack = creep.getActiveBodyparts(RANGED_ATTACK)
       attacker_info.heal = creep.getActiveBodyparts(HEAL)
       attacker_info.work = creep.getActiveBodyparts(WORK)
+      attacker_info.tough = creep.getActiveBodyparts(TOUGH)
     })
     this.attacker_info = attacker_info
 
