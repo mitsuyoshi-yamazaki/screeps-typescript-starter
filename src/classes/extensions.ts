@@ -280,7 +280,13 @@ export function tick(): void {
 
       const spawn = `Spawn usage ${colored_text(spawn_usage.toString(10), spawn_log_level)} % (${room.spawns.length})`
 
-      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}`)
+      let heavyly_attacked = ''
+      if (region_memory && region_memory.last_heavy_attacker) {
+        heavyly_attacked = `heavyly attacked ${Game.time - region_memory.last_heavy_attacker.ticks} ticks ago`
+      }
+
+
+      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
     }
   }
 

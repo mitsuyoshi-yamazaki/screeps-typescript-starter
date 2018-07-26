@@ -12,6 +12,7 @@ export class AttackerSquad extends Squad {
   private energy_unit = 130
   private fix_part_energy = 320
   private max_energy = 1100
+  private is_heavy_attacker = false
 
   constructor(readonly name: string, readonly rooms_to_defend: string[], readonly base_room: Room, readonly energy_capacity: number) {
     super(name)
@@ -61,6 +62,7 @@ export class AttackerSquad extends Squad {
         const max = (attack_needs * this.energy_unit) + this.fix_part_energy
         this.max_energy = Math.min((this.energy_capacity - 150), max)
 
+        this.is_heavy_attacker = true
         // console.log(`Attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}`)
       }
       else {
@@ -145,6 +147,16 @@ export class AttackerSquad extends Squad {
     const result = spawnFunc(body, name, {
       memory: memory
     })
+
+    if ((result == OK) && this.is_heavy_attacker) {
+      const region_memory = Memory.regions[this.base_room.name]
+      if (region_memory) {
+        region_memory.last_heavy_attacker = {
+          ticks: Game.time,
+          body,
+        }
+      }
+    }
   }
 
   public run(): void {

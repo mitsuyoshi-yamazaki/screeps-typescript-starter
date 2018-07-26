@@ -33,6 +33,7 @@ export interface RegionMemory {
   send_resources_to_excludes?: string[]
   ancestor: string
   observe_index: number
+  last_heavy_attacker?: {ticks: number, body: string[]}
 }
 
 export interface RegionOpt {
