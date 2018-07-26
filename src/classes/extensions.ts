@@ -229,13 +229,14 @@ export function tick(): void {
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
-    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
-      const colors: {[index: string]: string} = {
-        info: 'white',
-        warn: '#F9E79F',
-        error: '#E74C3C',
-      }
 
+    const colors: {[index: string]: string} = {
+      info: 'white',
+      warn: '#F9E79F',
+      error: '#E74C3C',
+    }
+
+    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
       return `<span style='color:${colors[level]}'>${text}</span>`
     }
 
@@ -249,7 +250,7 @@ export function tick(): void {
       const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
-      let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:yellow'>none</span>`) : `<span style='color:yellow'>none</span>`
+      let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:${colors[warn]}'>none</span>`) : `<span style='color:${colors[warn]}'>none</span>`
 
       if (rcl < 6) {
         reaction_output = '-'

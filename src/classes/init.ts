@@ -2,7 +2,7 @@ import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
 
-const version = '2.30.0'
+const version = '2.30.1'
 
 export function init(): void {
   Game.version = version
@@ -77,7 +77,41 @@ export function tick(): void {
   }
 
   if ((Game.time % cpu_ticks) == 0) {
-    console.log(`CPU usage: ${Memory.cpu_usages}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
+    const limit = Game.cpu.limit
+
+    const info = 'info'
+    const warn = 'warn'
+    const error = 'error'
+
+    const error_level = limit
+    const warn_level = limit * 0.90
+
+    const colors: {[index: string]: string} = {
+      info: 'white',
+      warn: '#F9E79F',
+      error: '#E74C3C',
+    }
+
+    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
+      return `<span style='color:${colors[level]}'>${text}</span>`
+    }
+
+    const usage = Memory.cpu_usages.map(u => {
+      let level: 'info' | 'warn' | 'error'
+
+      if (u > error_level) {
+        level = error
+      }
+      else if (u > warn_level) {
+        level = warn
+      }
+      else {
+        level = info
+      }
+
+      return colored_text(`${u}`, level)
+    })
+    console.log(`CPU usage: ${usage}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
   }
 
   Game.reactions = {}
