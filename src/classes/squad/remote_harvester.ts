@@ -64,6 +64,18 @@ export class RemoteHarvesterSquad extends Squad {
 
     this.is_keeper_room = !(!squad_memory) && !(!squad_memory.need_attacker)
 
+    // if ((this.room_name == 'W46S9') && room) {
+    //   room.find(FIND_FLAGS).forEach((flag) => {
+    //     if (!flag || !flag.room || (flag.room.name != 'W46S9')) {
+    //       console.log(`HOGE ${flag}`)
+    //       return
+    //     }
+
+    //     // room.createConstructionSite(flag.pos, STRUCTURE_ROAD)
+    //     flag.remove()
+    //   })
+    // }
+
     if ((['W47S6'].indexOf(this.base_room.name) >= 0) && this.base_room.controller && (this.base_room.controller.level < 6)) {
       this.harvester_energy_unit = 1000
       this.harvester_body_unit = [
@@ -1220,3 +1232,20 @@ const construction_site_filter = (site: ConstructionSite): boolean => {
   }
   return false
 }
+
+// function check_construction_site() {
+//   if (((Game.time % 19) == 3) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
+//     let has_construction_site = this.scout.room.find(FIND_MY_CONSTRUCTION_SITES, {
+//       filter: construction_site_filter
+//     }).length > 0
+
+//     if (!has_construction_site) {
+//       has_construction_site = this.scout.room.find(FIND_FLAGS).length > 0
+//       // @todo: flag -> construction_site
+//     }
+
+//     if (has_construction_site) {
+//       (Memory.squads[this.name] as RemoteHarvesterSquadMemory).room_contains_construction_sites.push(this.scout.room.name)
+//     }
+//   }
+// }
