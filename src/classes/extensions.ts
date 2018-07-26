@@ -80,6 +80,7 @@ declare global {
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
     add_remote_harvester(owner_room_name: string, carrier_max: number): string
+    remote_layout(x: number, y: number): 'Succeeded' | 'Failed'
 
     initialize(): void
   }
@@ -515,6 +516,31 @@ export function tick(): void {
     Memory.squads[squad_name] = squad_memory
 
     return squad_name
+  }
+
+  Room.prototype.remote_layout = function(x: number, y: number): 'Succeeded' | 'Failed' {
+    const room = this as Room
+
+    const cost_matrix = new PathFinder.CostMatrix()
+    const pathfinder_opts: PathFinderOpts = {
+    }
+
+    let result: 'Succeeded' | 'Failed' = 'Succeeded'
+
+    room.sources.forEach((source) => {
+      const pos = new RoomPosition(x, y, room.name)
+      const path = PathFinder.search(pos, source.pos, pathfinder_opts)
+
+      if (!path) {
+        result = 'Failed'
+        console.log(`Room.remote_layout cannot find path for ${pos} to ${source.pos}`)
+        return
+      }
+
+      // @todo:
+    })
+
+    return result
   }
 
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {

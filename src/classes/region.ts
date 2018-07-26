@@ -34,6 +34,7 @@ export interface RegionMemory {
   ancestor: string
   observe_index: number
   last_heavy_attacker?: {ticks: number, body: string[]}
+  room_need_scout?: string[]
 }
 
 export interface RegionOpt {
@@ -489,6 +490,7 @@ export class Region {
         break
     }
 
+    // -- harvester
     const time = (Game.time % 997)
     const check_harvester = (time == 23) || (time == 24)
 
@@ -508,6 +510,17 @@ export class Region {
       // console.log(`${this.name}: ${fuga.map(t=>[t.id, t.room_name])}`)
     }
 
+    // -- scout
+    if (region_memory.room_need_scout) {
+      region_memory.room_need_scout.forEach((room_name) => {
+        if (rooms_need_scout.indexOf(room_name) >= 0) {
+          return
+        }
+        rooms_need_scout.push(room_name)
+      })
+    }
+
+    // -- reaction
     if (region_memory.reaction_outputs && input_lab_ids && this.room.terminal) {
       const output = region_memory.reaction_outputs[0]
 
