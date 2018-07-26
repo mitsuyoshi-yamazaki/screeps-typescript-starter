@@ -3,6 +3,7 @@ import { RegionMemory } from "./region"
 import { ControllerKeeperSquad } from "./squad/controller_keeper";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
+import { UID } from "./utils";
 
 export interface AttackerInfo  {
   hostile_creeps: Creep[]
@@ -26,7 +27,7 @@ declare global {
     check_all_resources: () => void
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
-    room_info: () => void
+    info: () => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
   }
@@ -79,8 +80,9 @@ declare global {
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
-    add_remote_harvester(owner_room_name: string, carrier_max: number): string
-    remote_layout(x: number, y: number, dry_run: boolean): CostMatrix | null
+    add_remote_harvester(from: StructureStorage, carrier_max: number, dry_run: boolean): string | null
+    remote_layout(x: number, y: number): CostMatrix | null
+    test(from: Structure): void
 
     initialize(): void
   }
@@ -231,7 +233,7 @@ export function tick(): void {
     console.log(`Collect resource ${resource_type} ${room_name}: ${target_room.terminal.store[resource_type] || 0} + ${sum}${details}`)
   }
 
-  Game.room_info = () => {
+  Game.info = () => {
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
@@ -245,6 +247,8 @@ export function tick(): void {
     const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
       return `<span style='color:${colors[level]}'>${text}</span>`
     }
+
+    console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${Math.round(Game.gcl.progress / 1000000)}</b>M/<b>${Math.round(Game.gcl.progressTotal / 1000000)}</b>M, <b>${Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 100)}</b>%`)
 
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
@@ -493,9 +497,115 @@ export function tick(): void {
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
   }
 
-  Room.prototype.add_remote_harvester = function(owner_room_name: string, carrier_max: number): string {
+  Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, dry_run: boolean = true): string | null {
+    console.log(`Room.add_remote_harvester dry_run: ${dry_run}`)
+
     const room = this as Room
 
+    if (!from) {
+      console.log(`Room.add_remote_harvester from cannot be null ${room.name}`)
+      return null
+    }
+    if (!room.sources || (room.sources.length == 0)) {
+      console.log(`Room.add_remote_harvester no sources in room ${room.name}, ${room.sources}`)
+      return null
+    }
+
+    const room_name = room.name
+    const owner_room_name = from.room.name
+
+    // --- Path
+    const pathfinder_opts: FindPathOpts = {
+      maxRooms: 0,
+      maxOps: 10000,
+      range: 1,
+    }
+
+    const path = from.room.findPath(from.pos, room.sources[0].pos, pathfinder_opts)
+
+    if (!path || (path.length == 0)) {
+      console.log(`Room.add_remote_harvester cannot find path from ${from.pos} to ${room.sources[0].pos}, ${room.name}`)
+      return null
+    }
+
+    const last_pos = path[path.length - 1]
+    const start_pos: {x: number, y: number} = {
+      x: last_pos.x,
+      y: last_pos.y,
+    }
+
+    if (start_pos.x == 0) {
+      start_pos.x = 49
+    }
+    else if (start_pos.x == 49) {
+      start_pos.x = 0
+    }
+
+    if (start_pos.y == 0) {
+      start_pos.y = 49
+    }
+    else if (start_pos.y == 49) {
+      start_pos.y = 0
+    }
+
+    const road_positions: RoomPosition[] = path.map((p) => {
+      return new RoomPosition(p.x, p.y, owner_room_name)
+    })
+
+    const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
+    if (!cost_matrix) {
+      console.log(`Room.add_remote_harvester cannot create cost matrix ${room.name}, start pos: (${start_pos.x}, ${start_pos.y})`)
+      return null
+    }
+
+    const road_cost = 1
+    const room_size = 50
+
+    for (let i = 0; i < room_size; i++) {
+      for (let j = 0; j < room_size; j++) {
+        const cost = cost_matrix.get(i, j)
+
+        if (cost > road_cost) {
+          continue
+        }
+
+        road_positions.push(new RoomPosition(i, j, room_name))
+      }
+    }
+
+    // -- Dry Run
+    if (dry_run) {
+      road_positions.forEach((pos) => {
+        const r = Game.rooms[pos.roomName]
+        if (!r) {
+          return
+        }
+
+        r.visual.text(`x`, pos, {
+          color: '#ff0000',
+          align: 'center',
+          font: '12px',
+          opacity: 0.8,
+        })
+      })
+
+      return null
+    }
+
+    // --- Place flags
+    const time = Game.time
+
+    road_positions.forEach((pos) => {
+      const r = Game.rooms[pos.roomName]
+      if (!r) {
+        return
+      }
+
+      const name = UID(`Flag${time}`)
+      r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
+    })
+
+    // --- Squad Memory
     let squad_name = `remote_harvester_${room.name.toLowerCase()}`
 
     while (Memory.squads[squad_name]) {
@@ -511,7 +621,7 @@ export function tick(): void {
     const squad_memory: RemoteHarvesterSquadMemory = {
       name: squad_name,
       type: SquadType.REMOET_HARVESTER,
-      owner_name: owner_room_name,
+      owner_name: from.room.name,
       number_of_creeps: 0,
       stop_spawming: true,
       room_name: room.name,
@@ -527,8 +637,7 @@ export function tick(): void {
     return squad_name
   }
 
-  Room.prototype.remote_layout = function(x: number, y: number, dry_run: boolean = true): CostMatrix | null {
-    console.log(`Room.remote_layout dry_run: ${dry_run}`)
+  Room.prototype.remote_layout = function(x: number, y: number): CostMatrix | null {
 
     const room = this as Room
     const road_cost = 1
@@ -569,10 +678,58 @@ export function tick(): void {
 
     cost_matrix.show(room, {colors: {1: '#ff0000'}})
 
-    if (dry_run) {
-      result = null
-    }
     return result
+  }
+
+  Room.prototype.test = function(from: Structure): void {
+    const room = this as Room
+    // const cost_matrix = room.remote_layout()
+
+    const pathfinder_opts: FindPathOpts = {
+      maxRooms: 0,
+      maxOps: 10000,
+      range: 1,
+    }
+
+    const path = from.room.findPath(from.pos, room.sources[0].pos, pathfinder_opts)
+
+    if (!path || (path.length == 0)) {
+      console.log(`TEST no path`)
+      return
+    }
+
+    console.log(`TEST ${path.length} paths`)
+
+    const last_pos = path[path.length - 1]
+    const start_pos: {x: number, y: number} = {
+      x: last_pos.x,
+      y: last_pos.y,
+    }
+
+    if (start_pos.x == 0) {
+      start_pos.x = 49
+    }
+    else if (start_pos.x == 49) {
+      start_pos.x = 0
+    }
+
+    if (start_pos.y == 0) {
+      start_pos.y = 49
+    }
+    else if (start_pos.y == 49) {
+      start_pos.y = 0
+    }
+
+    console.log(`TEST start pos: (${start_pos.x}, ${start_pos.y})`)
+
+    path.forEach((pos) => {
+      room.visual.text(`■`, pos.x, pos.y, {
+        color: '#ff0000',
+        align: 'center',
+        font: '12px',
+        opacity: 0.8,
+      })
+    })
   }
 
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {

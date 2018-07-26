@@ -1787,6 +1787,10 @@ export class Region {
         case COLOR_GREY:
           structure_type = STRUCTURE_SPAWN
           break
+
+        case COLOR_BROWN:
+          structure_type = STRUCTURE_ROAD
+          break
       }
 
       if (!structure_type) {
