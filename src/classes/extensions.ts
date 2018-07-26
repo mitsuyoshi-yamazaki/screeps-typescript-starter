@@ -283,7 +283,9 @@ export function tick(): void {
 
       let heavyly_attacked = ''
       if (region_memory && region_memory.last_heavy_attacker) {
-        heavyly_attacked = `heavyly attacked ${Game.time - region_memory.last_heavy_attacker.ticks} ticks ago`
+        const url = `https://screeps.com/a/#!/history/shard2/${room_name}?t=${region_memory.last_heavy_attacker.ticks}`
+        const link = `${Game.time - region_memory.last_heavy_attacker.ticks} ticks ago`
+        heavyly_attacked = `heavyly attacked <a href="${url}">${link}</a>`
       }
 
 
