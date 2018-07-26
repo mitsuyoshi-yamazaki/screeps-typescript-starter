@@ -80,13 +80,19 @@ declare global {
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
     add_remote_harvester(owner_room_name: string, carrier_max: number): string
-    remote_layout(x: number, y: number, dry_run: boolean): 'Succeeded' | 'Failed'
+    remote_layout(x: number, y: number, dry_run: boolean): CostMatrix | null
 
     initialize(): void
   }
 
   interface RoomVisual {
     multipleLinedText(text: string | string[], x: number, y: number, style?: TextStyle): void
+  }
+
+  interface CostMatrix {
+    add_terrain(room: Room): void
+    add_normal_structures(room: Room): void
+    show(room: Room, opt?: {colors?: {[index: number]: string}}): void
   }
 }
 
@@ -521,37 +527,51 @@ export function tick(): void {
     return squad_name
   }
 
-  Room.prototype.remote_layout = function(x: number, y: number, dry_run: boolean = true): 'Succeeded' | 'Failed' {
+  Room.prototype.remote_layout = function(x: number, y: number, dry_run: boolean = true): CostMatrix | null {
     console.log(`Room.remote_layout dry_run: ${dry_run}`)
 
     const room = this as Room
+    const road_cost = 1
 
-    const pathfinder_opts: PathFinderOpts = {
-      maxRooms: 0,
-      maxOps: 10000,
+    const cost_matrix = new PathFinder.CostMatrix()
+    cost_matrix.add_terrain(room)
+    cost_matrix.add_normal_structures(room)
+
+    const costCallback = (room_name: string): boolean | CostMatrix => {
+      if ((room.name == room_name)) {
+        return cost_matrix
+      }
+      return false
     }
 
-    let result: 'Succeeded' | 'Failed' = 'Succeeded'
+    const pathfinder_opts: FindPathOpts = {
+      maxRooms: 0,
+      maxOps: 10000,
+      range: 1,
+      costCallback,
+    }
+
+    let result: CostMatrix | null = cost_matrix
     const from_pos = new RoomPosition(x, y, room.name)
 
     room.sources.forEach((source, index) => {
       const path = room.findPath(from_pos, source.pos, pathfinder_opts)
       if (!path || (path.length == 0)) {
-        result = 'Failed'
+        result = null
         console.log(`Room.remote_layout cannot find path for ${from_pos} to ${source.pos}, ${path}`)
         return
       }
 
       path.forEach((pos) => {
-        room.visual.text(`${index}`, pos.x, pos.y, {
-          align: 'center',
-          opacity: 0.8,
-          font: '12px',
-          color: '#ffffff',
-        })
+        cost_matrix.set(pos.x, pos.y, road_cost)
       })
     })
 
+    cost_matrix.show(room, {colors: {1: '#ff0000'}})
+
+    if (dry_run) {
+      result = null
+    }
     return result
   }
 
@@ -569,6 +589,115 @@ export function tick(): void {
   for (const room_name in Game.rooms) {
     const room = Game.rooms[room_name]
     room.spawns = []
+  }
+
+  PathFinder.CostMatrix.prototype.add_terrain = function(room: Room): void {
+    if (!room) {
+      console.log(`CostMatrix.add_terrain room cannot be nil`)
+      return
+    }
+
+    let error_message: string | undefined
+
+    const cost_matrix = this as CostMatrix
+    const room_size = 50
+
+    const road_cost = 1
+    const plain_cost = 2
+    const swamp_cost = plain_cost * 5
+    const unwalkable_cost = 255
+
+    for (let i = 0; i < room_size; i++) {
+      for (let j = 0; j < room_size; j++) {
+        const terrain = Game.map.getTerrainAt(i, j, room.name)
+        let cost: number
+
+        switch (terrain) {
+          case 'plain':
+            cost = plain_cost
+            break
+
+          case 'swamp':
+            cost = swamp_cost
+            break
+
+          case 'wall':
+            cost = unwalkable_cost
+            break
+
+          default: {
+            cost = unwalkable_cost
+            const message = `\n${room.name} ${i},${j} unknown terrain`
+            error_message = !(!error_message) ? (error_message + message) : message
+            break
+          }
+        }
+
+        cost_matrix.set(i, j, cost)
+      }
+    }
+
+    if (error_message) {
+      error_message = `Room.create_costmatrix error ${room.name}\n`
+
+      console.log(error_message)
+    }
+  }
+
+  PathFinder.CostMatrix.prototype.add_normal_structures = function(room: Room): void {
+    if (!room) {
+      console.log(`CostMatrix.add_normal_structures room cannot be nil`)
+      return
+    }
+
+    const cost_matrix = this as CostMatrix
+    const unwalkable_cost = 255
+
+    const walkable_structure_types: StructureConstant[] = [
+      STRUCTURE_ROAD,
+      STRUCTURE_CONTAINER,
+    ]
+
+    room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        if (walkable_structure_types.indexOf(structure.structureType) >= 0) {
+          return false
+        }
+        if (structure.structureType == STRUCTURE_RAMPART) {
+          return !structure.my
+        }
+        return true
+      }
+    }).forEach((structure) => {
+      cost_matrix.set(structure.pos.x, structure.pos.y, unwalkable_cost)
+    })
+  }
+
+  PathFinder.CostMatrix.prototype.show = function(room: Room, opt?: {colors?: {[index: number]: string}}): void {
+    opt = opt || {}
+    const colors: {[index: number]: string} = opt.colors || {}
+
+    if (!room) {
+      console.log(`CostMatrix.show room cannot be nil`)
+      return
+    }
+
+    const cost_matrix = this as CostMatrix
+    const room_size = 50
+
+    for (let i = 0; i < room_size; i++) {
+      for (let j = 0; j < room_size; j++) {
+        const cost = cost_matrix.get(i, j)
+        const color = colors[cost] || '#ffffff'
+
+        room.visual.text(`${cost}`, i, j, {
+          color,
+          align: 'center',
+          font: '12px',
+          opacity: 0.8,
+        })
+      }
+    }
   }
 }
 

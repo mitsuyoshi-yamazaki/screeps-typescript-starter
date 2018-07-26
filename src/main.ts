@@ -100,20 +100,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         console.log(`Showing costmatrix ${room_name}`)
 
         if (cost_matrix) {
-          const room_size = 50
-
-          for (let i = 0; i < room_size; i++) {
-            for (let j = 0; j < room_size; j++) {
-              const cost = cost_matrix.get(i, j)
-
-              room.visual.text(`${cost}`, i, j, {
-                color: '#ffffff',
-                align: 'center',
-                font: '12px',
-                opacity: 0.8,
-              })
-            }
-          }
+          cost_matrix.show(room)
         }
         else {
           room.visual.text(`NO costmatrix for ${room_name}`, 25, 25, {
