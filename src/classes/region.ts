@@ -1809,18 +1809,6 @@ export class Region {
   }
 
   private activateSafeModeIfNeeded() {
-    if (this.room.name == 'W48N11') {
-      return
-    }
-    if (this.room.name == 'W42N1') {
-      return
-    }
-    if (this.room.name == 'W47N5') {
-      return
-    }
-    if (this.room.name == 'W43N5') {
-      return
-    }
     // if (this.room.controller && (this.room.controller.level < 4)) {
     if (this.room.controller) {
       if (this.room.name == 'W48S12') {
@@ -2074,7 +2062,7 @@ export class Region {
       if (this.room.name == 'W51S29') {
         duration = 770
       }
-      else if ((this.room.name == 'W47S6') && (this.controller.level < 7)) {
+      else if ((this.controller.level < 7)) {
         duration = 700
       }
 

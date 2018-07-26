@@ -80,7 +80,7 @@ declare global {
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
     add_remote_harvester(owner_room_name: string, carrier_max: number): string
-    remote_layout(x: number, y: number): 'Succeeded' | 'Failed'
+    remote_layout(x: number, y: number, dry_run: boolean): 'Succeeded' | 'Failed'
 
     initialize(): void
   }
@@ -520,26 +520,35 @@ export function tick(): void {
     return squad_name
   }
 
-  Room.prototype.remote_layout = function(x: number, y: number): 'Succeeded' | 'Failed' {
+  Room.prototype.remote_layout = function(x: number, y: number, dry_run: boolean = true): 'Succeeded' | 'Failed' {
+    console.log(`Room.remote_layout dry_run: ${dry_run}`)
+
     const room = this as Room
 
-    const cost_matrix = new PathFinder.CostMatrix()
     const pathfinder_opts: PathFinderOpts = {
+      maxRooms: 0,
+      maxOps: 10000,
     }
 
     let result: 'Succeeded' | 'Failed' = 'Succeeded'
+    const from_pos = new RoomPosition(x, y, room.name)
 
-    room.sources.forEach((source) => {
-      const pos = new RoomPosition(x, y, room.name)
-      const path = PathFinder.search(pos, source.pos, pathfinder_opts)
-
-      if (!path) {
+    room.sources.forEach((source, index) => {
+      const path = room.findPath(from_pos, source.pos, pathfinder_opts)
+      if (!path || (path.length == 0)) {
         result = 'Failed'
-        console.log(`Room.remote_layout cannot find path for ${pos} to ${source.pos}`)
+        console.log(`Room.remote_layout cannot find path for ${from_pos} to ${source.pos}, ${path}`)
         return
       }
 
-      // @todo:
+      path.forEach((pos) => {
+        room.visual.text(`${index}`, pos.x, pos.y, {
+          align: 'center',
+          opacity: 0.8,
+          font: '12px',
+          color: '#ffffff',
+        })
+      })
     })
 
     return result
