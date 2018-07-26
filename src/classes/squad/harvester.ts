@@ -5,6 +5,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 export interface HarvesterSquadMemory extends SquadMemory {
   readonly source_id: string
   readonly room_name: string
+  readonly link_id?: string // @todo:
 }
 
 export class HarvesterSquad extends Squad {
@@ -298,6 +299,12 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f1a00982100e1594f35f03') { // W47S6 right
       const link = Game.getObjectById('5b568b1c22e1946e01461f2b') as StructureLink | undefined
+      if (link) {
+        this.store = link
+      }
+    }
+    else if (this.source_info.id == '59f1a00982100e1594f35f0e') { // W47S9 left
+      const link = Game.getObjectById('5b5914d72d47046dfb432f50') as StructureLink | undefined
       if (link) {
         this.store = link
       }

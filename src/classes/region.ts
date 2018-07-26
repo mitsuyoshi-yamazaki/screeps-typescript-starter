@@ -472,6 +472,8 @@ export class Region {
 
       case 'W47S9':
         this.room_names = [this.room.name]
+        this.destination_link_id = '5b5908afdabde472b944723d'
+        charger_position = {x: 38, y: 7}
         break
 
       case 'W49S6':
@@ -702,7 +704,7 @@ export class Region {
           }
           case SquadType.CHARGER: {
             if (!charger_position) {
-              const message = `Region charger_position for room ${this.room.name} is not provided`
+              const message = `Region charger_position for room ${this.room.name}`
               console.log(message)
               Game.notify(message)
               break
@@ -2033,7 +2035,9 @@ export class Region {
           }
           else {
             // @fixme: If
-            console.log(`${spawn.name} in ${this.name} assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}, [${body}]`)
+            const message = `${spawn.name} in ${this.name} assign to ${squad.name}: ${result}, energy: ${this.room.energyAvailable}, [${body}]`
+            console.log(message)
+            Game.notify(message)
           }
           return result
         })
