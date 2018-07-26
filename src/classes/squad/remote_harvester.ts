@@ -786,7 +786,11 @@ export class RemoteHarvesterSquad extends Squad {
           let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
           if (source) {
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(source, move_to_ops)
+              const result = creep.moveTo(source, move_to_ops)
+              if (result != OK) {
+                creep.say(`E${result}`)
+                creep.moveTo(25, 25)
+              }
             }
             return
           }

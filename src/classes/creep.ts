@@ -1904,7 +1904,7 @@ export function init() {
       action = 'attackController'
       result = this.attackController(target)
 
-      if (result != OK) {
+      if ((result != OK) && (result != ERR_NOT_IN_RANGE)) {
         this.say(`A.1${result}`)
       }
     }
@@ -1913,7 +1913,7 @@ export function init() {
         action = 'attackController'
         result = this.attackController(target)
 
-        if (result != OK) {
+        if ((result != OK) && (result != ERR_NOT_IN_RANGE)) {
           this.say(`A.2${result}`)
         }
       }
@@ -1921,7 +1921,7 @@ export function init() {
         action = 'claimController'
         result = this.claimController(target)
 
-        if (result != OK) {
+        if ((result != OK) && (result != ERR_NOT_IN_RANGE)) {
           this.say(`C${result}`)
         }
       }
@@ -1930,7 +1930,7 @@ export function init() {
       action = 'reserveController'
       result = this.reserveController(target)
 
-      if (result != OK) {
+      if ((result != OK) && (result != ERR_NOT_IN_RANGE)) {
         this.say(`R${result}`)
       }
     }
