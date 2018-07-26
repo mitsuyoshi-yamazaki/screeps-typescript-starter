@@ -473,6 +473,9 @@ export class Region {
 
       case 'W47S9':
         this.room_names = [this.room.name]
+        rooms_need_to_be_defended = [
+          'W46S9',
+        ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
         break

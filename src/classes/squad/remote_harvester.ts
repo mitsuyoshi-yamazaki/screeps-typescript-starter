@@ -938,7 +938,7 @@ export class RemoteHarvesterSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy > (creep.carryCapacity * 0.95)) {
+        if (_.sum(creep.carry) > (creep.carryCapacity * 0.95)) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
