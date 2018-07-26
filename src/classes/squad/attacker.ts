@@ -51,9 +51,9 @@ export class AttackerSquad extends Squad {
       let attack_needs = heal_part_count / 2
 
       if (this.base_room.attacker_info.hostile_teams.indexOf('Invader') >= 0) {
-        attack_needs * 0.7
+        attack_needs *= 0.7
       }
-      attack_needs = Math.floor(attack_needs)
+      attack_needs = Math.ceil(attack_needs)
 
       if (attack_needs > 6) {
         this.attack_unit = [ATTACK, ATTACK]
@@ -63,10 +63,10 @@ export class AttackerSquad extends Squad {
         this.max_energy = Math.min((this.energy_capacity - 150), max)
 
         this.is_heavy_attacker = true
-        // console.log(`Attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}`)
+        // console.log(`Attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}, ${this.base_room.attacker_info.hostile_teams}`)
       }
       else {
-        // console.log(`No big attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}`)
+        // console.log(`No big attacker ${this.base_room.name} ${this.base_room.attacker_info.heal} * HEAL, ${this.base_room.attacker_info.tough} * TOUGH, need: ${attack_needs}, ${this.energy_unit}, ${this.max_energy}, ${this.base_room.attacker_info.hostile_teams}`)
       }
     }
   }
