@@ -466,6 +466,10 @@ export class Region {
         break
 
       case 'W45S27':
+        rooms_need_to_be_defended = [
+          'W45S28',
+          'W46S28',
+        ]
         this.room_names = [this.room.name]
         this.destination_link_id = '5b5ad89d3c93de26f63169b1'
         charger_position = {x: 19, y:35}
@@ -479,6 +483,7 @@ export class Region {
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
           'W46S9',
+          'W47S8',
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
