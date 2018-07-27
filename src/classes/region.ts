@@ -467,6 +467,8 @@ export class Region {
 
       case 'W45S27':
         this.room_names = [this.room.name]
+        this.destination_link_id = '5b5ad89d3c93de26f63169b1'
+        charger_position = {x: 19, y:35}
         break
 
       case 'W47S14':

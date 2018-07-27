@@ -214,6 +214,9 @@ export function init() {
     else if ((destination_room_name == 'W46S3') && (this.room.name == 'W43S5')) {
       this.memory.destination_room_name = 'W46S4'
     }
+    else if ((destination_room_name == 'W46S28') && (this.room.name == 'W45S27')) {
+      this.memory.destination_room_name = 'W45S28'
+    }
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
       destination_room_name = 'W46S43'  // @fixme: this is waypoint
@@ -1534,6 +1537,11 @@ export function init() {
             this.signController(room.controller, Game.version)
           }
         }
+
+        if (this.room.name == 'W45S27') {
+          move_to_opt.range = 3
+        }
+
         this.moveTo(room.controller!, move_to_opt)
         return
       }
