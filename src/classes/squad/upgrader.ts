@@ -43,6 +43,11 @@ export class UpgraderSquad extends Squad {
       return SpawnPriority.NONE
     }
 
+    const squad_memory = Memory.squads[this.name]
+    if (squad_memory.stop_spawming) {
+      return SpawnPriority.NONE
+    }
+
     let max = 0
     const room = Game.rooms[this.room_name]
 
