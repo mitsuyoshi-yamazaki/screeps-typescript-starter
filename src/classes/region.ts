@@ -61,11 +61,13 @@ export class Region {
   private manual_squad: ManualSquad | undefined
   private scout_squad: ScoutSquad | undefined
   private defend_squad: AttackerSquad | undefined
+  private charger_squad: ChargerSquad | undefined
   private room_names: string[] = []
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
   private temp_squad_opt: {target_room_name: string, forced?: boolean} | undefined
+  private no_instantiations: string[] = []
 
   private get support_link_ids(): string[] {
     const region_memory = Memory.regions[this.name]
@@ -481,6 +483,9 @@ export class Region {
         break
 
       case 'W49S6':
+        // harvester_targets = [
+        //   { id: '59f1c0ce7d0b3d79de5f01bc', room_name: 'W49S6' }  // Oxygen  // Should be in W48S6
+        // ]
         this.room_names = [this.room.name]
         this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
         break
@@ -488,6 +493,7 @@ export class Region {
       case 'W46S3':
         this.room_names = [this.room.name]
         this.destination_link_id = '5b5a68650f98906de3d32601'
+        charger_position = {x: 34, y: 43}
         break
 
       default:
@@ -687,6 +693,11 @@ export class Region {
         continue
       }
 
+      if (squad_memory.no_instantiation) {
+        this.no_instantiations.push(`    - ${squad_memory.name}`)
+        continue
+      }
+
       // if ((energy_capacity <= 0) && (most_priority_squads.indexOf(squad_memory.type) < 0)) {
       //   continue
       // }
@@ -726,11 +737,13 @@ export class Region {
               if (squad_memory.name == 'charger_w49s6_tr') {
                 const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
                 this.squads.set(squad.name, squad)
+                this.charger_squad = squad
               }
               else {
                 const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
                 const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
                 this.squads.set(squad.name, squad)
+                this.charger_squad = squad
               }
             }
             else {
@@ -754,6 +767,7 @@ export class Region {
               const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
 
               this.squads.set(squad.name, squad)
+              this.charger_squad = squad
             }
             break
           }
@@ -862,6 +876,12 @@ export class Region {
                 const squad = new TempSquad(squad_memory.name, this.room.name, this.temp_squad_opt.target_room_name, !(!this.temp_squad_opt.forced))
                 this.squads.set(squad.name, squad)
               }
+              else {
+                this.no_instantiations.push(`    - ${squad_memory.name}`)
+              }
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
             }
             break
           }
@@ -980,6 +1000,33 @@ export class Region {
     if (this.room.keeper) {
       console.log(`Region ${this.name} no longer need controller keeper ${this.room.keeper.name}`)
       delete Memory.squads[this.room.keeper.name]
+    }
+
+    // --- Charger ---
+    if (!this.charger_squad && (this.controller.level >= 5) && charger_position) {
+      const name = `charger_${this.room.name.toLowerCase()}`
+
+      const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+      const support_links: StructureLink[] = this.support_link_ids.map((id) => {
+        return Game.getObjectById(id) as StructureLink | undefined
+      }).filter((l) => {
+        if (!l) {
+          return false
+        }
+        return true
+      }) as StructureLink[]
+
+      const squad = new ChargerSquad(name, this.room, link, support_links, charger_position)
+      const memory: SquadMemory = {
+        name: squad.name,
+        type: squad.type,
+        owner_name: this.name,
+        number_of_creeps: 0,
+      }
+
+      Memory.squads[squad.name] = memory
+
+      console.log(`Create charger for ${this.room.name}, assigned: ${squad.name}`)
     }
 
     // --- Researcher ---
@@ -2148,9 +2195,8 @@ export class Region {
     const squad_descriptions = this.squadDescriptions(Array.from(this.squads.values()))
     lines = lines.concat(squad_descriptions)
 
-    if (!this.temp_squad_opt) {
-      lines.push(`  - no temp squad`)
-    }
+    lines.push(`  - not instantiated:`)
+    lines = lines.concat(this.no_instantiations)
 
     if (this.delegated_squads.length > 0) {
       lines.push(`  Delegated: `)

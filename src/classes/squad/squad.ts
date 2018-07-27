@@ -50,6 +50,7 @@ export interface SquadMemory {
   owner_name: string  // Spawn name
   number_of_creeps: number
   stop_spawming?: boolean
+  no_instantiation?: boolean  // @fixme:
 }
 
 /**

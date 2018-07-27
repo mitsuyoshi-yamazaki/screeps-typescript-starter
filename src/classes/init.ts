@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.31.8'
+const version = '2.32.0'
 
 export function init(): void {
   Game.version = version
@@ -110,7 +110,40 @@ export function tick(): void {
 
       return colored_text(`${u}`, level)
     })
-    console.log(`CPU usage: ${usage}, ave: ${_.sum(Memory.cpu_usages) / cpu_ticks}, bucket: ${Game.cpu.bucket}`)
+
+    // --
+    const average = _.sum(Memory.cpu_usages) / cpu_ticks
+    let average_level: 'info' | 'warn' | 'error'
+
+    if (average > error_level) {
+      average_level = error
+    }
+    else if (average > warn_level) {
+      average_level = warn
+    }
+    else {
+      average_level = info
+    }
+
+    const ave = colored_text(`${average}`, average_level)
+
+    // --
+    const bucket = Game.cpu.bucket
+    let bucket_level: 'info' | 'warn' | 'error'
+
+    if (bucket < 7000) {
+      bucket_level = error
+    }
+    else if (bucket < 9000) {
+      bucket_level = warn
+    }
+    else {
+      bucket_level = info
+    }
+
+    const b = colored_text(`${bucket}`, bucket_level)
+
+    console.log(`CPU usage: ${usage}, ave: ${ave}, bucket: ${b}`)
   }
 
   Game.reactions = {}
