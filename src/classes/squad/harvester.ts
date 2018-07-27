@@ -78,6 +78,7 @@ export class HarvesterSquad extends Squad {
       const w49s6 = Game.rooms['W49S6']
       if (w49s6 && w49s6.storage) {
         this.destination = w49s6.storage
+        this.destination_storage = this.destination
       }
     }
 
