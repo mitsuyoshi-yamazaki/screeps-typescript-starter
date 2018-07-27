@@ -147,6 +147,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }, `Notigy credit | cpu`)()
   }
+
+  // const buy_orders = buyOrders(RESOURCE_HYDROGEN, 0.15)
+  // console.log(`${RESOURCE_HYDROGEN} buy orders ${buy_orders.map(o=>[o.price, o.amount])}`)
+
+  // const sell_orders = sellOrders(RESOURCE_OXYGEN, 0.075)
+  // console.log(`${RESOURCE_OXYGEN} sell orders ${sell_orders.map(o=>[o.price, o.amount])}`)
+
 }, `Main`)
 
 function trade():void {
@@ -277,6 +284,8 @@ function sellResource(opt: TradeResourceOptions): void {
   const orders = buyOrders(opt.resource_type, opt.price)
   const order = orders[0]
 
+  // console.log(`${opt.resource_type} sellResource ${orders.map(o=>[o.price, o.amount])}`)
+
   if (order) {
     const trader: Room | undefined = sellerRoom(opt.trader_room_names, opt.resource_type, order.amount)
     let message: string
@@ -359,6 +368,8 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
   }).sort(function(lhs, rhs){
     if( lhs.price > rhs.price ) return -1
     if( lhs.price < rhs.price ) return 1
+    if( lhs.amount > rhs.amount ) return -1
+    if( lhs.amount < rhs.amount ) return 1
     return 0
   })
 }
@@ -374,6 +385,8 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
 
   const orders = sellOrders(opt.resource_type, opt.price)
   const order = orders[0]
+
+  // console.log(`${opt.resource_type} sellOrders ${orders.map(o=>[o.price, o.amount])}`)
 
   if (order) {
     const trader: Room | undefined = buyerRoom(opt.trader_room_names, order.amount)
@@ -442,6 +455,8 @@ function sellOrders(resource_type: ResourceConstant, price: number): Order[] {
   }).sort(function(lhs, rhs){
     if( lhs.price < rhs.price ) return -1
     if( lhs.price > rhs.price ) return 1
+    if( lhs.amount > rhs.amount ) return -1
+    if( lhs.amount < rhs.amount ) return 1
     return 0
   })
 }
