@@ -76,7 +76,8 @@ export class Empire {
             SquadType.CHARGER,
           ]
 
-          if ((colony_region.controller.level >= 4) && (colony_region.room.energyCapacityAvailable >= 2000)) {
+          if ((colony_region.controller.level >= 4) && (colony_region.room.energyCapacityAvailable >= 1800)) {
+            excludes_opt.push(SquadType.WORKER)
             excludes_opt.push(SquadType.HARVESTER)
             excludes_opt.push(SquadType.MANUAL)
             excludes_opt.push(SquadType.RESEARCHER)
@@ -116,14 +117,14 @@ export class Empire {
 
     const time = (Game.time % 3)
 
-    set_delegate(w43s5, w46s3)
+    set_delegate(w47s6, w46s3)
 
     if (time == 2) {
-      set_delegate(w48s6, w47s6)
+      // set_delegate(w48s6, w47s6)
       // set_delegate(w51s29, w45s27)
     }
     else if (time == 0) {
-      set_delegate(w48s6, w49s6)
+      // set_delegate(w48s6, w49s6)
     }
     else {
       // set_delegate(w48s6, w47s9)

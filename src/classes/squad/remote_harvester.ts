@@ -719,32 +719,34 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
-        if (creep.carry.energy > 0) {
-          creep.memory.status = CreepStatus.BUILD
-        }
-        return
-      }
-
-      if (creep.carry.energy < creep.carryCapacity) {
-        const dropped_energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
-          filter: (r: Resource) => {
-            return (r.resourceType == RESOURCE_ENERGY) && (r.amount > 0)
+      if (creep.room.name == this.room_name) {
+        if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
+          if (creep.carry.energy > 0) {
+            creep.memory.status = CreepStatus.BUILD
           }
-        })[0]
-
-        if (dropped_energy) {
-          creep.pickup(dropped_energy)
+          return
         }
-        else {
-          const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
-            filter: (t: Tombstone) => {
-              return t.store.energy > 0
+
+        if (creep.carry.energy < creep.carryCapacity) {
+          const dropped_energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+            filter: (r: Resource) => {
+              return (r.resourceType == RESOURCE_ENERGY) && (r.amount > 0)
             }
           })[0]
 
-          if (tombstone) {
-            creep.withdraw(tombstone, RESOURCE_ENERGY)
+          if (dropped_energy) {
+            creep.pickup(dropped_energy)
+          }
+          else {
+            const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
+              filter: (t: Tombstone) => {
+                return t.store.energy > 0
+              }
+            })[0]
+
+            if (tombstone) {
+              creep.withdraw(tombstone, RESOURCE_ENERGY)
+            }
           }
         }
       }
@@ -813,7 +815,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0) {
+        if ((creep.room.name == this.room_name) && (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0)) {
 
           const destination_room_name = squad_memory.room_contains_construction_sites[0]
           if (destination_room_name) {

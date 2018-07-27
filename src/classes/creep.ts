@@ -969,7 +969,11 @@ export function init() {
       return
     }
 
-    if (!this.spawning && (this.pos.x != pos.x) && (this.pos.y != pos.y)) {
+    if (this.spawning) {
+      return
+    }
+
+    if ((this.pos.x != pos.x) || (this.pos.y != pos.y)) {
       const obstacle = this.room.find(FIND_MY_CREEPS, {
         filter: (creep) => {
           return (creep.pos.x == pos.x) && (creep.pos.y == pos.y)
@@ -980,10 +984,14 @@ export function init() {
       if (obstacle) {
         obstacle.moveTo(this)
       }
+      const result = this.moveTo(pos.x, pos.y, {ignoreCreeps: true})
+      if (result != OK) {
+        this.say(`E${result}`)
+      }
+      return
     }
-    const storage = this.room.storage
 
-    this.moveTo(pos.x, pos.y)
+    const storage = this.room.storage
 
     // withdraw
     if ((_.sum(this.carry) == 0) && (this.ticksToLive || 0) > 2) {

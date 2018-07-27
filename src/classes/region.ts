@@ -482,10 +482,12 @@ export class Region {
 
       case 'W49S6':
         this.room_names = [this.room.name]
+        this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
         break
 
       case 'W46S3':
         this.room_names = [this.room.name]
+        this.destination_link_id = '5b5a68650f98906de3d32601'
         break
 
       default:
@@ -719,26 +721,40 @@ export class Region {
             break
           }
           case SquadType.CHARGER: {
-            if (!charger_position) {
-              const message = `Region charger_position for room ${this.room.name}`
-              console.log(message)
-              Game.notify(message)
-              break
-            }
 
-            const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-            const support_links: StructureLink[] = this.support_link_ids.map((id) => {
-              return Game.getObjectById(id) as StructureLink | undefined
-            }).filter((l) => {
-              if (!l) {
-                return false
+            if (this.room.name == 'W49S6') {
+              if (squad_memory.name == 'charger_w49s6_tr') {
+                const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
+                this.squads.set(squad.name, squad)
               }
-              return true
-            }) as StructureLink[]
+              else {
+                const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+                const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
+                this.squads.set(squad.name, squad)
+              }
+            }
+            else {
+              if (!charger_position) {
+                const message = `Region charger_position for room ${this.room.name}`
+                console.log(message)
+                Game.notify(message)
+                break
+              }
 
-            const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
+              const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+              const support_links: StructureLink[] = this.support_link_ids.map((id) => {
+                return Game.getObjectById(id) as StructureLink | undefined
+              }).filter((l) => {
+                if (!l) {
+                  return false
+                }
+                return true
+              }) as StructureLink[]
 
-            this.squads.set(squad.name, squad)
+              const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
+
+              this.squads.set(squad.name, squad)
+            }
             break
           }
           case SquadType.RESEARCHER: {

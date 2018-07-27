@@ -603,6 +603,8 @@ export function tick(): void {
 
       const name = UID(`Flag${time}`)
       r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
+
+      // r.createConstructionSite(pos, STRUCTURE_ROAD)
     })
 
     // --- Squad Memory
