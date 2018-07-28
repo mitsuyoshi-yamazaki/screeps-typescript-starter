@@ -270,7 +270,7 @@ export function tick(): void {
       }
 
       const storage_amount = !room.storage ? "" : `${Math.round((_.sum(room.storage.store) / room.storage.storeCapacity) * 100)}%`
-      const storage_capacity = !room.storage ? "" : ` ${Math.round(room.storage.store.energy / 1000)}kE`
+      const storage_capacity = !room.storage ? "" : ` <b>${Math.round(room.storage.store.energy / 1000)}</b>kE`
 
       let spawn_busy_time = 0
       let spawn_time = 0

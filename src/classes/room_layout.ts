@@ -99,16 +99,15 @@ export class RoomLayout {
 
     // for (let j = 0; j < height; j++) {
     //   for (let i = 0; i < width; i++) {
-    //     const x =
+    //     const x = i - layout_center.x + center.x
+    //     const y = j - layout_center.y + center.y
     //     const terrain = Game.map.getTerrainAt(i, j, room_name)
 
     //     switch (terrain) {
     //       case 'plain':
-    //         cost = plain_cost
     //         break
 
     //       case 'swamp':
-    //         cost = swamp_cost
     //         break
 
     //       case 'wall':

@@ -72,7 +72,7 @@ declare global {
 
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
-    goToRenew(spawn: StructureSpawn): ActionResult
+    goToRenew(spawn: StructureSpawn, opts?:{ticks?: number}): ActionResult
     makeShell(): ActionResult
     find_charge_target(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
@@ -669,8 +669,11 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.goToRenew = function(spawn: StructureSpawn): ActionResult {
-    if ((this.ticksToLive || 0) >= 1400) {
+  Creep.prototype.goToRenew = function(spawn: StructureSpawn, opts?:{ticks?: number}): ActionResult {
+    opts = opts || {}
+    const ticks = opts.ticks || 1400
+
+    if ((this.ticksToLive || 0) >= ticks) {
       this.memory.status = CreepStatus.NONE
       return ActionResult.DONE
     }
@@ -1016,8 +1019,27 @@ export function init() {
 
     const storage = this.room.storage
 
+    //
+    if ((this.memory.squad_name == 'charger_w49s6_tr') && ((this.ticksToLive || 0) > 2)) { // W49S6
+      const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
+      const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+
+      if (lab && (lab.mineralAmount < lab.mineralCapacity)) {
+        if ((_.sum(this.carry) == 0)) {
+          if (lab.room.terminal && ((lab.room.terminal.store[resource_type] || 0) > 0)) {
+            this.withdraw(lab.room.terminal, resource_type)
+            return
+          }
+        }
+        else if ((this.carry[resource_type] || 0) > 0) {
+          this.transfer(lab, resource_type)
+          return
+        }
+      }
+    }
+
     // withdraw
-    if ((_.sum(this.carry) == 0) && (this.ticksToLive || 0) > 2) {
+    if ((_.sum(this.carry) == 0) && ((this.ticksToLive || 0) > 2)) {
       let withdrawn = false
       let should_withdraw = true
 
