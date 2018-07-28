@@ -283,10 +283,12 @@ export class Region {
           lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
         }
-        this.temp_squad_opt = {
-          target_room_name: 'W46S3',
-          forced: true,
-        }
+        // if (Game.gcl.level >= 10) {
+          this.temp_squad_opt = {
+            target_room_name: 'E16N37',
+            forced: true,
+          }
+        // }
         break
 
       case 'W42N1':
@@ -501,6 +503,10 @@ export class Region {
         this.room_names = [this.room.name]
         this.destination_link_id = '5b5a68650f98906de3d32601'
         charger_position = {x: 34, y: 43}
+        break
+
+      case 'E16N37':
+        this.room_names = [this.room.name]
         break
 
       default:

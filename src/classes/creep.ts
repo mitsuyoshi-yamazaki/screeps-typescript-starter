@@ -213,7 +213,7 @@ export function init() {
     else if ((destination_room_name == 'W46S28') && (this.room.name == 'W45S27')) {
       this.memory.destination_room_name = 'W45S28'
     }
-    else if ((destination_room_name == 'E15N37') && (this.room.name == 'W43S5')) {
+    else if ((['E15N37', 'E16N37'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W43S5')) {
       this.memory.destination_room_name = 'W45S5'
     }
 
@@ -225,7 +225,7 @@ export function init() {
       destination_room_name = this.memory.destination_room_name
     }
 
-    if ((destination_room_name == 'E15N37') && (this.room.name == 'W45S5')) {
+    if ((['E15N37', 'E16N37'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W45S5')) {
       const portal = Game.getObjectById('5b5c3c508822c27941cf1e05') as StructurePortal | undefined
 
       if (portal) {
@@ -1995,6 +1995,10 @@ export function init() {
 
     switch (result) {
       case OK:
+        if (action == 'claimController') {
+          return ActionResult.DONE
+        }
+
       case ERR_BUSY:
       case ERR_TIRED:
         return ActionResult.IN_PROGRESS

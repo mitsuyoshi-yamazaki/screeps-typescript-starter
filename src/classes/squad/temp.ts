@@ -216,6 +216,9 @@ export class TempSquad extends Squad {
             const structures_to_destroy: StructureConstant[] = [
               STRUCTURE_EXTENSION,
               STRUCTURE_TOWER,
+              STRUCTURE_SPAWN,
+              STRUCTURE_OBSERVER,
+              STRUCTURE_POWER_SPAWN,
             ]
 
             if (structures_to_destroy.indexOf(structure.structureType) >= 0) {
