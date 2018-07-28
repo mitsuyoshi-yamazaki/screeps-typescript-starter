@@ -786,7 +786,7 @@ export class HarvesterSquad extends Squad {
   private addMineralHarvester(energyAvailable: number, spawnFunc: SpawnFunction): void {
 
 
-    this.addUpgrader(energyAvailable, spawnFunc, CreepType.HARVESTER, this.mineral_harvester_energy_max)
+    this.addUpgrader(energyAvailable, spawnFunc, CreepType.HARVESTER, {max_energy: this.mineral_harvester_energy_max})
     // // capacity: 2300
     // // 8 units, 2C, 16W, 9M
 

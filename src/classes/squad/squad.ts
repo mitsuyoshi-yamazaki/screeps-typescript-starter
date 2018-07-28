@@ -169,31 +169,33 @@ export abstract class Squad {
     return energyAvailable >= energyNeeded
   }
 
-  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, creep_type: CreepType, max_energy?: number): void {
+  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, creep_type: CreepType, opts?: {max_energy?: number, huge?: boolean, memory?: CreepMemory}): void {
     // capacity: 2150
     // 8 units, 2C, 16W, 9M
+    opts = opts || {}
 
-    max_energy = max_energy || 2300
+    const max_energy = opts.max_energy || 2300
     const upgraded = max_energy > 2300
 
     energyAvailable = Math.min(energyAvailable, max_energy)
     energyAvailable = Math.min(energyAvailable, 4000)
 
     const move: BodyPartConstant[] = [MOVE]
-    const work: BodyPartConstant[] = [WORK, WORK]
-    const energy_unit = 250
+    const work: BodyPartConstant[] = opts.huge ? [WORK, WORK, WORK, WORK] : [WORK, WORK]
+    const energy_unit = opts.huge ? 450 : 250
 
     energyAvailable -= upgraded ? 350 : 150
     const header: BodyPartConstant[] = upgraded ? [WORK, CARRY, CARRY, CARRY] : [CARRY, CARRY]
     let body: BodyPartConstant[] = upgraded ? [MOVE, MOVE] : [MOVE]
     const name = this.generateNewName()
-    const memory: CreepMemory = {
+    const memory: CreepMemory = opts.memory || {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: creep_type,
       should_notify_attack: false,
       let_thy_die: true,
+      // ...(opts.memory || {}) // @fixme:
     }
 
     while (energyAvailable >= energy_unit) {

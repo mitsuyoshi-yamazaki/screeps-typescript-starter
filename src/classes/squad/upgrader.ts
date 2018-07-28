@@ -95,7 +95,7 @@ export class UpgraderSquad extends Squad {
     const room = Game.rooms[this.room_name]
 
     if (this.max_energy) {
-      this.addUpgrader(energyAvailable, spawnFunc, CreepType.WORKER, this.max_energy)
+      this.addUpgrader(energyAvailable, spawnFunc, CreepType.WORKER, {max_energy: this.max_energy})
       return
     }
 

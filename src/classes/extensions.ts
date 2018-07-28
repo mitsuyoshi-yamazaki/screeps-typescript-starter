@@ -4,6 +4,7 @@ import { ControllerKeeperSquad } from "./squad/controller_keeper";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
 import { UID } from "./utils";
+import { RoomLayout, RoomLayoutOpts } from "./room_layout";
 
 export interface AttackerInfo  {
   hostile_creeps: Creep[]
@@ -83,6 +84,7 @@ declare global {
     owned_structures_not_found_error(structure_type: StructureConstant): void
     add_remote_harvester(from: StructureStorage, carrier_max: number, dry_run: boolean): string | null
     remote_layout(x: number, y: number): CostMatrix | null
+    layout(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null
     test(from: Structure): void
 
     initialize(): void
@@ -699,6 +701,19 @@ export function tick(): void {
     cost_matrix.show(room, {colors: {1: '#ff0000'}})
 
     return result
+  }
+
+  Room.prototype.layout = function(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null {
+    const room = this as Room
+
+    try {
+      const layout = new RoomLayout(room, center)
+      return layout
+
+    } catch(e) {
+      console.log(e)
+      return null
+    }
   }
 
   Room.prototype.test = function(from: Structure): void {

@@ -291,7 +291,7 @@ export class ManualSquad extends Squad {
         return
 
       case 'W51S29': {
-        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 1150)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, {max_energy: 1150})
         return
       }
 
@@ -372,7 +372,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W43N5': {
-        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, 2800)
+        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, {max_energy: 2800})
         return
       }
 

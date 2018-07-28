@@ -2136,11 +2136,14 @@ export class Region {
       }
 
       let duration = 400
-      if (this.room.name == 'W51S29') {
+      if ((this.controller.level < 7)) {
+        duration = 700
+      }
+      else if (this.room.name == 'W51S29') {
         duration = 770
       }
-      else if ((this.controller.level < 7)) {
-        duration = 700
+      else if (this.room.name == 'W49S6') {
+        duration = 1400
       }
 
       if (!region_memory.last_spawn_time) {

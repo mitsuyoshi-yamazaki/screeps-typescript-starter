@@ -217,12 +217,12 @@ export function init() {
       this.memory.destination_room_name = 'W45S5'
     }
 
-    if (this.memory.destination_room_name) {
-      destination_room_name = this.memory.destination_room_name
-    }
-
     if (this.room.name == this.memory.destination_room_name) {
       this.memory.destination_room_name = undefined
+    }
+
+    if (this.memory.destination_room_name) {
+      destination_room_name = this.memory.destination_room_name
     }
 
     if ((destination_room_name == 'E15N37') && (this.room.name == 'W45S5')) {
@@ -683,6 +683,10 @@ export function init() {
     this.memory.status = CreepStatus.WAITING_FOR_RENEW
     const move_result = this.moveTo(spawn)
     this.transfer(spawn, RESOURCE_ENERGY)
+
+    if (this.room.storage) {
+      this.withdraw(this.room.storage, RESOURCE_ENERGY)
+    }
 
     if (move_result != OK) {
       this.say(`E${move_result}`)

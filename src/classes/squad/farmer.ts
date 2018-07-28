@@ -2,6 +2,10 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
+interface FarmerUpgraderMemory extends CreepMemory {
+  pos: {x: number, y: number}
+}
+
 export interface FarmerSquadMemory extends SquadMemory {
   room_name: string,
 }
@@ -10,6 +14,10 @@ export class FarmerSquad extends Squad {
   private upgraders: Creep[] = []
   private carriers: Creep[] = []
   private builders: Creep[] = []
+  private positions: {x:number, y:number}[] = [
+    {x: 29, y: 4},
+    {x: 29, y: 5},
+  ]
 
   private next_creep: CreepType | undefined
   private container = Game.getObjectById('5b574744914d5a727c4a581e') as StructureContainer | undefined  // W49S6 container
@@ -21,6 +29,10 @@ export class FarmerSquad extends Squad {
       switch (creep.memory.type) {
         case CreepType.UPGRADER:
           this.upgraders.push(creep)
+
+          if (!(creep.memory as FarmerUpgraderMemory).pos) {
+            (creep.memory as FarmerUpgraderMemory).pos = this.find_non_used_position()
+          }
           break
 
         case CreepType.WORKER:
@@ -41,37 +53,35 @@ export class FarmerSquad extends Squad {
   }
 
   private nextCreep(): CreepType | undefined {
-    const room = Game.rooms[this.room_name] as Room | undefined
-    if (room) {
-      if (room.controller && (room.controller.level == 8)) {
+    const destination_room = Game.rooms[this.room_name] as Room | undefined
+    if (destination_room) {
+      if (destination_room.controller && (destination_room.controller.level == 8)) {
         return undefined
-      }
-      else if (!this.base_room.storage) {
-        return undefined
-      }
-      else if (this.base_room.storage.store.energy < 200000) {
-        return undefined
-      }
-
-      const destination_room = Game.rooms[this.room_name] as Room | undefined
-      if (destination_room) {
-        if (destination_room.storage && (_.sum(destination_room.storage.store) > (destination_room.storage.storeCapacity - 100000))) {
-          return undefined
-        }
       }
     }
 
-    const upgrader_max = 1
+    // Upgrader
+    const upgrader_max = this.positions.length
     if (this.upgraders.length < upgrader_max) {
-      if (room && !room.terminal && (this.carriers.length == 0)) {
+      if (destination_room && !destination_room.terminal && (this.carriers.length == 0)) {
         return CreepType.CARRIER
       }
 
-      return CreepType.UPGRADER
+      if (destination_room && destination_room.storage && (destination_room.storage.store.energy > 5000)) {
+        return CreepType.UPGRADER
+      }
+    }
+
+    // Carrier
+    if (!this.base_room.storage) {
+      return undefined
+    }
+    else if (this.base_room.storage.store.energy < 200000) {
+      return undefined
     }
 
     const carrier_max = 5
-    if (room && !room.terminal && (this.carriers.length < carrier_max)) {
+    if (destination_room && !destination_room.terminal && (this.carriers.length < carrier_max)) {
       return CreepType.CARRIER
     }
 
@@ -148,9 +158,20 @@ export class FarmerSquad extends Squad {
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     switch (this.next_creep) {
-      case CreepType.UPGRADER:
-        this.addUpgrader(energy_available, spawn_func, CreepType.UPGRADER, 4300)
+      case CreepType.UPGRADER: {
+        const memory: FarmerUpgraderMemory = {
+          squad_name: this.name,
+          status: CreepStatus.NONE,
+          birth_time: Game.time,
+          type: CreepType.UPGRADER,
+          should_notify_attack: false,
+          let_thy_die: false,
+          pos: this.find_non_used_position()
+        }
+
+        this.addUpgrader(energy_available, spawn_func, CreepType.UPGRADER, {max_energy: 4500, huge: true, memory})
         return
+      }
 
       case CreepType.WORKER:
         return // @todo:
@@ -202,10 +223,30 @@ export class FarmerSquad extends Squad {
   // ---
   private runUpgrader(): void {
     this.upgraders.forEach((creep) => {
-      const pos = new RoomPosition(29, 5, this.room_name)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 400)))
+
+      if (needs_renew) {
+        if ((creep.ticksToLive || 1500) > 1400) {
+          creep.memory.status = CreepStatus.NONE
+        }
+        else if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) > 400)) && !creep.room.spawns[0].spawning) {
+          creep.goToRenew(creep.room.spawns[0])
+          return
+        }
+        else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+          creep.memory.status = CreepStatus.NONE
+        }
+      }
+
+      const memory = creep.memory as FarmerUpgraderMemory
+      const memorized_pos = memory.pos || {x: 29, y: 4}
+      const pos = new RoomPosition(memorized_pos.x, memorized_pos.y, this.room_name)
 
       if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-        creep.moveTo(pos)
+        const result = creep.moveTo(pos)
+        if ((result != OK) && (result != ERR_TIRED)) {
+          creep.say(`E${result}`)
+        }
         return
       }
 
@@ -295,5 +336,30 @@ export class FarmerSquad extends Squad {
         }
       }
     })
+  }
+
+  // --
+  private find_non_used_position(): {x: number, y: number} {
+    for (const pos of this.positions) {
+      let used = false
+
+      for (const creep of this.upgraders) {
+        const memory = creep.memory as FarmerUpgraderMemory
+        if (!memory.pos) {
+          continue
+        }
+        if ((memory.pos.x == pos.x) && (memory.pos.y == pos.y)) {
+          used = true
+          break
+        }
+      }
+
+      if (!used) {
+        return pos
+      }
+    }
+
+    console.log(`FarmerSquad.find_empty_position used all positions ${this.name}, ${this.room_name}`)
+    return this.positions[0]
   }
 }
