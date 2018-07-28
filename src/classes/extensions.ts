@@ -30,6 +30,7 @@ declare global {
     info: () => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
+    creep_positions: (squad_name: string) => void
   }
 
   interface Memory {
@@ -337,6 +338,23 @@ export function tick(): void {
         cost_matrixes.delete(room_name)
       }
     }, `Game.reset_all_costmatrix`)()
+  }
+
+  Game.creep_positions = (squad_name: string) => {
+    console.log(`${squad_name}`)
+
+    ErrorMapper.wrapLoop(() => {
+      for (const creep_name in Game.creeps) {
+        const creep = Game.creeps[creep_name]
+
+        if (creep.memory.squad_name != squad_name) {
+          continue
+        }
+
+        const spawning = creep.spawning ? ' (spawning)' : ''
+        console.log(`Creep ${creep.name} at ${creep.pos} <a href="https://screeps.com/a/#!/room/shard2/${creep.pos.roomName}">${creep.pos.roomName}</a>${spawning}`)
+      }
+    }, `Game.creep_positions`)()
   }
 
   Room.prototype.initialize = function() {

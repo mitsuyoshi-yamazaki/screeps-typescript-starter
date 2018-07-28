@@ -219,7 +219,17 @@ export class RemoteMineralHarvesterSquad extends Squad {
           if (transfer_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(this.harvester)
           }
-          const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0]
+
+          const contains_energy = (carry > 0)
+
+          const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+            filter: (d: Resource) => {
+              if (contains_energy) {
+                return true
+              }
+              return d.resourceType != RESOURCE_ENERGY
+            }
+          })[0]
 
           if (drop) {
             creep.pickup(drop)

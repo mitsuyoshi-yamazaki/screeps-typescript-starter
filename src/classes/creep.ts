@@ -156,10 +156,6 @@ export function init() {
 
   // --- General tasks ---
   Creep.prototype.moveToRoom = function(destination_room_name: string): ActionResult {
-    if (this.memory.destination_room_name) {
-      destination_room_name = this.memory.destination_room_name
-    }
-
     if (this.room.name == destination_room_name) {
       const index = (Game.time % 3)
 
@@ -216,6 +212,26 @@ export function init() {
     }
     else if ((destination_room_name == 'W46S28') && (this.room.name == 'W45S27')) {
       this.memory.destination_room_name = 'W45S28'
+    }
+    else if ((destination_room_name == 'E15N37') && (this.room.name == 'W43S5')) {
+      this.memory.destination_room_name = 'W45S5'
+    }
+
+    if (this.memory.destination_room_name) {
+      destination_room_name = this.memory.destination_room_name
+    }
+
+    if (this.room.name == this.memory.destination_room_name) {
+      this.memory.destination_room_name = undefined
+    }
+
+    if ((destination_room_name == 'E15N37') && (this.room.name == 'W45S5')) {
+      const portal = Game.getObjectById('5b5c3c508822c27941cf1e05') as StructurePortal | undefined
+
+      if (portal) {
+        this.moveTo(portal, opt)
+        return ActionResult.IN_PROGRESS
+      }
     }
 
     if ((destination_room_name == 'W44S42') && (Number(this.room.name.slice(4,6)) > 43)) {
@@ -315,7 +331,7 @@ export function init() {
 
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
-      console.log(`Creep.moveToRoom ${destination_room_name} can't find exit ${exit}`)
+      console.log(`Creep.moveToRoom from ${this.room.name} to ${destination_room_name} can't find exit ${exit}`)
       this.say('NOEXIT')
       return ActionResult.IN_PROGRESS
     }
@@ -603,7 +619,7 @@ export function init() {
       //     costCallback: (room_name: string) => new PathFinder.CostMatrix(), // Reset cached CostMatrix
       //   })
       // }
-      this.say('NOPATH')
+      this.say(`np${destination_room_name}`)
         // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 0) {
         if (this.move(RIGHT) == OK) {
