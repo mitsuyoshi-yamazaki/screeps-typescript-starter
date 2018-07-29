@@ -460,6 +460,9 @@ export class Region {
         break
 
       case 'W45S27':
+        harvester_targets = [
+          { id: '59f1c0cf7d0b3d79de5f0340', room_name: 'W45S27' },  // Utrium
+        ]
         rooms_need_to_be_defended = [
           'W45S28',
           'W46S28',
