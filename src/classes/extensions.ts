@@ -29,6 +29,7 @@ declare global {
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     info: () => void
+    resource_transfer: () => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
@@ -302,8 +303,40 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked <a href="${url}">${link}</a>`
       }
 
-
       console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
+    }
+  }
+
+  Game.resource_transfer = () => {
+    console.log(`Resource transfer:`)
+
+    for (const room_name of Object.keys(Game.rooms)) {
+      const room = Game.rooms[room_name]
+      if (!room || !room.controller || !room.controller.my) {
+        continue
+      }
+
+      const region_memory = Memory.regions[room.name]
+      if (!region_memory || !region_memory.resource_transports) {
+        console.log(` - ${room.name}: none`)
+        continue
+      }
+
+      console.log(` - ${room.name}:`)
+
+      for (const destination_room_name in region_memory.resource_transports) {
+        const resources = region_memory.resource_transports[destination_room_name]
+        console.log(`   ->${destination_room_name}: ${resources}`)
+
+        // if (!resources || (resources.length == 0)) {
+        //   console.log(`     - none`)
+        //   continue
+        // }
+
+        // resources.forEach((resource_type) => {
+        //   console.log(`     - ${resource_type}`)
+        // })
+      }
     }
   }
 

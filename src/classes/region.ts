@@ -35,6 +35,7 @@ export interface RegionMemory {
   observe_index: number
   last_heavy_attacker?: {ticks: number, body: string[]}
   room_need_scout?: string[]
+  destination_container_id?: string
 }
 
 export interface RegionOpt {
@@ -440,15 +441,6 @@ export class Region {
         }
         break
 
-      case 'W47N5':
-        harvester_targets = [
-          { id: '59f1a00882100e1594f35ee0', room_name: 'W47N5' },
-        ]
-        this.room_names = [this.room.name]
-        charger_position = {x: 34, y: 7}
-        // this.destination_link_id = '5b4fc7abd84b2a61f82feadd'
-        break
-
       case 'W47S6':
         harvester_targets = [
           { id: '59f1a00982100e1594f35f04', room_name: 'W47S6' }, // left
@@ -482,6 +474,9 @@ export class Region {
         break
 
       case 'W47S9':
+        harvester_targets = [
+          { id: '59f1c0ce7d0b3d79de5f0297', room_name: 'W47S9' },  // Catalyst
+        ]
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
           'W46S9',
@@ -506,6 +501,10 @@ export class Region {
         break
 
       case 'E16N37':
+        harvester_targets = [
+          { id: '59f1a40f82100e1594f3c718', room_name: 'E16N37' },  // bottom
+          { id: '59f1a40f82100e1594f3c716', room_name: 'E16N37' },  // right
+        ]
         this.room_names = [this.room.name]
         break
 
@@ -542,6 +541,22 @@ export class Region {
         }
         rooms_need_scout.push(room_name)
       })
+    }
+
+    // -- harvester destination
+    if (!harvester_destination && region_memory.destination_container_id) {
+      const destination_container = Game.getObjectById(region_memory.destination_container_id) as StructureContainer | undefined
+
+      if (destination_container && (destination_container.structureType == STRUCTURE_CONTAINER)) {
+        harvester_destination = destination_container
+      }
+      else {
+        const message = `Region.memory destination_container_id ${region_memory.destination_container_id} not found or not container ${destination_container}, ${!destination_container ? 'none' : destination_container.pos}, ${this.name}`
+        console.log(message)
+        Game.notify(message)
+
+        region_memory.destination_container_id = undefined
+      }
     }
 
     // -- reaction
@@ -731,9 +746,12 @@ export class Region {
             break
           }
           case SquadType.WORKER: {
-            const delegated = false //this.room.name == 'W44S42'
+            const opts: {source?: StructureContainer | undefined} = {}
+            if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
+              opts.source = harvester_destination
+            }
 
-            const squad = new WorkerSquad(squad_memory.name, this.room.name, delegated)
+            const squad = new WorkerSquad(squad_memory.name, this.room.name, opts)
             worker_squad = squad
             this.squads.set(squad.name, squad)
             break
@@ -973,7 +991,12 @@ export class Region {
     // --- Worker ---
     if (!worker_squad) {
       const name = `worker_${this.room.name.toLowerCase()}` //WorkerSquad.generateNewName()
-      const squad = new WorkerSquad(name, this.room.name)
+      const opts: {source?: StructureContainer | undefined} = {}
+      if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
+        opts.source = harvester_destination
+      }
+
+      const squad = new WorkerSquad(name, this.room.name, opts)
 
       worker_squad = squad
       this.squads.set(squad.name, squad)
@@ -2145,7 +2168,8 @@ export class Region {
       if ((this.controller.level < 7)) {
         duration = 700
       }
-      else if (this.room.name == 'W51S29') {
+
+      if (this.room.name == 'W51S29') {
         duration = 770
       }
       else if (this.room.name == 'W49S6') {

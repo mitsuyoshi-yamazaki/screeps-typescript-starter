@@ -58,6 +58,8 @@ export interface CreepTransferLinkToStorageOption {
   has_support_links?: boolean
 }
 
+export type WorkerSource = StructureContainer | StructureStorage | StructureTerminal
+
 declare global {
   interface Creep {
     squad: Squad
@@ -83,7 +85,7 @@ declare global {
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
-    work(room: Room, source: StructureContainer | StructureStorage | StructureTerminal | undefined): void
+    work(room: Room, sources: WorkerSource[]): void
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source_filter: StructureFilter | undefined): ActionResult
@@ -1266,7 +1268,7 @@ export function init() {
   }
 
   // --- Work ---
-  Creep.prototype.work = function(room: Room, source: StructureContainer | StructureStorage | StructureTerminal | undefined): void {
+  Creep.prototype.work = function(room: Room, sources: WorkerSource[]): void {
     if (!room) {
       console.log(`Creep.work room not specified ${this.name}`)
     }
@@ -1392,27 +1394,36 @@ export function init() {
           // }
         }
 
-        if (source && (source.room.name == this.room.name) && (source.store.energy > 0)) {
-          if (this.withdraw(source!, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.moveTo(source!, move_to_opt)
+        if ((sources.length > 0)) {
+          const source = this.pos.findClosestByPath(sources, {
+            filter: (s: WorkerSource) => {
+              if (s.store.energy == 0) {
+                return false
+              }
+              return true
+            }
+          })
+          if (source) {
+            if (this.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(source, move_to_opt)
+              return
+            }
+          }
+        }
+
+        const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
+
+        if (target) {
+          if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+            this.moveTo(target, move_to_opt)
             return
           }
         }
         else {
-          const target = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE)
-
-          if (target) {
-            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-              this.moveTo(target, move_to_opt)
-              return
-            }
-          }
-          else {
-            const target = this.pos.findClosestByPath(FIND_SOURCES)
-            if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-              this.moveTo(target, move_to_opt)
-              return
-            }
+          const target = this.pos.findClosestByPath(FIND_SOURCES)
+          if (this.harvest(target) == ERR_NOT_IN_RANGE) {
+            this.moveTo(target, move_to_opt)
+            return
           }
         }
       }

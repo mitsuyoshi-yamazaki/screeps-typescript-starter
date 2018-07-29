@@ -177,6 +177,10 @@ export class ManualSquad extends Squad {
         return SpawnPriority.NONE
       }
 
+      case 'E16N37': {
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+      }
+
       default:
         return SpawnPriority.NONE
     }
@@ -244,6 +248,10 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47N5': {
+        return energy_available >= 2000
+      }
+
+      case 'E16N37': {
         return energy_available >= 2000
       }
 
@@ -405,6 +413,21 @@ export class ManualSquad extends Squad {
                 ]
                 this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
                 return
+      }
+
+      case 'E16N37': {
+        const body: BodyPartConstant[] = [
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+        return
       }
 
       default:
@@ -725,6 +748,12 @@ export class ManualSquad extends Squad {
           }
         })
 
+        return
+      }
+
+      case 'E16N37': {
+        const target_room_name = 'E15N37'
+        this.stealEnergyFrom(this.original_room_name, target_room_name, 14, 29, false)
         return
       }
 

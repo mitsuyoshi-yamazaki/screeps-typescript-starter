@@ -1,6 +1,6 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
-import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { CreepStatus, ActionResult, CreepType, WorkerSource } from "classes/creep"
 import { isNewLine } from "../../../node_modules/@types/acorn/index";
 
 interface WorkerSquadMemory extends SquadMemory {
@@ -14,9 +14,15 @@ interface WorkerSquadMemory extends SquadMemory {
  */
 export class WorkerSquad extends Squad {
   private number_of_workers: number
+  private source_container: StructureContainer | undefined
 
-  constructor(readonly name: string, readonly room_name: string, readonly delegated?: boolean) {
+  constructor(readonly name: string, readonly room_name: string, readonly opt?: {source?: StructureContainer | undefined}) {
     super(name)
+
+    opt = opt || {}
+    if (opt.source) {
+      this.source_container = opt.source
+    }
 
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
     if (!squad_memory) {
@@ -155,7 +161,17 @@ export class WorkerSquad extends Squad {
     const terminal = (room.terminal && (room.terminal.store.energy > 0)) ? room.terminal : undefined
 
     // If enemy storage | terminal is covered with a rampart, withdraw() throws error and workers stop moving
-    const source_global: StructureStorage | StructureTerminal | StructureContainer | undefined = storage || terminal
+    const sources: WorkerSource[] = []
+    if (storage) {
+      sources.push(storage)
+    }
+    else if (terminal) {
+      sources.push(terminal)
+    }
+
+    if (this.source_container) {
+      sources.push(this.source_container)
+    }
 
     let room_to_escape: string | undefined
 
@@ -250,8 +266,6 @@ export class WorkerSquad extends Squad {
         creep.memory.let_thy_die = true
       }
 
-      let source_local: StructureStorage | StructureTerminal | StructureContainer | undefined = source_global
-
       if (creep.room.name != this.room_name) {
         if ((creep.carry.energy > 0) && (creep.memory.type == CreepType.WORKER)) {
           creep.drop(RESOURCE_ENERGY)
@@ -282,7 +296,7 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      creep.work(room, source_local)
+      creep.work(room, sources)
     }
   }
 

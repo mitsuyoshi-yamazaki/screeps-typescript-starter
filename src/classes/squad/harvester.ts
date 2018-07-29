@@ -183,6 +183,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01bc') { // W49S6 Oxygen
       this.resource_type = RESOURCE_OXYGEN
     }
+    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0297') { // W47S9 Catalyst
+      this.resource_type = RESOURCE_CATALYST
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
@@ -676,8 +679,8 @@ export class HarvesterSquad extends Squad {
   }
 
   public run(): void {
-    this.harvest()
-    this.carry()
+    this.runHarvesters()
+    this.runCarriers()
   }
 
   public description(): string {
@@ -821,8 +824,10 @@ export class HarvesterSquad extends Squad {
     // })
   }
 
-  private harvest(): void {
+  private runHarvesters(): void {
     this.harvesters.forEach((creep) => {
+
+
       runHarvester(creep, this.source_info.room_name, this.source, this.store, this.container, {
         resource_type: this.resource_type
       })
@@ -830,7 +835,7 @@ export class HarvesterSquad extends Squad {
   }
 
 
-  private carry(): void {
+  private runCarriers(): void {
     this.carriers.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -916,6 +921,9 @@ export class HarvesterSquad extends Squad {
             // When the carrier withdrow from link, it should be located next to storage
             creep.memory.status = CreepStatus.CHARGE
             return // It needed to make this line work
+          }
+          else {
+            creep.say(`E${withdraw_result}`)
           }
         }
         else {
