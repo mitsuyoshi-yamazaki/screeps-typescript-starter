@@ -310,6 +310,8 @@ export function tick(): void {
   Game.resource_transfer = () => {
     console.log(`Resource transfer:`)
 
+    const no_transfer_rooms: string[] = []
+
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
@@ -318,7 +320,8 @@ export function tick(): void {
 
       const region_memory = Memory.regions[room.name]
       if (!region_memory || !region_memory.resource_transports) {
-        console.log(` - ${room.name}: none`)
+        // console.log(` - ${room.name}: none`)
+        no_transfer_rooms.push(room_name)
         continue
       }
 
@@ -326,18 +329,14 @@ export function tick(): void {
 
       for (const destination_room_name in region_memory.resource_transports) {
         const resources = region_memory.resource_transports[destination_room_name]
+        if (!resources || (resources.length == 0)) {
+          continue
+        }
         console.log(`   ->${destination_room_name}: ${resources}`)
-
-        // if (!resources || (resources.length == 0)) {
-        //   console.log(`     - none`)
-        //   continue
-        // }
-
-        // resources.forEach((resource_type) => {
-        //   console.log(`     - ${resource_type}`)
-        // })
       }
     }
+
+    console.log(` - None: ${no_transfer_rooms}`)
   }
 
   Game.reset_costmatrix = (room_name: string) => {
