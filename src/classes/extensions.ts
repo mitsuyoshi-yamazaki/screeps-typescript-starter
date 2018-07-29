@@ -28,7 +28,7 @@ declare global {
     check_all_resources: () => void
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
-    info: () => void
+    info: (opts:{sorted?: boolean}) => void
     resource_transfer: () => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
@@ -237,7 +237,9 @@ export function tick(): void {
     console.log(`Collect resource ${resource_type} ${room_name}: ${target_room.terminal.store[resource_type] || 0} + ${sum}${details}`)
   }
 
-  Game.info = () => {
+  Game.info = (opts:{sorted?: boolean}) => {
+    opts = opts || {}
+
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
@@ -254,14 +256,30 @@ export function tick(): void {
 
     console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${Math.round(Game.gcl.progress / 1000000)}</b>M/<b>${Math.round(Game.gcl.progressTotal / 1000000)}</b>M, <b>${Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 100)}</b>%`)
 
+    let rooms: Room[] = []
+
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
         continue
       }
+      rooms.push(room)
+    }
 
-      const rcl = room.controller.level
-      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((room.controller.progress / room.controller.progressTotal) * 100)}</b> %`
+    if (opts.sorted) {
+      rooms = rooms.sort((lhs, rhs) => {
+        if (lhs.controller!.level > rhs.controller!.level) return 1
+        if (lhs.controller!.level < rhs.controller!.level) return -1
+        return 0
+      })
+    }
+
+    rooms.forEach((room) => {
+
+      const room_name = room.name
+      const controller = room.controller!
+      const rcl = controller.level
+      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((controller.progress / controller.progressTotal) * 100)}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:${colors[warn]}'>none</span>`) : `<span style='color:${colors[warn]}'>none</span>`
@@ -303,8 +321,8 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked <a href="${url}">${link}</a>`
       }
 
-      console.log(`${room_name}\tRCL:<b>${room.controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
-    }
+      console.log(`${room_name}\tRCL:<b>${controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
+    })
   }
 
   Game.resource_transfer = () => {

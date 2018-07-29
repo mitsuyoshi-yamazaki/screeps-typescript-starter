@@ -62,7 +62,7 @@ export class WorkerSquad extends Squad {
 
   public get spawnPriority(): SpawnPriority {
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
-    if (!squad_memory) {
+    if (!squad_memory || squad_memory.stop_spawming) {
       return SpawnPriority.NONE
     }
 

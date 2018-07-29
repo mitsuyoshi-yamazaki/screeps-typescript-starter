@@ -178,7 +178,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'E16N37': {
-        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       default:

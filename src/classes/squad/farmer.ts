@@ -228,17 +228,21 @@ export class FarmerSquad extends Squad {
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {
-          // const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined  // W49S6
-          // if (!creep.boosted && lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 30)) {
-          //   const result = lab.boostCreep(creep, 1)
-          //   if (result != OK) {
-          //     console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
-          //   }
-          // }
+          console.log(`FarmerSquad.runUpgrader boostCreep ${this.base_room.name}, ${creep.name}, ${this.name}`)
+          const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined  // W49S6
+          if (!creep.boosted() && lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 30)) {
+            const result = lab.boostCreep(creep)
+            if (result != OK) {
+              console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
+            }
+          }
+          else {
+            console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${lab}`)
+          }
           creep.memory.status = CreepStatus.NONE
         }
         else if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) > 400)) && !creep.room.spawns[0].spawning) {
-          creep.goToRenew(creep.room.spawns[0], {ticks: 1490})
+          creep.goToRenew(creep.room.spawns[0], {ticks: 1490, no_auto_finish: true})
           return
         }
         else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
