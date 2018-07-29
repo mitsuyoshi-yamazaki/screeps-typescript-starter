@@ -1401,7 +1401,7 @@ export function init() {
         }
 
         if ((sources.length > 0)) {
-          const source = (sources.length == 1) ? sources[0] : this.pos.findClosestByPath(sources, {
+          const source = ((sources.length == 1) && (sources[0].store.energy > 0)) ? sources[0] : this.pos.findClosestByPath(sources, {
             filter: (s: WorkerSource) => {
               if (s.store.energy == 0) {
                 return false

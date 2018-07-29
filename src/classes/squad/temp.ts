@@ -164,7 +164,7 @@ export class TempSquad extends Squad {
       if (creep.room.spawns) {
         const spawn = creep.room.spawns[0]
 
-        if (spawn && (creep.pos.getRangeTo(spawn) > 1)) {
+        if (spawn && (creep.pos.getRangeTo(spawn) > 3)) {
           creep.moveTo(spawn)
         }
       }
