@@ -254,7 +254,7 @@ export function tick(): void {
       return `<span style='color:${colors[level]}'>${text}</span>`
     }
 
-    console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${Math.round(Game.gcl.progress / 1000000)}</b>M/<b>${Math.round(Game.gcl.progressTotal / 1000000)}</b>M, <b>${Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 100)}</b>%`)
+    console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${Math.round(Game.gcl.progress / 1000000)}</b>M/<b>${Math.round(Game.gcl.progressTotal / 1000000)}</b>M, <b>${Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 1000) / 10}</b>%`)
 
     let rooms: Room[] = []
 
@@ -279,7 +279,7 @@ export function tick(): void {
       const room_name = room.name
       const controller = room.controller!
       const rcl = controller.level
-      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((controller.progress / controller.progressTotal) * 100)}</b> %`
+      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((controller.progress / controller.progressTotal) * 1000) / 10}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:${colors[warn]}'>none</span>`) : `<span style='color:${colors[warn]}'>none</span>`

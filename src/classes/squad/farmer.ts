@@ -230,7 +230,7 @@ export class FarmerSquad extends Squad {
         if ((creep.ticksToLive || 1500) > 1490) {
           console.log(`FarmerSquad.runUpgrader boostCreep ${this.base_room.name}, ${creep.name}, ${this.name}`)
           const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined  // W49S6
-          if (!creep.boosted() && lab && (lab.mineralType == RESOURCE_CATALYZED_GHODIUM_ACID) && (lab.mineralAmount >= 30)) {
+          if (!creep.boosted() && lab && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 30)) {
             const result = lab.boostCreep(creep)
             if (result != OK) {
               console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)

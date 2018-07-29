@@ -1025,7 +1025,7 @@ export function init() {
     //
     if ((this.memory.squad_name == 'charger_w49s6_tr') && ((this.ticksToLive || 0) > 2)) { // W49S6
       const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
-      const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+      const resource_type = RESOURCE_GHODIUM_ACID
 
       if (lab && (lab.mineralAmount < lab.mineralCapacity)) {
         if ((carry == 0)) {
@@ -1401,7 +1401,7 @@ export function init() {
         }
 
         if ((sources.length > 0)) {
-          const source = this.pos.findClosestByPath(sources, {
+          const source = (sources.length == 1) ? sources[0] : this.pos.findClosestByPath(sources, {
             filter: (s: WorkerSource) => {
               if (s.store.energy == 0) {
                 return false

@@ -170,6 +170,9 @@ function trade():void {
     if (!room || !room.controller || !room.controller.my || !room.terminal) {
       continue
     }
+    if (room.name == 'W51S29') {
+      continue
+    }
     rooms.push(room)
   }
 

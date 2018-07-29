@@ -588,7 +588,7 @@ export class Region {
             }
           }
 
-          if (finished) {
+          if (finished && (region_memory.reaction_outputs.length > 0)) {
             Memory.regions[this.name].reaction_outputs!.shift()
           }
           else {

@@ -651,8 +651,9 @@ export class HarvesterSquad extends Squad {
         return energyAvailable >= energyNeeded
       }
 
-      const energy_unit = 550
-      const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), energy_unit * 2) // (energy_unit * 2) is the maximum
+      // harvester
+      const energy_unit = 300
+      const energy_needed = Math.min((Math.floor(capacity / energy_unit) * energy_unit), 850)
       return energyAvailable >= energy_needed
     }
     else {
@@ -715,10 +716,13 @@ export class HarvesterSquad extends Squad {
       ]
     }
     else {
-      if (energyAvailable >= (energy_unit * 3)) {  // (energy_unit * 3) is the maximum
+      if (energyAvailable >= (energy_unit * 2)) {  // (energy_unit * 2) is the maximum
         body = body.concat(body_unit)
+        // console.log(`FUGA ${energyAvailable} ${this.owner_room_name}`)
       }
+      // console.log(`HOGE ${energyAvailable} ${this.owner_room_name}`)
     }
+    // console.log(`PAKE ${energyAvailable} ${this.owner_room_name}`)
 
     const result = spawnFunc(body, name, {
       memory: memory
