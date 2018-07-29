@@ -76,9 +76,11 @@ export class Empire {
             SquadType.CHARGER,
           ]
 
+          if ((colony_region.controller.level >= 3) && (colony_region.room.energyCapacityAvailable >= 600)) {
+            excludes_opt.push(SquadType.HARVESTER)
+          }
           if ((colony_region.controller.level >= 4) && (colony_region.room.energyCapacityAvailable >= 1800)) {
             excludes_opt.push(SquadType.WORKER)
-            excludes_opt.push(SquadType.HARVESTER)
             excludes_opt.push(SquadType.MANUAL)
             excludes_opt.push(SquadType.RESEARCHER)
             excludes_opt.push(SquadType.UPGRADER)

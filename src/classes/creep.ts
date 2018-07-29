@@ -1292,6 +1292,7 @@ export function init() {
       }
     }
 
+    const carry = _.sum(this.carry)
     let debug_say = false
 
     // if (this.room.name == 'W49S6') {
@@ -1379,7 +1380,12 @@ export function init() {
 
             if (container) {
               if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.moveTo(container, move_to_opt)
+                if (carry > (this.carryCapacity * 0.7)) {
+                  this.memory.status = CreepStatus.CHARGE
+                }
+                else {
+                  this.moveTo(container, move_to_opt)
+                }
               }
             }
           }
@@ -1405,7 +1411,12 @@ export function init() {
           })
           if (source) {
             if (this.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              this.moveTo(source, move_to_opt)
+              if (carry > (this.carryCapacity * 0.7)) {
+                this.memory.status = CreepStatus.CHARGE
+              }
+              else {
+                this.moveTo(source, move_to_opt)
+              }
               return
             }
           }
@@ -1415,14 +1426,24 @@ export function init() {
 
         if (target) {
           if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-            this.moveTo(target, move_to_opt)
+            if (carry > (this.carryCapacity * 0.7)) {
+              this.memory.status = CreepStatus.CHARGE
+            }
+            else {
+              this.moveTo(target, move_to_opt)
+            }
             return
           }
         }
         else {
           const target = this.pos.findClosestByPath(FIND_SOURCES)
           if (this.harvest(target) == ERR_NOT_IN_RANGE) {
-            this.moveTo(target, move_to_opt)
+            if (carry > (this.carryCapacity * 0.7)) {
+              this.memory.status = CreepStatus.CHARGE
+            }
+            else {
+              this.moveTo(target, move_to_opt)
+            }
             return
           }
         }

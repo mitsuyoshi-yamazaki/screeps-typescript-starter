@@ -692,8 +692,8 @@ export class HarvesterSquad extends Squad {
     const room = Game.rooms[this.source_info.room_name]
     const minimum_body = !(!room) && !(!room.controller) && !(!room.controller.my) && (room.controller.level > 3)
 
-    const body_unit: BodyPartConstant[] = [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE, MOVE]
-    const energy_unit = 550
+    const body_unit: BodyPartConstant[] = [WORK, WORK, CARRY, MOVE]
+    const energy_unit = 300
 
     const name = this.generateNewName()
     let body: BodyPartConstant[] = body_unit
@@ -715,7 +715,7 @@ export class HarvesterSquad extends Squad {
       ]
     }
     else {
-      if (energyAvailable >= (energy_unit * 2)) {  // (energy_unit * 2) is the maximum
+      if (energyAvailable >= (energy_unit * 3)) {  // (energy_unit * 3) is the maximum
         body = body.concat(body_unit)
       }
     }
