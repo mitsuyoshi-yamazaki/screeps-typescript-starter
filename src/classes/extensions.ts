@@ -97,7 +97,7 @@ declare global {
 
   interface CostMatrix {
     add_terrain(room: Room): void
-    add_normal_structures(room: Room): void
+    add_normal_structures(room: Room, opts?: {ignore_public_ramparts?: boolean}): void
     show(room: Room, opt?: {colors?: {[index: number]: string}}): void
   }
 }
@@ -672,9 +672,9 @@ export function tick(): void {
       }
 
       const name = UID(`Flag${time}`)
-      r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
+      // r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
 
-      // r.createConstructionSite(pos, STRUCTURE_ROAD)
+      r.createConstructionSite(pos, STRUCTURE_ROAD)
     })
 
     // --- Squad Memory
@@ -716,7 +716,7 @@ export function tick(): void {
 
     const cost_matrix = new PathFinder.CostMatrix()
     cost_matrix.add_terrain(room)
-    cost_matrix.add_normal_structures(room)
+    cost_matrix.add_normal_structures(room, {ignore_public_ramparts: true})
 
     const costCallback = (room_name: string): boolean | CostMatrix => {
       if ((room.name == room_name)) {
@@ -886,11 +886,13 @@ export function tick(): void {
     }
   }
 
-  PathFinder.CostMatrix.prototype.add_normal_structures = function(room: Room): void {
+  PathFinder.CostMatrix.prototype.add_normal_structures = function(room: Room, opts?: {ignore_public_ramparts?: boolean}): void {
     if (!room) {
       console.log(`CostMatrix.add_normal_structures room cannot be nil`)
       return
     }
+
+    const options = opts || {}
 
     const cost_matrix = this as CostMatrix
     const unwalkable_cost = 255
@@ -906,7 +908,13 @@ export function tick(): void {
           return false
         }
         if (structure.structureType == STRUCTURE_RAMPART) {
-          return !structure.my
+          if (structure.my) {
+            return false
+          }
+          if (structure.isPublic && options.ignore_public_ramparts) {
+            return false
+          }
+          return true
         }
         return true
       }

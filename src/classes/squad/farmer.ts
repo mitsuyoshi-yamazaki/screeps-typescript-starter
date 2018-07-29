@@ -224,7 +224,11 @@ export class FarmerSquad extends Squad {
   // ---
   private runUpgrader(): void {
     this.upgraders.forEach((creep) => {
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 0) < 30)))
+      if (creep.spawning) {
+        return
+      }
+
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 30)))
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {

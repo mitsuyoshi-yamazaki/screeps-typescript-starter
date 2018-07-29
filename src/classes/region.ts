@@ -506,6 +506,9 @@ export class Region {
           { id: '59f1a40f82100e1594f3c716', room_name: 'E16N37' },  // right
         ]
         this.room_names = [this.room.name]
+        rooms_need_to_be_defended = [
+          'E15S37',
+        ]
         break
 
       default:
