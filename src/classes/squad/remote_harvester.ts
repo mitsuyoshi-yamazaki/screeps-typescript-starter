@@ -645,7 +645,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if (((Game.time % 19) == 3) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
+    if (((Game.time % 19) == 3) && (this.scout.room.name != this.base_room.name) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
       let has_construction_site = this.scout.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: construction_site_filter
       }).length > 0
