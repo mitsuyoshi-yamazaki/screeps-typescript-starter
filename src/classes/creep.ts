@@ -51,7 +51,7 @@ export interface CreepTransferOption {
 
 export interface CreepChargeTargetOption {
   should_fully_charged?: boolean
-  additions_container_ids?: string[]
+  additional_container_ids?: string[]
 }
 
 export interface CreepTransferLinkToStorageOption {
@@ -752,11 +752,24 @@ export function init() {
 
   Creep.prototype.find_charge_target = function(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
     const options = opt || {}
-    const additions_container_ids = options.additions_container_ids || []
+    const additional_container_ids = options.additional_container_ids || []
     const is_attacked = this.room.attacked
 
-    return this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+    return this.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: structure => {
+        if (structure.structureType == STRUCTURE_CONTAINER) {
+          if (additional_container_ids.indexOf(structure.id) >= 0) {
+            if (structure.store.energy < 1200) {
+              return true
+            }
+            return false
+          }
+          return false
+        }
+        if (!(structure as OwnedStructure).my) {
+          return false
+        }
+
         if (structure.structureType == STRUCTURE_EXTENSION) {
           return (structure.energy < structure.energyCapacity)
         }
@@ -769,13 +782,6 @@ export function init() {
           const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
           return structure.energy <= capacity
         }
-        // else if (structure.structureType == STRUCTURE_CONTAINER) { // @todo
-        //   if (additions_container_ids.indexOf(structure.id) >= 0) {
-        //     if () {
-
-        //     }
-        //   }
-        // }
         else if (!is_attacked) {
           if (structure.structureType == STRUCTURE_POWER_SPAWN) {
             return (structure.energy < structure.energyCapacity)

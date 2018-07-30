@@ -1485,7 +1485,7 @@ export class ManualSquad extends Squad {
   private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {should_die?: boolean, ticks_to_return?:number, worker_squad_name?: string}): ActionResult {
     const options = opts || {}
     let result: ActionResult = ActionResult.DONE
-    const steal_energy = !this.base_room.storage
+    const steal_energy = true//!this.base_room.storage
 
     this.creeps.forEach((creep) => {
       if (creep.spawning) {
@@ -1586,18 +1586,24 @@ export class ManualSquad extends Squad {
           return
         }
 
-        const charge_target = creep.find_charge_target()
-        if (charge_target) {
-          if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(charge_target)
+        if (creep.carry.energy > 0) {
+          const charge_target = creep.find_charge_target()
+          if (charge_target) {
+            if (creep.transfer(charge_target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              creep.moveTo(charge_target)
+            }
+            result = ActionResult.IN_PROGRESS
+            return
           }
-          result = ActionResult.IN_PROGRESS
-          return
         }
 
         if (creep.room.controller && creep.room.controller.my && creep.room.storage) {
-          if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
+          const transfer_result = creep.transferResources(creep.room.storage)
+          if (transfer_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(creep.room.storage)
+          }
+          else if (transfer_result != OK) {
+            creep.say(`E${transfer_result}`)
           }
           result = ActionResult.IN_PROGRESS
           return

@@ -246,6 +246,12 @@ export class FarmerSquad extends Squad {
           creep.memory.status = CreepStatus.NONE
         }
         else if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) > 400)) && !creep.room.spawns[0].spawning) {
+          const x = 31
+          const y = 5
+          if ((creep.pos.x != x) || (creep.pos.y != y)) {
+            creep.moveTo(x, y)
+            return
+          }
           creep.goToRenew(creep.room.spawns[0], {ticks: 1490, no_auto_finish: true})
           return
         }

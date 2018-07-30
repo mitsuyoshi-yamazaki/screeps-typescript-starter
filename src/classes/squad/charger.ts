@@ -22,7 +22,7 @@ export class ChargerSquad extends Squad {
       this.number_of_carries = 3
     }
     else {
-      this.number_of_carries = 3
+      this.number_of_carries = 2
     }
   }
 
