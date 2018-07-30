@@ -498,6 +498,9 @@ export class Region {
         break
 
       case 'W46S3':
+        harvester_targets = [
+          { id: '59f1c0cf7d0b3d79de5f02eb', room_name: 'W46S3' }, // Oxygen
+        ]
         this.room_names = [this.room.name]
         this.destination_link_id = '5b5a68650f98906de3d32601'
         charger_position = {x: 34, y: 43}
