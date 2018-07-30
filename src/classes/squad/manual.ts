@@ -26,7 +26,7 @@ export class ManualSquad extends Squad {
   private attackers: Creep[] = []
   private workers: Creep[] = []
 
-  constructor(readonly name: string, readonly original_room_name: string) {
+  constructor(readonly name: string, readonly original_room_name: string, readonly base_room: Room) {
     super(name)
 
     this.any_creep = Array.from(this.creeps.values())[0]
@@ -178,7 +178,16 @@ export class ManualSquad extends Squad {
       }
 
       case 'E16N37': {
-        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        const target_room_name = 'E15N37'
+        const room = Game.rooms[target_room_name]
+        if (!room) {
+          return SpawnPriority.NONE
+        }
+        if ((!room.storage || (_.sum(room.storage.store) == 0)) && (!room.terminal || (_.sum(room.terminal.store) == 0))) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       default:
@@ -252,7 +261,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'E16N37': {
-        return energy_available >= 2000
+        return energy_available >= 1500
       }
 
       default:
@@ -418,8 +427,8 @@ export class ManualSquad extends Squad {
       case 'E16N37': {
         const body: BodyPartConstant[] = [
           MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
+          // MOVE, MOVE, MOVE, MOVE, MOVE,
+          // MOVE, MOVE, MOVE, MOVE, MOVE,
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
@@ -568,7 +577,7 @@ export class ManualSquad extends Squad {
         const base_room_name = this.original_room_name
         const target_room_name = 'W49S18'
 
-        this.stealEnergyFrom(base_room_name, target_room_name, 20, 33, true)
+        this.stealEnergyFrom(target_room_name, 20, 33, {should_die: true})
 
         this.renewIfNeeded()
         return
@@ -753,7 +762,7 @@ export class ManualSquad extends Squad {
 
       case 'E16N37': {
         const target_room_name = 'E15N37'
-        this.stealEnergyFrom(this.original_room_name, target_room_name, 14, 29, false)
+        this.stealEnergyFrom(target_room_name, 14, 29, {ticks_to_return: 120, worker_squad_name: 'worker_e16n37'})
         return
       }
 
@@ -1473,21 +1482,28 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private stealEnergyFrom(base_room_name: string, target_room_name: string, x: number, y: number, should_die: boolean): ActionResult {
+  private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {should_die?: boolean, ticks_to_return?:number, worker_squad_name?: string}): ActionResult {
+    const options = opts || {}
     let result: ActionResult = ActionResult.DONE
+    const steal_energy = !this.base_room.storage
 
     this.creeps.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
       if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
         result = ActionResult.IN_PROGRESS
         return
       }
+
+      const carry = _.sum(creep.carry)
 
       if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
         creep.memory.status = CreepStatus.HARVEST
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (creep.carry.energy > 0) {
+        if (carry > 0) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
@@ -1503,10 +1519,16 @@ export class ManualSquad extends Squad {
 
           let target: StructureStorage | StructureTerminal | StructureContainer | undefined
 
-          if (target_room.storage && (target_room.storage.store.energy > 0)) {
+          if (target_room.storage && steal_energy && (target_room.storage.store.energy > 0)) {
             target = target_room.storage
           }
-          else if (target_room.terminal && (target_room.terminal.store.energy > 0)) {
+          else if (target_room.storage && !steal_energy && (_.sum(target_room.storage.store) > 0)) {
+            target = target_room.storage
+          }
+          else if (target_room.terminal && steal_energy && (target_room.terminal.store.energy > 0)) {
+            target = target_room.terminal
+          }
+          else if (target_room.terminal && !steal_energy && (_.sum(target_room.terminal.store) > 0)) {
             target = target_room.terminal
           }
           else {
@@ -1519,13 +1541,21 @@ export class ManualSquad extends Squad {
 
           if (!target) {
             creep.say(`NO TGT`)
-            if (should_die) {
+            if (options.should_die) {
               creep.memory.let_thy_die = true
             }
             return
           }
 
-          const withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
+          let withdraw_result: ScreepsReturnCode
+
+          if (steal_energy) {
+            withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
+          }
+          else {
+            withdraw_result = creep.withdrawResources(target)
+          }
+
           if (withdraw_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(target)
             return
@@ -1540,13 +1570,18 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if (creep.carry.energy == 0) {
+        if (carry == 0) {
           creep.memory.status = CreepStatus.HARVEST
           result = ActionResult.IN_PROGRESS
+
+          if (options.ticks_to_return && options.worker_squad_name && ((creep.ticksToLive || 1500) < options.ticks_to_return)) {
+            creep.memory.squad_name = options.worker_squad_name
+            return
+          }
           return
         }
 
-        if (creep.moveToRoom(base_room_name) == ActionResult.IN_PROGRESS) {
+        if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
           result = ActionResult.IN_PROGRESS
           return
         }
@@ -1561,7 +1596,7 @@ export class ManualSquad extends Squad {
         }
 
         if (creep.room.controller && creep.room.controller.my && creep.room.storage) {
-          if (creep.transfer(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          if (creep.transferResources(creep.room.storage) == ERR_NOT_IN_RANGE) {
             creep.moveTo(creep.room.storage)
           }
           result = ActionResult.IN_PROGRESS

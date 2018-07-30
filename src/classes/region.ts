@@ -862,7 +862,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            const squad = new ManualSquad(squad_memory.name, this.room.name)
+            const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
 
             this.manual_squad = squad
             this.squads.set(squad.name, squad)
@@ -1244,7 +1244,7 @@ export class Region {
     if (!this.manual_squad) {
       // const name = ManualSquad.generateNewName()
       const name = `manual_${this.room.name.toLowerCase()}`
-      const squad = new ManualSquad(name, this.room.name)
+      const squad = new ManualSquad(name, this.room.name, this.room)
 
       this.manual_squad = squad
       this.squads.set(squad.name, squad)
