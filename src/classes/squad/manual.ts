@@ -1485,7 +1485,7 @@ export class ManualSquad extends Squad {
   private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {should_die?: boolean, ticks_to_return?:number, worker_squad_name?: string}): ActionResult {
     const options = opts || {}
     let result: ActionResult = ActionResult.DONE
-    const steal_energy = true//!this.base_room.storage
+    const steal_energy = !this.base_room.storage
 
     this.creeps.forEach((creep) => {
       if (creep.spawning) {
