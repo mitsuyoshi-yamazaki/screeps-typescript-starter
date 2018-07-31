@@ -759,7 +759,7 @@ export function init() {
       filter: structure => {
         if (structure.structureType == STRUCTURE_CONTAINER) {
           if (additional_container_ids.indexOf(structure.id) >= 0) {
-            if (structure.store.energy < 1200) {
+            if (structure.store.energy < 1500) {
               return true
             }
             return false
@@ -1257,6 +1257,8 @@ export function init() {
       this.memory.status = CreepStatus.HARVEST
     }
 
+    let is_target_for_upgrader = false
+
     if (this.carry.energy < (this.carryCapacity * 0.7)) {
       const target = this.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: source_filter
@@ -1265,17 +1267,30 @@ export function init() {
       if (!target) {
         this.say('NO Src')
       }
-      else if (this.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        this.moveTo(target)
+      else {
+        const withdraw_result = this.withdraw(target, RESOURCE_ENERGY)
+
+        if (withdraw_result == ERR_NOT_IN_RANGE) {
+          this.moveTo(target)
+        }
+        else if ((withdraw_result == OK) && (target.structureType != STRUCTURE_STORAGE)) {
+          is_target_for_upgrader = true
+        }
       }
     }
-    else {
+    else if (!this.memory.stop) {
       this.moveTo(this.room.controller, {
         maxRooms: 0,
       })
     }
+
     const upgrade_result = this.upgradeController(this.room.controller)
-    if (upgrade_result != OK) {
+    if (upgrade_result == OK) {
+      if (is_target_for_upgrader) {
+        this.memory.stop = true
+      }
+    }
+    else {
       this.say(`E${upgrade_result}`)
     }
 
