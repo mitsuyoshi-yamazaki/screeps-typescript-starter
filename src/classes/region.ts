@@ -37,6 +37,7 @@ export interface RegionMemory {
   room_need_scout?: string[]
   destination_container_id?: string
   upgrader_additional_source_ids?: string[]
+  input_lab_ids?: {lhs: string, rhs: string}
 }
 
 export interface RegionOpt {
@@ -551,6 +552,17 @@ export class Region {
         harvester_targets.push({ id: source.id, room_name: this.room.name })
       })
       // console.log(`${this.name}: ${fuga.map(t=>[t.id, t.room_name])}`)
+    }
+
+    // -- researcher
+    if (region_memory.input_lab_ids) {
+      input_lab_ids = region_memory.input_lab_ids
+    }
+
+    if ((Game.time % 103) == 13) {
+      if ((this.controller.level >= 6) && !input_lab_ids) {
+        console.log(`Region ${this.name} is upgraded to level ${this.controller.level} but no input_lab_ids`)
+      }
     }
 
     // -- scout

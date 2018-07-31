@@ -116,7 +116,7 @@ export class UpgraderSquad extends Squad {
         return
       }
 
-      const should_boost = !creep.boosted() && ((creep.ticksToLive || 0) > 1450)
+      const should_boost = !creep.boosted() && ((creep.ticksToLive || 0) > 1450) && !creep.memory.stop
       if (should_boost && room && room.owned_structures && !is_rcl8) {
         const boost_compounds: ResourceConstant[] = [RESOURCE_GHODIUM_ACID, RESOURCE_CATALYZED_GHODIUM_ACID]
 

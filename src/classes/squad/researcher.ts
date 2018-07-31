@@ -21,13 +21,14 @@ export class ResearcherSquad extends Squad {
     //   debug = true
     // }
 
-    if (!room || (room.spawns.length == 0)) {
+    if (!room || (room.spawns.length == 0) || !room.terminal || !room.storage) {
       this.needs_research = false
       if (debug) {
         console.log(`ResearchSquad needs_research: ${this.needs_research}, no room`)
       }
       return
     }
+    const terminal = room.terminal
 
     if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
       this.needs_research = false
@@ -42,102 +43,16 @@ export class ResearcherSquad extends Squad {
       }
     }
     else {
-      let room_resource: ResourceConstant | undefined // @fixme: temp code
-      switch (this.room_name) {
-        case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-          room_resource = RESOURCE_UTRIUM
-          break
-
-        case 'W48S47':
-          room_resource = RESOURCE_OXYGEN
-          break
-
-        case 'W49S47':
-          room_resource = RESOURCE_UTRIUM
-          break
-
-        case 'W49S34':
-          room_resource = RESOURCE_KEANIUM
-          break
-
-        case 'W46S33':
-          room_resource = RESOURCE_ZYNTHIUM
-          break
-
-        case 'W51S29':
-          room_resource = RESOURCE_LEMERGIUM
-          break
-
-        case 'W44S7':
-          room_resource = RESOURCE_HYDROGEN
-          break
-
-        case 'W42N1':
-          room_resource = RESOURCE_CATALYST
-          break
-
-        case 'W48S6':
-          room_resource = RESOURCE_HYDROGEN
-          break
-
-        case 'W47N2':
-          room_resource = RESOURCE_HYDROGEN
-          break
-
-        case 'W43S5':
-          room_resource = RESOURCE_UTRIUM
-          break
-
-        case 'W43N5':
-          room_resource = RESOURCE_ZYNTHIUM
-          break
-
-        case 'W48N11':
-          room_resource = RESOURCE_OXYGEN
-          break
-
-        case 'W47S6':
-          room_resource = RESOURCE_LEMERGIUM
-          break
-
-        default:
-          break
-      }
-
-      if (!room_resource) {
-        const message = `ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`
-        console.log(message)
-        Game.notify(message)
-        this.needs_research = false
-        if (debug) {
-          console.log(`ResearchSquad needs_research: ${this.needs_research}, room_resource not defined`)
+      let needs = true
+      this.input_targets.map(
+        t=>t.resource_type
+      ).forEach((resource_type) => {
+        if ((terminal.store[resource_type] || 0) == 0) {
+          needs = false
         }
-      }
-      else {
-        const room = Game.rooms[this.room_name]!
-        const terminal_needs_resource = (room.terminal!.store[room_resource] || 0) < 5000
-        const storage_has_resource = (room.storage!.store[room_resource] || 0) > 5000
+      })
 
-        if (terminal_needs_resource && storage_has_resource) {
-          this.needs_research = true
-          if (debug) {
-            console.log(`ResearchSquad needs_research: ${this.needs_research}, terminal nor storage has resource`)
-          }
-        }
-        else {
-          let needs = true
-          this.input_targets.map(
-            t=>t.resource_type
-          ).forEach((resource_type) => {
-            const room = Game.rooms[this.room_name]
-            if ((room.terminal!.store[resource_type] || 0) == 0) {
-              needs = false
-            }
-          })
-
-          this.needs_research = needs
-        }
-      }
+      this.needs_research = needs
     }
 
     // this.needs_research = false // fixme
@@ -239,85 +154,6 @@ export class ResearcherSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.NONE) {
-        let room_resource: ResourceConstant | undefined // @fixme: temp code
-        switch (this.room_name) {
-          case 'E13S19':  // @fixme: it's in wc server, check Game.shard.name
-            room_resource = RESOURCE_UTRIUM
-            break
-
-          case 'W48S47':
-            room_resource = RESOURCE_OXYGEN
-            break
-
-          case 'W49S47':
-            room_resource = RESOURCE_UTRIUM
-            break
-
-          case 'W49S34':
-            room_resource = RESOURCE_KEANIUM
-            break
-
-          case 'W46S33':
-            room_resource = RESOURCE_ZYNTHIUM
-            break
-
-          case 'W51S29':
-            room_resource = RESOURCE_LEMERGIUM
-            break
-
-          case 'W44S7':
-            room_resource = RESOURCE_HYDROGEN
-            break
-
-          case 'W42N1':
-            room_resource = RESOURCE_CATALYST
-            break
-
-          case 'W48S6':
-            room_resource = RESOURCE_HYDROGEN
-            break
-
-          case 'W47N2':
-            room_resource = RESOURCE_HYDROGEN
-            break
-
-          case 'W43S5':
-            room_resource = RESOURCE_UTRIUM
-            break
-
-          case 'W43N5':
-            room_resource = RESOURCE_ZYNTHIUM
-            break
-
-          case 'W48N11':
-            room_resource = RESOURCE_OXYGEN
-            break
-
-          case 'W47S6':
-            room_resource = RESOURCE_LEMERGIUM
-            break
-        }
-
-        if (!room_resource) {
-          console.log(`ResearcherSquad.run room_resource not defined for ${this.room_name}, ${this.name}`)
-        }
-        else {
-          const room = Game.rooms[this.room_name]
-          if (!room || !room.terminal || !room.storage) {
-            if (this.room_name != 'W42N1') {
-              console.log(`ERROR 1111`)
-            }
-            return
-          }
-          const terminal_needs_resource = (room.terminal.store[room_resource] || 0) < 5000
-          const storage_has_resource = (room.storage.store[room_resource] || 0) > 5000
-
-          if (terminal_needs_resource && storage_has_resource) {
-            this.transferRoomResource(creep, room_resource)
-            return
-          }
-        }
-
         creep.memory.status = CreepStatus.HARVEST
       }
 

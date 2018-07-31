@@ -1279,6 +1279,10 @@ export function init() {
       else {
         const withdraw_result = this.withdraw(target, RESOURCE_ENERGY)
 
+        if ((withdraw_result != OK) && this.memory.stop) {
+          this.memory.stop = false
+        }
+
         if (withdraw_result == ERR_NOT_IN_RANGE) {
           this.moveTo(target)
         }
@@ -1301,6 +1305,10 @@ export function init() {
     }
     else {
       this.say(`E${upgrade_result}`)
+
+      if (this.memory.stop) {
+        this.memory.stop = false
+      }
     }
 
     return ActionResult.IN_PROGRESS
