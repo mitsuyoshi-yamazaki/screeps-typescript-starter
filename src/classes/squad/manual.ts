@@ -1487,6 +1487,12 @@ export class ManualSquad extends Squad {
     let result: ActionResult = ActionResult.DONE
     const steal_energy = !this.base_room.storage
 
+    if (!Memory.debug.test) {
+      Memory.debug.test = []
+    }
+
+    const before_cpu = Game.cpu.getUsed()
+
     this.creeps.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -1503,7 +1509,7 @@ export class ManualSquad extends Squad {
       }
 
       if (creep.memory.status == CreepStatus.HARVEST) {
-        if (carry > 0) {
+        if (carry == creep.carryCapacity) {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
@@ -1513,34 +1519,68 @@ export class ManualSquad extends Squad {
           }
           const target_room = Game.rooms[target_room_name]
           if (!target_room) {
-            creep.say(`NO ROM`)
             return
           }
 
-          let target: StructureStorage | StructureTerminal | StructureContainer | undefined
+          let target: AnyStructure | undefined
+          let no_more_target = true
+          const memory = creep.memory as ManualMemory
 
-          if (target_room.storage && steal_energy && (target_room.storage.store.energy > 0)) {
-            target = target_room.storage
-          }
-          else if (target_room.storage && !steal_energy && (_.sum(target_room.storage.store) > 0)) {
-            target = target_room.storage
-          }
-          else if (target_room.terminal && steal_energy && (target_room.terminal.store.energy > 0)) {
-            target = target_room.terminal
-          }
-          else if (target_room.terminal && !steal_energy && (_.sum(target_room.terminal.store) > 0)) {
-            target = target_room.terminal
-          }
-          else {
-            target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-              filter: (structure) => {
-                return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
-              }
-            }) as StructureContainer | undefined
+          if (memory.target_id) {
+            target = Game.getObjectById(memory.target_id) as AnyStructure | undefined
           }
 
           if (!target) {
+            if (target_room.storage && steal_energy && (target_room.storage.store.energy > 0)) {
+              target = target_room.storage
+            }
+            else if (target_room.storage && !steal_energy && (_.sum(target_room.storage.store) > 0)) {
+              target = target_room.storage
+            }
+            else if (target_room.terminal && steal_energy && (target_room.terminal.store.energy > 0)) {
+              target = target_room.terminal
+            }
+            else if (target_room.terminal && !steal_energy && (_.sum(target_room.terminal.store) > 0)) {
+              target = target_room.terminal
+            }
+            else {
+              target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure) => {
+                  // if (structure.structureType == STRUCTURE_CONTAINER) {
+                  //   return structure.store.energy > 0  // to not harvest from remote harvester container
+                  // }
+                  // else if (
+                  if (structure.structureType == STRUCTURE_LAB) {
+                    return (structure.energy > 0) || (structure.mineralAmount > 0)
+                  }
+                  else if (
+                    (structure.structureType == STRUCTURE_LINK)
+                    || (structure.structureType == STRUCTURE_EXTENSION)
+                    || (structure.structureType == STRUCTURE_SPAWN)
+                    || (structure.structureType == STRUCTURE_TOWER)
+                  ) {
+                    return structure.energy > 0
+                  }
+                  return false
+                }
+              })
+
+              if (!target) {
+                no_more_target = true
+              }
+            }
+          }
+
+          if (!target) {
+            if (!no_more_target) {
+              return
+            }
+            (creep.memory as ManualMemory).target_id = undefined
             creep.say(`NO TGT`)
+            if (carry > 0) {
+              creep.memory.status = CreepStatus.CHARGE
+              return
+            }
             if (options.should_die) {
               creep.memory.let_thy_die = true
             }
@@ -1548,12 +1588,21 @@ export class ManualSquad extends Squad {
           }
 
           let withdraw_result: ScreepsReturnCode
+          const has_store = target as {store: StoreDefinition}
 
-          if (steal_energy) {
-            withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
+          if (has_store.store) {
+            withdraw_result = creep.withdrawResources(has_store)
+          }
+          else if (target.structureType == STRUCTURE_LAB) {
+            if (target.mineralType && (target.mineralAmount > 0)) {
+              withdraw_result = creep.withdraw(target, target.mineralType)
+            }
+            else {
+              withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
+            }
           }
           else {
-            withdraw_result = creep.withdrawResources(target)
+            withdraw_result = creep.withdraw(target, RESOURCE_ENERGY)
           }
 
           if (withdraw_result == ERR_NOT_IN_RANGE) {
@@ -1564,12 +1613,14 @@ export class ManualSquad extends Squad {
             creep.say(`E${withdraw_result}`)
           }
           else {
-            creep.memory.status = CreepStatus.CHARGE
+            (creep.memory as ManualMemory).target_id = undefined
           }
         }
       }
 
       if (creep.memory.status == CreepStatus.CHARGE) {
+        (creep.memory as ManualMemory).target_id = undefined
+
         if (carry == 0) {
           creep.memory.status = CreepStatus.HARVEST
           result = ActionResult.IN_PROGRESS
@@ -1618,6 +1669,18 @@ export class ManualSquad extends Squad {
         }
       }
     })
+
+    const after_cpu = Game.cpu.getUsed()
+    const cpu_usage = Math.ceil((after_cpu - before_cpu) * 1000) / 1000
+    const measurement = 20
+
+    if (Memory.debug.test.length >= measurement) {
+      Memory.debug.test.shift()
+      // console.log(`ManualSquad cpu usage: ${_.sum(Memory.debug.test) / measurement}, ${Memory.debug.test}`)
+    }
+
+    Memory.debug.test.push(cpu_usage)
+
     return result
   }
 

@@ -156,6 +156,13 @@ export class AttackerSquad extends Squad {
           body,
         }
       }
+
+      const url = `https://screeps.com/a/#!/history/shard2/${this.base_room.name}?t=${Game.time}`
+      const link = `<a href="${url}">${Game.time}</a>`
+      const message = `AttackerSquad.addCreep spawn a heavy attacker ${this.base_room.name} ${this.name} at ${link}\n${body} `
+
+      console.log(message)
+      Game.notify(message)
     }
   }
 
@@ -217,8 +224,8 @@ export class AttackerSquad extends Squad {
               attacker.moveTo(39, 44)
               break
 
-            case 'E16S37':
-              attacker.moveTo(14, 29)
+            case 'E16N37':
+              attacker.moveTo(4, 27)
               break
 
             default:

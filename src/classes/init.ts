@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.35.7'
+const version = '2.35.9'
 
 export function init(): void {
   Game.version = version

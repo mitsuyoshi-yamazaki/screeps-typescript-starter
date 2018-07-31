@@ -513,7 +513,7 @@ export class Region {
         ]
         this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
-          'E15S37',
+          'E15N37',
           'E15N38',
         ]
         this.destination_link_id = '5b5ee6ae663ee267f5286cc5'

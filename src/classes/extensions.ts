@@ -53,7 +53,8 @@ declare global {
         show_usage: boolean,
         threshold: number,
         stop_threshold: number,
-      }
+      },
+      test?: number[],
     }
   }
 
