@@ -10,7 +10,7 @@ interface UpgraderSquadMemory extends SquadMemory {
 export class UpgraderSquad extends Squad {
   private max_energy: number | undefined
 
-  constructor(readonly name: string, readonly room_name: string) {
+  constructor(readonly name: string, readonly room_name: string, readonly additional_source_ids: string[]) {
     super(name)
 
     const room = Game.rooms[this.room_name]
@@ -104,7 +104,7 @@ export class UpgraderSquad extends Squad {
 
   public run(): void {
     const squad_memory = Memory.squads[this.name] as UpgraderSquadMemory
-    const source_ids = squad_memory.source_link_ids || []
+    const source_ids = (squad_memory.source_link_ids || []).concat(this.additional_source_ids)
     const room = Game.rooms[this.room_name]
     const is_rcl8 = !(!room) && room.controller && room.controller.my && (room.controller.level == 8)
 
@@ -158,7 +158,19 @@ export class UpgraderSquad extends Squad {
         if (structure.structureType == STRUCTURE_STORAGE) {
           return true
         }
-        return ((structure.structureType == STRUCTURE_LINK) && (source_ids.indexOf(structure.id) >= 0) && (structure.energy > 0))
+        if (source_ids.indexOf(structure.id) >= 0) {
+          const has_store = structure as {store?: StoreDefinition}
+          if (has_store.store && (has_store.store.energy > 0)) {
+            return true
+          }
+
+          const has_energy = structure as {energy?: number}
+
+          if (has_energy.energy && (has_energy.energy > 0)) {
+            return true
+          }
+        }
+        return false
       })
     })
   }

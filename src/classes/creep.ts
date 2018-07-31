@@ -86,7 +86,7 @@ declare global {
 
     // Worker tasks
     harvestFrom(source: Source): ActionResult
-    work(room: Room, sources: WorkerSource[]): void
+    work(room: Room, sources: WorkerSource[], opts?: {additional_container_ids?: string[]}): void
     buildTo(source: Source, target: ConstructionSite): ActionResult
     repairTo(source: Source, target: Structure, max_hits?: number): ActionResult
     upgrade(source_filter: StructureFilter | undefined): ActionResult
@@ -1283,7 +1283,7 @@ export function init() {
   }
 
   // --- Work ---
-  Creep.prototype.work = function(room: Room, sources: WorkerSource[]): void {
+  Creep.prototype.work = function(room: Room, sources: WorkerSource[], opts?: {additional_container_ids?: string[]}): void {
     if (!room) {
       console.log(`Creep.work room not specified ${this.name}`)
     }
@@ -1468,7 +1468,7 @@ export function init() {
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
 
-      const target = this.find_charge_target()
+      const target = this.find_charge_target(opts)
       charge_target = target
       find_charge_target = true
 

@@ -36,6 +36,7 @@ export interface RegionMemory {
   last_heavy_attacker?: {ticks: number, body: string[]}
   room_need_scout?: string[]
   destination_container_id?: string
+  upgrader_additional_source_ids?: string[]
 }
 
 export interface RegionOpt {
@@ -86,7 +87,7 @@ export class Region {
 
       // dummy
       this.worker_squad = new WorkerSquad('', '')
-      this.upgrader_squad = new UpgraderSquad('', this.room.name)
+      this.upgrader_squad = new UpgraderSquad('', this.room.name, [])
       return
     }
 
@@ -758,9 +759,12 @@ export class Region {
             break
           }
           case SquadType.WORKER: {
-            const opts: {source?: StructureContainer | undefined} = {}
+            const opts: {source?: StructureContainer | undefined, additional_container_ids?: string[]} = {}
             if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
               opts.source = harvester_destination
+            }
+            if (region_memory.upgrader_additional_source_ids) {
+              opts.additional_container_ids = region_memory.upgrader_additional_source_ids
             }
 
             const squad = new WorkerSquad(squad_memory.name, this.room.name, opts)
@@ -769,7 +773,7 @@ export class Region {
             break
           }
           case SquadType.UPGRADER: {
-            const squad = new UpgraderSquad(squad_memory.name, this.room.name)
+            const squad = new UpgraderSquad(squad_memory.name, this.room.name, region_memory.upgrader_additional_source_ids || [])
             upgrader_squad = squad
             this.squads.set(squad.name, squad)
             break
@@ -1003,9 +1007,12 @@ export class Region {
     // --- Worker ---
     if (!worker_squad) {
       const name = `worker_${this.room.name.toLowerCase()}` //WorkerSquad.generateNewName()
-      const opts: {source?: StructureContainer | undefined} = {}
+      const opts: {source?: StructureContainer | undefined, additional_container_ids?: string[]} = {}
       if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
         opts.source = harvester_destination
+      }
+      if (region_memory.upgrader_additional_source_ids) {
+        opts.additional_container_ids = region_memory.upgrader_additional_source_ids
       }
 
       const squad = new WorkerSquad(name, this.room.name, opts)
@@ -1028,7 +1035,7 @@ export class Region {
     // --- Upgrader ---
     if (!upgrader_squad) {
       const name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()
-      const squad = new UpgraderSquad(name, this.room.name)
+      const squad = new UpgraderSquad(name, this.room.name, region_memory.upgrader_additional_source_ids || [])
 
       upgrader_squad = squad
       this.squads.set(squad.name, squad)

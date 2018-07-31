@@ -15,14 +15,16 @@ interface WorkerSquadMemory extends SquadMemory {
 export class WorkerSquad extends Squad {
   private number_of_workers: number
   private source_container: StructureContainer | undefined
+  private additional_container_ids: string[] | undefined
 
-  constructor(readonly name: string, readonly room_name: string, readonly opt?: {source?: StructureContainer | undefined}) {
+  constructor(readonly name: string, readonly room_name: string, readonly opt?: {source?: StructureContainer | undefined, additional_container_ids?: string[]}) {
     super(name)
 
     opt = opt || {}
     if (opt.source) {
       this.source_container = opt.source
     }
+    this.additional_container_ids = opt.additional_container_ids
 
     const squad_memory = Memory.squads[this.name] as WorkerSquadMemory
     if (!squad_memory) {
@@ -296,7 +298,13 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      creep.work(room, sources)
+      let opts: {additional_container_ids?: string[]} = {}
+
+      if (this.additional_container_ids) {
+        opts.additional_container_ids = this.additional_container_ids
+      }
+
+      creep.work(room, sources, opts)
     }
   }
 
