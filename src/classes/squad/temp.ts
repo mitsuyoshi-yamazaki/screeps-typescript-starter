@@ -2,21 +2,33 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
-interface TempSquadMemory extends CreepMemory {
+interface TempMemory extends CreepMemory {
   arrived: boolean
 }
 
+interface TempSquadMemory extends SquadMemory {
+  arrived: string
+}
+
 export class TempSquad extends Squad {
+  private scout: Creep | undefined
   private claimer: Creep | undefined
   private attacker: Creep[] = []
 
   private spawn_attacker_ticks_before = 500
+  private get arrived(): boolean {
+    return (Memory.squads[this.name] as TempSquadMemory).arrived == this.target_room_name
+  }
 
   constructor(readonly name: string, readonly room_name: string, readonly target_room_name: string, readonly need_attacker: boolean) {
     super(name)
 
     this.creeps.forEach((creep, _) => {
       switch (creep.memory.type) {
+        case CreepType.SCOUT:
+          this.scout = creep
+          break
+
         case CreepType.CLAIMER:
           this.claimer = creep
           break
@@ -50,6 +62,15 @@ export class TempSquad extends Squad {
       return SpawnPriority.NONE
     }
 
+    if (!this.arrived) {
+      if (!this.scout) {
+        return SpawnPriority.LOW
+      }
+      else {
+        return SpawnPriority.NONE
+      }
+    }
+
     const room = Game.rooms[this.target_room_name]
 
     if (room && room.controller && (room.controller.level < 5)) {
@@ -74,6 +95,15 @@ export class TempSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
+    if (!this.arrived) {
+      if (!this.scout) {
+        return energy_available >= 50
+      }
+      else {
+        return false
+      }
+    }
+
     const room = Game.rooms[this.target_room_name]
 
     if (room && room.controller && (room.controller.level < 5)) {
@@ -98,6 +128,14 @@ export class TempSquad extends Squad {
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
+
+    if (!this.arrived) {
+      if (!this.scout) {
+        this.addGeneralCreep(spawn_func, [MOVE], CreepType.SCOUT)
+      }
+      return
+    }
+
     const room = Game.rooms[this.target_room_name]
 
     if (room && room.controller && (room.controller.level < 5)) {
@@ -123,7 +161,7 @@ export class TempSquad extends Squad {
   private addCreepForClaim(energyAvailable: number, spawnFunc: SpawnFunction): void {
     let body: BodyPartConstant[] = (energyAvailable >= 850) ? [MOVE, MOVE, MOVE, MOVE, MOVE, CLAIM] : [MOVE, MOVE, MOVE, CLAIM]
     const name = this.generateNewName()
-    const memory: TempSquadMemory = {
+    const memory: TempMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
@@ -145,6 +183,7 @@ export class TempSquad extends Squad {
   }
 
   public run(): void {
+    this.runScout()
     this.runAttacker()
     this.runClaimer()
   }
@@ -155,6 +194,27 @@ export class TempSquad extends Squad {
   }
 
   // ---
+  private runScout(): void {
+    if (!this.scout) {
+      return
+    }
+    const creep = this.scout
+
+    if (creep.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
+      return
+    }
+    if (!this.arrived) {
+      (Memory.squads[this.name] as TempSquadMemory).arrived = this.target_room_name
+    }
+
+    if (creep.room.controller) {
+      creep.moveTo(creep.room.controller)
+    }
+    else {
+      creep.moveTo(25, 25)
+    }
+  }
+
   private runAttacker(): void {
     this.attacker.forEach((creep) => {
       if (creep.searchAndDestroyTo(this.target_room_name, false) == ActionResult.IN_PROGRESS) {
@@ -187,18 +247,27 @@ export class TempSquad extends Squad {
       return
     }
 
-    const memory = creep.memory as TempSquadMemory
+    if (!this.arrived) {
+      (Memory.squads[this.name] as TempSquadMemory).arrived = this.target_room_name
+    }
+
+    const memory = creep.memory as TempMemory
     if (!memory.arrived) {
-      (creep.memory as TempSquadMemory).arrived = true
+      (creep.memory as TempMemory).arrived = true
 
       const message = `TempSquad.run arrived ${target_room_name} with ${creep.ticksToLive}, ${this.name}`
       console.log(message)
       Game.notify(message)
     }
 
-    if (creep.claim(target_room_name, true) == ActionResult.DONE) {
-      // @fixme: not working: region stop instantiate TempSquad after it claims a new room
+    if (creep.room.name == 'W56S7') {
+      const farmer_room = Game.rooms['W49S6']
+      if (farmer_room && farmer_room.controller && farmer_room.controller.my) {
+        farmer_room.controller.unclaim()
+      }
+    }
 
+    if (creep.claim(target_room_name, true) == ActionResult.DONE) {
       if (!Memory.rooms[target_room_name]) {
         Memory.rooms[target_room_name] = {
           harvesting_source_ids: [],

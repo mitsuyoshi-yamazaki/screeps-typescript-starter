@@ -253,7 +253,10 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_target_room_name = 'W49S6'
+        this.temp_squad_opt = {
+          target_room_name: 'W56S7',
+          forced: true,
+        }
         break
 
       case 'W43S5':
@@ -519,6 +522,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5ee6ae663ee267f5286cc5'
         charger_position = {x: 13, y: 29}
+        break
+
+      case 'W56S7':
+        this.room_names = [this.room.name]
         break
 
       default:
@@ -1762,7 +1769,7 @@ export class Region {
 
         if (resource_type == RESOURCE_ENERGY) {
           if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
-            console.log(`Region.sendResources lack of energy ${this.room.name}`)
+            // console.log(`Region.sendResources lack of energy ${this.room.name}`)
             continue
           }
         }
