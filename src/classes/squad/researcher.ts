@@ -400,9 +400,6 @@ export class ResearcherSquad extends Squad {
         if (lab.mineralType && boost_compounds.indexOf(lab.mineralType) >= 0) {
           has_output = (lab.mineralAmount > 1500)
         }
-        if (this.room_name == 'W42N1') {
-          has_output = (lab.mineralAmount > 300)
-        }
 
         const has_micellaous = !(!lab.mineralType) && (lab.mineralType != target.resource_type)
         if (has_output || has_micellaous) {
@@ -414,6 +411,11 @@ export class ResearcherSquad extends Squad {
             case ERR_NOT_IN_RANGE:
               creep.moveTo(lab)
               break
+
+            case ERR_FULL:
+              if (creep.carry.energy > 0) {
+                creep.drop(RESOURCE_ENERGY)
+              }
 
             default:
               console.log(`ResearcherSquad.chargeLabs withdraw ${lab.mineralType} failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}, ${lab.pos}`)

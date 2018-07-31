@@ -463,6 +463,11 @@ export class HarvesterSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const squad_memory = Memory.squads[this.name]
+    if (squad_memory.stop_spawming) {
+      return SpawnPriority.NONE
+    }
+
     const room = Game.rooms[this.source_info.room_name]
 
     if ((this.source_info.id == '59f19ff082100e1594f35c83') && room && room.attacked) {  // W49S48 top energy

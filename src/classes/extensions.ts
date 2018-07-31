@@ -1045,7 +1045,7 @@ function create_cost_matrix_for(room: Room): CostMatrix {
           continue
         }
 
-        let cost = hostile_cost
+        let cost = hostile_cost + (margin - obj.pos.getRangeTo(i, j))
 
         if (is_edge(i, j)) {
           cost = edge_hostile_cost
@@ -1057,7 +1057,7 @@ function create_cost_matrix_for(room: Room): CostMatrix {
         const terrain = terrains[i][j]
         if (terrain) {
           if (terrain == 'swamp') {
-            cost = Math.ceil(cost * 1.2)
+            cost += 3
           }
         }
         else {
