@@ -129,13 +129,6 @@ export class Region {
     // --- Initialize variables ---
     const storage = (this.room.storage && this.room.storage.my) ? this.room.storage : undefined
     const terminal = (this.room.terminal && this.room.terminal.my) ? this.room.terminal : undefined
-    // const spawn = this.room.spawns[0]
-
-    // const container = this.room.find(FIND_STRUCTURES, {
-    //   filter: structure => {
-    //     return (structure.structureType == STRUCTURE_CONTAINER)
-    //   }
-    // })[0] as StructureContainer
 
     let harvester_targets: {id: string, room_name: string}[] = []
     let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as (StructureStorage | StructureTerminal) // @fixme: null check // || container
@@ -742,8 +735,13 @@ export class Region {
             break
           }
           case SquadType.UPGRADER: {
-            const squad = new UpgraderSquad(squad_memory.name, this.room.name, region_memory.upgrader_additional_source_ids || [])
-            this.squads.set(squad.name, squad)
+            if (UpgraderSquad.need_instantiation(squad_memory)) {
+              const squad = new UpgraderSquad(squad_memory.name, this.room.name, region_memory.upgrader_additional_source_ids || [])
+              this.squads.set(squad.name, squad)
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
             break
           }
           case SquadType.CHARGER: {

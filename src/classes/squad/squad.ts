@@ -100,6 +100,10 @@ export abstract class Squad {
     return squad_memory.owner_name
   }
 
+  public static need_instantiation(memory: SquadMemory): boolean {
+    return true
+  }
+
   public description(): string {
     const priority = Memory.squads[this.name].stop_spawming ? 'stop' : `${this.spawnPriority}`
     return `${this.name} ${this.creeps.size} crp, pri: ${priority}`

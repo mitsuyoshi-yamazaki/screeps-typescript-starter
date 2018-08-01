@@ -10,6 +10,54 @@ interface UpgraderSquadMemory extends SquadMemory {
 export class UpgraderSquad extends Squad {
   private max_energy: number | undefined
 
+  public static need_instantiation(memory: SquadMemory): boolean {
+    const squad_creeps = Game.squad_creeps[memory.name]
+    if (squad_creeps && (squad_creeps.length > 0)) {
+      return true
+    }
+
+    // no creeps
+    if (memory.stop_spawming) {
+      return false
+    }
+
+    return this.priority(memory.owner_name, 0) != SpawnPriority.NONE
+  }
+
+  private static priority(room_name: string, creep_size: number): SpawnPriority {
+    if (['dummy'].indexOf(room_name) >= 0) {
+      return SpawnPriority.NONE
+    }
+
+    let max = 0
+    const room = Game.rooms[room_name]
+
+    if (!room || !room.controller || !room.controller.my || !room.storage || !room.storage.my) {
+      return SpawnPriority.NONE
+    }
+
+    // if (room.controller.level == 8) {
+    //   return SpawnPriority.NONE
+    // }
+
+    const energy = room.storage.store.energy
+    let available = (energy - 200000)
+
+    if (available > 0) {
+      max = Math.floor(available / 130000)
+    }
+
+    if (room_name == 'W51S29') {
+      max = (room.storage.store.energy > 400000) ? 1 : 0
+    }
+
+    if (room.controller.level >= 8) {
+      max = 1
+    }
+
+    return (creep_size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
+  }
+
   constructor(readonly name: string, readonly room_name: string, readonly additional_source_ids: string[]) {
     super(name)
 
@@ -39,42 +87,7 @@ export class UpgraderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (['dummy'].indexOf(this.room_name) >= 0) { // W43N5 has no upgrader but manual squad
-      return SpawnPriority.NONE
-    }
-
-    const squad_memory = Memory.squads[this.name]
-    if (squad_memory.stop_spawming) {
-      return SpawnPriority.NONE
-    }
-
-    let max = 0
-    const room = Game.rooms[this.room_name]
-
-    if (!room || !room.controller || !room.controller.my || !room.storage || !room.storage.my) {
-      return SpawnPriority.NONE
-    }
-
-    // if (room.controller.level == 8) {
-    //   return SpawnPriority.NONE
-    // }
-
-    const energy = room.storage.store.energy
-    let available = (energy - 200000)
-
-    if (available > 0) {
-      max = Math.floor(available / 130000)
-    }
-
-    if (this.room_name == 'W51S29') {
-      max = (room.storage.store.energy > 400000) ? 1 : 0
-    }
-
-    if (room.controller.level >= 8) {
-      max = 1
-    }
-
-    return (this.creeps.size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
+    return UpgraderSquad.priority(this.room_name, this.creeps.size)
   }
 
   public hasEnoughEnergy(energyAvailable: number, capacity: number): boolean {
