@@ -38,6 +38,8 @@ export interface RegionMemory {
   destination_container_id?: string
   upgrader_additional_source_ids?: string[]
   input_lab_ids?: {lhs: string, rhs: string}
+  excluded_walls?: string[]
+  repairing_wall_id?: string
 }
 
 export interface RegionOpt {
@@ -1409,9 +1411,15 @@ export class Region {
     }
 
     const has_much_energy = !(!this.room.storage) && (this.room.storage.store.energy > 500000)
+    const excluded_walls = region_memory.excluded_walls || []
+    let repairing_wall: StructureWall | StructureRampart | undefined
 
     const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
       filter: (structure) => {
+        if (excluded_walls.indexOf(structure.id) >= 0) {
+          return false
+        }
+
         const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
         if (is_wall && has_much_energy) {
           return false
@@ -1424,11 +1432,25 @@ export class Region {
       return -1
     })
 
+    if ((Game.time % 5) == 2) {
+      region_memory.repairing_wall_id = undefined
+    }
+    else if (region_memory.repairing_wall_id) {
+      repairing_wall = Game.getObjectById(region_memory.repairing_wall_id) as StructureWall | StructureRampart | undefined
+    }
+
     let damaged_wall: StructureWall | StructureRampart | undefined
 
-    if (has_much_energy) {
+    if (repairing_wall) {
+      damaged_wall = repairing_wall
+    }
+    else if (has_much_energy) {
       const walls: (StructureWall | StructureRampart)[] = (this.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
+          if (excluded_walls.indexOf(structure.id) >= 0) {
+            return false
+          }
+
           if (structure.hits == structure.hitsMax) {
             return false
           }
@@ -1441,6 +1463,10 @@ export class Region {
       })
 
       damaged_wall = walls[0]
+
+      if (damaged_wall) {
+        region_memory.repairing_wall_id = damaged_wall.id
+      }
     }
 
     const should_attack_hostile = this.room.attacked && ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 3))

@@ -84,7 +84,7 @@ declare global {
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
-    add_remote_harvester(from: StructureStorage, carrier_max: number, dry_run: boolean): string | null
+    add_remote_harvester(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null
     remote_layout(x: number, y: number): CostMatrix | null
     layout(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null
     test(from: Structure): void
@@ -568,7 +568,10 @@ export function tick(): void {
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
   }
 
-  Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, dry_run: boolean = true): string | null {
+  Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {
+    opts = opts || {}
+    const dry_run = !(opts.dry_run != true)
+
     console.log(`Room.add_remote_harvester dry_run: ${dry_run}`)
 
     const room = this as Room
@@ -585,98 +588,100 @@ export function tick(): void {
     const room_name = room.name
     const owner_room_name = from.room.name
 
-    // --- Path
-    const pathfinder_opts: FindPathOpts = {
-      maxRooms: 0,
-      maxOps: 10000,
-      range: 1,
-    }
-
-    const path = from.room.findPath(from.pos, room.sources[0].pos, pathfinder_opts)
-
-    if (!path || (path.length == 0)) {
-      console.log(`Room.add_remote_harvester cannot find path from ${from.pos} to ${room.sources[0].pos}, ${room.name}`)
-      return null
-    }
-
-    const last_pos = path[path.length - 1]
-    const start_pos: {x: number, y: number} = {
-      x: last_pos.x,
-      y: last_pos.y,
-    }
-
-    if (start_pos.x == 0) {
-      start_pos.x = 49
-    }
-    else if (start_pos.x == 49) {
-      start_pos.x = 0
-    }
-
-    if (start_pos.y == 0) {
-      start_pos.y = 49
-    }
-    else if (start_pos.y == 49) {
-      start_pos.y = 0
-    }
-
-    const road_positions: RoomPosition[] = path.map((p) => {
-      return new RoomPosition(p.x, p.y, owner_room_name)
-    })
-
-    const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
-    if (!cost_matrix) {
-      console.log(`Room.add_remote_harvester cannot create cost matrix ${room.name}, start pos: (${start_pos.x}, ${start_pos.y})`)
-      return null
-    }
-
-    const road_cost = 1
-    const room_size = 50
-
-    for (let i = 0; i < room_size; i++) {
-      for (let j = 0; j < room_size; j++) {
-        const cost = cost_matrix.get(i, j)
-
-        if (cost > road_cost) {
-          continue
-        }
-
-        road_positions.push(new RoomPosition(i, j, room_name))
+    if (!opts.memory_only) {
+      // --- Path
+      const pathfinder_opts: FindPathOpts = {
+        maxRooms: 0,
+        maxOps: 10000,
+        range: 1,
       }
-    }
 
-    // -- Dry Run
-    if (dry_run) {
+      const path = from.room.findPath(from.pos, room.sources[0].pos, pathfinder_opts)
+
+      if (!path || (path.length == 0)) {
+        console.log(`Room.add_remote_harvester cannot find path from ${from.pos} to ${room.sources[0].pos}, ${room.name}`)
+        return null
+      }
+
+      const last_pos = path[path.length - 1]
+      const start_pos: {x: number, y: number} = {
+        x: last_pos.x,
+        y: last_pos.y,
+      }
+
+      if (start_pos.x == 0) {
+        start_pos.x = 49
+      }
+      else if (start_pos.x == 49) {
+        start_pos.x = 0
+      }
+
+      if (start_pos.y == 0) {
+        start_pos.y = 49
+      }
+      else if (start_pos.y == 49) {
+        start_pos.y = 0
+      }
+
+      const road_positions: RoomPosition[] = path.map((p) => {
+        return new RoomPosition(p.x, p.y, owner_room_name)
+      })
+
+      const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
+      if (!cost_matrix) {
+        console.log(`Room.add_remote_harvester cannot create cost matrix ${room.name}, start pos: (${start_pos.x}, ${start_pos.y})`)
+        return null
+      }
+
+      const road_cost = 1
+      const room_size = 50
+
+      for (let i = 0; i < room_size; i++) {
+        for (let j = 0; j < room_size; j++) {
+          const cost = cost_matrix.get(i, j)
+
+          if (cost > road_cost) {
+            continue
+          }
+
+          road_positions.push(new RoomPosition(i, j, room_name))
+        }
+      }
+
+      // -- Dry Run
+      if (dry_run) {
+        road_positions.forEach((pos) => {
+          const r = Game.rooms[pos.roomName]
+          if (!r) {
+            return
+          }
+
+          r.visual.text(`x`, pos, {
+            color: '#ff0000',
+            align: 'center',
+            font: '12px',
+            opacity: 0.8,
+          })
+        })
+
+        return null
+      }
+
+      // --- Place flags
+      const time = Game.time
+
       road_positions.forEach((pos) => {
         const r = Game.rooms[pos.roomName]
         if (!r) {
           return
         }
 
-        r.visual.text(`x`, pos, {
-          color: '#ff0000',
-          align: 'center',
-          font: '12px',
-          opacity: 0.8,
-        })
+        const name = UID(`Flag${time}`)
+        // r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
+
+        r.createConstructionSite(pos, STRUCTURE_ROAD)
       })
-
-      return null
     }
-
-    // --- Place flags
-    const time = Game.time
-
-    road_positions.forEach((pos) => {
-      const r = Game.rooms[pos.roomName]
-      if (!r) {
-        return
-      }
-
-      const name = UID(`Flag${time}`)
-      // r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
-
-      r.createConstructionSite(pos, STRUCTURE_ROAD)
-    })
 
     // --- Squad Memory
     let squad_name = `remote_harvester_${room.name.toLowerCase()}`
