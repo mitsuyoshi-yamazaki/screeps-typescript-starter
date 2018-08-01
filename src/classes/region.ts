@@ -494,6 +494,7 @@ export class Region {
         rooms_need_to_be_defended = [
           'E15N37',
           'E15N38',
+          'W14N37',
         ]
         this.destination_link_id = '5b5ee6ae663ee267f5286cc5'
         charger_position = {x: 13, y: 29}
