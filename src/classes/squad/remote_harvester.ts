@@ -994,7 +994,13 @@ export class RemoteHarvesterSquad extends Squad {
 
             if (closest_container) {
               if (creep.pos.getRangeTo(closest_container) <= 1) {
-                creep.withdraw(closest_container, RESOURCE_ENERGY)
+                const withdraw_result = creep.withdraw(closest_container, RESOURCE_ENERGY)
+
+                if (withdraw_result == ERR_NOT_ENOUGH_RESOURCES) {
+                  if ((Game.time % 11) == 0) {
+                    creep.move(((Game.time % 8) + 1) as DirectionConstant)
+                  }
+                }
               }
               else {
                 creep.moveTo(closest_container, {maxRooms: 0})
