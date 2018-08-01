@@ -100,7 +100,7 @@ export abstract class Squad {
     return squad_memory.owner_name
   }
 
-  public static need_instantiation(memory: SquadMemory): boolean {
+  public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
     return true
   }
 

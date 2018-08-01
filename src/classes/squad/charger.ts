@@ -5,6 +5,28 @@ import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType 
 export class ChargerSquad extends Squad {
   private number_of_carries: number
 
+  public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
+    const squad_creeps = Game.squad_creeps[memory.name]
+    if (squad_creeps && (squad_creeps.length > 0)) {
+      return true
+    }
+
+    // no creeps
+    if (memory.stop_spawming) {
+      return false
+    }
+
+    if (controller.level < 5) {
+      return false
+    }
+
+    return this.priority(0) != SpawnPriority.NONE
+  }
+
+  private static priority(creeps_size: number): SpawnPriority {
+    return creeps_size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+  }
+
   constructor(readonly name: string, readonly room: Room, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
     super(name)
 
@@ -40,7 +62,7 @@ export class ChargerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+    return ChargerSquad.priority(this.creeps.size)
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {

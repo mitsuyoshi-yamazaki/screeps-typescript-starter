@@ -735,7 +735,7 @@ export class Region {
             break
           }
           case SquadType.UPGRADER: {
-            if (UpgraderSquad.need_instantiation(squad_memory)) {
+            if (UpgraderSquad.need_instantiation(squad_memory, this.controller)) {
               const squad = new UpgraderSquad(squad_memory.name, this.room.name, region_memory.upgrader_additional_source_ids || [])
               this.squads.set(squad.name, squad)
             }
@@ -746,22 +746,26 @@ export class Region {
           }
           case SquadType.CHARGER: {
 
-            if (this.room.name == 'W49S6') {
-              if (squad_memory.name == 'charger_w49s6_tr') {
-                const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
-                this.squads.set(squad.name, squad)
-              }
-              else {
-                const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-                const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
-                this.squads.set(squad.name, squad)
-              }
-            }
-            else {
+            // if (this.room.name == 'W49S6') {
+            //   if (squad_memory.name == 'charger_w49s6_tr') {
+            //     const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
+            //     this.squads.set(squad.name, squad)
+            //   }
+            //   else {
+            //     const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+            //     const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
+            //     this.squads.set(squad.name, squad)
+            //   }
+            // }
+            // else {
+
+            if (ChargerSquad.need_instantiation(squad_memory, this.controller)) {
               if (!charger_position) {
                 const message = `Region charger_position for room ${this.room.name}`
-                console.log(message)
-                Game.notify(message)
+                if ((Game.time % 29) == 5) {
+                  console.log(message)
+                  // Game.notify(message)
+                }
                 break
               }
 
@@ -779,6 +783,10 @@ export class Region {
 
               this.squads.set(squad.name, squad)
             }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
+            // }
             break
           }
           case SquadType.RESEARCHER: {

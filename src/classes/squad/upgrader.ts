@@ -10,7 +10,7 @@ interface UpgraderSquadMemory extends SquadMemory {
 export class UpgraderSquad extends Squad {
   private max_energy: number | undefined
 
-  public static need_instantiation(memory: SquadMemory): boolean {
+  public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
     const squad_creeps = Game.squad_creeps[memory.name]
     if (squad_creeps && (squad_creeps.length > 0)) {
       return true
@@ -24,7 +24,7 @@ export class UpgraderSquad extends Squad {
     return this.priority(memory.owner_name, 0) != SpawnPriority.NONE
   }
 
-  private static priority(room_name: string, creep_size: number): SpawnPriority {
+  private static priority(room_name: string, creeps_size: number): SpawnPriority {
     if (['dummy'].indexOf(room_name) >= 0) {
       return SpawnPriority.NONE
     }
@@ -55,7 +55,7 @@ export class UpgraderSquad extends Squad {
       max = 1
     }
 
-    return (creep_size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
+    return (creeps_size < max) ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   constructor(readonly name: string, readonly room_name: string, readonly additional_source_ids: string[]) {
