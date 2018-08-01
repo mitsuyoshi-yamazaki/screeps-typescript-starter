@@ -226,7 +226,16 @@ export function init() {
       this.memory.destination_room_name = 'W50S5'
     }
     else if ((destination_room_name == 'W56S7') && (this.room.name == 'W50S5')) {
-      this.memory.destination_room_name = 'W55S5'
+      this.memory.destination_room_name = 'W53S5'
+    }
+    else if ((destination_room_name == 'W56S7') && (this.room.name == 'W53S5')) {
+      this.memory.destination_room_name = 'W53S6'
+    }
+    else if ((destination_room_name == 'W56S7') && (this.room.name == 'W53S6')) {
+      this.memory.destination_room_name = 'W55S6'
+    }
+    else if ((destination_room_name == 'W56S7') && (this.room.name == 'W55S6')) {
+      this.memory.destination_room_name = 'W55S7'
     }
 
     if (this.room.name == this.memory.destination_room_name) {
@@ -594,6 +603,10 @@ export function init() {
         return ActionResult.IN_PROGRESS
       }
     }
+    else if ((destination_room_name == 'W56S7') && (this.room.name == 'W54S5') && (exit == TOP)) {
+      this.moveTo(33, 8, opt)
+      return ActionResult.IN_PROGRESS
+    }
 
 
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
@@ -631,7 +644,17 @@ export function init() {
       //     costCallback: (room_name: string) => new PathFinder.CostMatrix(), // Reset cached CostMatrix
       //   })
       // }
+
+      // if (this.room.is_keeperroom) {
+      //   opt.costCallback = undefined
+
+      //   this.moveTo(closest_exit)
+      //   this.say(`NO CCB`)
+      //   return ActionResult.IN_PROGRESS
+      // }
+
       this.say(`np${destination_room_name}`)
+
         // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 0) {
         if (this.move(RIGHT) == OK) {

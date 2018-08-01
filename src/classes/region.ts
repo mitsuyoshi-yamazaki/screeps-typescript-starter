@@ -967,6 +967,9 @@ export class Region {
           }
           case SquadType.FARMER: {
             const farmer_squad_memory = squad_memory as FarmerSquadMemory
+            if (farmer_squad_memory.room_name == 'W49S6') {
+              break
+            }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
             this.squads.set(squad.name, squad)

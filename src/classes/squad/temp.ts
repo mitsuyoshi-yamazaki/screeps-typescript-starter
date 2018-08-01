@@ -228,6 +228,9 @@ export class TempSquad extends Squad {
           creep.moveTo(spawn)
         }
       }
+      else if (creep.room.controller) {
+        creep.moveTo(creep.room.controller)
+      }
     })
   }
 
