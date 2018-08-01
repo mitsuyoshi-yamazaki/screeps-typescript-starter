@@ -2,7 +2,7 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
-export interface ControllerKeeperSquadMemory extends SquadMemory {
+interface ControllerKeeperSquadMemory extends SquadMemory {
   readonly room_name: string
 }
 
@@ -12,7 +12,7 @@ enum State {
   MINE      = 'mine',
 }
 
-export class ControllerKeeperSquad extends Squad {
+class ControllerKeeperSquad extends Squad {
   constructor(readonly name: string, readonly room_name: string, readonly energy_capacity: number) {
     super(name)
 

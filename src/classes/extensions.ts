@@ -1,6 +1,5 @@
 import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
-import { ControllerKeeperSquad } from "./squad/controller_keeper";
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
 import { UID } from "./utils";
@@ -75,7 +74,6 @@ declare global {
 
   interface Room {
     sources: Source[]
-    keeper?: ControllerKeeperSquad
     spawns: StructureSpawn[]  // Initialized in Spawn.initialize()
     attacked: boolean // @todo: change it to Creep[]
     heavyly_attacked: boolean

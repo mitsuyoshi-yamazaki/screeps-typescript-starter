@@ -1,6 +1,5 @@
 import { ErrorMapper } from "utils/ErrorMapper"
 import { Squad, SquadType, SquadMemory, SpawnPriority } from "classes/squad/squad"
-import { ControllerKeeperSquad, ControllerKeeperSquadMemory } from "classes/squad/controller_keeper"
 import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester"
@@ -62,12 +61,6 @@ export class Region {
   private squads = new Map<string, Squad>()
   private destination_link_id: string | undefined
   worker_squad: WorkerSquad
-  private upgrader_squad: UpgraderSquad
-  private manual_squad: ManualSquad | undefined
-  private scout_squad: ScoutSquad | undefined
-  private defend_squad: AttackerSquad | undefined
-  private charger_squad: ChargerSquad | undefined
-  private room_names: string[] = []
   private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
@@ -90,7 +83,6 @@ export class Region {
 
       // dummy
       this.worker_squad = new WorkerSquad('', '')
-      this.upgrader_squad = new UpgraderSquad('', this.room.name, [])
       return
     }
 
@@ -104,6 +96,8 @@ export class Region {
         ancestor: ancestor,
         observe_index: 0,
       }
+
+      this.create_squad_memory()
     }
     const region_memory = Memory.regions[this.name]
 
@@ -161,7 +155,6 @@ export class Region {
           { id: '59f19fd382100e1594f35a4b', room_name: 'W51S29' }, // bottom center
           { id: '59f1c0ce7d0b3d79de5f0165', room_name: 'W51S29' }, // Lemergium
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = []//['W51S21']
         input_lab_ids = {
           lhs: '5b2552233deea0034025a183', // 30, 18
@@ -191,7 +184,6 @@ export class Region {
           { id: '59f1a05a82100e1594f368c7', room_name: 'W42S7' }, // bottom
           { id: '59f1a05a82100e1594f368c6', room_name: 'W42S7' }, // bottom right
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W43S7',
           'W45S7',
@@ -237,7 +229,6 @@ export class Region {
           { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
           { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           // 'W49S6',
           // 'W48S5',
@@ -273,7 +264,6 @@ export class Region {
           { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
           { id: '59f1c0cf7d0b3d79de5f03d7', room_name: 'W43S5' }, // utrium
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W42S5',
           'W43S4',
@@ -313,7 +303,6 @@ export class Region {
           { id: '59f1a05882100e1594f368aa', room_name: 'W42N1' }, // bottom
           { id: '59f1c0cf7d0b3d79de5f043e', room_name: 'W42N1' }, // catalyst
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W42N2',
           'W42N3',
@@ -350,7 +339,6 @@ export class Region {
           { id: '59f1a00882100e1594f35eec', room_name: 'W47N2' }, // right
           { id: '59f1c0ce7d0b3d79de5f028d', room_name: 'W47N2' }, // hydrogen
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W46N2',
           'W47N3',
@@ -390,7 +378,6 @@ export class Region {
           { id: '59f1a04482100e1594f36715', room_name: 'W43N5' }, // right
           { id: '59f1c0cf7d0b3d79de5f03ce', room_name: 'W43N5' }, // zynthium
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W43N6',
           'W42N6',
@@ -427,7 +414,6 @@ export class Region {
           { id: '59f1a00782100e1594f35ecd', room_name: 'W47N11' },
           { id: '59f1a01582100e1594f3609e', room_name: 'W46N11' },
         ]
-        this.room_names = [this.room.name]
         rooms_need_scout = [
           'W49N11',
           'W48N12',
@@ -454,7 +440,6 @@ export class Region {
           { id: '59f1a00982100e1594f35f03', room_name: 'W47S6' }, // center
           { id: '59f1c0ce7d0b3d79de5f0294', room_name: 'W47S6' }, // lemergium
         ]
-        this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
           'W47S7'
         ]
@@ -474,20 +459,17 @@ export class Region {
           'W45S28',
           'W46S28',
         ]
-        this.room_names = [this.room.name]
         this.destination_link_id = '5b5ad89d3c93de26f63169b1'
         charger_position = {x: 19, y:35}
         break
 
       case 'W47S14':
-        this.room_names = [this.room.name]
         break
 
       case 'W47S9':
         harvester_targets = [
           { id: '59f1c0ce7d0b3d79de5f0297', room_name: 'W47S9' },  // Catalyst
         ]
-        this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
           'W46S9',
           'W47S8',
@@ -500,7 +482,6 @@ export class Region {
         // harvester_targets = [
         //   { id: '59f1c0ce7d0b3d79de5f01bc', room_name: 'W49S6' }  // Oxygen  // Should be in W48S6
         // ]
-        this.room_names = [this.room.name]
         this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
         break
 
@@ -508,7 +489,6 @@ export class Region {
         harvester_targets = [
           { id: '59f1c0cf7d0b3d79de5f02eb', room_name: 'W46S3' }, // Oxygen
         ]
-        this.room_names = [this.room.name]
         this.destination_link_id = '5b5a68650f98906de3d32601'
         charger_position = {x: 34, y: 43}
         break
@@ -518,7 +498,6 @@ export class Region {
           { id: '59f1a40f82100e1594f3c718', room_name: 'E16N37' },  // bottom
           { id: '59f1a40f82100e1594f3c716', room_name: 'E16N37' },  // right
         ]
-        this.room_names = [this.room.name]
         rooms_need_to_be_defended = [
           'E15N37',
           'E15N38',
@@ -528,7 +507,6 @@ export class Region {
         break
 
       case 'W56S7':
-        this.room_names = [this.room.name]
         break
 
       default:
@@ -703,7 +681,8 @@ export class Region {
     }
 
     // --
-    this.attacked_rooms = this.room_names.map((room_name) => {
+    rooms_need_to_be_defended.push(this.room.name)
+    this.attacked_rooms = rooms_need_to_be_defended.map((room_name) => {
       const room_memory = Memory.rooms[room_name]
       if (room_memory && room_memory.attacked_time) {
         return room_name
@@ -712,18 +691,6 @@ export class Region {
     }).filter((room_name) => {
       return !(!room_name)
     }) as string[]
-
-    const attacked = rooms_need_to_be_defended.map((room_name) => {
-      const room_memory = Memory.rooms[room_name]
-      if (room_memory && room_memory.attacked_time) {
-        return room_name
-      }
-      return null
-    }).filter((room_name) => {
-      return !(!room_name)
-    }) as string[]
-
-    this.attacked_rooms = this.attacked_rooms.concat(attacked)
 
     if ((this.attacked_rooms.length > 0) && ((Game.time % 13) == 5)) {
       const message = ((this.attacked_rooms.indexOf(this.room.name)) >= 0) ?  `<b>Room ${this.attacked_rooms} are attacked!! ${this.name}</b>` : `Room ${this.attacked_rooms} are attacked!! ${this.name}`
@@ -733,21 +700,6 @@ export class Region {
 
     // -- Memory --
     let worker_squad: WorkerSquad | null = null
-    let upgrader_squad: UpgraderSquad | null = null
-    let researcher_squad: ResearcherSquad | null = null
-    let raider_squad: RaiderSquad | null = null
-    // let temp_squad: TempSquad | null = null
-    let invader_squad: InvaderSquad | null = null
-    const raid_target: RaiderTarget = {
-      id: '59f1c265a5165f24b259a48a',
-      lair_id: '59f1a02082100e1594f361b8',
-      room_name: 'W46S46',
-    }
-
-    const most_priority_squads = [
-      SquadType.WORKER,
-      SquadType.MANUAL,
-    ]
 
     for (const squad_name in Memory.squads) {
       const squad_memory = Memory.squads[squad_name]
@@ -760,25 +712,21 @@ export class Region {
         continue
       }
 
-      // if ((energy_capacity <= 0) && (most_priority_squads.indexOf(squad_memory.type) < 0)) {
-      //   continue
-      // }
-
       ErrorMapper.wrapLoop(() => {
         switch (squad_memory.type) {
-          case SquadType.CONTROLLER_KEEPER: {
-            const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
-            const room_name = controller_keeper_squad_memory.room_name
+          // case SquadType.CONTROLLER_KEEPER: {
+          //   const controller_keeper_squad_memory = squad_memory as ControllerKeeperSquadMemory
+          //   const room_name = controller_keeper_squad_memory.room_name
 
-            const squad = new ControllerKeeperSquad(squad_memory.name, room_name, energy_capacity)
-            this.squads.set(squad.name, squad)
+          //   const squad = new ControllerKeeperSquad(squad_memory.name, room_name, energy_capacity)
+          //   this.squads.set(squad.name, squad)
 
-            const room = Game.rooms[room_name]
-            if (room) {
-              room.keeper = squad
-            }
-            break
-          }
+          //   const room = Game.rooms[room_name]
+          //   if (room) {
+          //     room.keeper = squad
+          //   }
+          //   break
+          // }
           case SquadType.WORKER: {
             const opts: {source?: StructureContainer | undefined, additional_container_ids?: string[]} = {}
             if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
@@ -795,7 +743,6 @@ export class Region {
           }
           case SquadType.UPGRADER: {
             const squad = new UpgraderSquad(squad_memory.name, this.room.name, region_memory.upgrader_additional_source_ids || [])
-            upgrader_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
@@ -805,13 +752,11 @@ export class Region {
               if (squad_memory.name == 'charger_w49s6_tr') {
                 const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
                 this.squads.set(squad.name, squad)
-                this.charger_squad = squad
               }
               else {
                 const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
                 const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
                 this.squads.set(squad.name, squad)
-                this.charger_squad = squad
               }
             }
             else {
@@ -835,14 +780,11 @@ export class Region {
               const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
 
               this.squads.set(squad.name, squad)
-              this.charger_squad = squad
             }
             break
           }
           case SquadType.RESEARCHER: {
             const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
-
-            researcher_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
@@ -895,35 +837,31 @@ export class Region {
           case SquadType.MANUAL: {
             const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
 
-            this.manual_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
           case SquadType.SCOUT: {
             const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
 
-            this.scout_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
           case SquadType.ATTACKER: {
             const squad = new AttackerSquad(squad_memory.name, this.attacked_rooms, this.room, energy_capacity)
 
-            this.defend_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
           case SquadType.RAIDER: {
-            const squad = new RaiderSquad(squad_memory.name, raid_target)
+            console.log(`Region ${this.name} no raid target specified`)
+            // const squad = new RaiderSquad(squad_memory.name, raid_target)
 
-            raider_squad = squad
-            this.squads.set(squad.name, squad)
+            // raider_squad = squad
+            // this.squads.set(squad.name, squad)
             break
           }
           case SquadType.INVADER: {
             const squad = new InvaderSquad(squad_memory.name, this.room.name)
-
-            invader_squad = squad
             this.squads.set(squad.name, squad)
             break
           }
@@ -984,50 +922,6 @@ export class Region {
         }, `Squad.init ${this.room.name} ${squad_memory.name}`)()
     }
 
-    // --- Room ---
-    for (const room_name of this.room_names) {
-      let room_memory = Memory.rooms[room_name]
-
-      if (!room_memory) {
-        room_memory = {
-          harvesting_source_ids: []
-        }
-        Memory.rooms[room_name] = room_memory
-      }
-
-      if (room_memory.keeper_squad_name) {
-        continue
-      }
-
-      const room = Game.rooms[room_name]
-
-      if (room_name == this.room.name) {
-        continue  // Since there's upgrader squad, controller keeper no longer needed
-      }
-
-      const name = ControllerKeeperSquad.generateNewName()
-      const squad = new ControllerKeeperSquad(name, room_name, energy_capacity)
-
-      if (room) {
-        room.keeper = squad
-      }
-
-      Memory.rooms[room_name].keeper_squad_name = squad.name
-      this.squads.set(squad.name, squad)
-
-      const memory: ControllerKeeperSquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        room_name: room_name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create roomkeeper for ${room_name}, assigned: ${squad.name}`)
-      break // To not create squads with the same name
-    }
-
     // --- Worker ---
     if (!worker_squad) {
       const name = `worker_${this.room.name.toLowerCase()}` //WorkerSquad.generateNewName()
@@ -1055,77 +949,6 @@ export class Region {
       console.log(`Create worker for ${this.name}, assigned: ${squad.name}`)
     }
     this.worker_squad = worker_squad as WorkerSquad
-
-    // --- Upgrader ---
-    if (!upgrader_squad) {
-      const name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()
-      const squad = new UpgraderSquad(name, this.room.name, region_memory.upgrader_additional_source_ids || [])
-
-      upgrader_squad = squad
-      this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create upgrader for ${this.name}, assigned: ${squad.name}`)
-    }
-    this.upgrader_squad = upgrader_squad!
-
-    if (this.room.keeper) {
-      console.log(`Region ${this.name} no longer need controller keeper ${this.room.keeper.name}`)
-      delete Memory.squads[this.room.keeper.name]
-    }
-
-    // --- Charger ---
-    if (!this.charger_squad && (this.controller.level >= 5) && charger_position) {
-      const name = `charger_${this.room.name.toLowerCase()}`
-
-      const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-      const support_links: StructureLink[] = this.support_link_ids.map((id) => {
-        return Game.getObjectById(id) as StructureLink | undefined
-      }).filter((l) => {
-        if (!l) {
-          return false
-        }
-        return true
-      }) as StructureLink[]
-
-      const squad = new ChargerSquad(name, this.room, link, support_links, charger_position)
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create charger for ${this.room.name}, assigned: ${squad.name}`)
-    }
-
-    // --- Researcher ---
-    if (!researcher_squad) {
-      const name = `researcher_${this.room.name.toLowerCase()}` //ResearcherSquad.generateNewName()
-      const squad = new ResearcherSquad(name, this.room.name, research_input_targets, research_output_targets)
-
-      researcher_squad = squad
-      this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create researcher for ${raid_target}, assigned: ${squad.name}`)
-    }
 
     // --- Harvester ---
     for (const target of harvester_targets) {
@@ -1200,118 +1023,6 @@ export class Region {
       console.log(`Create lightweight harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
       break // To not create squads with the same name
     }
-
-    // --- Scout ---
-    if ((!this.scout_squad) && (rooms_need_scout.length > 0)) {
-      const name = `scout_${this.room.name.toLowerCase()}` //ScoutSquad.generateNewName()
-      const squad = new ScoutSquad(name, rooms_need_scout)
-
-      this.scout_squad = squad
-      this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create scout for ${rooms_need_scout}, assigned: ${squad.name}`)
-    }
-
-    // --- Attacker ---
-    if (!this.defend_squad) {
-      const name = `attacker_${this.room.name.toLowerCase()}` //AttackerSquad.generateNewName()
-      const memory: SquadMemory = {
-        name: name,
-        type: SquadType.ATTACKER,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[name] = memory
-
-      const squad = new AttackerSquad(name, this.attacked_rooms, this.room, energy_capacity)
-
-      this.defend_squad = squad
-      this.squads.set(squad.name, squad)
-
-      console.log(`Create defender for ${this.attacked_rooms}, assigned: ${squad.name}`)
-    }
-
-    // --- Raider ---
-    if (!raider_squad && (this.room.name == 'W48S47')) {
-      const name = RaiderSquad.generateNewName()
-      const squad = new RaiderSquad(name, raid_target)
-
-      raider_squad = squad
-      this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
-    }
-
-    // --- Invader ---
-    // To not recreate squad when changing squad owner region
-    // if (!invader_squad && (this.room.name == 'W44S42')) {
-    //   const name = InvaderSquad.generateNewName()
-    //   const squad = new InvaderSquad(name, this.room.name, invade_target)
-
-    //   invader_squad = squad
-    //   this.squads.set(squad.name, squad)
-
-    //   const memory: SquadMemory = {
-    //     name: squad.name,
-    //     type: squad.type,
-    //     owner_name: this.name,
-    //   }
-    //   Memory.squads[squad.name] = memory
-
-    //   console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
-    // }
-
-    // Manual
-    if (!this.manual_squad) {
-      // const name = ManualSquad.generateNewName()
-      const name = `manual_${this.room.name.toLowerCase()}`
-      const squad = new ManualSquad(name, this.room.name, this.room)
-
-      this.manual_squad = squad
-      this.squads.set(squad.name, squad)
-
-      const memory: SquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-    }
-
-    // // Temp
-    // if (!temp_squad) {
-    //   // const name = TempSquad.generateNewName()
-    //   const name = `temp${this.room.name.toLowerCase()}`
-    //   const squad = new TempSquad(name, this.room.name, energy_capacity)
-
-    //   temp_squad = squad
-    //   this.squads.set(squad.name, squad)
-
-    //   const memory: SquadMemory = {
-    //     name: squad.name,
-    //     type: squad.type,
-    //     owner_name: this.name,
-    //     number_of_creeps: 0,
-    //   }
-    //   Memory.squads[squad.name] = memory
-    // }
 
     // --- Spawn ---
     const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
@@ -2264,6 +1975,141 @@ export class Region {
     }
   }
 
+  private create_squad_memory(): void {
+    const hoge = true // @fixme
+    if (hoge) {
+      console.log(`Region.create_squad_memory for ${this.name}`)
+      return
+    }
+
+    const region_memory = Memory.regions[this.name]
+
+    const name: number = 0  // @fixme
+
+    // --- Upgrader ---
+    const upgrader_name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()
+    const upgrader_memory: SquadMemory = {
+      name: upgrader_name,
+      type: SquadType.UPGRADER,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[upgrader_name] = upgrader_memory
+    console.log(`Create upgrader ${upgrader_name} for ${this.name}`)
+
+
+    // --- Charger ---
+    const charger_name = `charger_${this.room.name.toLowerCase()}`
+    const charger_memory: SquadMemory = {
+      name: charger_name,
+      type: SquadType.CHARGER,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[charger_name] = charger_memory
+    console.log(`Create charger ${charger_name} for ${this.name}`)
+
+
+    // --- Scout ---
+    const scout_name = `scout_${this.room.name.toLowerCase()}` //ScoutSquad.generateNewName()
+    const scout_memory: SquadMemory = {
+      name: scout_name,
+      type: SquadType.SCOUT,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[scout_name] = scout_memory
+    console.log(`Create scout ${scout_name} for ${this.name}`)
+
+
+    // --- Researcher ---
+    const researcher_name = `researcher_${this.room.name.toLowerCase()}` //ResearcherSquad.generateNewName()
+    const researcher_memory: SquadMemory = {
+      name: researcher_name,
+      type: SquadType.RESEARCHER,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[researcher_name] = researcher_memory
+    console.log(`Create researcher ${researcher_name} for ${this.name}`)
+
+
+    // --- Attacker ---
+    const attacker_name = `attacker_${this.room.name.toLowerCase()}` //AttackerSquad.generateNewName()
+    const attacker_memory: SquadMemory = {
+      name: attacker_name,
+      type: SquadType.ATTACKER,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[attacker_name] = attacker_memory
+    console.log(`Create attacker ${attacker_name} for ${this.name}`)
+
+
+    // --- Manual ---
+    const manual_name = `manual_${this.room.name.toLowerCase()}`
+    const manual_memory: SquadMemory = {
+      name: manual_name,
+      type: SquadType.MANUAL,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[manual_name] = manual_memory
+    console.log(`Create manual ${manual_name} for ${this.name}`)
+
+
+    // --- Temp ---
+    const temp_name = `temp_${this.room.name.toLowerCase()}`
+    const temp_memory: SquadMemory = {
+      name: temp_name,
+      type: SquadType.TEMP,
+      owner_name: this.name,
+      number_of_creeps: 0,
+    }
+    Memory.squads[temp_name] = temp_memory
+    console.log(`Create temp ${temp_name} for ${this.name}`)
+
+
+        // // --- Raider ---
+        // if (!raider_squad && (this.room.name == 'W48S47')) {
+        //   const name = RaiderSquad.generateNewName()
+        //   const squad = new RaiderSquad(name, raid_target)
+
+        //   raider_squad = squad
+        //   this.squads.set(squad.name, squad)
+
+        //   const memory: SquadMemory = {
+        //     name: squad.name,
+        //     type: squad.type,
+        //     owner_name: this.name,
+        //     number_of_creeps: 0,
+        //   }
+        //   Memory.squads[squad.name] = memory
+
+        //   console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
+        // }
+
+            // --- Invader ---
+    // To not recreate squad when changing squad owner region
+    // if (!invader_squad && (this.room.name == 'W44S42')) {
+    //   const name = InvaderSquad.generateNewName()
+    //   const squad = new InvaderSquad(name, this.room.name, invade_target)
+
+    //   invader_squad = squad
+    //   this.squads.set(squad.name, squad)
+
+    //   const memory: SquadMemory = {
+    //     name: squad.name,
+    //     type: squad.type,
+    //     owner_name: this.name,
+    //   }
+    //   Memory.squads[squad.name] = memory
+
+    //   console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
+    // }
+
+  }
+
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
     if (!Memory.debug.show_visuals) {
       return
@@ -2295,7 +2141,7 @@ export class Region {
 
     let lines: string[] = [
       `${this.name} in ${this.room.name}: ${ancestor}`,
-      `  Rooms: ${this.room_names}, Capacity: ${this.room.energyCapacityAvailable}, Reaction: ${region_memory.reaction_outputs}`,
+      `  Capacity: ${this.room.energyCapacityAvailable}, Reaction: ${region_memory.reaction_outputs}`,
       `  Squads: ${this.squads.size}, Creeps: ${_.sum(Array.from(this.squads.values()).map(s=>s.creeps.size))}`,
     ]
 
