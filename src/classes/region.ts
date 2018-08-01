@@ -856,9 +856,13 @@ export class Region {
             break
           }
           case SquadType.SCOUT: {
-            const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
-
-            this.squads.set(squad.name, squad)
+            if ((rooms_need_scout.length > 0) && ScoutSquad.need_instantiation(squad_memory, this.controller)) {
+              const squad = new ScoutSquad(squad_memory.name, rooms_need_scout)
+              this.squads.set(squad.name, squad)
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
             break
           }
           case SquadType.ATTACKER: {

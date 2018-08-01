@@ -10,6 +10,20 @@ export class ScoutSquad extends Squad {
   private creep_for_room = new Map<string, Creep>()
   private room_needs_scout: string | undefined
 
+  public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
+    const squad_creeps = Game.squad_creeps[memory.name]
+    if (squad_creeps && (squad_creeps.length > 0)) {
+      return true
+    }
+
+    // no creeps
+    if (memory.stop_spawming) {
+      return false
+    }
+
+    return true
+  }
+
   constructor(readonly name: string, readonly room_names: string[]) {
     super(name)
 
