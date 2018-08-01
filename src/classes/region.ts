@@ -790,8 +790,13 @@ export class Region {
             break
           }
           case SquadType.RESEARCHER: {
-            const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
-            this.squads.set(squad.name, squad)
+            if (ResearcherSquad.need_instantiation(squad_memory, this.controller)) {
+              const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
+              this.squads.set(squad.name, squad)
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
             break
           }
           case SquadType.HARVESTER: {

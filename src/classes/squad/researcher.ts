@@ -11,6 +11,20 @@ export interface ResearchTarget {
 export class ResearcherSquad extends Squad {
   private needs_research: boolean
 
+  public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
+    const squad_creeps = Game.squad_creeps[memory.name]
+    if (squad_creeps && (squad_creeps.length > 0)) {
+      return true
+    }
+
+    // no creeps
+    if (memory.stop_spawming) {
+      return false
+    }
+
+    return controller.level >= 6
+  }
+
   constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
     super(name)
 
