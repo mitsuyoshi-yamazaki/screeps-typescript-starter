@@ -490,6 +490,7 @@ export class Region {
         harvester_targets = [
           { id: '59f1a40f82100e1594f3c718', room_name: 'E16N37' },  // bottom
           { id: '59f1a40f82100e1594f3c716', room_name: 'E16N37' },  // right
+          { id: '59f1c0de7d0b3d79de5f17a3', room_name: 'E16N37' },  // Keanium
         ]
         rooms_need_to_be_defended = [
           'E15N37',
