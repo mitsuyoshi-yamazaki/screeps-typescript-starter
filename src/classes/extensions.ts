@@ -33,6 +33,9 @@ declare global {
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
+
+    show_excluded_walls(room_name: string): void
+    add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean}): void
   }
 
   interface Memory {
@@ -410,6 +413,120 @@ export function tick(): void {
     }, `Game.creep_positions`)()
   }
 
+  Game.show_excluded_walls = function(room_name: string): void {
+    const room = Game.rooms[room_name]
+    if (!room) {
+      console.log(`Game.show_excluded_walls no room ${room_name}`)
+      return
+    }
+
+    const region_memory = Memory.regions[room_name]
+    if (!region_memory) {
+      console.log(`Game.show_excluded_walls no region memory for ${room_name}`)
+      return
+    }
+
+    if (!region_memory.excluded_walls || (region_memory.excluded_walls.length == 0)) {
+      console.log(`No excluded walls in ${room_name}`)
+
+      room.visual.text(`NO EXCLUDED WALLS`, 25, 25, {
+        align: 'center',
+        opacity: 1.0,
+        font: '20px',
+        color: '#ff0000',
+      })
+      return
+    }
+
+    region_memory.excluded_walls.forEach((id) => {
+      const wall = Game.getObjectById(id) as StructureWall | StructureRampart | undefined
+      if (!wall) {
+        console.log(`Game.show_excluded_walls no wall ${id} in ${room_name}`)
+        return
+      }
+
+      let sign = '■'
+
+      if ([STRUCTURE_WALL, STRUCTURE_RAMPART].indexOf(wall.structureType) < 0) {
+        console.log(`Game.show_excluded_walls not wall ${id} at ${wall.pos} in ${room_name}`)
+        sign = '!!'
+      }
+
+      room.visual.text(sign, wall.pos, {
+        align: 'center',
+        opacity: 1.0,
+        font: '12px',
+        color: '#ff0000',
+      })
+    })
+  }
+
+  Game.add_excluded_walls = function(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean}): void {
+    const room = Game.rooms[room_name]
+    if (!room) {
+      console.log(`Game.add_excluded_walls no room ${room_name}`)
+      return
+    }
+
+    const region_memory = Memory.regions[room_name]
+    if (!region_memory) {
+      console.log(`Game.add_excluded_walls no region memory for ${room_name}`)
+      return
+    }
+
+    if (!region_memory.excluded_walls) {
+      region_memory.excluded_walls = []
+    }
+
+    opts = opts || {}
+    const dry_run = !(opts.dry_run == false)
+    const added: StructureWall[] = []
+
+    console.log(`Game.add_excluded_walls dry_run: ${dry_run}`)
+
+    room.find(FIND_STRUCTURES, {
+      filter: structure => {
+        if (structure.structureType != STRUCTURE_WALL) {
+          return false
+        }
+        if ((structure.pos.x < x_min) || (structure.pos.x > x_max)) {
+          return false
+        }
+        if ((structure.pos.y < y_min) || (structure.pos.y > y_max)) {
+          return false
+        }
+        return true
+      }
+    }).forEach(wall => {
+      if (region_memory.excluded_walls!.indexOf(wall.id) < 0) {
+        if (!dry_run) {
+          added.push(wall as StructureWall)
+        }
+
+        room.visual.text('■', wall.pos, {
+          align: 'center',
+          opacity: 1.0,
+          font: '12px',
+          color: '#ff0000',
+        })
+      }
+    })
+
+    if (!dry_run) {
+      if (added.length > 0) {
+        console.log(`Added:`)
+        added.forEach(wall => {
+          region_memory.excluded_walls!.push(wall.id)
+          console.log(`${wall.id} at ${wall.pos} ${wall.structureType}`)
+        })
+      }
+      else {
+        console.log(`No walls added`)
+      }
+    }
+  }
+
+  // --- Room
   Room.prototype.initialize = function() {
     let room_memory: RoomMemory | undefined = Memory.rooms[this.name] as RoomMemory | undefined
 
@@ -570,7 +687,7 @@ export function tick(): void {
 
   Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {
     opts = opts || {}
-    const dry_run = !(opts.dry_run != true)
+    const dry_run = !(opts.dry_run == false)
 
     console.log(`Room.add_remote_harvester dry_run: ${dry_run}`)
 
