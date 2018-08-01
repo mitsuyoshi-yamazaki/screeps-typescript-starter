@@ -15,7 +15,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   ErrorMapper.wrapLoop(() => {
     Initializer.tick()
-  }, `Initializer.init`)()
+  }, `Initializer.tick`)()
 
   ErrorMapper.wrapLoop(() => {
     const empire = new Empire("Mitsuyoshi")

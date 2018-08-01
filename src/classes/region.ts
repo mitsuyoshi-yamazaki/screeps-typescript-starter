@@ -1311,11 +1311,6 @@ export class Region {
       this.activateSafeModeIfNeeded()
     }, `${this.name}.activateSafeModeIfNeeded`)()
 
-    ErrorMapper.wrapLoop(() => {
-      this.drawDebugInfo()
-    }, `${this.name}.drawDebugInfo`)()
-
-    const sources = this.room.sources
     this.squads.forEach((squad, _) => {
       ErrorMapper.wrapLoop(() => {
         squad.run()
@@ -1376,16 +1371,6 @@ export class Region {
         power_spawns = this.room.owned_structures.get(STRUCTURE_POWER_SPAWN) as StructurePowerSpawn[]
       }
 
-      // if (!power_spawns) {
-      //   this.room.owned_structures_not_found_error(STRUCTURE_POWER_SPAWN)
-
-      //   power_spawns = this.room.find(FIND_STRUCTURES, {
-      //     filter: (structure) => {
-      //       return structure.structureType == STRUCTURE_POWER_SPAWN
-      //     }
-      //   }) as StructurePowerSpawn[]
-      // }
-
       if (power_spawns) {
         power_spawns.forEach((power_spawn) => {
           power_spawn.processPower()
@@ -1413,6 +1398,10 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.runObserver()
     }, `${this.name}.runObserver`)()
+
+    ErrorMapper.wrapLoop(() => {
+      this.drawDebugInfo()
+    }, `${this.name}.drawDebugInfo`)()
 
     // ErrorMapper.wrapLoop(() => {
     //   if ((this.room.name == 'W43N5') || (this.room.name == 'W47N5')) {
@@ -1598,6 +1587,7 @@ export class Region {
   }
 
   private sendResourcesTo() {
+    // Send ALL resources
     if (!this.room.terminal || (this.room.terminal.cooldown > 0)) {
       return
     }

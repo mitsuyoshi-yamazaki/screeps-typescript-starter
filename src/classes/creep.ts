@@ -1,5 +1,6 @@
 import { StructureFilter } from "./utils"
 import { Squad } from "classes/squad/squad"
+import { ChargeTarget } from "./extensions";
 
 export enum CreepStatus {  // @todo: add "meta" info to status and keep it on memory, to not change objectives between ticks
   NONE    = "none",
@@ -77,7 +78,7 @@ declare global {
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean}): ActionResult
     makeShell(): ActionResult
-    find_charge_target(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
+    find_charge_target(opt?: CreepChargeTargetOption): ChargeTarget | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dropResources(opt?: CreepTransferOption): ScreepsReturnCode
@@ -110,6 +111,9 @@ declare global {
     debug?: boolean
     stop?: boolean
     destination_room_name?: string
+    withdraw_target?: string            // something that has energy
+    withdraw_resources_target?: string  // something that has store
+    pickup_target?: string
   }
 }
 
@@ -782,65 +786,154 @@ export function init() {
     // }
   }
 
-  Creep.prototype.find_charge_target = function(opt?: CreepChargeTargetOption): StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined {
+  Creep.prototype.find_charge_target = function(opt?: CreepChargeTargetOption): ChargeTarget | undefined {
     const options = opt || {}
     const additional_container_ids = options.additional_container_ids || []
     const is_attacked = this.room.attacked
+    let structures_needed_to_be_charged: ChargeTarget[]
 
-    return this.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: structure => {
-        if (structure.structureType == STRUCTURE_CONTAINER) {
-          if (additional_container_ids.indexOf(structure.id) >= 0) {
-            if (structure.store.energy < 1500) {
-              return true
+    if (this.room.structures_needed_to_be_charged) {
+      structures_needed_to_be_charged = this.room.structures_needed_to_be_charged
+      // console.log(`Creep.find_charge_target has structures_needed_to_be_charged ${this.room.name}`)
+    }
+    else {
+      if (this.room.owned_structures) {
+        // console.log(`Creep.find_charge_target create structures_needed_to_be_charged ${this.room.name}`)
+
+        const owned_structures = this.room.owned_structures
+
+        let structures: ChargeTarget[] = []
+
+        structures = structures.concat((owned_structures.get(STRUCTURE_EXTENSION) || []) as StructureExtension[])
+        structures = structures.concat((owned_structures.get(STRUCTURE_SPAWN) || []) as StructureSpawn[])
+        structures = structures.concat((owned_structures.get(STRUCTURE_TOWER) || []) as StructureTower[])
+        structures = structures.concat((owned_structures.get(STRUCTURE_TERMINAL) || []) as StructureTerminal[])
+        structures = structures.concat((owned_structures.get(STRUCTURE_LAB) || []) as StructureLab[])
+        structures = structures.concat((owned_structures.get(STRUCTURE_POWER_SPAWN) || []) as StructurePowerSpawn[])
+
+        additional_container_ids.forEach((id) => {
+          const container = Game.getObjectById(id) as StructureContainer | undefined
+          if (container) {
+            structures.push(container)
+          }
+        })
+
+        structures_needed_to_be_charged = structures.filter(structure => {
+          if (structure.structureType == STRUCTURE_CONTAINER) {
+            if (additional_container_ids.indexOf(structure.id) >= 0) {
+              if (structure.store.energy < 1500) {
+                return true
+              }
+              return false
             }
             return false
           }
-          return false
-        }
-        if (!(structure as OwnedStructure).my) {
-          return false
-        }
+          if (!(structure as OwnedStructure).my) {
+            return false
+          }
 
-        if (structure.structureType == STRUCTURE_EXTENSION) {
-          return (structure.energy < structure.energyCapacity)
-        }
-        else if (structure.structureType == STRUCTURE_SPAWN) {
-          const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - 50)
-          return structure.energy < capacity
-        }
-        else if (structure.structureType == STRUCTURE_TOWER) {
-          let margin = this.room.attacked ? 100 : 200
-          const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
-          return structure.energy <= capacity
-        }
-        else if (!is_attacked) {
-          if (structure.structureType == STRUCTURE_POWER_SPAWN) {
+          if (structure.structureType == STRUCTURE_EXTENSION) {
             return (structure.energy < structure.energyCapacity)
           }
-          else if (structure.structureType == STRUCTURE_TERMINAL) {
-            // structure.store.energyを変更する際はtransferLinkToStorageも
-            if (!structure.room.storage) {
+          else if (structure.structureType == STRUCTURE_SPAWN) {
+            const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - 50)
+            return structure.energy < capacity
+          }
+          else if (structure.structureType == STRUCTURE_TOWER) {
+            let margin = this.room.attacked ? 100 : 200
+            const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
+            return structure.energy <= capacity
+          }
+          else if (!is_attacked) {
+            if (structure.structureType == STRUCTURE_POWER_SPAWN) {
+              return (structure.energy < structure.energyCapacity)
+            }
+            else if (structure.structureType == STRUCTURE_TERMINAL) {
+              // structure.store.energyを変更する際はtransferLinkToStorageも
+              if (!structure.room.storage) {
+                return false
+              }
+              const is_rcl8 = !(!structure.room.controller) && structure.room.controller.my && (structure.room.controller.level == 8)
+
+              const energy = 100000//(is_rcl8 && (structure.room.storage.store.energy > 200000)) ? 150000 : 100000
+              return (structure.store.energy < energy)
+            }
+            else if (structure.structureType == STRUCTURE_LAB) {
+              return (structure.energy < (structure.energyCapacity - 100))
+            }
+            // else if (structure.structureType == STRUCTURE_NUKER) {
+            //   if (!structure.room.storage || (structure.room.storage.store.energy < 500000)) {
+            //     return false
+            //   }
+            //   return (structure.energy < structure.energyCapacity)
+            // }
+          }
+          return false
+        })
+      }
+      else {
+        // console.log(`Creep.find_charge_target unexpectedly no owned_structures ${this.room.name}`)
+
+        structures_needed_to_be_charged = this.room.find(FIND_STRUCTURES, {
+          filter: structure => {
+            if (structure.structureType == STRUCTURE_CONTAINER) {
+              if (additional_container_ids.indexOf(structure.id) >= 0) {
+                if (structure.store.energy < 1500) {
+                  return true
+                }
+                return false
+              }
               return false
             }
-            const is_rcl8 = !(!structure.room.controller) && structure.room.controller.my && (structure.room.controller.level == 8)
+            if (!(structure as OwnedStructure).my) {
+              return false
+            }
 
-            const energy = 100000//(is_rcl8 && (structure.room.storage.store.energy > 200000)) ? 150000 : 100000
-            return (structure.store.energy < energy)
+            if (structure.structureType == STRUCTURE_EXTENSION) {
+              return (structure.energy < structure.energyCapacity)
+            }
+            else if (structure.structureType == STRUCTURE_SPAWN) {
+              const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - 50)
+              return structure.energy < capacity
+            }
+            else if (structure.structureType == STRUCTURE_TOWER) {
+              let margin = this.room.attacked ? 100 : 200
+              const capacity = options.should_fully_charged ? structure.energyCapacity : (structure.energyCapacity - margin)
+              return structure.energy <= capacity
+            }
+            else if (!is_attacked) {
+              if (structure.structureType == STRUCTURE_POWER_SPAWN) {
+                return (structure.energy < structure.energyCapacity)
+              }
+              else if (structure.structureType == STRUCTURE_TERMINAL) {
+                // structure.store.energyを変更する際はtransferLinkToStorageも
+                if (!structure.room.storage) {
+                  return false
+                }
+                const is_rcl8 = !(!structure.room.controller) && structure.room.controller.my && (structure.room.controller.level == 8)
+
+                const energy = 100000//(is_rcl8 && (structure.room.storage.store.energy > 200000)) ? 150000 : 100000
+                return (structure.store.energy < energy)
+              }
+              else if (structure.structureType == STRUCTURE_LAB) {
+                return (structure.energy < (structure.energyCapacity - 100))
+              }
+              // else if (structure.structureType == STRUCTURE_NUKER) {
+              //   if (!structure.room.storage || (structure.room.storage.store.energy < 500000)) {
+              //     return false
+              //   }
+              //   return (structure.energy < structure.energyCapacity)
+              // }
+            }
+            return false
           }
-          else if (structure.structureType == STRUCTURE_LAB) {
-            return (structure.energy < (structure.energyCapacity - 100))
-          }
-          // else if (structure.structureType == STRUCTURE_NUKER) {
-          //   if (!structure.room.storage || (structure.room.storage.store.energy < 500000)) {
-          //     return false
-          //   }
-          //   return (structure.energy < structure.energyCapacity)
-          // }
-        }
-        return false
+        }) as ChargeTarget[]
       }
-    }) as StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | undefined
+
+      this.room.structures_needed_to_be_charged = structures_needed_to_be_charged
+    }
+
+    return this.pos.findClosestByPath(structures_needed_to_be_charged)
   }
 
   Creep.prototype.transferResources = function(target: StructureContainer | StructureStorage | StructureTerminal, opt?: CreepTransferOption): ScreepsReturnCode {
@@ -1384,7 +1477,7 @@ export function init() {
       }
     }
 
-    let charge_target: StructureExtension | StructureSpawn | StructureTerminal | StructureTower | StructureLab | undefined
+    let charge_target: ChargeTarget | undefined
     let find_charge_target = false
 
     // Harvest

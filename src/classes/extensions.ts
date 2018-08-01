@@ -18,6 +18,8 @@ export interface AttackerInfo  {
 const cost_matrixes = new Map<string, CostMatrix>()
 console.log(`Initialize cost_matrixes`)
 
+export type ChargeTarget = StructureExtension | StructureSpawn | StructureTower | StructureTerminal | StructureLab | StructurePowerSpawn | StructureContainer
+
 declare global {
   interface Game {
     version: string
@@ -91,6 +93,8 @@ declare global {
     test(from: Structure): void
 
     initialize(): void
+
+    structures_needed_to_be_charged?: ChargeTarget[]
   }
 
   interface RoomVisual {

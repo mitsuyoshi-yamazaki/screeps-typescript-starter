@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.38.6'
+const version = '2.38.8'
 
 export function init(): void {
   Game.version = version
@@ -161,7 +161,10 @@ export function tick(): void {
   }
 
   Extensions.tick()
-  refreshMemory()
+
+  if ((Game.time % 89) == 1) {
+    refreshMemory()
+  }
 
   for (const room_name in Game.rooms) {
     const room = Game.rooms[room_name]

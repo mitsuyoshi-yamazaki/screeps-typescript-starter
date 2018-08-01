@@ -1094,23 +1094,24 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
   }
 
   // Harvest
-  let has_capacity = false
-  if (!store) {
-    // Does nothing
-  }
-  else if (resource_type && (store as StructureContainer).store) {
-    const capacity = (store as StructureContainer).storeCapacity
-    const energy_amount = _.sum((store as StructureContainer).store)
-    has_capacity = (energy_amount < capacity)
-  }
-  else if (store.structureType == STRUCTURE_LINK) {
-    const capacity = (store as StructureLink).energyCapacity
-    const energy_amount = (store as StructureLink).energy
-    has_capacity = (energy_amount < capacity)
-  }
 
-  if ((creep.memory.status == CreepStatus.HARVEST) && ((creep.carry[resource_type] || 0) == 0) && store && has_capacity) {
-    if (source && (creep.pos.getRangeTo(source) <= 1)) {
+  if ((creep.memory.status == CreepStatus.HARVEST) && ((creep.carry[resource_type] || 0) == 0) && store) {
+    let has_capacity = false
+    if (!store) {
+      // Does nothing
+    }
+    else if (resource_type && (store as StructureContainer).store) {
+      const capacity = (store as StructureContainer).storeCapacity
+      const energy_amount = _.sum((store as StructureContainer).store)
+      has_capacity = (energy_amount < capacity)
+    }
+    else if (store.structureType == STRUCTURE_LINK) {
+      const capacity = (store as StructureLink).energyCapacity
+      const energy_amount = (store as StructureLink).energy
+      has_capacity = (energy_amount < capacity)
+    }
+
+    if (has_capacity && source && (creep.pos.getRangeTo(source) <= 1)) {
 
       const dropped_object = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
         filter: (resource: Resource) => {
