@@ -911,9 +911,13 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            const squad = new NukerChargerSquad(squad_memory.name, this.room)
-
-            this.squads.set(squad.name, squad)
+            if (['dummy'].indexOf(this.room.name) >= 0) {
+              const squad = new NukerChargerSquad(squad_memory.name, this.room)
+              this.squads.set(squad.name, squad)
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
             break
           }
           case SquadType.REMOTE_ATTACKER: {
