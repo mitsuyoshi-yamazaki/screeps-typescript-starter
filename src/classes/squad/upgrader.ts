@@ -50,6 +50,9 @@ export class UpgraderSquad extends Squad {
     if (room_name == 'W51S29') {
       max = (room.storage.store.energy > 400000) ? 1 : 0
     }
+    else if (['W46S3', 'W45S27'].indexOf(room_name) >= 0) {
+      max = Math.min(max, 1)
+    }
 
     if (room.controller.level >= 8) {
       max = 1

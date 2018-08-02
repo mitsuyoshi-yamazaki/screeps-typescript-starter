@@ -813,7 +813,7 @@ export function init() {
 
         additional_container_ids.forEach((id) => {
           const container = Game.getObjectById(id) as StructureContainer | undefined
-          if (container) {
+          if (container && (container.structureType == STRUCTURE_CONTAINER)) {  // possibly link
             structures.push(container)
           }
         })
@@ -1408,9 +1408,14 @@ export function init() {
       }
     }
     else if (!this.memory.stop) {
-      this.moveTo(this.room.controller, {
+      const move_to_opts: MoveToOpts = {
         maxRooms: 0,
-      })
+      }
+
+      if (this.room.name == 'W45S27') {
+        move_to_opts.range = 3
+      }
+      this.moveTo(this.room.controller, move_to_opts)
     }
 
     const upgrade_result = this.upgradeController(this.room.controller)
