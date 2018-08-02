@@ -595,7 +595,7 @@ export class Region {
             }
           }
 
-          if (finished && (region_memory.reaction_outputs.length > 0)) {
+          if (finished && (region_memory.reaction_outputs.length > 1)) {//0)) { // to continue reaction after new resource sent
             Memory.regions[this.name].reaction_outputs!.shift()
           }
           else {
@@ -667,7 +667,7 @@ export class Region {
         }
       }
       else {
-        if ((Game.time % 19) == 3) {
+        if ((Game.time % 101) == 3) {
           const message = `No reaction ${this.name}`
           console.log(message)
           // Game.notify(message)

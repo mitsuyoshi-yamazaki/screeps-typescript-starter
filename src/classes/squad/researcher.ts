@@ -30,14 +30,14 @@ export class ResearcherSquad extends Squad {
 
     const room = Game.rooms[this.room_name]
 
-    let debug = false
+    let debug = 'dummy'
     // if (this.room_name == 'W44S7') {
     //   debug = true
     // }
 
     if (!room || (room.spawns.length == 0) || !room.terminal || !room.storage) {
       this.needs_research = false
-      if (debug) {
+      if (debug == this.room_name) {
         console.log(`ResearchSquad needs_research: ${this.needs_research}, no room`)
       }
       return
@@ -46,13 +46,13 @@ export class ResearcherSquad extends Squad {
 
     if ((this.input_targets.length == 0) || (this.output_targets.length == 0)) {
       this.needs_research = false
-      if (debug) {
+      if (debug == this.room_name) {
         console.log(`ResearchSquad needs_research: ${this.needs_research}, no targets, inputs: ${this.input_targets.length}, outputs: ${this.output_targets.length}`)
       }
     }
     else if (this.output_targets.map(t=>Game.getObjectById(t.id) as StructureLab).filter(l=>l.mineralAmount > 100).length > 0) {
       this.needs_research = true
-      if (debug) {
+      if (debug == this.room_name) {
         console.log(`ResearchSquad needs_research: ${this.needs_research}, has output compounds`)
       }
     }
