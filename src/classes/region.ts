@@ -814,7 +814,7 @@ export class Region {
               room_name: harvester_squad_memory.room_name,
             }
 
-            const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity)
+            const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
             this.squads.set(squad.name, squad)
             break
           }
@@ -1001,7 +1001,7 @@ export class Region {
       Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
 
       const name = HarvesterSquad.generateNewName()
-      const squad = new HarvesterSquad(name, target, harvester_destination, energy_capacity)
+      const squad = new HarvesterSquad(name, target, harvester_destination, energy_capacity, this)
 
       this.squads.set(squad.name, squad)
 

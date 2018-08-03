@@ -1,6 +1,7 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { Region } from "../region";
 
 export interface HarvesterSquadMemory extends SquadMemory {
   readonly source_id: string
@@ -20,7 +21,7 @@ export class HarvesterSquad extends Squad {
 
   private needs_harvester: boolean
 
-  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number) {
+  constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number, readonly region: Region) {
     super(name)
 
     this.destination_storage = this.destination as StructureStorage // @fixme:
@@ -955,42 +956,18 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
-        if ((this.source_info.id == '59f1a03882100e1594f36569') && !this.destination) {  // W44S7
-          const x = 20
-          const y = 40
-          if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.dropResources()
-            creep.memory.status = CreepStatus.HARVEST
-          }
-          else {
-            creep.moveTo(x, y)
-          }
-          return
-        }
-        else if ((this.source_info.room_name == 'W42N1') && !this.destination) {  // W42N1
-          const x = 23
-          const y = 27
-          if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.dropResources()
-            creep.memory.status = CreepStatus.HARVEST
-          }
-          else {
-            creep.moveTo(x, y)
-          }
-          return
-        }
-        else if ((this.source_info.room_name == 'W47N2') && !this.destination) {
-          const x = 15
-          const y = 11
-          if ((creep.pos.x == x) && (creep.pos.y == y)) {
-            creep.drop(RESOURCE_ENERGY)
-            creep.memory.status = CreepStatus.HARVEST
-          }
-          else {
-            creep.moveTo(x, y)
-          }
-          return
-        }
+        // if ((this.source_info.room_name == 'W47N2') && !this.destination) {
+        //   const x = 15
+        //   const y = 11
+        //   if ((creep.pos.x == x) && (creep.pos.y == y)) {
+        //     creep.drop(RESOURCE_ENERGY)
+        //     creep.memory.status = CreepStatus.HARVEST
+        //   }
+        //   else {
+        //     creep.moveTo(x, y)
+        //   }
+        //   return
+        // }
 
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
         const destination = (has_mineral && !(!this.destination_storage)) ? this.destination_storage : this.destination
@@ -1008,6 +985,36 @@ export class HarvesterSquad extends Squad {
           switch (transfer_result) {
             case ERR_NOT_IN_RANGE:
               creep.moveTo(destination)
+
+              if (creep.carry.energy > 0) {
+                if (creep.room.controller && creep.room.controller.my) {
+                  if (creep.room.owned_structures) {
+                    const extensions: StructureExtension[] = creep.room.owned_structures.get(STRUCTURE_EXTENSION) as StructureExtension[]
+                    const extension = creep.pos.findInRange(extensions, 1, {
+                      filter: (structure: StructureExtension) => {
+                        return structure.energy < structure.energyCapacity
+                      }
+                    })[0]
+
+                    if (extension) {
+                      creep.transfer(extension, RESOURCE_ENERGY)
+                    }
+                    else {
+                      const workers = Array.from(this.region.worker_squad.creeps.values())
+                      const worker = creep.pos.findInRange(workers, 1, {
+                        filter: (creep: Creep) => {
+                          return creep.carry.energy < creep.carryCapacity
+                        }
+                      })[0]
+
+                      if (worker) {
+                        creep.transfer(worker, RESOURCE_ENERGY)
+                      }
+                    }
+                  }
+                }
+              }
+
               if (has_mineral) {
                 creep.say(`💎`)
               }
