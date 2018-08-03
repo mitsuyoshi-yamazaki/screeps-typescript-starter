@@ -1680,7 +1680,7 @@ export function init() {
       // }
 
       let should_upgrade = true
-      if (['W43N5', 'W56S7'].indexOf(this.room.name) >= 0) {
+      if (['W56S7', 'W46S3', 'E16N37', 'W45S27', 'W47S9'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {

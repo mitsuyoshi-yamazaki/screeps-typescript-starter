@@ -126,7 +126,7 @@ export class WorkerSquad extends Squad {
     const room = Game.rooms[this.room_name]
     const rcl = (!(!room) && !(!room.controller)) ? room.controller.level : 1
 
-    if (rcl >= 7) {
+    if (rcl >= 6) {
       const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
 
       if (((this.creeps.size > 1) && (number_of_carriers == 0)) || ((this.creeps.size > 2) && (number_of_carriers == 1))) {

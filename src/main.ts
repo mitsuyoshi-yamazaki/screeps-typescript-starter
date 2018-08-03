@@ -154,6 +154,61 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // const sell_orders = sellOrders(RESOURCE_OXYGEN, 0.075)
   // console.log(`${RESOURCE_OXYGEN} sell orders ${sell_orders.map(o=>[o.price, o.amount])}`)
 
+  if ((Game.time % 23) == 3) {
+    ErrorMapper.wrapLoop(() => {
+      const target_room = Game.rooms['W56S7']
+      if (target_room && (target_room.energyCapacityAvailable > 1200)) {
+        const extension_ids = [
+          '5b623a7c529e6f26f0cb79fb',
+          '5b623d153c93de26f6344bf6',
+          '5b6246c506da9776c6ebd642',
+          '5b6249810f98906de3d5e15a',
+          '5b63d6c094e55f270225eaf0',
+          '5b6243075abaee4cd13ccd03',
+          '5b623fe3eb7b474ce3afdb1b',
+          '5b615ae73bc2816df5467e28',
+          '5b6150bccedc5c6dc11f2239',
+          '5b614d2294e55f270224ecfa',
+          '5b62523fc79e0676ba490067',
+          '5b614ad57e534476d3eb3df6',
+          '5b61488c2456b776aed09a8c',
+          '5b624bed9007134cd78e2b32',
+          '5b61a11a734b39586d8e0204',
+          '5b624edd3c93de26f63452d0',
+          '5b62371aeef41a1488261477',
+        ]
+
+        let finished = false
+
+        extension_ids.forEach((id) => {
+          if (finished) {
+            return
+          }
+          const extension = Game.getObjectById(id) as StructureExtension | undefined
+          if (!extension || (extension.structureType != STRUCTURE_EXTENSION) || (extension.energy > 0)) {
+            return
+          }
+          if (extension.pos.x < 33) {
+            console.log(`ERROR extension ${id} ${extension.pos}`)
+            return
+          }
+
+          extension.destroy()
+          finished = true
+        })
+
+        if (finished) {
+          console.log(`Check extension destroy 1 extension`)
+        }
+        else {
+          console.log(`Check extension no extensions to destroy`)
+        }
+      }
+      else {
+        console.log(`Check extension low energy capacity`)
+      }
+    })()
+  }
 }, `Main`)
 
 function trade():void {
@@ -176,11 +231,21 @@ function trade():void {
     rooms.push(room)
   }
 
+  const w51s29 = Game.rooms['W51S29'] as Room | undefined
+
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
     price: 0.175,
     rooms,
   })
+
+  if (w51s29) {
+    sellResource({
+      resource_type: RESOURCE_LEMERGIUM,
+      price: 0.1,
+      rooms: [w51s29],
+    })
+  }
 
   buyResource({
     resource_type: RESOURCE_KEANIUM,
@@ -470,7 +535,6 @@ function sellOrders(resource_type: ResourceConstant, price: number): Order[] {
  /**
   * memo:
   * Game.rooms['W48S47'].terminal.send(RESOURCE_OXYGEN, 100, 'W49S47', '')
-  * Game.market.calcTransactionCost(40000, 'E16S42', 'W48S47')
   * Object.keys(Game.creeps).map((n)=>{return Game.creeps[n]}).filter((c)=>{return c.memory.squad_name == 'harvester5863442'})[0]
   * Game.rooms['W48S47'].terminal.send(RESOURCE_ENERGY, 100, 'W48S45', "Hi neighbour, it's test")
   */

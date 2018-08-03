@@ -614,6 +614,10 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1a00882100e1594f35ee0') { // W47N5
       number_of_carriers = (!(!room) && room.storage) ? 1 : 0  // To drop energy on the ground
     }
+    else if (this.source_info.id == '59f19f8282100e1594f350b3') { // W56S7 bottom
+      number_of_carriers = 2
+    }
+
 
     if (this.source_info.room_name == 'W47S49') {
       number_of_carriers = 3
@@ -631,9 +635,6 @@ export class HarvesterSquad extends Squad {
       else {
         number_of_carriers = 0
       }
-    }
-    else if (this.source_info.room_name == 'W56S7') {
-      number_of_carriers = 2
     }
 
     if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
@@ -944,7 +945,7 @@ export class HarvesterSquad extends Squad {
             creep.memory.status = CreepStatus.CHARGE
             return // It needed to make this line work
           }
-          else {
+          else if (withdraw_result != OK) {
             creep.say(`E${withdraw_result}`)
           }
         }
