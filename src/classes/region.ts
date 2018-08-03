@@ -20,6 +20,7 @@ import { RemoteDefenderSqauad } from "./squad/remote_defender";
 import { NukerChargerSquad } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
+import { room_link } from "./utils";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -688,7 +689,12 @@ export class Region {
     }) as string[]
 
     if ((this.attacked_rooms.length > 0) && ((Game.time % 13) == 5)) {
-      const message = ((this.attacked_rooms.indexOf(this.room.name)) >= 0) ?  `<span style='color:#E74C3C'>Room ${this.attacked_rooms} are attacked!! ${this.name}</span>` : `Room ${this.attacked_rooms} are attacked!! ${this.name}`
+      const rooms = this.attacked_rooms.map(room_name => {
+        const color = (room_name == this.room.name) ? '#E74C3C' : '#FFFFFF'
+        return room_link(room_name, {color})
+      })
+
+      const message = `${rooms} are attacked!! ${this.name}</span>`
       console.log(message)
       // Game.notify(message)
     }

@@ -1517,7 +1517,7 @@ export function init() {
         }
       }
       else {
-        if (this.room.controller && this.room.controller.my && (this.room.controller.level <= 4)) {
+        if ((this.room.controller && this.room.controller.my && (this.room.controller.level <= 4))){// || (this.room.name == 'W56S7')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {

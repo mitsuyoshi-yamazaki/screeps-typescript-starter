@@ -324,10 +324,10 @@ export function tick(): void {
       if (region_memory && region_memory.last_heavy_attacker) {
         const ticks = region_memory.last_heavy_attacker.ticks
         const text = `${Game.time - ticks} ticks ago`
-        heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, text)}`
+        heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}`
       }
 
-      console.log(`${room_name}\tRCL:<b>${controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
+      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
     })
   }
 

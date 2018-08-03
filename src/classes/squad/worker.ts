@@ -107,6 +107,9 @@ export class WorkerSquad extends Squad {
     if ((this.creeps.size < 1) && (energy_available >= 200)) {
       return true
     }
+    // if (this.room_name == 'W56S7') {
+    //   return true
+    // }
 
     let energy_unit = 200
 

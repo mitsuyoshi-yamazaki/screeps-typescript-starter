@@ -68,7 +68,7 @@ export class Empire {
         if (excludes) {
           excludes_opt = excludes
         }
-        else {
+        else if (colony_region.room.spawns.length > 0) {
           excludes_opt = [
             SquadType.ATTACKER,
             SquadType.SCOUT,
@@ -85,6 +85,9 @@ export class Empire {
             excludes_opt.push(SquadType.RESEARCHER)
             excludes_opt.push(SquadType.UPGRADER)
           }
+        }
+        else {
+          excludes_opt = []
         }
 
         if ((colony_region.controller.level <= 5)) {
