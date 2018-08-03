@@ -2,7 +2,7 @@ import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
-import { UID } from "./utils";
+import { UID, room_history_link, room_link } from "./utils";
 import { RoomLayout, RoomLayoutOpts } from "./room_layout";
 
 export interface AttackerInfo  {
@@ -322,9 +322,9 @@ export function tick(): void {
 
       let heavyly_attacked = ''
       if (region_memory && region_memory.last_heavy_attacker) {
-        const url = `https://screeps.com/a/#!/history/shard2/${room_name}?t=${region_memory.last_heavy_attacker.ticks}`
-        const link = `${Game.time - region_memory.last_heavy_attacker.ticks} ticks ago`
-        heavyly_attacked = `heavyly attacked <a href="${url}">${link}</a>`
+        const ticks = region_memory.last_heavy_attacker.ticks
+        const text = `${Game.time - ticks} ticks ago`
+        heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, text)}`
       }
 
       console.log(`${room_name}\tRCL:<b>${controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
@@ -410,7 +410,7 @@ export function tick(): void {
         }
 
         const spawning = creep.spawning ? ' (spawning)' : ''
-        console.log(`Creep ${creep.name} at ${creep.pos} <a href="https://screeps.com/a/#!/room/shard2/${creep.pos.roomName}">${creep.pos.roomName}</a>${spawning}`)
+        console.log(`Creep ${creep.name} at ${creep.pos} ${room_link(creep.pos.roomName)}${spawning}`)
       }
     }, `Game.creep_positions`)()
   }
@@ -681,10 +681,7 @@ export function tick(): void {
   }
 
   Room.prototype.owned_structures_not_found_error = function(structure_type: StructureConstant): void {
-    if ((this.name == 'W42N1') || (this.name == 'W48N11') || (this.name == 'W47N5') || (this.name == 'W43N5') || (this.name == 'W47N2')) {
-      return  // @fixme:
-    }
-    console.log(`Room.owned_structures_not_found_error ${structure_type} ${this}`)
+    console.log(`Room.owned_structures_not_found_error ${structure_type} ${room_link(this.name)}`)
   }
 
   Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {

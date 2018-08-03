@@ -14,6 +14,12 @@ export class LightWeightHarvesterSquad extends Squad {
   constructor(readonly name: string, readonly source_info: {id: string, room_name: string}, readonly destination: StructureContainer | StructureTerminal | StructureStorage | StructureLink | StructureSpawn, readonly energy_capacity: number, readonly region: Region) {
     super(name)
 
+    // if ((Game.time % 7) == 0) {
+    //   console.log(`${this.owner_room_name}, ${this.source_info.room_name}`)
+
+    //   // Memory.squads[this.name].stop_spawming = true
+    // }
+
     this.source = Game.getObjectById(this.source_info.id) as Source | undefined
 
     if (this.source_info.room_name == 'W48S49') {

@@ -688,7 +688,7 @@ export class Region {
     }) as string[]
 
     if ((this.attacked_rooms.length > 0) && ((Game.time % 13) == 5)) {
-      const message = ((this.attacked_rooms.indexOf(this.room.name)) >= 0) ?  `<b>Room ${this.attacked_rooms} are attacked!! ${this.name}</b>` : `Room ${this.attacked_rooms} are attacked!! ${this.name}`
+      const message = ((this.attacked_rooms.indexOf(this.room.name)) >= 0) ?  `<span style='color:#E74C3C'>Room ${this.attacked_rooms} are attacked!! ${this.name}</span>` : `Room ${this.attacked_rooms} are attacked!! ${this.name}`
       console.log(message)
       // Game.notify(message)
     }
@@ -837,18 +837,19 @@ export class Region {
             break
           }
           case SquadType.LIGHTWEIGHT_HARVESTER: {
-            const harvester_squad_memory = squad_memory as HarvesterSquadMemory
-            const source_info = {
-              id: harvester_squad_memory.source_id,
-              room_name: harvester_squad_memory.room_name,
-            }
+            // stop using lightweight harvester
+            // const harvester_squad_memory = squad_memory as HarvesterSquadMemory
+            // const source_info = {
+            //   id: harvester_squad_memory.source_id,
+            //   room_name: harvester_squad_memory.room_name,
+            // }
 
-            const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
-            this.squads.set(squad.name, squad)
+            // const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
+            // this.squads.set(squad.name, squad)
             break
           }
           case SquadType.MANUAL: {
-            if (['dummy'].indexOf(this.room.name) >= 0) {
+            if (['W44S7'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }

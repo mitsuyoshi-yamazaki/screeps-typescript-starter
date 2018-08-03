@@ -919,6 +919,9 @@ export class RemoteHarvesterSquad extends Squad {
           if (!tombstone || (_.sum(tombstone.store) == 0)) {
             creep.memory.withdraw_resources_target = undefined
           }
+          else {
+            creep.say(`${tombstone.pos.x},${tombstone.pos.y}`)
+          }
         }
 
         if (!tombstone && ((Game.time % 13) == 11) && creep.room.resourceful_tombstones && (creep.room.resourceful_tombstones.length > 0)) {
@@ -946,14 +949,18 @@ export class RemoteHarvesterSquad extends Squad {
           if (!drop || (drop.amount == 0)) {
             creep.memory.pickup_target = undefined
           }
+          else {
+            creep.say(`${drop.pos.x},${drop.pos.y}`)
+          }
         }
 
-        if (!drop && ((Game.time % 4) == 7)) {
+        if (!drop && ((Game.time % 4) == 1)) {
           drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 4)[0]
         }
 
         if (drop) {
           const pickup_result = creep.pickup(drop)
+          creep.memory.pickup_target = drop.id
 
           if (pickup_result == ERR_NOT_IN_RANGE) {
             creep.moveTo(drop)

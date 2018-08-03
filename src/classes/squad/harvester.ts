@@ -631,6 +631,9 @@ export class HarvesterSquad extends Squad {
         number_of_carriers = 0
       }
     }
+    else if (this.source_info.room_name == 'W56S7') {
+      number_of_carriers = 2
+    }
 
     if (this.store && (this.store.structureType == STRUCTURE_LINK)) {
       number_of_carriers = 0
