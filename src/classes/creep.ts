@@ -1591,6 +1591,16 @@ export function init() {
           // }
         }
 
+        if (this.room.name == 'W56S7') {
+          const source_link = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
+          if (source_link && (source_link.energy > 0) && (this.pos.getRangeTo(source_link) < 12)) {
+            if (this.withdraw(source_link, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+              this.moveTo(source_link, move_to_opt)
+            }
+            return
+          }
+        }
+
         if ((sources.length > 0)) {
           const source = ((sources.length == 1) && (sources[0].store.energy > 0)) ? sources[0] : this.pos.findClosestByPath(sources, {
             filter: (s: WorkerSource) => {
@@ -1703,7 +1713,7 @@ export function init() {
       // }
 
       let should_upgrade = true
-      if (['W56S7', 'W46S3', 'E16N37', 'W45S27', 'W47S9'].indexOf(this.room.name) >= 0) {
+      if (['W46S3', 'E16N37', 'W45S27', 'W47S9'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {

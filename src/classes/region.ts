@@ -740,6 +740,10 @@ export class Region {
             if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
               opts.source = harvester_destination
             }
+            else if (this.room.name == 'W56S7') {
+              opts.source = Game.getObjectById('5b6429cb3369a7643bb60c1d') as StructureContainer | undefined
+            }
+
             if (region_memory.upgrader_additional_source_ids) {
               opts.additional_container_ids = region_memory.upgrader_additional_source_ids
             }
@@ -862,7 +866,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['dummy'].indexOf(this.room.name) >= 0) {
+            if (['W56S7'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }

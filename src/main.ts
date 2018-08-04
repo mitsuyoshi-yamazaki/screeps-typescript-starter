@@ -231,7 +231,10 @@ function trade():void {
     rooms.push(room)
   }
 
-  const w51s29 = Game.rooms['W51S29'] as Room | undefined
+  const lemergium_seller_rooms = [
+    'W51S29',
+    'W47S6',
+  ].map(room_name => Game.rooms[room_name]).filter(r => !(!r)) as Room[]
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
@@ -239,11 +242,11 @@ function trade():void {
     rooms,
   })
 
-  if (w51s29) {
+  if (lemergium_seller_rooms.length > 0) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.09,
-      rooms: [w51s29],
+      price: 0.075,
+      rooms: lemergium_seller_rooms,
     })
   }
 
