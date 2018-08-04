@@ -249,18 +249,36 @@ export function tick(): void {
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
+    const high = 'high'
+    const almost = 'almost'
 
     const colors: {[index: string]: string} = {
       info: 'white',
       warn: '#F9E79F',
       error: '#E74C3C',
+      high: '#64C3F9',
+      almost: '#47CAB0',
     }
 
-    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
-      return `<span style='color:${colors[level]}'>${text}</span>`
+    const colored_text = (text: string, label: 'info' | 'warn' | 'error' | 'high' | 'almost') => {
+      const color = colors[label] || 'white'
+      return `<span style='color:${color}'>${text}</span>`
     }
 
-    console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${Math.round(Game.gcl.progress / 1000000)}</b>M/<b>${Math.round(Game.gcl.progressTotal / 1000000)}</b>M, <b>${Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 1000) / 10}</b>%`)
+    const gcl_progress = Math.round(Game.gcl.progress / 1000000)
+    const gcl_progress_total = Math.round(Game.gcl.progressTotal / 1000000)
+    const gcl_progress_percentage = Math.round((Game.gcl.progress / Game.gcl.progressTotal) * 1000) / 10
+
+    let gcl_label: 'info' | 'high' | 'almost' = info
+    if (gcl_progress_percentage > 90) {
+      gcl_label = almost
+    } else if (gcl_progress_percentage > 80) {
+      gcl_label = high
+    }
+
+    const gcl_progress_text = colored_text(`${gcl_progress_percentage}`, gcl_label)
+
+    console.log(`GCL: <b>${Game.gcl.level}</b>, <b>${gcl_progress}</b>M/<b>${gcl_progress_total}</b>M, <b>${gcl_progress_text}</b>%`)
 
     let rooms: Room[] = []
 
@@ -285,7 +303,17 @@ export function tick(): void {
       const room_name = room.name
       const controller = room.controller!
       const rcl = controller.level
-      const progress = (rcl >= 8) ? 'Max' : `<b>${Math.round((controller.progress / controller.progressTotal) * 1000) / 10}</b> %`
+      const progress_percentage = Math.round((controller.progress / controller.progressTotal) * 1000) / 10
+
+      let progress_label: 'info' | 'high' | 'almost' = info
+      if (progress_percentage > 90) {
+        progress_label = almost
+      } else if (progress_percentage > 80) {
+        progress_label = high
+      }
+
+      const progress_text = colored_text(`${progress_percentage}`, progress_label)
+      const progress = (rcl >= 8) ? 'Max' : `<b>${progress_text}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:${colors[warn]}'>none</span>`) : `<span style='color:${colors[warn]}'>none</span>`
@@ -327,7 +355,7 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}`
       }
 
-      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  ${progress}\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
+      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
     })
   }
 

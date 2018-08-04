@@ -694,7 +694,8 @@ export class Region {
         return room_link(room_name, {color})
       })
 
-      const message = `${rooms} are attacked!! ${this.name}</span>`
+      const be = (rooms.length <= 1) ? 'is' : 'are'
+      const message = `${rooms} ${be} attacked!! ${this.name}</span>`
       console.log(message)
       // Game.notify(message)
     }
@@ -855,7 +856,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W44S7'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }

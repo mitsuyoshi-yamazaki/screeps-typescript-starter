@@ -154,61 +154,61 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // const sell_orders = sellOrders(RESOURCE_OXYGEN, 0.075)
   // console.log(`${RESOURCE_OXYGEN} sell orders ${sell_orders.map(o=>[o.price, o.amount])}`)
 
-  if ((Game.time % 23) == 3) {
-    ErrorMapper.wrapLoop(() => {
-      const target_room = Game.rooms['W56S7']
-      if (target_room && (target_room.energyCapacityAvailable > 1200)) {
-        const extension_ids = [
-          '5b623a7c529e6f26f0cb79fb',
-          '5b623d153c93de26f6344bf6',
-          '5b6246c506da9776c6ebd642',
-          '5b6249810f98906de3d5e15a',
-          '5b63d6c094e55f270225eaf0',
-          '5b6243075abaee4cd13ccd03',
-          '5b623fe3eb7b474ce3afdb1b',
-          '5b615ae73bc2816df5467e28',
-          '5b6150bccedc5c6dc11f2239',
-          '5b614d2294e55f270224ecfa',
-          '5b62523fc79e0676ba490067',
-          '5b614ad57e534476d3eb3df6',
-          '5b61488c2456b776aed09a8c',
-          '5b624bed9007134cd78e2b32',
-          '5b61a11a734b39586d8e0204',
-          '5b624edd3c93de26f63452d0',
-          '5b62371aeef41a1488261477',
-        ]
+  // if ((Game.time % 23) == 3) {
+  //   ErrorMapper.wrapLoop(() => {
+  //     const target_room = Game.rooms['W56S7']
+  //     if (target_room && (target_room.energyCapacityAvailable > 1200)) {
+  //       const extension_ids = [
+  //         '5b623a7c529e6f26f0cb79fb',
+  //         '5b623d153c93de26f6344bf6',
+  //         '5b6246c506da9776c6ebd642',
+  //         '5b6249810f98906de3d5e15a',
+  //         '5b63d6c094e55f270225eaf0',
+  //         '5b6243075abaee4cd13ccd03',
+  //         '5b623fe3eb7b474ce3afdb1b',
+  //         '5b615ae73bc2816df5467e28',
+  //         '5b6150bccedc5c6dc11f2239',
+  //         '5b614d2294e55f270224ecfa',
+  //         '5b62523fc79e0676ba490067',
+  //         '5b614ad57e534476d3eb3df6',
+  //         '5b61488c2456b776aed09a8c',
+  //         '5b624bed9007134cd78e2b32',
+  //         '5b61a11a734b39586d8e0204',
+  //         '5b624edd3c93de26f63452d0',
+  //         '5b62371aeef41a1488261477',
+  //       ]
 
-        let finished = false
+  //       let finished = false
 
-        extension_ids.forEach((id) => {
-          if (finished) {
-            return
-          }
-          const extension = Game.getObjectById(id) as StructureExtension | undefined
-          if (!extension || (extension.structureType != STRUCTURE_EXTENSION) || (extension.energy > 0)) {
-            return
-          }
-          if (extension.pos.x < 33) {
-            console.log(`ERROR extension ${id} ${extension.pos}`)
-            return
-          }
+  //       extension_ids.forEach((id) => {
+  //         if (finished) {
+  //           return
+  //         }
+  //         const extension = Game.getObjectById(id) as StructureExtension | undefined
+  //         if (!extension || (extension.structureType != STRUCTURE_EXTENSION) || (extension.energy > 0)) {
+  //           return
+  //         }
+  //         if (extension.pos.x < 33) {
+  //           console.log(`ERROR extension ${id} ${extension.pos}`)
+  //           return
+  //         }
 
-          extension.destroy()
-          finished = true
-        })
+  //         extension.destroy()
+  //         finished = true
+  //       })
 
-        if (finished) {
-          console.log(`Check extension destroy 1 extension`)
-        }
-        else {
-          console.log(`Check extension no extensions to destroy`)
-        }
-      }
-      else {
-        console.log(`Check extension low energy capacity`)
-      }
-    })()
-  }
+  //       if (finished) {
+  //         console.log(`Check extension destroy 1 extension`)
+  //       }
+  //       else {
+  //         console.log(`Check extension no extensions to destroy`)
+  //       }
+  //     }
+  //     else {
+  //       console.log(`Check extension low energy capacity`)
+  //     }
+  //   })()
+  // }
 }, `Main`)
 
 function trade():void {
