@@ -1415,7 +1415,30 @@ export function init() {
       if (this.room.name == 'W45S27') {
         move_to_opts.range = 3
       }
+
       this.moveTo(this.room.controller, move_to_opts)
+    }
+
+    if ((this.room.name == 'W45S27') && !this.memory.stop) {
+      const x = 40
+      const y = 35
+
+      if ((this.pos.x != x) || (this.pos.y != y)) {
+        const obstacle = this.room.find(FIND_MY_CREEPS, {
+          filter: (creep) => {
+            return (creep.pos.x == x) && (creep.pos.y == y)
+          }
+        })[0]
+
+        // console.log(`obstacle: ${obstacle}`)
+        if (obstacle) {
+          obstacle.moveTo(this)
+        }
+        const result = this.moveTo(x, y, {ignoreCreeps: true})
+        if (result != OK) {
+          this.say(`E${result}`)
+        }
+      }
     }
 
     const upgrade_result = this.upgradeController(this.room.controller)

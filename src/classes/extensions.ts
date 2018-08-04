@@ -856,6 +856,21 @@ export function tick(): void {
 
     Memory.squads[squad_name] = squad_memory
 
+    // Region Memory
+    if (!room.is_keeperroom) {
+      const region_memory = Memory.regions[owner_room_name]
+      if (region_memory) {
+        if (!region_memory.rooms_need_to_be_defended) {
+          Memory.regions[owner_room_name].rooms_need_to_be_defended = []
+        }
+
+        Memory.regions[owner_room_name].rooms_need_to_be_defended!.push(room_name)
+      }
+      else {
+        console.log(`Room.add_remote_harvester region memory ${owner_room_name} does not exist`)
+      }
+    }
+
     return squad_name
   }
 

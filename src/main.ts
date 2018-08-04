@@ -242,7 +242,7 @@ function trade():void {
   if (w51s29) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.1,
+      price: 0.09,
       rooms: [w51s29],
     })
   }

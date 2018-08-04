@@ -40,6 +40,7 @@ export interface RegionMemory {
   input_lab_ids?: {lhs: string, rhs: string}
   excluded_walls?: string[]
   repairing_wall_id?: string
+  rooms_need_to_be_defended?: string[]
 }
 
 export interface RegionOpt {
@@ -678,6 +679,11 @@ export class Region {
 
     // --
     rooms_need_to_be_defended.push(this.room.name)
+
+    if (region_memory.rooms_need_to_be_defended && (region_memory.rooms_need_to_be_defended.length > 0)) {
+      rooms_need_to_be_defended = rooms_need_to_be_defended.concat(region_memory.rooms_need_to_be_defended)
+    }
+
     this.attacked_rooms = rooms_need_to_be_defended.map((room_name) => {
       const room_memory = Memory.rooms[room_name]
       if (room_memory && room_memory.attacked_time) {
@@ -2006,8 +2012,6 @@ export class Region {
     }
 
     const region_memory = Memory.regions[this.name]
-
-    const name: number = 0  // @fixme
 
     // --- Upgrader ---
     const upgrader_name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()
