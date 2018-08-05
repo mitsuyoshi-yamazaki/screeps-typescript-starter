@@ -2,7 +2,7 @@ import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
-import { UID, room_history_link, room_link } from "./utils";
+import { UID, room_history_link, room_link, colored_resource_type } from "./utils";
 import { RoomLayout, RoomLayoutOpts } from "./room_layout";
 
 export interface AttackerInfo  {
@@ -152,7 +152,7 @@ export function tick(): void {
       return
     }
 
-    console.log(`Resources in ${room_name}`)
+    console.log(`Resources in ${room_link(room_name)}`)
 
     RESOURCES_ALL.forEach((r_type) => {
       const resource_type = r_type as ResourceConstant
@@ -184,7 +184,7 @@ export function tick(): void {
         return
       }
 
-      console.log(`${resource_type}\t${amount},\tt: ${terminal_text},\ts: ${storage_text}`)
+      console.log(`${colored_resource_type(resource_type)}\t${amount},\tt: ${terminal_text},\ts: ${storage_text}`)
     })
 
     for (const r_type of RESOURCES_ALL) {
