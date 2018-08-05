@@ -130,7 +130,8 @@ export class WorkerSquad extends Squad {
       let_thy_die: let_thy_die,
     }
 
-    energy_available = Math.min(energy_available, 1000)
+    const max = (this.owner_room_name == 'W47S9') ? 2000 : 1000
+    energy_available = Math.min(energy_available, max)
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)

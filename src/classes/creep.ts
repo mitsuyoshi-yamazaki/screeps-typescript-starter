@@ -1734,6 +1734,10 @@ export function init() {
         }
       }
 
+      if (this.room.name == 'W47S9') {
+        should_upgrade = false
+      }
+
 
       // if (this.room.name == 'W43N5') {
       //   should_upgrade = false
