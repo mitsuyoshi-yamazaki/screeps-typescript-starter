@@ -68,31 +68,13 @@ export class WorkerSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    const room = Game.rooms[this.room_name]
+    const size = this.creeps.size//this.room_name == 'W49S34' ? this.creeps.size : Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
 
-    if ((this.room_name == 'W43N5') && room && room.controller && (room.controller.level < 4) && ((Game.time % 2) == 1)) {
-      return SpawnPriority.NONE
-    }
-
-    // return SpawnPriority.NONE // @fixme: for debugging upgrader
-    const size = this.room_name == 'W49S34' ? this.creeps.size : Array.from(this.creeps.values()).filter(c=>c.memory.type==CreepType.WORKER).length
-
-    if (size < 1) {
+    if (size < 2) {
       return SpawnPriority.URGENT
     }
 
     return size < this.number_of_workers ? SpawnPriority.NORMAL : SpawnPriority.NONE
-
-    // const really_need = (!this.delegated) && (this.creeps.size < 3)
-
-    // const room = Game.rooms[this.room_name]
-    // const max = this.room_name == 'W48S47' ? 3 : 3
-    // const needWorker = this.creeps.size < max  // @todo: implement
-
-    // if (really_need) {
-    //   return SpawnPriority.HIGH
-    // }
-    // return needWorker ? SpawnPriority.LOW : SpawnPriority.NONE
   }
 
   public static generateNewName(): string {

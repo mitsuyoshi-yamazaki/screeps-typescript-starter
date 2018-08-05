@@ -1,4 +1,4 @@
-import { UID } from "classes/utils"
+import { UID, room_link } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
@@ -200,7 +200,7 @@ export class ResearcherSquad extends Squad {
           break
 
         default:
-          console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${this.room_name}`)
+          console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${room_link(this.room_name)}`)
           break
       }
     }
@@ -228,7 +228,7 @@ export class ResearcherSquad extends Squad {
           creep.moveTo(creep.room.terminal!)
         }
         else {
-          console.log(`ResearcherSquad.chargeLabs transfer micelleous resource failed with ${transfer_result}, resource: ${resource_type}, ${this.name}, ${creep.name}, ${creep.pos}`)
+          console.log(`ResearcherSquad.chargeLabs transfer micelleous resource failed with ${transfer_result}, resource: ${resource_type}, ${this.name}, ${creep.name}, ${creep.pos}, ${room_link(this.room_name)}`)
         }
         return
       }
@@ -243,7 +243,7 @@ export class ResearcherSquad extends Squad {
             creep.moveTo(creep.room.terminal!)
           }
           else {
-            console.log(`ResearcherSquad.chargeLabs transfer failed with ${transfer_result}, resource: ${target.resource_type}, ${this.name}, ${creep.name}`)
+            console.log(`ResearcherSquad.chargeLabs transfer failed with ${transfer_result}, resource: ${target.resource_type}, ${this.name}, ${creep.name}, ${room_link(this.room_name)}`)
           }
           return
         }
@@ -295,7 +295,7 @@ export class ResearcherSquad extends Squad {
           continue
         }
         else {
-          console.log(`ResearcherSquad.chargeLabs withdraw failed with ${harvest_result}, resource: ${resource_type}, ${this.name}, ${creep.name}`)
+          console.log(`ResearcherSquad.chargeLabs withdraw failed with ${harvest_result}, resource: ${resource_type}, ${this.name}, ${creep.name}, ${room_link(this.room_name)}`)
           continue
         }
       }
@@ -323,7 +323,7 @@ export class ResearcherSquad extends Squad {
               break
 
             default:
-              console.log(`ResearcherSquad.chargeLabs transfer energy to input lab failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+              console.log(`ResearcherSquad.chargeLabs transfer energy to input lab failed with ${transfer_result}, ${this.name}, ${creep.name}, ${room_link(this.room_name)}`)
               break
           }
           return
@@ -345,7 +345,7 @@ export class ResearcherSquad extends Squad {
               break
 
             default:
-              console.log(`ResearcherSquad.chargeLabs transfer ${target.resource_type} failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+              console.log(`ResearcherSquad.chargeLabs transfer ${target.resource_type} failed with ${transfer_result}, ${this.name}, ${creep.name}, ${room_link(this.room_name)}`)
               break
           }
           return
@@ -373,7 +373,7 @@ export class ResearcherSquad extends Squad {
             break
 
           default:
-            console.log(`ResearcherSquad.chargeLabs withdraw misc resource failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+            console.log(`ResearcherSquad.chargeLabs withdraw misc resource failed with ${withdraw_result}, ${this.name}, ${room_link(this.room_name)}, ${creep.name}`)
             break
         }
         creep.memory.status = CreepStatus.HARVEST
@@ -383,7 +383,7 @@ export class ResearcherSquad extends Squad {
       for (const target of this.output_targets) {
         const lab = Game.getObjectById(target.id) as StructureLab
         if (!lab) {
-          console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${this.room_name}`)
+          console.log(`ResearcherSquad.run lab not found ${target.id}, ${target.resource_type}, ${this.name}, ${room_link(this.room_name)}`)
           continue
         }
 
@@ -398,7 +398,7 @@ export class ResearcherSquad extends Squad {
               break
 
             default:
-              console.log(`ResearcherSquad.chargeLabs transfer energy to output lab failed with ${transfer_result}, ${this.name}, ${this.room_name}, ${creep.name}`)
+              console.log(`ResearcherSquad.chargeLabs transfer energy to output lab failed with ${transfer_result}, ${this.name}, ${room_link(this.room_name)}, ${creep.name}`)
               break
           }
           return
@@ -432,7 +432,7 @@ export class ResearcherSquad extends Squad {
               }
 
             default:
-              console.log(`ResearcherSquad.chargeLabs withdraw ${lab.mineralType} failed with ${withdraw_result}, ${this.name}, ${this.room_name}, ${creep.name}, ${lab.pos}`)
+              console.log(`ResearcherSquad.chargeLabs withdraw ${lab.mineralType} failed with ${withdraw_result}, ${this.name}, ${room_link(this.room_name)}, ${creep.name}, ${lab.pos}`)
               break
           }
           return

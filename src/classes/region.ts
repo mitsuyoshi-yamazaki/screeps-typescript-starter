@@ -20,7 +20,7 @@ import { RemoteDefenderSqauad } from "./squad/remote_defender";
 import { NukerChargerSquad } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
-import { room_link } from "./utils";
+import { room_link, room_history_link } from "./utils";
 
 export interface RegionMemory {
   reaction_outputs?: string[]
@@ -699,9 +699,13 @@ export class Region {
         const color = (room_name == this.room.name) ? '#E74C3C' : '#FFFFFF'
         return room_link(room_name, {color})
       })
+      const room_histories = this.attacked_rooms.map(room_name => {
+        const color = (room_name == this.room.name) ? '#E74C3C' : '#FFFFFF'
+        return room_history_link(room_name, Game.time, {color})
+      })
 
       const be = (rooms.length <= 1) ? 'is' : 'are'
-      const message = `${rooms} ${be} attacked!! ${this.name}</span>`
+      const message = `${rooms} ${be} attacked!! ${this.name} (${room_histories})`
       console.log(message)
       // Game.notify(message)
     }
@@ -1305,7 +1309,7 @@ export class Region {
 
             default:
               if ((Game.time % 23) == 11) {
-                console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}, ${output_lab.pos}`)
+                console.log(`Lab.runReaction failed with ${reaction_result}, ${this.name}, ${output_lab.pos} in ${room_link(output_lab.room.name)}`)
               }
               break
           }

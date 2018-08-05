@@ -26,6 +26,7 @@ declare global {
     reactions: {[index: string]: {lhs: ResourceConstant, rhs: ResourceConstant}}
     squad_creeps: {[squad_name: string]: Creep[]}
     check_resources: (resource_type: ResourceConstant) => {[room_name: string]: number}
+    check_resources_in: (room_name: string) => void
     check_all_resources: () => void
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
@@ -134,7 +135,7 @@ export function tick(): void {
         amount += room.storage.store[resource_type] || 0
       }
 
-      details += `\n${room_name}: ${amount}`
+      details += `\n${room_link(room_name)}: ${amount}`
       sum += amount
 
       resources[room_name] = amount
@@ -142,6 +143,52 @@ export function tick(): void {
     console.log(`Resource ${resource_type}: ${sum}${details}`)
 
     return resources
+  }
+
+  Game.check_resources_in = (room_name: string) => {
+    const room = Game.rooms[room_name]
+    if (!room || !room.controller || !room.controller.my) {
+      console.log(`Game.check_resources_in not my room ${room_name}`)
+      return
+    }
+
+    console.log(`Resources in ${room_name}`)
+
+    RESOURCES_ALL.forEach((r_type) => {
+      const resource_type = r_type as ResourceConstant
+
+      let terminal_text = 'none'
+      let storage_text = 'none'
+
+      let terminal_amount = 0
+      let storage_amount = 0
+
+      if (room.terminal && room.terminal.my) {
+        terminal_amount = room.terminal.store[resource_type] || 0
+        terminal_text = `${terminal_amount}`
+      }
+      if (room.storage && room.storage.my) {
+        storage_amount = room.storage.store[resource_type] || 0
+
+        if (storage_amount >= 10000) {
+          storage_text = `${Math.round(storage_amount / 1000)}`
+        }
+        else {
+          storage_text = `${storage_amount}`
+        }
+      }
+
+      const amount = terminal_amount + storage_amount
+
+      if (amount == 0) {
+        return
+      }
+
+      console.log(`${resource_type}\t${amount},\tt: ${terminal_text},\ts: ${storage_text}`)
+    })
+
+    for (const r_type of RESOURCES_ALL) {
+    }
   }
 
   Game.check_all_resources = () => {
