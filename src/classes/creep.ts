@@ -1950,7 +1950,7 @@ export function init() {
       const range = this.pos.getRangeTo(hostile_attacker)
 
       if (range > 5) {
-        this.moveTo(hostile_attacker)
+        this.moveTo(hostile_attacker, {maxRooms: 0})
       }
     }
 

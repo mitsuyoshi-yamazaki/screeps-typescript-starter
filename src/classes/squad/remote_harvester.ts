@@ -1220,7 +1220,7 @@ export class RemoteHarvesterSquad extends Squad {
         if ((creep.hits < creep.hitsMax) && (range < 8)) {
         }
         else {
-          creep.moveTo(keeper_lair)
+          creep.moveTo(keeper_lair, {maxRooms: 0})
         }
       }
 
