@@ -258,7 +258,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_ZYNTHIUM,
-    price: 0.08,
+    price: 0.07,
     rooms,
   }, credit_amount)
 
