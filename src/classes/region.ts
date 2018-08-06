@@ -243,8 +243,8 @@ export class Region {
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
         this.temp_squad_opt = {
-          target_room_name: 'W56S7',
-          forced: true,
+          target_room_name: 'W49S6',
+          forced: false,
         }
         break
 
@@ -954,9 +954,13 @@ export class Region {
           }
           case SquadType.FARMER: {
             const farmer_squad_memory = squad_memory as FarmerSquadMemory
-            if (farmer_squad_memory.room_name == 'W49S6') {
+            const farmer_room = Game.rooms[farmer_squad_memory.room_name]
+            if (!farmer_room || !farmer_room.controller || !farmer_room.controller.my) {
               break
             }
+            // if (farmer_squad_memory.room_name == 'W49S6') {
+            //   break
+            // }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
             this.squads.set(squad.name, squad)
