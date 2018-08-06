@@ -1163,7 +1163,16 @@ export class RemoteHarvesterSquad extends Squad {
           const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
             // const ignore_creeps = (Game.time % 5) < 3
-            creep.moveTo(this.destination, move_to_ops)
+
+            if (creep.room.name == 'W46S5') {
+              creep.moveTo(17, 49)
+            }
+            else if (creep.room.name == 'W45S4') {
+              creep.moveTo(0, 38)
+            }
+            else {
+              creep.moveTo(this.destination, move_to_ops)
+            }
           }
           else if (withdraw_result != OK) {
             creep.say(`E${withdraw_result}`)
@@ -1173,7 +1182,15 @@ export class RemoteHarvesterSquad extends Squad {
           const withdraw_result = creep.transferResources(this.destination.room.storage)
           if (withdraw_result == ERR_NOT_IN_RANGE) {
             move_to_ops.maxRooms = 5
-            creep.moveTo(this.destination.room.storage, move_to_ops)
+            if (creep.room.name == 'W46S5') {
+              creep.moveTo(17, 49)
+            }
+            else if (creep.room.name == 'W45S4') {
+              creep.moveTo(0, 38)
+            }
+            else {
+              creep.moveTo(this.destination.room.storage, move_to_ops)
+            }
           }
           else if (withdraw_result != OK) {
             creep.say(`E${withdraw_result}`)

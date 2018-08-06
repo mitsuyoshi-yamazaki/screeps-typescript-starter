@@ -17,7 +17,7 @@ export class WorkerSquad extends Squad {
   private source_container: StructureContainer | undefined
   private additional_container_ids: string[] | undefined
 
-  constructor(readonly name: string, readonly room_name: string, readonly opt?: {source?: StructureContainer | undefined, additional_container_ids?: string[]}) {
+  constructor(readonly name: string, readonly room: Room, readonly opt?: {source?: StructureContainer | undefined, additional_container_ids?: string[]}) {
     super(name)
 
     opt = opt || {}
@@ -32,29 +32,35 @@ export class WorkerSquad extends Squad {
       return
     }
 
+    const room_name = room.name
+
     if (squad_memory.number_of_workers) {
       this.number_of_workers = squad_memory.number_of_workers
     }
-    else if (this.room_name == 'W51S29') {
+    else if (room_name == 'W51S29') {
       this.number_of_workers = 3
     }
-    else if (this.room_name == 'W48S6') {
+    else if (room_name == 'W48S6') {
       this.number_of_workers = 2
     }
-    else if (this.room_name == 'W43S5') {
+    else if (room_name == 'W43S5') {
       this.number_of_workers = 3
     }
-    else if (this.room_name == 'W43S2') {
+    else if (room_name == 'W43S2') {
       this.number_of_workers = 6
     }
-    else if (this.room_name == 'W42N1') {
+    else if (room_name == 'W42N1') {
       this.number_of_workers = 4
     }
-    else if (this.room_name == 'W47N5') {
+    else if (room_name == 'W47N5') {
       this.number_of_workers = 4
     }
     else {
       this.number_of_workers = 8
+    }
+
+    if ((room_name == 'W49S6') && this.room.controller && (this.room.controller.level >= 4)) {
+      this.number_of_workers = 3
     }
   }
 
@@ -105,8 +111,8 @@ export class WorkerSquad extends Squad {
     let type = CreepType.WORKER
     let let_thy_die = true
 
-    const room = Game.rooms[this.room_name]
-    const rcl = (!(!room) && !(!room.controller)) ? room.controller.level : 1
+    const rcl = (!(!this.room.controller)) ? this.room.controller.level : 1
+    let max = 1000//(this.owner_room_name == 'W47S9') ? 2000 : 1000
 
     if (rcl >= 6) {
       const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
@@ -115,6 +121,10 @@ export class WorkerSquad extends Squad {
         body_unit = [CARRY, CARRY, MOVE]
         energy_unit = 150
         type = CreepType.CARRIER
+
+        if (rcl == 8) {
+          max = 1200
+        }
       }
     }
 
@@ -130,7 +140,6 @@ export class WorkerSquad extends Squad {
       let_thy_die: let_thy_die,
     }
 
-    const max = (this.owner_room_name == 'W47S9') ? 2000 : 1000
     energy_available = Math.min(energy_available, max)
 
     while (energy_available >= energy_unit) {
@@ -144,9 +153,8 @@ export class WorkerSquad extends Squad {
   }
 
   public run(): void {
-    const room: Room | undefined = Game.rooms[this.room_name]
-    const storage = (room.storage && (room.storage.store.energy > 0)) ? room.storage : undefined
-    const terminal = (room.terminal && (room.terminal.store.energy > 0)) ? room.terminal : undefined
+    const storage = (this.room.storage && (this.room.storage.store.energy > 0)) ? this.room.storage : undefined
+    const terminal = (this.room.terminal && (this.room.terminal.store.energy > 0)) ? this.room.terminal : undefined
 
     // If enemy storage | terminal is covered with a rampart, withdraw() throws error and workers stop moving
     const sources: WorkerSource[] = []
@@ -163,7 +171,7 @@ export class WorkerSquad extends Squad {
 
     let room_to_escape: string | undefined
 
-    switch (this.room_name) {
+    switch (this.room.name) {
       case 'W48S6':
         room_to_escape = 'W48S7'
         break
@@ -235,7 +243,7 @@ export class WorkerSquad extends Squad {
       //   }
       // }
 
-      if (room_to_escape && ((room.attacker_info.attack + room.attacker_info.ranged_attack) > 0) && room.controller && room.controller.my && (room.controller.level <= 3)) {
+      if (room_to_escape && ((this.room.attacker_info.attack + this.room.attacker_info.ranged_attack) > 0) && this.room.controller && this.room.controller.my && (this.room.controller.level <= 3)) {
         if (creep.memory.type == CreepType.WORKER) {
           creep.drop(RESOURCE_ENERGY)
         }
@@ -247,18 +255,18 @@ export class WorkerSquad extends Squad {
         continue
       }
 
-      if (room.controller && room.controller.my && (room.controller.level < 4) && (creep.hits >= 1500)) {
+      if (this.room.controller && this.room.controller.my && (this.room.controller.level < 4) && (creep.hits >= 1500)) {
         creep.memory.let_thy_die = false
       }
       else {
         creep.memory.let_thy_die = true
       }
 
-      if (creep.room.name != this.room_name) {
+      if (creep.room.name != this.room.name) {
         if ((creep.carry.energy > 0) && (creep.memory.type == CreepType.WORKER)) {
           creep.drop(RESOURCE_ENERGY)
         }
-        creep.moveToRoom(this.room_name)
+        creep.moveToRoom(this.room.name)
         continue
       }
 
@@ -290,7 +298,7 @@ export class WorkerSquad extends Squad {
         opts.additional_container_ids = this.additional_container_ids
       }
 
-      creep.work(room, sources, opts)
+      creep.work(this.room, sources, opts)
     }
   }
 

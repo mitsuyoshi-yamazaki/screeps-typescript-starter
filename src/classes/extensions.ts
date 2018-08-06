@@ -700,6 +700,9 @@ export function tick(): void {
       this.owned_structures = new Map<StructureConstant, AnyOwnedStructure[]>()
 
       this.find(FIND_MY_STRUCTURES).forEach((structure: AnyOwnedStructure) => {
+        // if (!structure.isActive()) { // consumes too much CPU
+        //   return
+        // }
         let structure_list: AnyOwnedStructure[] | null = this.owned_structures.get(structure.structureType)
         if (!structure_list) {
           structure_list = []

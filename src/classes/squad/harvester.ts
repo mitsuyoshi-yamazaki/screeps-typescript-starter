@@ -474,23 +474,11 @@ export class HarvesterSquad extends Squad {
 
     const room = Game.rooms[this.source_info.room_name]
 
-    if ((this.source_info.id == '59f19ff082100e1594f35c83') && room && room.attacked) {  // W49S48 top energy
-      return SpawnPriority.NONE
-    }
-    // if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') {  // W51S29 Lemergium
-    //   return SpawnPriority.NONE
-    // }
-    if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // W48S47 Oxygen
-      return SpawnPriority.NONE
-    }
-    if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // W49S47 Utrium
-      return SpawnPriority.NONE
-    }
-    if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // W49S48 Hydrogen
+    if ((room.name == 'W49S6') && room.controller && room.controller.my && (room.controller.level < 4)) {
       return SpawnPriority.NONE
     }
 
-    if ((this.energy_capacity < 550) && (this.source_info.room_name != 'W47N2')) {
+    if (this.energy_capacity < 550) {
       return SpawnPriority.NONE
     }
 

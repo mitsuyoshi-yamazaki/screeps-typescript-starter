@@ -84,7 +84,7 @@ export class Region {
       Game.notify(message)
 
       // dummy
-      this.worker_squad = new WorkerSquad('', '')
+      this.worker_squad = new WorkerSquad('', this.room)
       return
     }
 
@@ -752,7 +752,7 @@ export class Region {
               opts.additional_container_ids = region_memory.upgrader_additional_source_ids
             }
 
-            const squad = new WorkerSquad(squad_memory.name, this.room.name, opts)
+            const squad = new WorkerSquad(squad_memory.name, this.room, opts)
             worker_squad = squad
             this.squads.set(squad.name, squad)
             break
@@ -956,11 +956,15 @@ export class Region {
             const farmer_squad_memory = squad_memory as FarmerSquadMemory
             const farmer_room = Game.rooms[farmer_squad_memory.room_name]
             if (!farmer_room || !farmer_room.controller || !farmer_room.controller.my) {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
               break
             }
-            // if (farmer_squad_memory.room_name == 'W49S6') {
-            //   break
-            // }
+            if ((farmer_squad_memory.room_name == 'W49S6')) {
+              if (!farmer_room.storage || !farmer_room.storage.isActive()) {
+                this.no_instantiations.push(`    - ${squad_memory.name}`)
+                break
+              }
+            }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
             this.squads.set(squad.name, squad)
@@ -984,7 +988,7 @@ export class Region {
         opts.additional_container_ids = region_memory.upgrader_additional_source_ids
       }
 
-      const squad = new WorkerSquad(name, this.room.name, opts)
+      const squad = new WorkerSquad(name, this.room, opts)
 
       worker_squad = squad
       this.squads.set(squad.name, squad)

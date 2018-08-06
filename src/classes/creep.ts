@@ -241,6 +241,15 @@ export function init() {
     else if ((destination_room_name == 'W56S7') && (this.room.name == 'W55S6')) {
       this.memory.destination_room_name = 'W55S7'
     }
+    else if ((destination_room_name == 'W47S6') && (this.room.name == 'W46S5')) {
+      this.memory.destination_room_name = 'W46S6'
+    }
+    else if ((destination_room_name == 'W45S4') && (this.room.name == 'W46S3')) {
+      this.memory.destination_room_name = 'W46S4'
+    }
+    else if ((destination_room_name == 'W46S3') && (this.room.name == 'W45S4')) {
+      this.memory.destination_room_name = 'W46S4'
+    }
 
     if (this.room.name == this.memory.destination_room_name) {
       this.memory.destination_room_name = undefined
@@ -819,6 +828,9 @@ export function init() {
         })
 
         structures_needed_to_be_charged = structures.filter(structure => {
+          // if (!structure.isActive()) {
+          //   return false
+          // }
           if (structure.structureType == STRUCTURE_CONTAINER) {
             if (additional_container_ids.indexOf(structure.id) >= 0) {
               if (structure.store.energy < 1500) {
@@ -1486,7 +1498,7 @@ export function init() {
     const carry = _.sum(this.carry)
     let debug_say = false
 
-    if (this.room.name == 'E16N37') {
+    if (this.room.name == 'W49S6') {
       debug_say = true
     }
 
@@ -1505,9 +1517,9 @@ export function init() {
       }
     }
 
-    if (this.room.name == 'W49S6') {
-      this.memory.status = CreepStatus.UPGRADE  // @fixme:
-    }
+    // if (this.room.name == 'W49S6') {
+    //   this.memory.status = CreepStatus.UPGRADE  // @fixme:
+    // }
 
     let charge_target: ChargeTarget | undefined
     let find_charge_target = false
@@ -1791,8 +1803,9 @@ export function init() {
 
     // Upgrade
     if (this.memory.status == CreepStatus.UPGRADE) {
-      if (this.room.attacked) {
+      if (this.room.attacked && (this.room.name != 'W49S6')) {
         this.memory.status = CreepStatus.CHARGE
+        this.say('U2C-1')
       }
     }
 
