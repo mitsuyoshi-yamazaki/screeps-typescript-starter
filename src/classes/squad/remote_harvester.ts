@@ -896,6 +896,11 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
+      if (creep.room.name == 'W47S5') {
+        creep.moveToRoom('W46S5')
+        return
+      }
+
       const carry = _.sum(creep.carry)
       const move_to_ops: MoveToOpts = {
         maxRooms: 0,

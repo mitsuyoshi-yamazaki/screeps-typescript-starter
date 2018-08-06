@@ -1505,6 +1505,10 @@ export function init() {
       }
     }
 
+    if (this.room.name == 'W49S6') {
+      this.memory.status = CreepStatus.UPGRADE  // @fixme:
+    }
+
     let charge_target: ChargeTarget | undefined
     let find_charge_target = false
 
