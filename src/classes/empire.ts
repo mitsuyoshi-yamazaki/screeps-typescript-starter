@@ -124,7 +124,7 @@ export class Empire {
 
     const time = (Game.time % 3)
 
-    set_delegate(w47s6, w46s3)
+    // set_delegate(w47s6, w46s3)
     // set_delegate(w48s6, w56s7)
     // set_delegate(w43s5, e16n37)
 
