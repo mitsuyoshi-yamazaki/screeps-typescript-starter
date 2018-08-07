@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.38.26'
+const version = '2.38.29'
 
 export function init(): void {
   Game.version = version
@@ -61,7 +61,7 @@ export function tick(): void {
 
   const time = Game.time
 
-  if ((time % 997) == 0) {
+  if ((time % 2099) == 0) {
     Memory.debug.show_visuals = false
     Memory.debug.show_path = false
   }

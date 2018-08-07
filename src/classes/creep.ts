@@ -250,6 +250,12 @@ export function init() {
     else if ((destination_room_name == 'W46S3') && (this.room.name == 'W45S4')) {
       this.memory.destination_room_name = 'W46S4'
     }
+    else if ((destination_room_name == 'W15N36') && (this.room.name == 'E16N37')) {
+      this.memory.destination_room_name = 'E16N36'
+    }
+    else if ((destination_room_name == 'E16N37') && (this.room.name == 'W15N36')) {
+      this.memory.destination_room_name = 'E16N36'
+    }
 
     if (this.room.name == this.memory.destination_room_name) {
       this.memory.destination_room_name = undefined
@@ -1498,7 +1504,7 @@ export function init() {
     const carry = _.sum(this.carry)
     let debug_say = false
 
-    if (this.room.name == 'W49S6') {
+    if (this.room.name == 'dummy') {
       debug_say = true
     }
 

@@ -25,6 +25,7 @@ import { room_link, room_history_link } from "./utils";
 export interface RegionMemory {
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
+  destination_link_id?: string
   support_link_ids?: string[]
   resource_transports?: {[room_name: string]: ResourceConstant[]}
   last_spawn_time: number
@@ -41,6 +42,7 @@ export interface RegionMemory {
   excluded_walls?: string[]
   repairing_wall_id?: string
   rooms_need_to_be_defended?: string[]
+  charger_position?: {x: number, y: number}
 }
 
 export interface RegionOpt {
@@ -568,6 +570,16 @@ export class Region {
       }
     }
 
+    // -- destination link
+    if (region_memory.destination_link_id) {
+      this.destination_link_id = region_memory.destination_link_id
+    }
+
+    // -- charger position
+    if (region_memory.charger_position) {
+      charger_position = region_memory.charger_position
+    }
+
     // -- reaction
     if (region_memory.reaction_outputs && input_lab_ids && this.room.terminal) {
       const output = region_memory.reaction_outputs[0]
@@ -870,7 +882,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W56S7'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1740,10 +1752,7 @@ export class Region {
   private activateSafeModeIfNeeded() {
     // if (this.room.controller && (this.room.controller.level < 4)) {
     if (this.room.controller) {
-      if (this.room.name == 'W48S12') {
-        // activate safemode if needed
-      }
-      else {
+      if (this.room.name == 'W49S6') {
         return
       }
     }

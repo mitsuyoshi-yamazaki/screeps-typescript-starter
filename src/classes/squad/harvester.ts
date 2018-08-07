@@ -68,12 +68,6 @@ export class HarvesterSquad extends Squad {
       if (room && room.storage) {
         this.destination = room.storage
       }
-      else {
-        const destination = Game.getObjectById('5b574744914d5a727c4a581e') as StructureContainer | undefined
-        if (destination) {
-          this.destination = destination
-        }
-      }
     }
     else if ((this.source_info.id == '59f1c0ce7d0b3d79de5f01bc')) { // W49S6 Oxygen
       const w49s6 = Game.rooms['W49S6']
@@ -332,18 +326,18 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
-    else if (this.source_info.id == '59f19feb82100e1594f35c03') { // W49S6 top
-      const link = Game.getObjectById('5b59fc284ab9a7090ab00cf5') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f19feb82100e1594f35c05') { // W49S6 bottom
-      const link = Game.getObjectById('5b5912f0bdc1d11b05fe4d65') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
+    // else if (this.source_info.id == '59f19feb82100e1594f35c03') { // W49S6 top
+    //   const link = Game.getObjectById('5b59fc284ab9a7090ab00cf5') as StructureLink | undefined
+    //   if (link) {
+    //     this.store = link
+    //   }
+    // }
+    // else if (this.source_info.id == '59f19feb82100e1594f35c05') { // W49S6 bottom
+    //   const link = Game.getObjectById('5b5912f0bdc1d11b05fe4d65') as StructureLink | undefined
+    //   if (link) {
+    //     this.store = link
+    //   }
+    // }
     else if (this.source_info.id == '59f1a01982100e1594f360dc') { // W46S3 right
       const link = Game.getObjectById('5b5a6dc7bb69253f6b6390f3') as StructureLink | undefined
       if (link) {
@@ -448,7 +442,9 @@ export class HarvesterSquad extends Squad {
       })[0]
 
       if (link) {
-        (Memory.squads[this.name] as HarvesterSquadMemory).link_id = link.id
+        if (this.source_info.room_name != 'W49S6') {
+          (Memory.squads[this.name] as HarvesterSquadMemory).link_id = link.id
+        }
       }
     }
   }

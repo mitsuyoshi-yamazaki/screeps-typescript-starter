@@ -126,6 +126,9 @@ export class WorkerSquad extends Squad {
           max = 1200
         }
       }
+      else if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
+        max = 2000
+      }
     }
 
 

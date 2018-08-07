@@ -258,8 +258,8 @@ export class ResearcherSquad extends Squad {
           return
         }
 
-        const energy_shortage = lab.energyCapacity - lab.energy
-        resource_amounts.set(RESOURCE_ENERGY, (resource_amounts.get(RESOURCE_ENERGY) || 0) + energy_shortage)
+        // const energy_shortage = lab.energyCapacity - lab.energy
+        // resource_amounts.set(RESOURCE_ENERGY, (resource_amounts.get(RESOURCE_ENERGY) || 0) + energy_shortage)
 
         if (lab.mineralType == target.resource_type) {
           const mineral_shortage = Math.max((lab.mineralCapacity - 1000) - lab.mineralAmount, 0)
@@ -427,9 +427,9 @@ export class ResearcherSquad extends Squad {
               break
 
             case ERR_FULL:
-              if (creep.carry.energy > 0) {
-                creep.drop(RESOURCE_ENERGY)
-              }
+              // if (creep.carry.energy > 0) {
+              //   creep.drop(RESOURCE_ENERGY)
+              // }
 
             default:
               console.log(`ResearcherSquad.chargeLabs withdraw ${lab.mineralType} failed with ${withdraw_result}, ${this.name}, ${room_link(this.room_name)}, ${creep.name}, ${lab.pos}`)

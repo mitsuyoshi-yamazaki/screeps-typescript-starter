@@ -64,7 +64,7 @@ export class FarmerSquad extends Squad {
     // Upgrader
     const upgrader_max = this.positions.length
     if (this.upgraders.length < upgrader_max) {
-      if (destination_room && !destination_room.terminal && (this.carriers.length == 0)) {
+      if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length == 0)) {
         return CreepType.CARRIER
       }
 
@@ -81,8 +81,8 @@ export class FarmerSquad extends Squad {
       return undefined
     }
 
-    const carrier_max = 5
-    if (destination_room && !destination_room.terminal && (this.carriers.length < carrier_max)) {
+    const carrier_max = 6
+    if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
       return CreepType.CARRIER
     }
 
