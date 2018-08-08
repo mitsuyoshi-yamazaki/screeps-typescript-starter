@@ -54,9 +54,14 @@ export class FarmerSquad extends Squad {
   }
 
   private nextCreep(): CreepType | undefined {
+    let debug = false
+
     const destination_room = Game.rooms[this.room_name] as Room | undefined
     if (destination_room) {
       if (destination_room.controller && (destination_room.controller.level == 8)) {
+        if (debug) {
+          console.log(`FarmerSquad.nextCreep RCL8 ${this.name}`)
+        }
         return undefined
       }
     }
@@ -65,27 +70,45 @@ export class FarmerSquad extends Squad {
     const upgrader_max = this.positions.length
     if (this.upgraders.length < upgrader_max) {
       if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length == 0)) {
+        if (debug) {
+          console.log(`FarmerSquad.nextCreep no carriers ${this.name}`)
+        }
         return CreepType.CARRIER
       }
 
       if (destination_room && destination_room.storage && (destination_room.storage.store.energy > 5000)) {
+        if (debug) {
+          console.log(`FarmerSquad.nextCreep upgrader ${this.name}`)
+        }
         return CreepType.UPGRADER
       }
     }
 
     // Carrier
     if (!this.base_room.storage) {
+      if (debug) {
+        console.log(`FarmerSquad.nextCreep no base room storage ${this.name}`)
+      }
       return undefined
     }
     else if (this.base_room.storage.store.energy < 200000) {
+      if (debug) {
+        console.log(`FarmerSquad.nextCreep lack of energy ${this.name}`)
+      }
       return undefined
     }
 
     const carrier_max = 6
     if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
+      if (debug) {
+        console.log(`FarmerSquad.nextCreep carrier ${this.name}`)
+      }
       return CreepType.CARRIER
     }
 
+    if (debug) {
+      console.log(`FarmerSquad.nextCreep none ${this.name}`)
+    }
     return undefined
   }
 
