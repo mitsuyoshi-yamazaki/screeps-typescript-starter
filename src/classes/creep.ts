@@ -1695,6 +1695,9 @@ export function init() {
         }
       }
       else {
+        if (debug_say) {
+          this.say(`${target.pos.x},${target.pos.y}`) // @fixme: targetを保存すれば良さそう
+        }
         this.transfer(target, RESOURCE_ENERGY)
         this.moveTo(target, move_to_opt)
         return
