@@ -741,9 +741,9 @@ export function init() {
     const move_result = this.moveTo(spawn)
     this.transfer(spawn, RESOURCE_ENERGY)
 
-    if (this.room.storage) {
-      this.withdraw(this.room.storage, RESOURCE_ENERGY)
-    }
+    // if (this.room.storage) {
+    //   this.withdraw(this.room.storage, RESOURCE_ENERGY)
+    // }
 
     if (move_result != OK) {
       this.say(`E${move_result}`)
