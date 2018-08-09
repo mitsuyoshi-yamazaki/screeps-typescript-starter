@@ -506,6 +506,9 @@ export class Region {
         break
 
       case 'W56S7':
+        harvester_targets = [
+          { id: '59f1c0cd7d0b3d79de5eff8c', room_name: 'W56S7' }, // Catalyst
+        ]
         break
 
       default:

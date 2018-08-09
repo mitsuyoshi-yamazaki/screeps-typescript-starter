@@ -190,6 +190,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0de7d0b3d79de5f17a3') { // E16N37 Keanium
       this.resource_type = RESOURCE_KEANIUM
     }
+    else if (this.source_info.id == '59f1c0cd7d0b3d79de5eff8c') { // W56S7
+      this.resource_type = RESOURCE_CATALYST
+    }
     else {
       this.resource_type = RESOURCE_ENERGY
     }
