@@ -31,7 +31,7 @@ declare global {
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     info: (opts:{sorted?: boolean}) => void
-    resource_transfer: () => void
+    resource_transfer: (opts?: {reversed?: boolean}) => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
@@ -406,8 +406,12 @@ export function tick(): void {
     })
   }
 
-  Game.resource_transfer = () => {
-    console.log(`Resource transfer:`)
+  Game.resource_transfer = (opts?: {reversed?: boolean}) => {
+    opts = opts || {}
+    let resources: {[room_name: string]: {[room_name: string]: ResourceConstant[]}} = {}
+
+    const detail = opts.reversed ? ' (reversed)' : ''
+    console.log(`Resource transfer${detail}:`)
 
     const no_transfer_rooms: string[] = []
 
@@ -420,22 +424,60 @@ export function tick(): void {
       const region_memory = Memory.regions[room.name]
       if (!region_memory || !region_memory.resource_transports) {
         // console.log(` - ${room.name}: none`)
-        no_transfer_rooms.push(room_name)
+        if (!opts.reversed) {
+          no_transfer_rooms.push(room_name)
+        }
         continue
       }
 
-      console.log(` - ${room.name}:`)
-
-      for (const destination_room_name in region_memory.resource_transports) {
-        const resources = region_memory.resource_transports[destination_room_name]
-        if (!resources || (resources.length == 0)) {
-          continue
+      if (opts.reversed) {
+        for (const destination_room_name in region_memory.resource_transports) {
+          if (!resources[destination_room_name]) {
+            resources[destination_room_name] = {}
+          }
+          resources[destination_room_name][room.name] = region_memory.resource_transports[destination_room_name]
         }
-        console.log(`   ->${destination_room_name}: ${resources}`)
+      }
+      else {
+        console.log(` - ${room.name}:`)
+
+        for (const destination_room_name in region_memory.resource_transports) {
+          const resources = region_memory.resource_transports[destination_room_name]
+          if (!resources || (resources.length == 0)) {
+            continue
+          }
+          console.log(`   ->${destination_room_name}: ${resources}`)
+        }
       }
     }
 
-    console.log(` - None: ${no_transfer_rooms}`)
+    if (opts.reversed) {
+      for (const room_name in resources) {
+        console.log(` - ${room_name}:`)
+
+        if (!resources[room_name]) {
+          no_transfer_rooms.push(room_name)
+        }
+
+        let receiving = false
+
+        for (const from_room_name in resources[room_name]) {
+          const r = resources[room_name][from_room_name]
+          if (r && (r.length > 0)) {
+            receiving = true
+            console.log(`   <-${from_room_name}: ${r}`)
+          }
+        }
+
+        if (!receiving) {
+          no_transfer_rooms.push(room_name)
+        }
+      }
+      console.log(` - None: ${no_transfer_rooms}`)
+    }
+    else {
+      console.log(` - None: ${no_transfer_rooms}`)
+    }
   }
 
   Game.reset_costmatrix = (room_name: string) => {

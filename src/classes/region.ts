@@ -17,7 +17,7 @@ import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
 import { RemoteDefenderSqauad } from "./squad/remote_defender";
-import { NukerChargerSquad } from "./squad/nuker_charger";
+import { NukerChargerSquad, NukerChargerSquadMemory } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
 import { room_link, room_history_link } from "./utils";
@@ -950,7 +950,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['dummy'].indexOf(this.room.name) >= 0) {
+            if (['W51S29'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -2124,6 +2124,18 @@ export class Region {
     Memory.squads[temp_name] = temp_memory
     console.log(`Create temp ${temp_name} for ${this.name}`)
 
+
+    // --- Nuker Charger ---
+    const nuker_charger_name = `nuker_charger_${this.room.name.toLowerCase()}`
+    const nuker_charger_memory: NukerChargerSquadMemory = {
+      name: nuker_charger_name,
+      type: SquadType.NUKER_CHARGER_SQUAD,
+      owner_name: this.name,
+      number_of_creeps: 0,
+      nuker_id: undefined,
+    }
+    Memory.squads[nuker_charger_name] = nuker_charger_memory
+    console.log(`Create nuker charger ${nuker_charger_name} for ${this.name}`)
 
         // // --- Raider ---
         // if (!raider_squad && (this.room.name == 'W48S47')) {

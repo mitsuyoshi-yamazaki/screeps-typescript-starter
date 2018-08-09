@@ -2,8 +2,8 @@ import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
-interface NukerChargerSquadMemory extends SquadMemory {
-  nuker_id: string
+export interface NukerChargerSquadMemory extends SquadMemory {
+  nuker_id: string | undefined
 }
 
 export class NukerChargerSquad extends Squad {
@@ -33,6 +33,9 @@ export class NukerChargerSquad extends Squad {
 
     if (squad_memory && squad_memory.nuker_id) {
       this.nuker = Game.getObjectById(squad_memory.nuker_id) as StructureNuker | undefined
+    }
+    else if ((Game.time % 29) == 5) {
+      console.log(`NukerChargerSquad undefined nuker id ${this.name}, ${this.room.name}`)
     }
   }
 

@@ -376,10 +376,10 @@ export function init() {
       return ActionResult.IN_PROGRESS
     }
 
-    if ((this.room.name == 'W51S29') && (destination_room_name != this.room.name)) { // @fixme: temp code
-      this.moveTo(21, 49, opt)
-      return ActionResult.IN_PROGRESS
-    }
+    // if ((this.room.name == 'W51S29') && (destination_room_name != this.room.name)) { // @fixme: temp code
+    //   this.moveTo(21, 49, opt)
+    //   return ActionResult.IN_PROGRESS
+    // }
 
     const closest_exit = this.pos.findClosestByPath(exit)
 
