@@ -176,35 +176,6 @@ export class ResearcherSquad extends Squad {
   }
 
   // --- Private ---
-  private transferRoomResource(creep: Creep, resource_type: ResourceConstant): void {
-    // creep.memory.status supporse to be NONE
-
-    if (creep.carrying_resources().length == 0) {
-      // Harvest
-      if (creep.withdraw(creep.room.storage!, resource_type) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.storage!)
-        return
-      }
-    }
-    else {
-      // Charge
-      const carrying_resource_type = creep.carrying_resources()[0]
-      const transfer_result = creep.transfer(creep.room.terminal!, carrying_resource_type)
-
-      switch (transfer_result) {
-        case OK:
-          break
-
-        case ERR_NOT_IN_RANGE:
-          creep.moveTo(creep.room.terminal!)
-          break
-
-        default:
-          console.log(`ResearcherSquad.transferRoomResource transfer failed with ${transfer_result}, ${this.name}, ${room_link(this.room_name)}`)
-          break
-      }
-    }
-  }
 
   private chargeLabs(creep: Creep) {
     if (creep.memory.status == CreepStatus.NONE) {

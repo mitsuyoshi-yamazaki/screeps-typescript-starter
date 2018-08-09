@@ -135,7 +135,8 @@ export function tick(): void {
         amount += room.storage.store[resource_type] || 0
       }
 
-      details += `\n${room_link(room_name)}: ${amount}`
+      const amount_text = (resource_type == RESOURCE_ENERGY) ? `${Math.floor(amount / 1000)}k` : `${amount}`
+      details += `\n${room_link(room_name)}: ${amount_text}`
       sum += amount
 
       resources[room_name] = amount
@@ -439,7 +440,7 @@ export function tick(): void {
         }
       }
       else {
-        console.log(` - ${room.name}:`)
+        console.log(` - ${room_link(room.name)}:`)
 
         for (const destination_room_name in region_memory.resource_transports) {
           const resources = region_memory.resource_transports[destination_room_name]
@@ -453,7 +454,7 @@ export function tick(): void {
 
     if (opts.reversed) {
       for (const room_name in resources) {
-        console.log(` - ${room_name}:`)
+        console.log(` - ${room_link(room_name)}:`)
 
         if (!resources[room_name]) {
           no_transfer_rooms.push(room_name)
@@ -865,7 +866,7 @@ export function tick(): void {
 
       const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
       if (!cost_matrix) {
-        console.log(`Room.add_remote_harvester cannot create cost matrix ${room.name}, start pos: (${start_pos.x}, ${start_pos.y})`)
+        console.log(`Room.add_remote_harvester cannot create cost matrix ${room_link(room.name)}, start pos: (${start_pos.x}, ${start_pos.y})`)
         return null
       }
 
@@ -917,6 +918,17 @@ export function tick(): void {
 
         r.createConstructionSite(pos, STRUCTURE_ROAD)
       })
+
+      const region_memory = Memory.regions[owner_room_name]
+      if (region_memory) {
+        if (!region_memory.rooms_need_to_be_defended) {
+          region_memory.rooms_need_to_be_defended = []
+        }
+        region_memory.rooms_need_to_be_defended.push(room_name)
+      }
+      else {
+        console.log(`Room.add_remote_harvester no region memory for ${owner_room_name}`)
+      }
     }
 
     // --- Squad Memory
@@ -949,8 +961,8 @@ export function tick(): void {
     Memory.squads[squad_name] = squad_memory
 
     // Region Memory
+    const region_memory = Memory.regions[owner_room_name]
     if (!room.is_keeperroom) {
-      const region_memory = Memory.regions[owner_room_name]
       if (region_memory) {
         if (!region_memory.rooms_need_to_be_defended) {
           Memory.regions[owner_room_name].rooms_need_to_be_defended = []
@@ -961,6 +973,16 @@ export function tick(): void {
       else {
         console.log(`Room.add_remote_harvester region memory ${owner_room_name} does not exist`)
       }
+    }
+
+    if (region_memory) {
+      if (!region_memory.rooms_need_to_be_defended) {
+        region_memory.rooms_need_to_be_defended = []
+      }
+      region_memory.rooms_need_to_be_defended.push(room_name)
+    }
+    else {
+      console.log(`Room.add_remote_harvester no region memory for ${owner_room_name}`)
     }
 
     return squad_name
@@ -1209,7 +1231,7 @@ export function tick(): void {
 }
 
 function create_cost_matrix_for(room: Room): CostMatrix {
-  console.log(`${room.name} create costmatrix`)
+  console.log(`${room_link(room.name)} create costmatrix`)
 
   let error_message: string | undefined
 

@@ -265,6 +265,30 @@ export function init() {
       destination_room_name = this.memory.destination_room_name
     }
 
+    if (this.room.is_keeperroom && ((this.room.name != 'W44S6') || ((Game.time % 5) < 2))) {
+      const callback = (room_name: string): boolean | CostMatrix => {
+        if ((this.room.name == room_name)) {
+          const matrix = this.room.cost_matrix()
+          if (matrix) {
+            return matrix
+          }
+        }
+        return false
+      }
+
+      opt = {
+        costCallback: callback,
+        reusePath: 5,
+        visualizePathStyle: {
+          fill: 'transparent',
+          stroke: '#ff0000',
+          lineStyle: 'dashed',
+          opacity: 0.8
+        },
+        maxRooms: 0,
+      }
+    }
+
     if ((['E15N37', 'E16N37'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W45S5')) {
       const portal = Game.getObjectById('5b5c3c508822c27941cf1e05') as StructurePortal | undefined
 
@@ -631,30 +655,6 @@ export function init() {
     if ((destination_room_name == 'W49S26') && (Number(this.room.name.slice(4, 6)) > 26)) {
       // destination_room_name = 'W46S42'  // @fixme: this is waypoint
       destination_room_name = 'W50S26'  // @fixme: this is waypoint
-    }
-
-    if (this.room.is_keeperroom && ((this.room.name != 'W44S6') || ((Game.time % 5) < 2))) {
-      const callback = (room_name: string): boolean | CostMatrix => {
-        if ((this.room.name == room_name)) {
-          const matrix = this.room.cost_matrix()
-          if (matrix) {
-            return matrix
-          }
-        }
-        return false
-      }
-
-      opt = {
-        costCallback: callback,
-        reusePath: 5,
-        visualizePathStyle: {
-          fill: 'transparent',
-          stroke: '#ff0000',
-          lineStyle: 'dashed',
-          opacity: 0.8
-        },
-        maxRooms: 0,
-      }
     }
 
     if (this.moveTo(closest_exit, opt) == ERR_NO_PATH) { // When too close to source in source keeper's room
@@ -1504,7 +1504,7 @@ export function init() {
     const carry = _.sum(this.carry)
     let debug_say = false
 
-    if (this.room.name == 'dummy') {
+    if (this.room.name == 'E16N37') {
       debug_say = true
     }
 

@@ -8,6 +8,7 @@ interface TempMemory extends CreepMemory {
 
 interface TempSquadMemory extends SquadMemory {
   arrived: string
+  should_spawn_claimer?: boolean
 }
 
 export class TempSquad extends Squad {
@@ -58,6 +59,17 @@ export class TempSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const squad_memory = Memory.squads[this.name] as TempSquadMemory
+
+    if (squad_memory) {
+      if (squad_memory.should_spawn_claimer) {
+        return SpawnPriority.URGENT
+      }
+      if (squad_memory.stop_spawming) {
+        return SpawnPriority.NONE
+      }
+    }
+
     if (!this.target_room_name) {
       return SpawnPriority.NONE
     }
@@ -95,6 +107,15 @@ export class TempSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
+    const squad_memory = Memory.squads[this.name] as TempSquadMemory
+
+    if (squad_memory) {
+      if (squad_memory.should_spawn_claimer) {
+        let energy = (capacity >= 850) ? 850 : 750
+        return energy_available >= energy
+      }
+    }
+
     if (!this.arrived) {
       if (!this.scout) {
         return energy_available >= 50
@@ -121,13 +142,17 @@ export class TempSquad extends Squad {
     }
 
     let energy = (capacity >= 850) ? 850 : 750
-    if (this.room_name == 'W47N2') {
-      energy = 1300
-    }
     return energy_available >= energy
   }
 
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
+    const squad_memory = Memory.squads[this.name] as TempSquadMemory
+
+    if (squad_memory) {
+      if (squad_memory.should_spawn_claimer) {
+        this.addCreepForClaim(energy_available, spawn_func)
+      }
+    }
 
     if (!this.arrived) {
       if (!this.scout) {
@@ -179,7 +204,9 @@ export class TempSquad extends Squad {
 
     const result = spawnFunc(body, name, {
       memory: memory
-    })
+    });
+
+    (Memory.squads[this.name] as TempSquadMemory).should_spawn_claimer = undefined
   }
 
   public run(): void {
@@ -280,6 +307,10 @@ export class TempSquad extends Squad {
 
       const target_room = Game.rooms[this.target_room_name]
       if (target_room && (target_room.name == creep.room.name)) {
+        target_room.find(FIND_HOSTILE_CONSTRUCTION_SITES).forEach((construction_site) => {
+          construction_site.remove()
+        })
+
         target_room.find(FIND_HOSTILE_STRUCTURES, {
           filter: (structure) => {
             if (structure.my) {

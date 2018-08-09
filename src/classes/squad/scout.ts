@@ -100,6 +100,12 @@ export class ScoutSquad extends Squad {
       }
 
       if (creep.memory.stop) {
+        // if (creep.name == 'scout85231983') {
+        //   const site = creep.pos.findClosestByPath(FIND_HOSTILE_CONSTRUCTION_SITES)
+        //   if (site) {
+        //     creep.moveTo(site, {maxRooms: 0})
+        //   }
+        // }
         return
       }
 

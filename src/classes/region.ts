@@ -23,26 +23,26 @@ import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
 import { room_link, room_history_link } from "./utils";
 
 export interface RegionMemory {
+  destination_container_id?: string | null
+  upgrader_additional_source_ids?: string[]
+  input_lab_ids?: {lhs: string | null, rhs: string | null}
+  destination_link_id?: string | null
+  support_link_ids?: string[]
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
-  destination_link_id?: string
-  support_link_ids?: string[]
   resource_transports?: {[room_name: string]: ResourceConstant[]}
-  last_spawn_time: number
-  observe_target?: string
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
-  ancestor: string
-  observe_index: number
-  last_heavy_attacker?: {ticks: number, body: string[]}
+  charger_position?: {x: number, y: number} | null
   room_need_scout?: string[]
-  destination_container_id?: string
-  upgrader_additional_source_ids?: string[]
-  input_lab_ids?: {lhs: string, rhs: string}
-  excluded_walls?: string[]
-  repairing_wall_id?: string
   rooms_need_to_be_defended?: string[]
-  charger_position?: {x: number, y: number}
+  observe_target?: string
+  observe_index: number
+  excluded_walls?: string[]
+  repairing_wall_id?: string | null
+  last_spawn_time: number
+  last_heavy_attacker?: {ticks: number, body: string[]} | null
+  ancestor: string
 }
 
 export interface RegionOpt {
@@ -96,9 +96,20 @@ export class Region {
       const ancestor = (!(!room_memory) && !(!room_memory.ancestor)) ? room_memory.ancestor : 'origin'
 
       Memory.regions[this.name] = {
-        last_spawn_time: Game.time,
-        ancestor: ancestor,
+        destination_container_id: null,
+        input_lab_ids: {lhs: null, rhs: null},
+        destination_link_id: null,
+        reaction_outputs: [],
+        resource_transports: {},
+        charger_position: null,
+        room_need_scout: [],
+        rooms_need_to_be_defended: [],
         observe_index: 0,
+        excluded_walls: [],
+        repairing_wall_id: null,
+        last_spawn_time: Game.time,
+        last_heavy_attacker: null,
+        ancestor,
       }
 
       this.create_squad_memory()
@@ -159,7 +170,10 @@ export class Region {
         }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
-        // this.temp_squad_target_room_name = 'W45S27'
+        this.temp_squad_opt = {
+          target_room_name: 'W55S23',
+          forced: true,
+        }
         break
 
       case 'W44S7':
@@ -511,6 +525,9 @@ export class Region {
         ]
         break
 
+      case 'W55S23':
+        break
+
       default:
         console.log(`Spawn.initialize unexpected region name, ${this.name}`)
         break
@@ -537,8 +554,11 @@ export class Region {
     }
 
     // -- researcher
-    if (region_memory.input_lab_ids) {
-      input_lab_ids = region_memory.input_lab_ids
+    if (region_memory.input_lab_ids && region_memory.input_lab_ids.lhs && region_memory.input_lab_ids.rhs) {
+      input_lab_ids = {
+        lhs: region_memory.input_lab_ids.lhs,
+        rhs: region_memory.input_lab_ids.rhs,
+      }
     }
 
     if ((Game.time % 103) == 13) {
