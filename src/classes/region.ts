@@ -258,10 +258,10 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        this.temp_squad_opt = {
-          target_room_name: 'W49S6',
-          forced: false,
-        }
+        // this.temp_squad_opt = {
+        //   target_room_name: 'W49S6',
+        //   forced: false,
+        // }
         break
 
       case 'W43S5':
@@ -804,18 +804,18 @@ export class Region {
           }
           case SquadType.CHARGER: {
 
-            if ((this.room.name == 'W49S6') && (this.controller.level >= 5)) {
-              if (squad_memory.name == 'charger_w49s6_tr') {
-                const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
-                this.squads.set(squad.name, squad)
-              }
-              else {
-                const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-                const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
-                this.squads.set(squad.name, squad)
-              }
-            }
-            else {
+            // if ((this.room.name == 'W49S6') && (this.controller.level >= 5)) {
+            //   if (squad_memory.name == 'charger_w49s6_tr') {
+            //     const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
+            //     this.squads.set(squad.name, squad)
+            //   }
+            //   else {
+            //     const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
+            //     const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
+            //     this.squads.set(squad.name, squad)
+            //   }
+            // }
+            // else {
 
             if (ChargerSquad.need_instantiation(squad_memory, this.controller)) {
               if (!charger_position) {
@@ -844,7 +844,7 @@ export class Region {
             else {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
             }
-            }
+            // }
             break
           }
           case SquadType.RESEARCHER: {
@@ -862,6 +862,11 @@ export class Region {
             const source_info = {
               id: harvester_squad_memory.source_id,
               room_name: harvester_squad_memory.room_name,
+            }
+
+            if (harvester_squad_memory.room_name == 'W49S6') {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+              break
             }
 
             const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
@@ -995,10 +1000,10 @@ export class Region {
               break
             }
             if ((farmer_squad_memory.room_name == 'W49S6')) {
-              if (!farmer_room.storage || !farmer_room.storage.isActive()) {
-                this.no_instantiations.push(`    - ${squad_memory.name}`)
+              // if (!farmer_room.storage || !farmer_room.storage.isActive()) {
+              //   this.no_instantiations.push(`    - ${squad_memory.name}`)
                 break
-              }
+              // }
             }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
@@ -2053,13 +2058,6 @@ export class Region {
   }
 
   private create_squad_memory(): void {
-    const hoge = true // @fixme
-    if (hoge) {
-      console.log(`Region.create_squad_memory for ${this.name}`)
-      return
-    }
-
-    const region_memory = Memory.regions[this.name]
 
     // --- Upgrader ---
     const upgrader_name = `upgrader_${this.room.name.toLowerCase()}` //UpgraderSquad.generateNewName()

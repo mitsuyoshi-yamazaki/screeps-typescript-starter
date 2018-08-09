@@ -227,6 +227,10 @@ export class TempSquad extends Squad {
     }
     const creep = this.scout
 
+    if (creep.memory.stop) {
+      return
+    }
+
     if (creep.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
       return
     }
@@ -235,7 +239,12 @@ export class TempSquad extends Squad {
     }
 
     if (creep.room.controller) {
-      creep.moveTo(creep.room.controller)
+      if (creep.pos.getRangeTo(creep.room.controller) < 5) {
+        creep.memory.stop = true
+      }
+      else {
+        creep.moveTo(creep.room.controller)
+      }
     }
     else {
       creep.moveTo(25, 25)

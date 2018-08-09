@@ -916,7 +916,7 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
-      if (carry < creep.carryCapacity) {
+      if (carry < (creep.carryCapacity - 50)) {
         let tombstone: Tombstone | undefined
         if (creep.memory.withdraw_resources_target) {
           tombstone = Game.getObjectById(creep.memory.withdraw_resources_target) as Tombstone | undefined
