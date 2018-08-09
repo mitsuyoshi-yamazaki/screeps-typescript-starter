@@ -918,17 +918,6 @@ export function tick(): void {
 
         r.createConstructionSite(pos, STRUCTURE_ROAD)
       })
-
-      const region_memory = Memory.regions[owner_room_name]
-      if (region_memory) {
-        if (!region_memory.rooms_need_to_be_defended) {
-          region_memory.rooms_need_to_be_defended = []
-        }
-        region_memory.rooms_need_to_be_defended.push(room_name)
-      }
-      else {
-        console.log(`Room.add_remote_harvester no region memory for ${owner_room_name}`)
-      }
     }
 
     // --- Squad Memory
