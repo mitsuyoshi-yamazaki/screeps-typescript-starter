@@ -196,23 +196,12 @@ export class Region {
           { id: '59f1a05a82100e1594f368c6', room_name: 'W42S7' }, // bottom right
         ]
         rooms_need_scout = [
-          'W43S7',
           'W45S7',
-          'W43S6',
-          'W45S8',
-          'W46S7',
-          // 'W44S8',
-          'W42S7',
-          // 'W31S9',
         ]
         rooms_need_to_be_defended = [
           'W43S7',
           'W45S7',
-          'W43S6',
-          'W45S8',
-          'W46S7',
           'W44S8',
-          'W42S7',
         ]
         this.destination_link_id = '5b2e775359615412454b065e'
         charger_position = {x: 19, y: 42}
