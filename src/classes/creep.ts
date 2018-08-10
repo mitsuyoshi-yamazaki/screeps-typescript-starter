@@ -1,4 +1,4 @@
-import { StructureFilter } from "./utils"
+import { StructureFilter, room_link } from "./utils"
 import { Squad } from "classes/squad/squad"
 import { ChargeTarget } from "./extensions";
 
@@ -56,8 +56,9 @@ export interface CreepChargeTargetOption {
 }
 
 export interface CreepTransferLinkToStorageOption {
-  additional_links?: StructureLink[]
+  additional_links?: StructureLink[]  // Additional links that the charger transfer energy to
   has_support_links?: boolean
+  transfer_energy?: boolean // Not withdraw from the destination link, but transfer
 }
 
 export type WorkerSource = StructureContainer | StructureStorage | StructureTerminal
@@ -1204,6 +1205,10 @@ export function init() {
       let withdrawn = false
       let should_withdraw = true
 
+      if (opt.transfer_energy) {
+        should_withdraw = false
+      }
+
       if (link && opt.has_support_links) {
         if (((link.energyCapacity * 0.5) < link.energy) && ((Game.time % 3) == 1)) {
           should_withdraw = false
@@ -1258,6 +1263,32 @@ export function init() {
     if (carry > 0) {
       if ((carry - this.carry.energy) == 0) {
         // only have energy
+        if (opt.transfer_energy) {
+          if (link && (link.energy < link.energyCapacity)) {
+            if (this.transfer(link, RESOURCE_ENERGY) == OK) {
+              return
+            }
+          }
+          else if ((this.room.name == 'W56S7')) {
+            const another = Game.getObjectById('5b6da223127ab96b4f5ec3b4') as StructureLink | undefined
+
+            if (another) {
+              if (another.energy < another.energyCapacity) {
+                if (this.transfer(another, RESOURCE_ENERGY) == OK) {
+                  return
+                }
+              }
+              else if (another.cooldown == 0) {
+                const destination = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
+
+                if (destination && (destination.energy < (destination.energyCapacity * 0.5))) {
+                  another.transferEnergy(destination)
+                }
+              }
+            }
+          }
+        }
+
         const target = this.find_charge_target()
         if (target) {
           if (this.transfer(target, RESOURCE_ENERGY) == OK) {
@@ -1942,7 +1973,7 @@ export function init() {
     opt = opt || {}
 
     if ((this.getActiveBodyparts(ATTACK) + this.getActiveBodyparts(RANGED_ATTACK)) == 0) {
-      console.log(`searchAndDestroy no attacker body parts ${this.name} ${this.pos}`)
+      console.log(`searchAndDestroy no attacker body parts ${this.name} ${this.pos}, ${room_link(this.room.name)}`)
       this.say('DAMAGED')
       // return ActionResult.DONE
     }

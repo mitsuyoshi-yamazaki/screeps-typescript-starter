@@ -810,7 +810,7 @@ export class ManualSquad extends Squad {
       case 'W56S7': {
         const from_link = Game.getObjectById('5b642f7f1407e03f53c3f3f5') as StructureLink | undefined
         const to_link = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
-        const container = Game.getObjectById('5b6429cb3369a7643bb60c1d') as StructureContainer | undefined
+        const container = Game.getObjectById('5b6429cb3369a7643bb60c1d') as StructureContainer | undefined // does not exist
         if (!from_link || !to_link) {
           console.log(`ManualSquad.run error no links for ${this.original_room_name}`)
           return

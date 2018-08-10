@@ -93,20 +93,8 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    if (this.room.name == 'W43N5') {
-      link = undefined
-
-      const charge_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
-      if (charge_link) {
-        opt.additional_links = [
-          charge_link
-        ]
-      }
-      else {
-        if (this.room.name != 'W43N5') {
-          console.log(`NO charge link ${this.name} ${this.room.name}`)  // @fixme:
-        }
-      }
+    if (this.room.name == 'W56S7') {
+      opt.transfer_energy = true
     }
 
     this.creeps.forEach((creep) => {

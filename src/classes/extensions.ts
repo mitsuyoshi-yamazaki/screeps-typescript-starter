@@ -174,8 +174,8 @@ export function tick(): void {
       if (room.storage && room.storage.my) {
         storage_amount = room.storage.store[resource_type] || 0
 
-        if (storage_amount >= 10000) {
-          storage_text = `${Math.round(storage_amount / 1000)}`
+        if (storage_amount >= 1000) {
+          storage_text = `${Math.round(storage_amount / 1000)}k`
         }
         else {
           storage_text = `${storage_amount}`

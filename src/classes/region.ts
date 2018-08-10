@@ -768,9 +768,6 @@ export class Region {
             if (harvester_destination && (harvester_destination.structureType == STRUCTURE_CONTAINER)) {
               opts.source = harvester_destination
             }
-            else if (this.room.name == 'W56S7') {
-              opts.source = Game.getObjectById('5b6429cb3369a7643bb60c1d') as StructureContainer | undefined
-            }
 
             if (region_memory.upgrader_additional_source_ids) {
               opts.additional_container_ids = region_memory.upgrader_additional_source_ids
@@ -1640,7 +1637,7 @@ export class Region {
           console.log(`Send ${resource_type} from ${this.room.name} to ${room_name}, result:${result}`)
 
           if (result == OK) {
-            break
+            return
           }
         }
       }
@@ -1873,9 +1870,6 @@ export class Region {
 
     const destination = support_link || destination_link
     if (!destination) {
-      if (['W48N11'].indexOf(this.room.name) >= 0) {
-        return
-      }
       console.log(`Region.transferLinks no destination found ${this.name} for ${this.destination_link_id}`)
       return
     }
@@ -1921,13 +1915,10 @@ export class Region {
       if (link.cooldown > 0) {
         return false
       }
-      if ((destination.energyCapacity - destination.energy) > link.energy) {
-        return true
-      }
+      // if ((destination.energyCapacity - destination.energy) > link.energy) {
+      //   return true
+      // }
       if ((link.energy > (link.energyCapacity / 2))) {
-        return true
-      }
-      if (link.energy == link.energyCapacity) {
         return true
       }
       return false
