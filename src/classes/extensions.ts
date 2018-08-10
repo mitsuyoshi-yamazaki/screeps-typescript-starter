@@ -37,7 +37,7 @@ declare global {
     creep_positions: (squad_name: string) => void
 
     show_excluded_walls(room_name: string): void
-    add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean}): void
+    add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
   }
 
   interface Memory {
@@ -153,7 +153,10 @@ export function tick(): void {
       return
     }
 
-    console.log(`Resources in ${room_link(room_name)}`)
+    const t = !room.terminal ? 'none' : `${Math.ceil(_.sum(room.terminal.store) / 1000)}k`
+    const s = !room.storage ? 'none' : `${Math.ceil(_.sum(room.storage.store) / 1000)}k`
+
+    console.log(`Resources in ${room_link(room_name)}, t: ${t}, s: ${s}`)
 
     RESOURCES_ALL.forEach((r_type) => {
       const resource_type = r_type as ResourceConstant
@@ -370,7 +373,24 @@ export function tick(): void {
         reaction_output = '-'
       }
 
-      const storage_amount = !room.storage ? "" : `${Math.round((_.sum(room.storage.store) / room.storage.storeCapacity) * 100)}%`
+      let storage_amount_text: string
+
+      if (room.storage) {
+        const storage_amount = Math.round((_.sum(room.storage.store) / room.storage.storeCapacity) * 100)
+        let storage_amount_level: 'info' | 'warn' | 'error' = info
+
+        if (storage_amount > 90) {
+          storage_amount_level = error
+        } else if (storage_amount > 80) {
+          storage_amount_level = warn
+        }
+
+        storage_amount_text = colored_text(`${storage_amount}`, storage_amount_level) + '%'
+      }
+      else {
+        storage_amount_text = ""
+      }
+
       const storage_capacity = !room.storage ? "" : ` <b>${Math.round(room.storage.store.energy / 1000)}</b>kE`
 
       let spawn_busy_time = 0
@@ -403,7 +423,7 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}`
       }
 
-      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount}\t${storage_capacity}\t${heavyly_attacked}`)
+      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`)
     })
   }
 
@@ -581,7 +601,7 @@ export function tick(): void {
     })
   }
 
-  Game.add_excluded_walls = function(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean}): void {
+  Game.add_excluded_walls = function(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void {
     const room = Game.rooms[room_name]
     if (!room) {
       console.log(`Game.add_excluded_walls no room ${room_name}`)
@@ -601,12 +621,13 @@ export function tick(): void {
     opts = opts || {}
     const dry_run = !(opts.dry_run == false)
     const added: StructureWall[] = []
+    const includes: StructureConstant[] = opts.include_rampart ? [STRUCTURE_WALL, STRUCTURE_RAMPART] : [STRUCTURE_WALL]
 
     console.log(`Game.add_excluded_walls dry_run: ${dry_run}`)
 
     room.find(FIND_STRUCTURES, {
       filter: structure => {
-        if (structure.structureType != STRUCTURE_WALL) {
+        if (includes.indexOf(structure.structureType) < 0) {
           return false
         }
         if ((structure.pos.x < x_min) || (structure.pos.x > x_max)) {

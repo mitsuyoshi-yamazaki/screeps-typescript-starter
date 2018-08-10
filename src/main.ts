@@ -250,6 +250,12 @@ function trade():void {
     })
   }
 
+  sellResource({
+    resource_type: RESOURCE_UTRIUM,
+    price: 0.160,
+    rooms,
+  })
+
   buyResource({
     resource_type: RESOURCE_KEANIUM,
     price: 0.01,
