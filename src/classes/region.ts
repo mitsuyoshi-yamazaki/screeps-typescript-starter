@@ -164,10 +164,6 @@ export class Region {
           { id: '59f1c0ce7d0b3d79de5f0165', room_name: 'W51S29' }, // Lemergium
         ]
         rooms_need_scout = []//['W51S21']
-        input_lab_ids = {
-          lhs: '5b2552233deea0034025a183', // 30, 18
-          rhs: '5b2585544218cc4736554b87', // 31, 17
-        }
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
         this.temp_squad_opt = {
@@ -729,7 +725,7 @@ export class Region {
       })
 
       const be = (rooms.length <= 1) ? 'is' : 'are'
-      const message = `${rooms} ${be} attacked!! ${this.name} (${room_histories})`
+      const message = `${rooms} ${be} attacked!! ${room_link(this.room.name)} (${room_histories})`
       console.log(message)
       // Game.notify(message)
     }
@@ -961,7 +957,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['W47S6'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1737,6 +1733,10 @@ export class Region {
 
         case COLOR_GREY:
           structure_type = STRUCTURE_SPAWN
+          break
+
+        case COLOR_ORANGE:
+          structure_type = STRUCTURE_LINK
           break
 
         case COLOR_BROWN:

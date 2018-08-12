@@ -952,6 +952,11 @@ export function init() {
       this.room.structures_needed_to_be_charged = structures_needed_to_be_charged
     }
 
+    // if (this.room.name == 'E16N37') {
+    //   const s = structures_needed_to_be_charged.map(s=>`(${s.pos.x},${s.pos.y})`)
+    //   console.log(`HOGE ${s}`)
+    // }
+
     return this.pos.findClosestByPath(structures_needed_to_be_charged)
   }
 
