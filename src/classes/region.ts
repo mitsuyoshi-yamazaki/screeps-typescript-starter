@@ -99,6 +99,8 @@ export class Region {
         destination_container_id: null,
         input_lab_ids: {lhs: null, rhs: null},
         destination_link_id: null,
+        support_link_ids: [],
+        upgrader_additional_source_ids: [],
         reaction_outputs: [],
         resource_transports: {},
         charger_position: null,
@@ -166,10 +168,10 @@ export class Region {
         rooms_need_scout = []//['W51S21']
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
-        this.temp_squad_opt = {
-          target_room_name: 'W55S23',
-          forced: true,
-        }
+        // this.temp_squad_opt = {
+        //   target_room_name: 'W55S23',
+        //   forced: true,
+        // }
         break
 
       case 'W44S7':
@@ -1924,6 +1926,10 @@ export class Region {
       return false
     })
 
+    // if (this.room.name == 'W55S23') {
+    //   console.log(`HOGE s: ${source_links.map(l=>l.pos)}, d: ${destination.pos}`)
+    // }
+
     let transfer_succeeded = false
 
     for (const link of source_links) {
@@ -1934,7 +1940,7 @@ export class Region {
     }
 
     if (!transfer_succeeded) {
-      if (destination_link && support_link && (destination_link.cooldown == 0) && (destination_link.energy > 0) && ((support_link.energyCapacity - support_link.energy) >= destination_link.energy)) {
+      if (destination_link && support_link && (destination_link.cooldown == 0) && (destination_link.energy > 0) && (support_link.energy < (support_link.energyCapacity * 0.5))) {
         const result = destination_link.transferEnergy(support_link)
 
         if (result != OK) {

@@ -93,7 +93,7 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    if (this.room.name == 'W56S7') {
+    if ((this.room.name == 'W56S7') || (this.room.name == 'W55S23')) {
       opt.transfer_energy = true
     }
 
