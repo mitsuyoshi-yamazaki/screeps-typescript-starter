@@ -959,7 +959,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['dummy'].indexOf(this.room.name) >= 0) {
+            if (['E16N37'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1506,7 +1506,7 @@ export class Region {
         }
       }
       else {
-        console.log(`Region.runObserver failed with ${result}, ${this.name}`)
+        console.log(`Region.runObserver failed with ${result}, ${this.name}, observing ${region_memory.observe_target}, ${region_memory.observe_target == null}`)
       }
       return
     }
@@ -1532,13 +1532,16 @@ export class Region {
     const x = Number(this.room.name.slice(1,3)) + position.x
     const y = Number(this.room.name.slice(4,6)) + position.y
 
-    const target_room_name = `W${x}S${y}` // @fixme: WxxNyy
+    let target_room_name = `W${x}S${y}` // @fixme: WxxNyy
+    if (this.room.name == 'E16N37') {
+      target_room_name = `E${x}N${y}`
+    }
 
     const result = observer.observeRoom(target_room_name)
     if (result == OK) {
     }
     else {
-      console.log(`Region.runObserver failed with ${result}, ${this.name}`)
+      console.log(`Region.runObserver 2 failed with ${result}, ${this.name}, observing ${target_room_name}`)
     }
   }
 
@@ -2182,7 +2185,8 @@ export class Region {
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
-    if (!Memory.debug.show_visuals) {
+    const show_visuals = Memory.debug.show_visuals
+    if (!show_visuals || (show_visuals != this.room.name)) {
       return
     }
 

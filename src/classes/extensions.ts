@@ -50,7 +50,7 @@ declare global {
     cpu_usages: number[]
     trading: {stop: boolean}
     debug: {
-      show_visuals: boolean,
+      show_visuals: string | null,
       show_path: boolean,
       show_costmatrix: string | null,
       test_send_resources: boolean,
@@ -1107,7 +1107,8 @@ export function tick(): void {
   }
 
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
-    if (!Memory.debug.show_visuals) {
+    const show_visuals = Memory.debug.show_visuals
+    if (!show_visuals || (show_visuals != this.roomName)) {
       return
     }
 
