@@ -43,6 +43,7 @@ export interface RegionMemory {
   last_spawn_time: number
   last_heavy_attacker?: {ticks: number, body: string[]} | null
   ancestor: string
+  region_version: string
 }
 
 export interface RegionOpt {
@@ -112,11 +113,14 @@ export class Region {
         last_spawn_time: Game.time,
         last_heavy_attacker: null,
         ancestor,
+        region_version: Game.version,
       }
 
       this.create_squad_memory()
     }
     const region_memory = Memory.regions[this.name]
+
+    // region_memory.region_version = (this.controller.sign || {text: 'none'}).text
 
     // Spawns
     if (this.room.owned_structures) {
