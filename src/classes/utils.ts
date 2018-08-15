@@ -23,6 +23,12 @@ export function room_history_link(room_name: string, ticks: number, opts?: {text
   return `<a href="https://screeps.com/a/#!/history/shard2/${room_name}?t=${ticks}", style='color:${color}'>${text}</a>`
 }
 
+export function profile_link(username: string, opts?: {color?: string}) {
+  opts = opts || {}
+  const color = opts.color || '#FFFFFF'
+  return `<a href="https://screeps.com/a/#!/profile/${username}", style='color:${color}'>${username}</a>`
+}
+
 export function resource_color(resource_type: ResourceConstant): string {
   switch (resource_type) {
     case RESOURCE_ENERGY:

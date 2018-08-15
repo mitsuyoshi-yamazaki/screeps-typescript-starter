@@ -41,7 +41,7 @@ export interface RegionMemory {
   excluded_walls?: string[]
   repairing_wall_id?: string | null
   last_spawn_time: number
-  last_heavy_attacker?: {ticks: number, body: string[]} | null
+  last_heavy_attacker?: {ticks: number, body: string[], teams: string[]} | null
   ancestor: string
   region_version: string
   sign: string | null

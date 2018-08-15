@@ -150,16 +150,21 @@ export class AttackerSquad extends Squad {
 
     if ((result == OK) && this.is_heavy_attacker) {
       const region_memory = Memory.regions[this.base_room.name]
+      let teams: string[] = []
+
       if (region_memory) {
+        teams = this.base_room.attacker_info.hostile_teams
+
         region_memory.last_heavy_attacker = {
           ticks: Game.time,
           body,
+          teams,
         }
       }
 
       const url = `https://screeps.com/a/#!/history/shard2/${this.base_room.name}?t=${Game.time}`
       const link = `<a href="${url}">${Game.time}</a>`
-      const message = `AttackerSquad.addCreep spawn a heavy attacker ${this.base_room.name} ${this.name} at ${link}\n${body} `
+      const message = `AttackerSquad.addCreep spawn a heavy attacker ${this.base_room.name}, ${teams}, ${this.name} at ${link}  `
 
       console.log(message)
       Game.notify(message)

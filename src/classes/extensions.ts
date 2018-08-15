@@ -2,7 +2,7 @@ import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
-import { UID, room_history_link, room_link, colored_resource_type } from "./utils";
+import { UID, room_history_link, room_link, colored_resource_type, profile_link } from "./utils";
 import { RoomLayout, RoomLayoutOpts } from "./room_layout";
 
 export interface AttackerInfo  {
@@ -419,8 +419,20 @@ export function tick(): void {
       let heavyly_attacked = ''
       if (region_memory && region_memory.last_heavy_attacker) {
         const ticks = region_memory.last_heavy_attacker.ticks
-        const text = `${Game.time - ticks} ticks ago`
-        heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}`
+        const ticks_ago = Game.time - ticks
+        let ticks_ago_level: 'info' | 'warn' | 'error' = 'info'
+
+        if (ticks_ago < 2000) {
+          ticks_ago_level = 'error'
+        }
+        else if (ticks_ago < 8000) {
+          ticks_ago_level = 'warn'
+        }
+
+        const text = colored_text(`${ticks_ago} ticks ago`, ticks_ago_level)
+        const teams = !(!region_memory.last_heavy_attacker.teams) ? `, from ${region_memory.last_heavy_attacker.teams.map(t=>profile_link(t))}` : ''
+
+        heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}${teams}`
       }
 
       console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`)
