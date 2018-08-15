@@ -44,6 +44,7 @@ export interface RegionMemory {
   last_heavy_attacker?: {ticks: number, body: string[]} | null
   ancestor: string
   region_version: string
+  sign: string | null
 }
 
 export interface RegionOpt {
@@ -114,6 +115,7 @@ export class Region {
         last_heavy_attacker: null,
         ancestor,
         region_version: Game.version,
+        sign: Game.version,
       }
 
       this.create_squad_memory()

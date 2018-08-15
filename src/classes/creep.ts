@@ -1792,7 +1792,7 @@ export function init() {
       // }
 
       let should_upgrade = true
-      if (['W46S3', 'E16N37', 'W45S27', 'W47S9'].indexOf(this.room.name) >= 0) {
+      if (['W45S27'].indexOf(this.room.name) >= 0) {
         let number = 0
 
         for (const creep_name in Game.creeps) {
@@ -1888,12 +1888,16 @@ export function init() {
       }
       else {
         this.upgradeController(room.controller!)
-        // if ((this.room.name == 'W49S6') && room.controller) {
-        //   this.signController(room.controller, `GCL farm ${Game.version}`)
-        // }
-        if (((Game.time % 41) == 0) && room.controller && (room.controller.level < 3)) {
-          if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
+        if (((Game.time % 229) == 0) && room.controller) {
+          // if (((Game.time % 13) == 0) && room.controller) {
+          if ((room.controller.level < 3) && (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0))) {
             this.signController(room.controller, Game.version)
+          }
+          else {
+            const region_memory = Memory.regions[room.name]
+            if (region_memory && region_memory.sign && (!room.controller.sign || ((region_memory.sign != room.controller.sign.text)))) {
+              this.signController(room.controller, region_memory.sign)
+            }
           }
         }
 
