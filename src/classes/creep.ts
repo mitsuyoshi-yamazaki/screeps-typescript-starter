@@ -1283,13 +1283,31 @@ export function init() {
                   return
                 }
               }
-              else if (another.cooldown == 0) {
-                const destination = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
+              // else if (another.cooldown == 0) {
+              //   const destination = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
 
-                if (destination && (destination.energy < (destination.energyCapacity * 0.5))) {
-                  another.transferEnergy(destination)
+              //   if (destination && (destination.energy < (destination.energyCapacity * 0.5))) {
+              //     another.transferEnergy(destination)
+              //   }
+              // }
+            }
+          }
+          else if ((this.room.name == 'W55S23')) {
+            const another = Game.getObjectById('5b73fd139815df3d844efe02') as StructureLink | undefined
+
+            if (another) {
+              if (another.energy < another.energyCapacity) {
+                if (this.transfer(another, RESOURCE_ENERGY) == OK) {
+                  return
                 }
               }
+              // else if (another.cooldown == 0) {
+              //   const destination = Game.getObjectById('5b6f22c52dc34e41c6bca076') as StructureLink | undefined
+
+              //   if (destination && (destination.energy < (destination.energyCapacity * 0.5))) {
+              //     another.transferEnergy(destination)
+              //   }
+              // }
             }
           }
         }
@@ -1873,7 +1891,7 @@ export function init() {
         // if ((this.room.name == 'W49S6') && room.controller) {
         //   this.signController(room.controller, `GCL farm ${Game.version}`)
         // }
-        if (((Game.time % 41) == 0) && room.controller) {
+        if (((Game.time % 41) == 0) && room.controller && (room.controller.level < 3)) {
           if (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0)) {
             this.signController(room.controller, Game.version)
           }

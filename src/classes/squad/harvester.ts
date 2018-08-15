@@ -131,24 +131,7 @@ export class HarvesterSquad extends Squad {
     }
     this.source = source
 
-    if (this.source_info.id == '59f1c0ce7d0b3d79de5f024d') {  // home oxgen
-      this.resource_type = RESOURCE_OXYGEN
-    // if ((this.source as Mineral).mineralType) {  // does not work (returns 0)
-      // this.resource_type = (this.source as Mineral).mineralType
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e1') {  // home2 utrium
-      this.resource_type = RESOURCE_UTRIUM
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01e2') {  // home4 hydrogen
-      this.resource_type = RESOURCE_HYDROGEN
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01d5') {  // home5 keanium
-      this.resource_type = RESOURCE_KEANIUM
-    }
-    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f02fd') { // W46S33 zynthium
-      this.resource_type = RESOURCE_ZYNTHIUM
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') { // W51S29 lemergium
+    if (this.source_info.id == '59f1c0ce7d0b3d79de5f0165') { // W51S29 lemergium
       this.resource_type = RESOURCE_LEMERGIUM
     }
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f037c') { // W44S7 Hydrogen
@@ -192,6 +175,9 @@ export class HarvesterSquad extends Squad {
     }
     else if (this.source_info.id == '59f1c0cd7d0b3d79de5eff8c') { // W56S7
       this.resource_type = RESOURCE_CATALYST
+    }
+    else if (this.source_info.id == '') { // W55S23
+      this.resource_type = RESOURCE_HYDROGEN
     }
     else {
       this.resource_type = RESOURCE_ENERGY

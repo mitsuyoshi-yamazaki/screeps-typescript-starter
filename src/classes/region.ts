@@ -517,6 +517,9 @@ export class Region {
         break
 
       case 'W55S23':
+        harvester_targets = [
+          { id: '59f1c0cd7d0b3d79de5effdf', room_name: 'W55S23' }, // Hydrogen
+        ]
         break
 
       default:
@@ -1871,7 +1874,7 @@ export class Region {
         }
         return false
       }
-      if (l.energy > (l.energyCapacity * 0.5)) {
+      if (l.energy > (l.energyCapacity * 0.3)) {
         return false
       }
       return true
