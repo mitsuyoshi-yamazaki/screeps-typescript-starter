@@ -1232,7 +1232,7 @@ export function init() {
       else if (this.room.terminal) {
         for (const resource_type of RESOURCES_ALL) {
           let amount_min = 10000
-          let amount_max = 12000
+          let amount_max = 11000
 
           if (resource_type == RESOURCE_ENERGY) {
             const is_rcl8 = !(!this.room.controller) && this.room.controller.my && (this.room.controller.level == 8)

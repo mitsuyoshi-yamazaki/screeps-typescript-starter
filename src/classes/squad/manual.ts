@@ -129,19 +129,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const room = Game.rooms[this.original_room_name]
-        const target_room = Game.rooms['W47S9']
-
-        if (!room || !room.storage) {
-          return SpawnPriority.NONE
-        }
-        if (room.storage.store.energy < 200000) {
-          return SpawnPriority.NONE
-        }
-        if (target_room && (target_room.controller) && (target_room.controller.level > 5)) {
-          return SpawnPriority.NONE
-        }
-        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'W43S2': {
@@ -260,7 +248,7 @@ export class ManualSquad extends Squad {
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
 
       case 'W48S6':
-        return energy_available >= 2000
+        return false
 
       case 'W43S2':
         const energy = (capacity >= 1200) ? 1200 : 800
@@ -356,17 +344,6 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const body: BodyPartConstant[] = [
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          CARRY, CARRY, CARRY, CARRY, CARRY,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-        ]
-        this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
         return
       }
 
@@ -660,15 +637,11 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const room = Game.rooms[this.original_room_name]
-        const target_room = Game.rooms['W47S9']
+        const target_room_name = 'W49S7'
 
-        if (!room || !target_room) {
-          console.log(`ManualSquad.run ${this.original_room_name} unexpectedly null rooms ${room}, ${target_room}, ${this.name}`)
-          return
-        }
-
-        this.transferRoom(room, target_room, {x: 36, y: 8}, 200, 'worker72220381')
+        this.creeps.forEach((creep) => {
+          creep.searchAndDestroyTo(target_room_name, true)
+        })
         return
       }
 
