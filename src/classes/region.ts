@@ -251,10 +251,12 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W49S6',
-        //   forced: false,
-        // }
+        if (Game.gcl.level >= 12) {
+          this.temp_squad_opt = {
+            target_room_name: 'W49S6',
+            forced: false,
+          }
+        }
         break
 
       case 'W43S5':
@@ -992,12 +994,12 @@ export class Region {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
               break
             }
-            if ((farmer_squad_memory.room_name == 'W49S6')) {
-              // if (!farmer_room.storage || !farmer_room.storage.isActive()) {
-              //   this.no_instantiations.push(`    - ${squad_memory.name}`)
-                break
-              // }
-            }
+            // if ((farmer_squad_memory.room_name == 'W49S6')) {
+            //   // if (!farmer_room.storage || !farmer_room.storage.isActive()) {
+            //   //   this.no_instantiations.push(`    - ${squad_memory.name}`)
+            //     break
+            //   // }
+            // }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
             this.squads.set(squad.name, squad)

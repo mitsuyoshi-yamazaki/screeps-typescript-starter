@@ -98,7 +98,7 @@ export class FarmerSquad extends Squad {
       return undefined
     }
 
-    const carrier_max = 6
+    const carrier_max = 8
     if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
       if (debug) {
         console.log(`FarmerSquad.nextCreep carrier ${this.name}`)
@@ -372,7 +372,7 @@ export class FarmerSquad extends Squad {
             }
           }
           else {
-            const pos = new RoomPosition(31, 6, this.room_name)
+            const pos = new RoomPosition(28, 5, this.room_name)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
               creep.moveTo(pos)
             }
