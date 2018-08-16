@@ -21,7 +21,7 @@ export class FarmerSquad extends Squad {
   ]
 
   private next_creep: CreepType | undefined
-  private container = Game.getObjectById('5b574744914d5a727c4a581e') as StructureContainer | undefined  // W49S6 container
+  private container = Game.getObjectById('5b7600e566e2a17bd4a952b9') as StructureContainer | undefined  // W49S6 container
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -67,16 +67,18 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
-    const upgrader_max = this.positions.length
+    const rcl = (destination_room && destination_room.controller) ? destination_room.controller.level : 0
+    const upgrader_max = (rcl < 4) ? 1 : this.positions.length
+
     if (this.upgraders.length < upgrader_max) {
-      if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length == 0)) {
+      if ((rcl < 6) && (this.carriers.length == 0)) {
         if (debug) {
           console.log(`FarmerSquad.nextCreep no carriers ${this.name}`)
         }
         return CreepType.CARRIER
       }
 
-      if (destination_room && destination_room.storage && (destination_room.storage.store.energy > 5000)) {
+      if (destination_room && ((destination_room.storage && (destination_room.storage.store.energy > 5000)) || (this.container && (this.container.store.energy > 1500)))) {
         if (debug) {
           console.log(`FarmerSquad.nextCreep upgrader ${this.name}`)
         }
@@ -360,19 +362,20 @@ export class FarmerSquad extends Squad {
           return
         }
 
-        if (destination_room.storage) {
+        if (destination_room.storage && destination_room.controller && (destination_room.controller.level >= 4)) {
           if (creep.transfer(destination_room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(destination_room.storage)
           }
         }
         else {
-          if (this.container) {
+          if (this.container && (this.container.store.energy < this.container.storeCapacity)) {
             if (creep.transfer(this.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
               creep.moveTo(this.container)
             }
           }
           else {
-            const pos = new RoomPosition(28, 5, this.room_name)
+            // creep.say(`2`)
+            const pos = new RoomPosition(30, 4, this.room_name)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
               creep.moveTo(pos)
             }
