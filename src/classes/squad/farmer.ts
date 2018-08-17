@@ -234,7 +234,7 @@ export class FarmerSquad extends Squad {
       let_thy_die: true,
     }
 
-    energy_available = Math.min(energy_available, (energy_unit * 12))
+    energy_available = Math.min(energy_available, (energy_unit * 16))
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
