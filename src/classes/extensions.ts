@@ -997,16 +997,6 @@ export function tick(): void {
       }
     }
 
-    if (region_memory) {
-      if (!region_memory.rooms_need_to_be_defended) {
-        region_memory.rooms_need_to_be_defended = []
-      }
-      region_memory.rooms_need_to_be_defended.push(room_name)
-    }
-    else {
-      console.log(`Room.add_remote_harvester no region memory for ${owner_room_name}`)
-    }
-
     return squad_name
   }
 

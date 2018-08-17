@@ -300,7 +300,7 @@ export class RemoteHarvesterSquad extends Squad {
       return
     }
 
-    if (!this.keeper && !this.is_room_attacked && room.controller) {
+    if (!this.keeper && !this.is_room_attacked && room.controller && !room.controller.my) {
       if (!room.controller.reservation || (room.controller.reservation.ticksToEnd < 4000)) {
         this.next_creep = CreepType.CONTROLLER_KEEPER
         return

@@ -77,7 +77,7 @@ declare global {
 
     // General tasks
     moveToRoom(destination_room_name: string): ActionResult
-    goToRenew(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean}): ActionResult
+    goToRenew(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean, withdraw?: boolean}): ActionResult
     makeShell(): ActionResult
     find_charge_target(opt?: CreepChargeTargetOption): ChargeTarget | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
@@ -724,7 +724,7 @@ export function init() {
     return ActionResult.IN_PROGRESS
   }
 
-  Creep.prototype.goToRenew = function(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean}): ActionResult {
+  Creep.prototype.goToRenew = function(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean, withdraw?: boolean}): ActionResult {
     opts = opts || {}
     const ticks = opts.ticks || 1400
 
@@ -742,9 +742,9 @@ export function init() {
     const move_result = this.moveTo(spawn)
     this.transfer(spawn, RESOURCE_ENERGY)
 
-    // if (this.room.storage) {
-    //   this.withdraw(this.room.storage, RESOURCE_ENERGY)
-    // }
+    if (opts.withdraw && (this.room.storage)) {
+      this.withdraw(this.room.storage, RESOURCE_ENERGY)
+    }
 
     if (move_result != OK) {
       this.say(`E${move_result}`)

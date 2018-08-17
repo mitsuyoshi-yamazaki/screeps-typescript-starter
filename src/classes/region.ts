@@ -488,7 +488,7 @@ export class Region {
         // harvester_targets = [
         //   { id: '59f1c0ce7d0b3d79de5f01bc', room_name: 'W49S6' }  // Oxygen  // Should be in W48S6
         // ]
-        this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
+        // this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
         break
 
       case 'W46S3':
