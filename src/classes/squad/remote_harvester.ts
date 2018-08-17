@@ -711,7 +711,7 @@ export class RemoteHarvesterSquad extends Squad {
     let done = false
 
     const move_to_ops: MoveToOpts = {
-      maxRooms: 1,
+      maxRooms: 3,
     }
 
     this.builders.forEach((creep) => {
@@ -903,7 +903,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       const carry = _.sum(creep.carry)
       const move_to_ops: MoveToOpts = {
-        maxRooms: 1,
+        maxRooms: 3,
         maxOps: 1000,
         reusePath: 10,
       }
@@ -1122,7 +1122,7 @@ export class RemoteHarvesterSquad extends Squad {
             const room_position = new RoomPosition(x, y, this.base_room.name)
 
             if ((creep.room.name != this.base_room.name)) {
-              creep.moveTo(room_position, {maxRooms: 1, reusePath: 10})
+              creep.moveTo(room_position, {maxRooms: 3, reusePath: 10})
               return
             }
 
@@ -1145,7 +1145,7 @@ export class RemoteHarvesterSquad extends Squad {
             }
 
             if ((creep.pos.x != x) || (creep.pos.y != y)) {
-              creep.moveTo(room_position, {maxRooms: 1, reusePath: 10})
+              creep.moveTo(room_position, {maxRooms: 3, reusePath: 10})
               return
             }
 
@@ -1160,8 +1160,8 @@ export class RemoteHarvesterSquad extends Squad {
         }
 
         if (!has_minerals || !this.destination.room.storage) {
-          const withdraw_result = creep.transfer(this.destination, RESOURCE_ENERGY)
-          if (withdraw_result == ERR_NOT_IN_RANGE) {
+          const transfer_result = creep.transfer(this.destination, RESOURCE_ENERGY)
+          if (transfer_result == ERR_NOT_IN_RANGE) {
             // const ignore_creeps = (Game.time % 5) < 3
 
             if (creep.room.name == 'W46S5') {
@@ -1171,16 +1171,19 @@ export class RemoteHarvesterSquad extends Squad {
               creep.moveTo(0, 38)
             }
             else {
-              creep.moveTo(this.destination, move_to_ops)
+              if (creep.moveTo(this.destination, move_to_ops) == ERR_NO_PATH) {
+                creep.say(`NO PATH`)
+                creep.moveToRoom(this.destination.room.name)
+              }
             }
           }
-          else if (withdraw_result != OK) {
-            creep.say(`E${withdraw_result}`)
+          else if (transfer_result != OK) {
+            creep.say(`E${transfer_result}`)
           }
         }
         else {
-          const withdraw_result = creep.transferResources(this.destination.room.storage)
-          if (withdraw_result == ERR_NOT_IN_RANGE) {
+          const transfer_result = creep.transferResources(this.destination.room.storage)
+          if (transfer_result == ERR_NOT_IN_RANGE) {
             move_to_ops.maxRooms = 5
             if (creep.room.name == 'W46S5') {
               creep.moveTo(17, 49)
@@ -1192,8 +1195,8 @@ export class RemoteHarvesterSquad extends Squad {
               creep.moveTo(this.destination.room.storage, move_to_ops)
             }
           }
-          else if (withdraw_result != OK) {
-            creep.say(`E${withdraw_result}`)
+          else if (transfer_result != OK) {
+            creep.say(`E${transfer_result}`)
           }
         }
       }
@@ -1242,7 +1245,7 @@ export class RemoteHarvesterSquad extends Squad {
         if ((creep.hits < creep.hitsMax) && (range < 8)) {
         }
         else {
-          creep.moveTo(keeper_lair, {maxRooms: 1})
+          creep.moveTo(keeper_lair, {maxRooms: 3})
         }
       }
 
