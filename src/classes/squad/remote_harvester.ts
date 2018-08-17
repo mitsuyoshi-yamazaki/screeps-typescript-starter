@@ -1014,7 +1014,7 @@ export class RemoteHarvesterSquad extends Squad {
             return
           }
 
-          let energy_threshold = 200
+          let energy_threshold = 600
           if (this.room_name == 'W45S5') {
             energy_threshold = 1000
           }
