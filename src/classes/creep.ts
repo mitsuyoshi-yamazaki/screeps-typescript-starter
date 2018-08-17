@@ -115,6 +115,7 @@ declare global {
     withdraw_target?: string            // something that has energy
     withdraw_resources_target?: string  // something that has store
     pickup_target?: string
+    no_path?: DirectionConstant
   }
 }
 
@@ -192,8 +193,15 @@ export function init() {
       return ActionResult.DONE
     }
 
+    if (this.memory.no_path != null) {
+      this.move(this.memory.no_path)
+
+      this.memory.no_path = undefined
+      return ActionResult.IN_PROGRESS
+    }
+
     let opt: MoveToOpts = {
-      maxRooms: 0,
+      maxRooms: 1,
       reusePath: 10,
       maxOps: 500,
     }
@@ -286,7 +294,7 @@ export function init() {
           lineStyle: 'dashed',
           opacity: 0.8
         },
-        maxRooms: 0,
+        maxRooms: 1,
       }
     }
 
@@ -381,13 +389,11 @@ export function init() {
       this.moveTo(0, 28, opt)
       return ActionResult.IN_PROGRESS
     }
-
-    if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
+    else if ((this.room.name == 'W45S42') && (destination_room_name == 'W45S43')) { // @fixme: temp code
       this.moveTo(25, 49, opt)
       return ActionResult.IN_PROGRESS
     }
-
-    if ((this.room.name == 'W44S42') && (destination_room_name == 'W44S43')) { // @fixme: temp code
+    else if ((this.room.name == 'W44S42') && (destination_room_name == 'W44S43')) { // @fixme: temp code
       this.moveTo(0, 38, {
         ignoreCreeps: true,
       })
@@ -678,21 +684,25 @@ export function init() {
         // To avoid ERR_NO_PATH on room borders
       if (this.pos.x <= 0) {
         if (this.move(RIGHT) == OK) {
+          this.memory.no_path = RIGHT
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.x >= 49) {
         if (this.move(LEFT) == OK) {
+          this.memory.no_path = LEFT
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.y <= 0) {
         if (this.move(BOTTOM) == OK) {
+          this.memory.no_path = BOTTOM
           return ActionResult.IN_PROGRESS
         }
       }
       if (this.pos.y >= 49) {
         if (this.move(TOP) == OK) {
+          this.memory.no_path = TOP
           return ActionResult.IN_PROGRESS
         }
       }
@@ -707,9 +717,7 @@ export function init() {
       }
 
       if (this.room.controller) {
-        const result = this.moveTo(this.room.controller, {
-          maxRooms: 0,
-        })
+        const result = this.moveTo(this.room.controller, opt)
         this.say(`E${result}`)
       }
       else {

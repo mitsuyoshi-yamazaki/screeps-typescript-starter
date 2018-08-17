@@ -970,7 +970,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['W45S27'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -2020,6 +2020,9 @@ export class Region {
       error = `No region_memory`
     }
     else {
+      if (this.room.name == 'W49S6') {
+        return
+      }
       if (!this.room.controller || (this.room.controller.level < 5)) {
         return
       }

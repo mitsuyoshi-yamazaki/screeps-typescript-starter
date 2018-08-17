@@ -251,6 +251,12 @@ function trade():void {
   // }
 
   sellResource({
+    resource_type: RESOURCE_CATALYST,
+    price: 0.2,
+    rooms,
+  })
+
+  sellResource({
     resource_type: RESOURCE_UTRIUM,
     price: 0.160,
     rooms,
