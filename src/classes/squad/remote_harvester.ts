@@ -88,7 +88,10 @@ export class RemoteHarvesterSquad extends Squad {
       ]
     }
 
-    if (squad_memory.destination_id) {
+    if (room && (room.name == 'W49S6') && room.storage && room.controller && room.controller.my && (room.controller.level >= 4)) {
+      this.destination = room.storage
+    }
+    else if (squad_memory.destination_id) {
       const specified_destination = Game.getObjectById(squad_memory.destination_id) as HarvesterDestination | undefined
 
       if (specified_destination) {
@@ -717,6 +720,15 @@ export class RemoteHarvesterSquad extends Squad {
     this.builders.forEach((creep) => {
       if (creep.spawning) {
         return
+      }
+
+      if (creep.room.name == 'W55S24') {
+        if (this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS) {
+          if (creep.carry.energy > 0) {
+            creep.memory.status = CreepStatus.BUILD
+          }
+          return
+        }
       }
 
       if (creep.room.name == this.room_name) {

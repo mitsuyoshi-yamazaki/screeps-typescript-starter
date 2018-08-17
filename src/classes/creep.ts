@@ -1195,7 +1195,7 @@ export function init() {
     const storage = this.room.storage
 
     //
-    if ((this.memory.squad_name == 'charger_w49s6_tr') && ((this.ticksToLive || 0) > 2)) { // W49S6
+    if ((this.memory.squad_name == 'charger_w49s6') && ((this.ticksToLive || 0) > 2)) { // W49S6
       const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
       const resource_type = RESOURCE_GHODIUM_ACID
 

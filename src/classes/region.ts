@@ -799,18 +799,16 @@ export class Region {
           }
           case SquadType.CHARGER: {
 
-            // if ((this.room.name == 'W49S6') && (this.controller.level >= 5)) {
-            //   if (squad_memory.name == 'charger_w49s6_tr') {
-            //     const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
-            //     this.squads.set(squad.name, squad)
-            //   }
-            //   else {
-            //     const link = Game.getObjectById(this.destination_link_id) as StructureLink | undefined
-            //     const squad = new ChargerSquad(squad_memory.name, this.room, link, [], {x:31, y:6})
-            //     this.squads.set(squad.name, squad)
-            //   }
-            // }
-            // else {
+            if ((this.room.name == 'W49S6')) {
+              if (this.controller.level >= 6) {
+                const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
+                this.squads.set(squad.name, squad)
+              }
+              else {
+                this.no_instantiations.push(`    - ${squad_memory.name}`)
+              }
+            }
+            else {
 
             if (ChargerSquad.need_instantiation(squad_memory, this.controller)) {
               if (!charger_position) {
@@ -839,7 +837,7 @@ export class Region {
             else {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
             }
-            // }
+            }
             break
           }
           case SquadType.RESEARCHER: {
@@ -2246,7 +2244,9 @@ export class Region {
       lines = lines.concat(delegated_descriptions)
     }
 
-    this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
+    const y = (this.room.name == 'W49S6') ? (pos.y + 3) : pos.y
+
+    this.room.visual.multipleLinedText(lines, pos.x, y, {
       align: 'left',
       opacity: 0.8,
       font: '12px',
