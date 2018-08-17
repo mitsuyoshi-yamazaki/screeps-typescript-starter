@@ -748,7 +748,7 @@ export class ManualSquad extends Squad {
             const y = 7
 
             if ((creep.pos.x != x) || (creep.pos.y != y)) {
-              creep.moveTo(x, y, {maxRooms: 0, reusePath: 10})
+              creep.moveTo(x, y, {maxRooms: 1, reusePath: 10})
               return
             }
 

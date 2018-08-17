@@ -105,7 +105,7 @@ export class NukerChargerSquad extends Squad {
 
     const opt: MoveToOpts = {
       maxOps: 200,
-      maxRooms: 0,
+      maxRooms: 1,
       reusePath: 3,
     }
 

@@ -861,7 +861,7 @@ export function tick(): void {
     if (!opts.memory_only) {
       // --- Path
       const pathfinder_opts: FindPathOpts = {
-        maxRooms: 0,
+        maxRooms: 1,
         maxOps: 10000,
         range: 1,
       }
@@ -1017,7 +1017,7 @@ export function tick(): void {
     }
 
     const pathfinder_opts: FindPathOpts = {
-      maxRooms: 0,
+      maxRooms: 1,
       maxOps: 10000,
       range: 1,
       costCallback,
@@ -1062,7 +1062,7 @@ export function tick(): void {
     // const cost_matrix = room.remote_layout()
 
     const pathfinder_opts: FindPathOpts = {
-      maxRooms: 0,
+      maxRooms: 1,
       maxOps: 10000,
       range: 1,
     }

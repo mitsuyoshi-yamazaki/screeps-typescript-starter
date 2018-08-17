@@ -326,7 +326,7 @@ export abstract class Squad {
     }
     const path: PathFinderPath = PathFinder.search(creep.pos, goal, {
       flee: true,
-      maxRooms: 0,
+      maxRooms: 1,
     })
 
     if (path.path.length > 0) {

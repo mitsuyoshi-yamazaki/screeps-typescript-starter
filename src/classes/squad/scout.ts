@@ -100,10 +100,11 @@ export class ScoutSquad extends Squad {
       }
 
       if (creep.memory.stop) {
+        // destroy hostile construction sites
         // if (creep.name == 'scout85231983') {
         //   const site = creep.pos.findClosestByPath(FIND_HOSTILE_CONSTRUCTION_SITES)
         //   if (site) {
-        //     creep.moveTo(site, {maxRooms: 0})
+        //     creep.moveTo(site, {maxRooms: 1})
         //   }
         // }
         return
@@ -114,7 +115,7 @@ export class ScoutSquad extends Squad {
       }
 
       const opt: MoveToOpts = {
-        maxRooms: 0,
+        maxRooms: 1,
         maxOps: 500,
         reusePath: 10,
       }

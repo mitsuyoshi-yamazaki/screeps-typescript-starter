@@ -711,7 +711,7 @@ export class RemoteHarvesterSquad extends Squad {
     let done = false
 
     const move_to_ops: MoveToOpts = {
-      maxRooms: 0,
+      maxRooms: 1,
     }
 
     this.builders.forEach((creep) => {
@@ -903,7 +903,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       const carry = _.sum(creep.carry)
       const move_to_ops: MoveToOpts = {
-        maxRooms: 0,
+        maxRooms: 1,
         maxOps: 1000,
         reusePath: 10,
       }
@@ -1242,7 +1242,7 @@ export class RemoteHarvesterSquad extends Squad {
         if ((creep.hits < creep.hitsMax) && (range < 8)) {
         }
         else {
-          creep.moveTo(keeper_lair, {maxRooms: 0})
+          creep.moveTo(keeper_lair, {maxRooms: 1})
         }
       }
 

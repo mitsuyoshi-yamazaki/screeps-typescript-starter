@@ -712,7 +712,7 @@ export function init() {
       }
 
       if (this.room.name == 'W45S7') {
-        this.moveTo(36, 22, {maxRooms: 0})
+        this.moveTo(36, 22, {maxRooms: 1})
         return ActionResult.IN_PROGRESS
       }
 
@@ -1489,7 +1489,7 @@ export function init() {
     }
     else if (!this.memory.stop) {
       const move_to_opts: MoveToOpts = {
-        maxRooms: 0,
+        maxRooms: 1,
       }
 
       if (this.room.name == 'W45S27') {
@@ -1545,7 +1545,7 @@ export function init() {
     }
 
     let move_to_opt: MoveToOpts = {
-      maxRooms: 0,
+      maxRooms: 1,
       reusePath: 2,
       maxOps: 500,
       // visualizePathStyle: {
@@ -2042,7 +2042,7 @@ export function init() {
       const range = this.pos.getRangeTo(hostile_attacker)
 
       if (range > 5) {
-        this.moveTo(hostile_attacker, {maxRooms: 0})
+        this.moveTo(hostile_attacker, {maxRooms: 1})
       }
     }
 
@@ -2241,7 +2241,7 @@ export function init() {
         }
         const path: PathFinderPath = PathFinder.search(this.pos, goal, {
           flee: true,
-          maxRooms: 0,
+          maxRooms: 1,
         })
 
         if (path.path.length > 0) {
