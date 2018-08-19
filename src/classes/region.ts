@@ -1710,6 +1710,10 @@ export class Region {
   }
 
   private placeConstructionSite() {
+    if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
+      return
+    }
+
     let count = 0
 
     for (const flag_name in Game.flags) {
@@ -1718,9 +1722,6 @@ export class Region {
         continue
       }
       if ((flag.room.name != this.room.name)) {
-        continue
-      }
-      if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
         continue
       }
 
