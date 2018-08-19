@@ -245,11 +245,7 @@ export class RemoteHarvesterSquad extends Squad {
     }
 
     if (room) {
-      let index = 0
-
-      if ((this.room_name == 'W45N5') && (this.base_room.name == 'W47N5')) {
-        index = -1
-      }
+      const index = 0
       this.showDescription(room, index)
     }
   }

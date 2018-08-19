@@ -1,6 +1,7 @@
 import { UID } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
+import { runTowers } from "../tower";
 
 interface FarmerUpgraderMemory extends CreepMemory {
   pos: {x: number, y: number}
@@ -17,9 +18,9 @@ export class FarmerSquad extends Squad {
   private chargers: Creep[] = []
 
   private positions: {x:number, y:number}[] = [
-    {x: 29, y: 4},
+    {x: 28, y: 3},
+    {x: 28, y: 4},
     {x: 29, y: 5},
-    {x: 29, y: 6},
   ]
   private charger_position: {x:number, y:number} = {x:30, y:3}
 
@@ -28,6 +29,7 @@ export class FarmerSquad extends Squad {
   private spawn = Game.getObjectById('5b797615b49d6316d39b47dc') as StructureSpawn | undefined // W49S6
   private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W49S6 container
   private lab = Game.getObjectById('5b79755fa9d4ad408a00d953') as StructureLab | undefined // W49S6
+  private towers: StructureTower[] = []
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -61,6 +63,13 @@ export class FarmerSquad extends Squad {
     })
 
     this.next_creep = this.nextCreep()
+
+    const room = Game.rooms[this.room_name]
+
+    if (room) {
+      const index = 3
+      this.showDescription(room, index)
+    }
   }
 
   private nextCreep(): CreepType | undefined {
@@ -245,9 +254,21 @@ export class FarmerSquad extends Squad {
   }
 
   public run(): void {
+    const room = Game.rooms[this.room_name] as Room | undefined
+    this.towers = (!room || !room.owned_structures) ? [] : room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
+
     this.runUpgrader()
     this.runCarrier()
     this.runCharger()
+
+    if (room) {
+      runTowers(this.towers, room)
+    }
+  }
+
+  public description(): string {
+    const number_of_creeps = `U${this.upgraders.length}CRY${this.carriers.length}CHG${this.chargers.length}`
+    return `${super.description()}, ${this.next_creep}, ${number_of_creeps}`
   }
 
   // ---
@@ -470,12 +491,8 @@ export class FarmerSquad extends Squad {
         if (this.lab) {
           charge_targets.push(this.lab)
         }
-        if (room.owned_structures) {
-          const towers = room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
-
-          if (towers && (towers.length > 0)) {
-            charge_targets = charge_targets.concat(towers)
-          }
+        if (this.towers && (this.towers.length > 0)) {
+          charge_targets = charge_targets.concat(this.towers)
         }
 
         charge_targets = charge_targets.filter(structure => {
