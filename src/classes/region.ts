@@ -21,6 +21,7 @@ import { NukerChargerSquad, NukerChargerSquadMemory } from "./squad/nuker_charge
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
 import { room_link, room_history_link } from "./utils";
+import { runTowers } from "./tower";
 
 export interface RegionMemory {
   destination_container_id?: string | null
@@ -67,7 +68,6 @@ export class Region {
   private squads = new Map<string, Squad>()
   private destination_link_id: string | undefined
   worker_squad: WorkerSquad
-  private towers: StructureTower[] = []
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
   private temp_squad_opt: {target_room_name: string, forced?: boolean} | undefined
@@ -1148,190 +1148,7 @@ export class Region {
       return (squad.spawnPriority == highest_priority)
     })
 
-    // --- Defend ---
-    // Tower
-    if (this.room.owned_structures) {
-      this.towers = this.room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
-    }
-
-    if (!this.towers || (this.towers.length == 0)) {
-      if (this.room.controller && (this.room.controller.level >= 3)) {
-        this.room.owned_structures_not_found_error(STRUCTURE_TOWER)
-      }
-
-      this.towers = this.room.find(FIND_MY_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_TOWER
-        }
-      }) as StructureTower[]
-    }
-
-    // const is_safemode_active = (this.room && this.room.controller) ? ((this.room!.controller!.safeMode || 0) > 0) : false
-
-    const damaged_hostiles: Creep[] = this.room.attacker_info.hostile_creeps.filter((creep) => {
-      return (creep.hits < creep.hitsMax)
-    })
-
-    const damaged_healers: Creep[] = damaged_hostiles.filter((creep) => {
-      return creep.getActiveBodyparts(HEAL) > 0
-    })
-
-    const damaged_my_creeps: Creep[] = this.room.find(FIND_MY_CREEPS, {
-      filter: (creep) => {
-        return (creep.hits < creep.hitsMax)
-      }
-    })
-
-    let hits_max = 114000
-    // if (this.room.storage && (this.room.storage.store.energy > 900000)) {
-    //   hits_max = 1100000
-    // }
-    // else if (this.room.storage && (this.room.storage.store.energy > 800000)) {
-    //   hits_max = 900000
-    // }
-    // else if (this.room.storage && (this.room.storage.store.energy > 700000)) {
-    //   hits_max = 750000
-    // }
-    // else if (this.room.storage && (this.room.storage.store.energy > 500000)) {
-    //   hits_max = 500000
-    // }
-    if (this.room.storage && (this.room.storage.store.energy > 400000)) {
-      hits_max = 386000
-    }
-
-    if ((this.room.name == 'W51S29') && !this.room.heavyly_attacked) {
-      hits_max = 1500000
-    }
-    else if ((this.room.name == 'W44S7')) {
-      hits_max = 300000
-    }
-    else if ((this.room.name == 'W38S7')) {
-      hits_max = 100000
-    }
-
-    const has_much_energy = !(!this.room.storage) && (this.room.storage.store.energy > 500000)
-    const excluded_walls = region_memory.excluded_walls || []
-    let repairing_wall: StructureWall | StructureRampart | undefined
-
-    const damaged_structures: AnyStructure[] = this.room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
-      filter: (structure) => {
-        if (excluded_walls.indexOf(structure.id) >= 0) {
-          return false
-        }
-
-        const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-        if (is_wall && has_much_energy) {
-          return false
-        }
-        const max = is_wall ? hits_max : (structure.hitsMax * 0.7)
-        return (structure.hits < Math.min(structure.hitsMax, max))
-      }
-    }).sort((lhs, rhs) => {
-      if (lhs.hits > rhs.hits) return 1
-      return -1
-    })
-
-    if ((Game.time % 5) == 2) {
-      region_memory.repairing_wall_id = undefined
-    }
-    else if (region_memory.repairing_wall_id) {
-      repairing_wall = Game.getObjectById(region_memory.repairing_wall_id) as StructureWall | StructureRampart | undefined
-    }
-
-    let damaged_wall: StructureWall | StructureRampart | undefined
-
-    if (repairing_wall) {
-      damaged_wall = repairing_wall
-    }
-    else if (has_much_energy) {
-      const walls: (StructureWall | StructureRampart)[] = (this.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          if (excluded_walls.indexOf(structure.id) >= 0) {
-            return false
-          }
-
-          if (structure.hits == structure.hitsMax) {
-            return false
-          }
-          const is_wall = (structure.structureType == STRUCTURE_WALL) || (structure.structureType == STRUCTURE_RAMPART)
-          return is_wall
-        }
-      }) as (StructureWall | StructureRampart)[]).sort((lhs, rhs) => {
-        if (lhs.hits > rhs.hits) return 1
-        return -1
-      })
-
-      damaged_wall = walls[0]
-
-      if (damaged_wall) {
-        region_memory.repairing_wall_id = damaged_wall.id
-      }
-    }
-
-    const should_attack_hostile = this.room.attacked && ((this.room.attacker_info.heal <= 25) || (this.room.attacker_info.hostile_teams.indexOf('Invader') >= 0) || (this.room.attacker_info.hostile_creeps.length < 3))
-
-    this.towers.forEach((tower) => {
-
-      if (should_attack_hostile) {
-        if(damaged_healers.length > 0) {
-          const hostile = tower.pos.findClosestByRange(damaged_healers)
-          if (hostile) {
-            tower.attack(hostile)
-            return
-          }
-          else {
-            console.log(`Region ${this.name} unexpected error: damaged healer not found ${damaged_healers}.`)
-          }
-        }
-        else if (damaged_hostiles.length > 0) {
-          const hostile = tower.pos.findClosestByRange(damaged_hostiles)
-          if (hostile) {
-            tower.attack(hostile)
-            return
-          }
-          else {
-            console.log(`Region ${this.name} unexpected error: damaged hostile not found ${damaged_hostiles}.`)
-          }
-        }
-        else {
-          const hostile = tower.pos.findClosestByRange(this.room.attacker_info.hostile_creeps)
-          if (hostile) {
-            tower.attack(hostile)
-            return
-          }
-          else {
-            console.log(`Region ${this.name} unexpected error: hostile not found ${this.room.attacked}, ${this.room.attacker_info.hostile_creeps}.`)
-          }
-        }
-      }
-
-      if (damaged_my_creeps.length > 0) {
-        const damaged_creep = tower.pos.findClosestByRange(damaged_my_creeps)
-        if (damaged_creep) {
-          tower.heal(damaged_creep)
-          return
-        }
-        else {
-          console.log(`Region ${this.name} unexpected error: damaged_creep not found ${damaged_my_creeps}.`)
-        }
-      }
-
-      if ((tower.energy > (tower.energyCapacity * 0.66))) {
-        const structure = damaged_structures[0]
-          if (structure) {
-            tower.repair(structure)
-            return
-          }
-      }
-
-      if ((tower.energy > (tower.energyCapacity * 0.80))) {
-        if (damaged_wall) {
-          tower.repair(damaged_wall)
-          return
-        }
-      }
-    })
-
+    // Research
     if ((research_input_targets.length == 2) && (research_output_targets.length > 0)) {
       const input_lab1 = Game.getObjectById(research_input_targets[0].id) as StructureLab
       const input_lab2 = Game.getObjectById(research_input_targets[1].id) as StructureLab
@@ -1375,6 +1192,29 @@ export class Region {
     ErrorMapper.wrapLoop(() => {
       this.activateSafeModeIfNeeded()
     }, `${this.name}.activateSafeModeIfNeeded`)()
+
+    ErrorMapper.wrapLoop(() => {
+      let towers: StructureTower[] = []
+
+      if (this.room.owned_structures) {
+        towers = this.room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
+      }
+
+      if (!towers || (towers.length == 0)) {
+        if (this.room.controller && (this.room.controller.level >= 3)) {
+          this.room.owned_structures_not_found_error(STRUCTURE_TOWER)
+        }
+
+        towers = this.room.find(FIND_MY_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_TOWER
+          }
+        }) as StructureTower[]
+      }
+
+      runTowers(towers, this.room)
+
+    }, `${this.name}.runTowers`)()
 
     this.squads.forEach((squad, _) => {
       ErrorMapper.wrapLoop(() => {
