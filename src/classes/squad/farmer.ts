@@ -14,14 +14,20 @@ export class FarmerSquad extends Squad {
   private upgraders: Creep[] = []
   private carriers: Creep[] = []
   private builders: Creep[] = []
+  private chargers: Creep[] = []
+
   private positions: {x:number, y:number}[] = [
     {x: 29, y: 4},
     {x: 29, y: 5},
     {x: 29, y: 6},
   ]
+  private charger_position: {x:number, y:number} = {x:30, y:3}
 
   private next_creep: CreepType | undefined
-  private container = Game.getObjectById('5b7600e566e2a17bd4a952b9') as StructureContainer | undefined  // W49S6 container
+
+  private spawn = Game.getObjectById('5b797615b49d6316d39b47dc') as StructureSpawn | undefined // W49S6
+  private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W49S6 container
+  private lab = Game.getObjectById('5b79755fa9d4ad408a00d953') as StructureLab | undefined // W49S6
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -42,6 +48,10 @@ export class FarmerSquad extends Squad {
 
         case CreepType.CARRIER:
           this.carriers.push(creep)
+          break
+
+        case CreepType.CHARGER:
+          this.chargers.push(creep)
           break
 
         default:
@@ -66,8 +76,16 @@ export class FarmerSquad extends Squad {
       }
     }
 
-    // Upgrader
     const rcl = (destination_room && destination_room.controller) ? destination_room.controller.level : 0
+
+    // Charger
+    if (rcl >= 3) {
+      if (this.chargers.length == 0) {
+        return CreepType.CHARGER
+      }
+    }
+
+    // Upgrader
     const upgrader_max = (rcl < 6) ? 1 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
@@ -143,6 +161,9 @@ export class FarmerSquad extends Squad {
       case CreepType.CARRIER:
         return SpawnPriority.NORMAL
 
+      case CreepType.CHARGER:
+        return SpawnPriority.HIGH
+
       default:
         return SpawnPriority.NONE
     }
@@ -165,6 +186,9 @@ export class FarmerSquad extends Squad {
         energy_unit = 150
         max = (energy_unit * 12)
         break
+
+      case CreepType.CHARGER:
+        return energy_available >= 550
 
       default:
         console.log(`FarmerSquad.hasEnoughEnergy unexpected creep type ${this.next_creep}, ${this.name}`)
@@ -206,6 +230,15 @@ export class FarmerSquad extends Squad {
         this.addCarrier(energy_available, spawn_func)
         return
 
+      case CreepType.CHARGER:
+        const body: BodyPartConstant[] = [
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          MOVE
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CHARGER, true)
+        return
+
       default:
         return
     }
@@ -214,6 +247,7 @@ export class FarmerSquad extends Squad {
   public run(): void {
     this.runUpgrader()
     this.runCarrier()
+    this.runCharger()
   }
 
   // ---
@@ -273,8 +307,8 @@ export class FarmerSquad extends Squad {
           creep.memory.status = CreepStatus.NONE
         }
         else if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) > 400)) && !creep.room.spawns[0].spawning) {
-          const x = 31
-          const y = 5
+          const x = 30
+          const y = 4
           if ((creep.pos.x != x) || (creep.pos.y != y)) {
             creep.moveTo(x, y)
             return
@@ -394,6 +428,86 @@ export class FarmerSquad extends Squad {
               creep.drop(RESOURCE_ENERGY)
             }
           }
+        }
+      }
+    })
+  }
+
+  private runCharger(): void {
+    const room = Game.rooms[this.room_name]
+    if (!room) {
+      this.say(`NO ROOM`)
+      return
+    }
+
+    this.chargers.forEach((creep) => {
+      const pos = new RoomPosition(this.charger_position.x, this.charger_position.y, this.room_name)
+
+      if ((creep.room.name != pos.roomName) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
+        creep.moveTo(pos)
+        return
+      }
+
+      if (creep.carry.energy == 0) {
+        if (room.terminal && (room.terminal.store.energy > 0)) {
+          creep.withdraw(room.terminal, RESOURCE_ENERGY)
+          return
+        }
+
+        if (room.storage && (room.storage.store.energy > 0)) {
+          creep.withdraw(room.storage, RESOURCE_ENERGY)
+          return
+        }
+
+        creep.say(`NO ENGY`)
+      }
+      else {
+        let charge_targets: (StructureSpawn | StructureLab | StructureTower)[] = []
+
+        // if (this.spawn) {
+        //   charge_targets.push(this.spawn)
+        // }
+        if (this.lab) {
+          charge_targets.push(this.lab)
+        }
+        if (room.owned_structures) {
+          const towers = room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
+
+          if (towers && (towers.length > 0)) {
+            charge_targets = charge_targets.concat(towers)
+          }
+        }
+
+        charge_targets = charge_targets.filter(structure => {
+          if (structure.energy < (structure.energyCapacity * 0.8)) {
+            return true
+          }
+          return false
+        })
+
+        const target = charge_targets[0]
+
+        if (target) {
+          // console.log(`tgt ${target}, ${target.pos}`)
+          creep.transfer(target, RESOURCE_ENERGY)
+          return
+        }
+        else {
+          if (room.storage && (_.sum(room.storage.store) < (room.storage.storeCapacity * 0.8))) {
+            // console.log(`tgt storage`)
+
+            creep.transfer(room.storage, RESOURCE_ENERGY)
+            return
+          }
+          else if (room.terminal) {
+            // console.log(`tgt terminal`)
+
+            creep.transfer(room.terminal, RESOURCE_ENERGY)
+            return
+          }
+          // console.log(`tgt none`)
+
+          creep.say(`NO CHG`)
         }
       }
     })

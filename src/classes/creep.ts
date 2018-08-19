@@ -27,6 +27,7 @@ export enum CreepType {
   CONTROLLER_KEEPER = 'controller_keeper',
   HARVESTER         = 'harvester',
   CARRIER           = 'carrier',
+  CHARGER           = 'charger',
   ATTACKER          = 'attacker',
   RANGED_ATTACKER          = 'ranged_attacker',
   HEALER            = 'healer',

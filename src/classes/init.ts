@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.41.15'
+const version = '2.42.3'
 
 export function init(): void {
   Game.version = version
@@ -81,7 +81,9 @@ export function tick(): void {
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
+    const critical = 'critical'
 
+    const critical_level = limit * 1.5
     const error_level = limit
     const warn_level = limit * 0.90
 
@@ -89,16 +91,20 @@ export function tick(): void {
       info: 'white',
       warn: '#F9EFBF',
       error: '#F78C6C',
+      critical: 'E74C3C',
     }
 
-    const colored_text = (text: string, level: 'info' | 'warn' | 'error') => {
+    const colored_text = (text: string, level: 'info' | 'warn' | 'error' | 'critical') => {
       return `<span style='color:${colors[level]}'>${text}</span>`
     }
 
     const usage = Memory.cpu_usages.map(u => {
-      let level: 'info' | 'warn' | 'error'
+      let level: 'info' | 'warn' | 'error' | 'critical'
 
-      if (u > error_level) {
+      if (u > critical_level) {
+        level = critical
+      }
+      else if (u > error_level) {
         level = error
       }
       else if (u > warn_level) {
@@ -113,9 +119,12 @@ export function tick(): void {
 
     // --
     const average = _.sum(Memory.cpu_usages) / cpu_ticks
-    let average_level: 'info' | 'warn' | 'error'
+    let average_level: 'info' | 'warn' | 'error' | 'critical'
 
-    if (average > error_level) {
+    if (average > critical_level) {
+      average_level = critical
+    }
+    else if (average > error_level) {
       average_level = error
     }
     else if (average > warn_level) {
@@ -129,9 +138,12 @@ export function tick(): void {
 
     // --
     const bucket = Game.cpu.bucket
-    let bucket_level: 'info' | 'warn' | 'error'
+    let bucket_level: 'info' | 'warn' | 'error' | 'critical'
 
-    if (bucket < 7000) {
+    if (bucket < 5000) {
+      bucket_level = critical
+    }
+    else if (bucket < 7000) {
       bucket_level = error
     }
     else if (bucket < 9000) {
