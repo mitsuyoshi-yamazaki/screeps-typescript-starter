@@ -21,6 +21,7 @@ export class FarmerSquad extends Squad {
     {x: 28, y: 3},
     {x: 28, y: 4},
     {x: 29, y: 5},
+    {x: 30, y: 5},
   ]
   private charger_position: {x:number, y:number} = {x:30, y:3}
 
@@ -30,6 +31,8 @@ export class FarmerSquad extends Squad {
   private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W49S6 container
   private lab = Game.getObjectById('5b79755fa9d4ad408a00d953') as StructureLab | undefined // W49S6
   private towers: StructureTower[] = []
+
+  private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -308,33 +311,53 @@ export class FarmerSquad extends Squad {
         return
       }
 
+      const room = Game.rooms[this.room_name]
+      if (!room || !room.controller || !room.controller.my) {
+        const message = `FarmerSquad.runUpgrader unexpectedly null room ${room}, ${this.room_name}, ${this.name}, ${creep.pos}`
+        console.log(message)
+        Game.notify(message)
+        return
+      }
+
       const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 30))) && !(!this.base_room.storage) && (this.base_room.storage.store.energy > 100000)
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {
           console.log(`FarmerSquad.runUpgrader boostCreep ${this.base_room.name}, ${creep.name}, ${this.name}`)
-          const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined  // W49S6
           if (!creep.boosted()) {
-            if (lab && (lab.mineralType == RESOURCE_GHODIUM_ACID) && (lab.mineralAmount >= 30)) {
-              const result = lab.boostCreep(creep)
+            if (this.lab && (this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30)) {
+              const result = this.lab.boostCreep(creep)
               if (result != OK) {
                 console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
               }
             }
             else {
-              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${lab}`)
+              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${this.lab}`)
             }
           }
+          creep.say(`RENEWED`)
           creep.memory.status = CreepStatus.NONE
         }
-        else if ((creep.room.spawns.length > 0) && ((creep.room.energyAvailable > 40) || ((creep.ticksToLive || 0) > 400)) && !creep.room.spawns[0].spawning) {
+        else if (this.spawn && !this.spawn.spawning) {
+          creep.memory.status = CreepStatus.WAITING_FOR_RENEW
+
           const x = 30
           const y = 4
           if ((creep.pos.x != x) || (creep.pos.y != y)) {
             creep.moveTo(x, y)
+            creep.upgradeController(room.controller)
             return
           }
-          creep.goToRenew(creep.room.spawns[0], {ticks: 1490, no_auto_finish: true, withdraw: true})
+
+          if (room.storage) {
+            creep.withdraw(room.storage, RESOURCE_ENERGY)
+          }
+          if (creep.carry.energy > 0) {
+            creep.transfer(this.spawn, RESOURCE_ENERGY)
+          }
+          this.spawn.renewCreep(creep)
+
+          creep.upgradeController(room.controller)
           return
         }
         else if (creep.memory.status == CreepStatus.WAITING_FOR_RENEW) {
@@ -351,14 +374,6 @@ export class FarmerSquad extends Squad {
         if ((result != OK) && (result != ERR_TIRED)) {
           creep.say(`E${result}`)
         }
-        return
-      }
-
-      const room = Game.rooms[this.room_name]
-      if (!room || !room.controller || !room.controller.my) {
-        const message = `FarmerSquad.runUpgrader unexpectedly null room ${room}, ${this.room_name}, ${this.name}, ${creep.pos}`
-        console.log(message)
-        Game.notify(message)
         return
       }
 
@@ -469,7 +484,25 @@ export class FarmerSquad extends Squad {
         return
       }
 
-      if (creep.carry.energy == 0) {
+      if (((creep.ticksToLive || 1500) < 1400) && this.spawn && !this.spawn.spawning) { // @fixme: 1400
+        this.spawn.renewCreep(creep)
+      }
+
+      const carry = _.sum(creep.carry)
+
+      if (carry == 0) {
+        if (room.terminal && this.lab && (this.lab.mineralAmount < this.lab.mineralCapacity)) {
+          if (this.lab.mineralType && (this.lab.mineralType != this.boost_resource_type)) {
+            creep.withdraw(this.lab, this.lab.mineralType)
+            return
+          }
+
+          if ((room.terminal.store[this.boost_resource_type] || 0) > 0) {
+            creep.withdraw(room.terminal, this.boost_resource_type)
+            return
+          }
+        }
+
         if (room.terminal && (room.terminal.store.energy > 0)) {
           creep.withdraw(room.terminal, RESOURCE_ENERGY)
           return
@@ -483,11 +516,30 @@ export class FarmerSquad extends Squad {
         creep.say(`NO ENGY`)
       }
       else {
+        if ((carry - creep.carry.energy) > 0) {
+          if (((creep.carry[this.boost_resource_type] || 0) > 0) && this.lab && (!this.lab.mineralType || (this.lab.mineralType == this.boost_resource_type))) {
+            creep.transfer(this.lab, this.boost_resource_type)
+          }
+          else {
+            if (room.terminal) {
+              creep.transferResources(room.terminal)
+              return
+            }
+
+            if (room.storage) {
+              creep.transferResources(room.storage)
+              return
+            }
+
+            creep.say(`NO STR`)
+          }
+        }
+
         let charge_targets: (StructureSpawn | StructureLab | StructureTower)[] = []
 
-        // if (this.spawn) {
-        //   charge_targets.push(this.spawn)
-        // }
+        if (this.spawn) {
+          charge_targets.push(this.spawn)
+        }
         if (this.lab) {
           charge_targets.push(this.lab)
         }
@@ -496,6 +548,9 @@ export class FarmerSquad extends Squad {
         }
 
         charge_targets = charge_targets.filter(structure => {
+          if (structure.structureType == STRUCTURE_SPAWN) {
+            return structure.energy < (structure.energyCapacity * 0.5)
+          }
           if (structure.energy < (structure.energyCapacity * 0.8)) {
             return true
           }

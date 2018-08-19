@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.42.5'
+const version = '2.42.8'
 
 export function init(): void {
   Game.version = version
@@ -91,7 +91,7 @@ export function tick(): void {
       info: 'white',
       warn: '#F9EFBF',
       error: '#F78C6C',
-      critical: 'E74C3C',
+      critical: '#E74C3C',
     }
 
     const colored_text = (text: string, level: 'info' | 'warn' | 'error' | 'critical') => {
