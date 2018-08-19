@@ -118,6 +118,7 @@ export function tick(): void {
 
     let details = ""
     let sum = 0
+    const empty_rooms: string[] = []
 
     for (const room_name of Object.keys(Game.rooms)) {
       const room = Game.rooms[room_name]
@@ -135,13 +136,20 @@ export function tick(): void {
         amount += room.storage.store[resource_type] || 0
       }
 
-      const amount_text = (resource_type == RESOURCE_ENERGY) ? `${Math.floor(amount / 1000)}k` : `${amount}`
-      details += `\n${room_link(room_name)}: ${amount_text}`
-      sum += amount
+      if (amount > 0) {
+        const amount_text = (resource_type == RESOURCE_ENERGY) ? `${Math.floor(amount / 1000)}k` : `${amount}`
+        details += `\n- ${room_link(room_name)}: ${amount_text}`
+        sum += amount
 
-      resources[room_name] = amount
+        resources[room_name] = amount
+      }
+      else {
+        empty_rooms.push(room_name)
+      }
     }
-    console.log(`Resource ${resource_type}: ${sum}${details}`)
+
+    const empty_text = (empty_rooms.length == 0) ? '' : `\n- Empty: ${empty_rooms.map(r=>room_link(r))}`
+    console.log(`Resource ${resource_type}: ${sum}${details}${empty_text}`)
 
     return resources
   }
