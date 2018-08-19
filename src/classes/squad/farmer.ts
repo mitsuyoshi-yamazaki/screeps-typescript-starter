@@ -325,14 +325,15 @@ export class FarmerSquad extends Squad {
         }
       }
 
-      const construction_site = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 3)[0]
+      if (!creep.boosted()) {
+        const construction_site = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 3)[0]
+        if (construction_site) {
+          creep.build(construction_site)
+          return
+        }
+      }
 
-      if (construction_site) {
-        creep.build(construction_site)
-      }
-      else {
-        creep.upgradeController(room.controller)
-      }
+      creep.upgradeController(room.controller)
     })
   }
 

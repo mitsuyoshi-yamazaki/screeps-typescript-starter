@@ -128,7 +128,7 @@ export function init() {
 
   // ---
   Creep.prototype.boosted = function(): boolean {
-    if (!this._boosted) {
+    if (this._boosted == null) {
       this._boosted = false
       this.boost_info()
     }
@@ -1624,7 +1624,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.controller && this.room.controller.my && (this.room.controller.level <= 4))){// || (this.room.name == 'W56S7')) {
+        if ((this.room.controller && this.room.controller.my && (this.room.controller.level <= 4)) || (this.room.name == 'W49S6')) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
