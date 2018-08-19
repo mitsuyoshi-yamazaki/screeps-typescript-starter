@@ -1772,10 +1772,10 @@ export class Region {
 
       if (result == OK) {
         count += 1
+        console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
+        flag.remove()
 
         if (count > 3) {
-          console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
-          flag.remove()
 
           break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
           // so call it one by one
