@@ -29,6 +29,10 @@ export function profile_link(username: string, opts?: {color?: string}) {
   return `<a href="https://screeps.com/a/#!/profile/${username}", style='color:${color}'>${username}</a>`
 }
 
+export function colored_resource_type(resource_type: ResourceConstant): string {
+  return `<b><span style='color:${resource_color(resource_type)}'>${resource_type}</span></b>`
+}
+
 export function resource_color(resource_type: ResourceConstant): string {
   switch (resource_type) {
     case RESOURCE_ENERGY:
@@ -98,8 +102,4 @@ export function resource_color(resource_type: ResourceConstant): string {
       console.log(`resource_color undefined resource ${resource_type}`)
       return '#FFFFFF'
   }
-}
-
-export function colored_resource_type(resource_type: ResourceConstant): string {
-  return `<b><span style='color:${resource_color(resource_type)}'>${resource_type}</span></b>`
 }

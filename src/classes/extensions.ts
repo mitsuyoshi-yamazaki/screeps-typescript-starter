@@ -215,7 +215,7 @@ export function tick(): void {
         }
       }
 
-      console.log(`${resource_type}: ${amount}`)
+      console.log(`${colored_resource_type(resource_type)}: ${amount}`)
     })
   }
 
