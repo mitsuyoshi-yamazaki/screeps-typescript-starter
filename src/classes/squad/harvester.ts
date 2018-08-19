@@ -176,7 +176,7 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cd7d0b3d79de5eff8c') { // W56S7
       this.resource_type = RESOURCE_CATALYST
     }
-    else if (this.source_info.id == '') { // W55S23
+    else if (this.source_info.id == '59f1c0cd7d0b3d79de5effdf') { // W55S23
       this.resource_type = RESOURCE_HYDROGEN
     }
     else {

@@ -968,7 +968,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['dummy'].indexOf(this.room.name) >= 0) {
+            if (['W46S3'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1443,7 +1443,7 @@ export class Region {
       }
     }, `${this.name}.processPower`)()
 
-    if ((Game.time % 31) == 0) {
+    if ((Game.time % 211) == 0) {
       ErrorMapper.wrapLoop(() => {
         this.placeConstructionSite()
       }, `${this.name}.placeConstructionSite`)()
@@ -1710,6 +1710,8 @@ export class Region {
   }
 
   private placeConstructionSite() {
+    let count = 0
+
     for (const flag_name in Game.flags) {
       const flag = Game.flags[flag_name]
       if (!flag.room) {
@@ -1753,6 +1755,10 @@ export class Region {
           structure_type = STRUCTURE_LINK
           break
 
+        case COLOR_CYAN:
+          structure_type = STRUCTURE_NUKER
+          break
+
         case COLOR_BROWN:
           structure_type = STRUCTURE_ROAD
           break
@@ -1765,14 +1771,18 @@ export class Region {
       const result = this.room.createConstructionSite(flag.pos, structure_type)
 
       if (result == OK) {
-        console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}`)
-        flag.remove()
+        count += 1
 
-        break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
-        // so call it one by one
+        if (count > 3) {
+          console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
+          flag.remove()
+
+          break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
+          // so call it one by one
+        }
       }
       else if (result != ERR_RCL_NOT_ENOUGH) {
-        console.log(`ERROR Place ${structure_type} construction site failed E${result}: ${flag.name}, ${flag.pos}, ${flag.color}`)
+        console.log(`ERROR Place ${structure_type} construction site failed E${result}: ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
       }
     }
   }

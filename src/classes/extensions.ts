@@ -31,7 +31,7 @@ declare global {
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     info: (opts:{sorted?: boolean}) => void
-    resource_transfer: (opts?: {reversed?: boolean}) => void
+    resource_transfer: (opts?: {reversed?: boolean, room?: string}) => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
@@ -439,12 +439,13 @@ export function tick(): void {
     })
   }
 
-  Game.resource_transfer = (opts?: {reversed?: boolean}) => {
+  Game.resource_transfer = (opts?: {reversed?: boolean, room?: string}) => {
     opts = opts || {}
     let resources: {[room_name: string]: {[room_name: string]: ResourceConstant[]}} = {}
 
+    const room_info = opts.room ? ` ${opts.room}` : ''
     const detail = opts.reversed ? ' (reversed)' : ''
-    console.log(`Resource transfer${detail}:`)
+    console.log(`Resource transfer${room_info}${detail}:`)
 
     const no_transfer_rooms: string[] = []
 
@@ -471,7 +472,7 @@ export function tick(): void {
           resources[destination_room_name][room.name] = region_memory.resource_transports[destination_room_name]
         }
       }
-      else {
+      else if (!opts.room || (opts.room == room.name)) {
         console.log(` - ${room_link(room.name)}:`)
 
         for (const destination_room_name in region_memory.resource_transports) {
@@ -486,6 +487,10 @@ export function tick(): void {
 
     if (opts.reversed) {
       for (const room_name in resources) {
+        if (opts.room && (opts.room != room_name)) {
+          continue
+        }
+
         console.log(` - ${room_link(room_name)}:`)
 
         if (!resources[room_name]) {
@@ -506,9 +511,9 @@ export function tick(): void {
           no_transfer_rooms.push(room_name)
         }
       }
-      console.log(` - None: ${no_transfer_rooms}`)
     }
-    else {
+
+    if (!opts.room) {
       console.log(` - None: ${no_transfer_rooms}`)
     }
   }
