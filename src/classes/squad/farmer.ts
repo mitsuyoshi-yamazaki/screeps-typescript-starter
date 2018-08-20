@@ -505,6 +505,12 @@ export class FarmerSquad extends Squad {
           }
         }
 
+        if (((Game.time % 229) == 3) && room.terminal && room.storage) {
+          if ((_.sum(room.storage.store) - room.storage.store.energy) > 0) {
+            creep.withdrawResources(room.storage, {exclude: ['energy']})
+          }
+        }
+
         if (room.terminal && (room.terminal.store.energy > 0)) {
           creep.withdraw(room.terminal, RESOURCE_ENERGY)
           return
