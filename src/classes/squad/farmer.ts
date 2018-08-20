@@ -200,7 +200,7 @@ export class FarmerSquad extends Squad {
         break
 
       case CreepType.CHARGER:
-        return energy_available >= 550
+        return energy_available >= 850
 
       default:
         console.log(`FarmerSquad.hasEnoughEnergy unexpected creep type ${this.next_creep}, ${this.name}`)
@@ -246,6 +246,8 @@ export class FarmerSquad extends Squad {
         const body: BodyPartConstant[] = [
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY,
           MOVE
         ]
         this.addGeneralCreep(spawn_func, body, CreepType.CHARGER, true)
@@ -517,7 +519,7 @@ export class FarmerSquad extends Squad {
       }
       else {
         if ((carry - creep.carry.energy) > 0) {
-          if (((creep.carry[this.boost_resource_type] || 0) > 0) && this.lab && (!this.lab.mineralType || (this.lab.mineralType == this.boost_resource_type))) {
+          if (((creep.carry[this.boost_resource_type] || 0) > 0) && this.lab && (this.lab.mineralAmount < this.lab.mineralCapacity) && (!this.lab.mineralType || (this.lab.mineralType == this.boost_resource_type))) {
             creep.transfer(this.lab, this.boost_resource_type)
           }
           else {

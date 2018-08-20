@@ -44,6 +44,7 @@ export class RemoteHarvesterSquad extends Squad {
   private is_room_attacked: boolean
   private keeper_lairs: StructureKeeperLair[] = []
   private containers: StructureContainer[] = []
+  private containers_with_energy: StructureContainer[]
 
   private debug = false
   private next_creep: CreepType | undefined
@@ -55,6 +56,8 @@ export class RemoteHarvesterSquad extends Squad {
     WORK, WORK, WORK,
     MOVE,
   ]
+
+  private avoid_cpu_use = false
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string, readonly source_ids: string[], readonly destination: HarvesterDestination, readonly capacity: number, readonly region: Region) {
     super(name)
@@ -137,7 +140,7 @@ export class RemoteHarvesterSquad extends Squad {
 
       if (!container || (container.structureType != STRUCTURE_CONTAINER)) {
         if (target && ((Game.time % 2) == 1)) {
-          container = target.pos.findInRange(FIND_STRUCTURES, 2, {
+          container = target.pos.findInRange(FIND_STRUCTURES, 1, {
             filter: function(structure: Structure) {
               return structure.structureType == STRUCTURE_CONTAINER
             }
@@ -160,6 +163,16 @@ export class RemoteHarvesterSquad extends Squad {
       }
       this.source_info.set(id, info)
     })
+
+    let energy_threshold = 600
+    if (this.room_name == 'W45S5') {
+      energy_threshold = 1000
+    }
+
+    this.containers_with_energy = this.containers.filter((c) => {
+      return (c.store.energy > energy_threshold)
+    })
+
 
     let attacker_max_ticks = 0
 
@@ -243,6 +256,18 @@ export class RemoteHarvesterSquad extends Squad {
     else {
       this.is_room_attacked = false
     }
+
+    if (Game.cpu.bucket < 6000) {
+      this.avoid_cpu_use = true
+      // if (this.name == 'remote_harvester74144126') {
+      //   console.log(`avoid_cpu_use`)
+      // }
+    }
+    // else {
+    //   if (this.name == 'remote_harvester74144126') {
+    //     console.log(`!avoid_cpu_use`)
+    //   }
+    // }
 
     if (room) {
       const index = 0
@@ -924,7 +949,7 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
-      if (carry < (creep.carryCapacity - 50)) {
+      if (!this.avoid_cpu_use && (carry < (creep.carryCapacity - 50))) {
         let tombstone: Tombstone | undefined
         if (creep.memory.withdraw_resources_target) {
           tombstone = Game.getObjectById(creep.memory.withdraw_resources_target) as Tombstone | undefined
@@ -1000,7 +1025,7 @@ export class RemoteHarvesterSquad extends Squad {
           creep.memory.status = CreepStatus.CHARGE
         }
         else {
-          if (creep.carry.energy > 0) {
+          if (!this.avoid_cpu_use && (creep.carry.energy > 0)) {
             const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
               filter: (structure: AnyStructure) => {
                 if (structure.structureType == STRUCTURE_ROAD) {
@@ -1022,30 +1047,21 @@ export class RemoteHarvesterSquad extends Squad {
             return
           }
 
-          let energy_threshold = 600
-          if (this.room_name == 'W45S5') {
-            energy_threshold = 1000
+          if (this.containers_with_energy.length > 0) {
+            const container = creep.pos.findClosestByPath(this.containers_with_energy)
+
+            if (container) {
+              if (creep.pos.getRangeTo(container) <= 1) {
+                creep.withdraw(container, RESOURCE_ENERGY)
+              }
+              else {
+                creep.moveTo(container, move_to_ops)
+              }
+              return
+            }
           }
 
           if (this.containers.length > 0) {
-            const containers_with_energy = this.containers.filter((c) => {
-              return (c.store.energy > energy_threshold)
-            })
-
-            if (containers_with_energy.length > 0) {
-              const container = creep.pos.findClosestByPath(containers_with_energy)
-
-              if (container) {
-                if (creep.pos.getRangeTo(container) <= 1) {
-                  creep.withdraw(container, RESOURCE_ENERGY)
-                }
-                else {
-                  creep.moveTo(container, move_to_ops)
-                }
-                return
-              }
-            }
-
             const closest_container = creep.pos.findClosestByPath(this.containers)
 
             if (closest_container) {
@@ -1083,7 +1099,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (creep.carry.energy > 0) {
+        if (!this.avoid_cpu_use && (creep.carry.energy > 0)) {
           if (creep.room.controller && creep.room.controller.my && creep.room.owned_structures) {
             const extensions: StructureExtension[] = creep.room.owned_structures.get(STRUCTURE_EXTENSION) as StructureExtension[]
             const extension = creep.pos.findInRange(extensions, 1, {

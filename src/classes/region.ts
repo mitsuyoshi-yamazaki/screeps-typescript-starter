@@ -903,7 +903,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -968,7 +968,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['W46S3'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
