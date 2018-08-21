@@ -251,12 +251,12 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        if (Game.gcl.level >= 12) {
-          this.temp_squad_opt = {
-            target_room_name: 'W49S6',
-            forced: false,
-          }
-        }
+        // if (Game.gcl.level >= 12) {
+        //   this.temp_squad_opt = {
+        //     target_room_name: 'W49S6',
+        //     forced: false,
+        //   }
+        // }
         break
 
       case 'W43S5':
@@ -485,10 +485,6 @@ export class Region {
         break
 
       case 'W49S6':
-        // harvester_targets = [
-        //   { id: '59f1c0ce7d0b3d79de5f01bc', room_name: 'W49S6' }  // Oxygen  // Should be in W48S6
-        // ]
-        // this.destination_link_id = '5b5aaa9e5549d35cefcd5690'
         break
 
       case 'W46S3':
@@ -799,16 +795,16 @@ export class Region {
           }
           case SquadType.CHARGER: {
 
-            if ((this.room.name == 'W49S6')) {
-              if (this.controller.level >= 6) {
-                const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
-                this.squads.set(squad.name, squad)
-              }
-              else {
-                this.no_instantiations.push(`    - ${squad_memory.name}`)
-              }
-            }
-            else {
+            // if ((this.room.name == 'W49S6')) {
+            //   if (this.controller.level >= 6) {
+            //     const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
+            //     this.squads.set(squad.name, squad)
+            //   }
+            //   else {
+            //     this.no_instantiations.push(`    - ${squad_memory.name}`)
+            //   }
+            // }
+            // else {
 
             if (ChargerSquad.need_instantiation(squad_memory, this.controller)) {
               if (!charger_position) {
@@ -837,7 +833,7 @@ export class Region {
             else {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
             }
-            }
+            // }
             break
           }
           case SquadType.RESEARCHER: {
@@ -857,10 +853,10 @@ export class Region {
               room_name: harvester_squad_memory.room_name,
             }
 
-            if (harvester_squad_memory.room_name == 'W49S6') {
-              this.no_instantiations.push(`    - ${squad_memory.name}`)
-              break
-            }
+            // if (harvester_squad_memory.room_name == 'W49S6') {
+            //   this.no_instantiations.push(`    - ${squad_memory.name}`)
+            //   break
+            // }
 
             const squad = new HarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
             this.squads.set(squad.name, squad)
@@ -992,12 +988,6 @@ export class Region {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
               break
             }
-            // if ((farmer_squad_memory.room_name == 'W49S6')) {
-            //   // if (!farmer_room.storage || !farmer_room.storage.isActive()) {
-            //   //   this.no_instantiations.push(`    - ${squad_memory.name}`)
-            //     break
-            //   // }
-            // }
             const squad = new FarmerSquad(squad_memory.name, this.room, farmer_squad_memory.room_name)
 
             this.squads.set(squad.name, squad)
@@ -1634,6 +1624,9 @@ export class Region {
       if (this.room.name == 'W49S6') {
         return
       }
+      if (this.room.name == 'W47S8') {
+        return
+      }
     }
     if (this.room.spawns.length == 0) {
       return
@@ -1872,6 +1865,9 @@ export class Region {
       if (this.room.name == 'W49S6') {
         return
       }
+      if (this.room.name == 'W47S8') {
+        return
+      }
       if (!this.room.controller || (this.room.controller.level < 5)) {
         return
       }
@@ -1883,9 +1879,6 @@ export class Region {
 
       if (this.room.name == 'W51S29') {
         duration = 770
-      }
-      else if (this.room.name == 'W49S6') {
-        duration = 1400
       }
 
       if (!region_memory.last_spawn_time) {
@@ -2095,9 +2088,7 @@ export class Region {
       lines = lines.concat(delegated_descriptions)
     }
 
-    const y = (this.room.name == 'W49S6') ? (pos.y + 3) : pos.y
-
-    this.room.visual.multipleLinedText(lines, pos.x, y, {
+    this.room.visual.multipleLinedText(lines, pos.x, pos.y, {
       align: 'left',
       opacity: 0.8,
       font: '12px',

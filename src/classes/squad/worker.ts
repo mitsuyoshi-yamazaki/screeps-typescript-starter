@@ -59,9 +59,9 @@ export class WorkerSquad extends Squad {
       this.number_of_workers = 8
     }
 
-    if ((room_name == 'W49S6') && this.room.controller && (this.room.controller.level >= 4)) {
-      this.number_of_workers = 3
-    }
+    // if ((room_name == 'W49S6') && this.room.controller && (this.room.controller.level >= 4)) {
+    //   this.number_of_workers = 3
+    // }
   }
 
   public get type(): SquadType {

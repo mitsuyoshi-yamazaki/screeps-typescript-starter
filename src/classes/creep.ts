@@ -1195,24 +1195,24 @@ export function init() {
     const carry = _.sum(this.carry)
     const storage = this.room.storage
 
-    //
-    if ((this.memory.squad_name == 'charger_w49s6') && ((this.ticksToLive || 0) > 2)) { // W49S6
-      const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
-      const resource_type = RESOURCE_GHODIUM_ACID
+    // //
+    // if ((this.memory.squad_name == 'charger_w49s6') && ((this.ticksToLive || 0) > 2)) { // W49S6
+    //   const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
+    //   const resource_type = RESOURCE_GHODIUM_ACID
 
-      if (lab && (lab.mineralAmount < lab.mineralCapacity)) {
-        if ((carry == 0)) {
-          if (lab.room.terminal && ((lab.room.terminal.store[resource_type] || 0) > 0)) {
-            this.withdraw(lab.room.terminal, resource_type)
-            return
-          }
-        }
-        else if ((this.carry[resource_type] || 0) > 0) {
-          this.transfer(lab, resource_type)
-          return
-        }
-      }
-    }
+    //   if (lab && (lab.mineralAmount < lab.mineralCapacity)) {
+    //     if ((carry == 0)) {
+    //       if (lab.room.terminal && ((lab.room.terminal.store[resource_type] || 0) > 0)) {
+    //         this.withdraw(lab.room.terminal, resource_type)
+    //         return
+    //       }
+    //     }
+    //     else if ((this.carry[resource_type] || 0) > 0) {
+    //       this.transfer(lab, resource_type)
+    //       return
+    //     }
+    //   }
+    // }
 
     // withdraw
     if ((carry == 0) && ((this.ticksToLive || 0) > 2)) {
@@ -1586,10 +1586,6 @@ export function init() {
       }
     }
 
-    // if (this.room.name == 'W49S6') {
-    //   this.memory.status = CreepStatus.UPGRADE  // @fixme:
-    // }
-
     let charge_target: ChargeTarget | undefined
     let find_charge_target = false
 
@@ -1625,7 +1621,7 @@ export function init() {
         }
       }
       else {
-        if ((this.room.controller && this.room.controller.my && (this.room.controller.level <= 4)) || (this.room.name == 'W49S6')) {
+        if ((this.room.controller && this.room.controller.my && (this.room.controller.level <= 4))) {
           // To not pickup harvesters drop
           let drop: Resource | undefined
           const opt = {
@@ -1769,7 +1765,7 @@ export function init() {
 
     // Build
     if (this.memory.status == CreepStatus.BUILD) {
-      if (this.room.attacked && ((this.memory.birth_time % 2) == 0) && (this.room.name != 'W49S6')) {
+      if (this.room.attacked && ((this.memory.birth_time % 2) == 0)) {
         this.memory.status = CreepStatus.CHARGE
         return
       }
@@ -1875,7 +1871,7 @@ export function init() {
 
     // Upgrade
     if (this.memory.status == CreepStatus.UPGRADE) {
-      if (this.room.attacked && (this.room.name != 'W49S6')) {
+      if (this.room.attacked) {
         this.memory.status = CreepStatus.CHARGE
         this.say('U2C-1')
       }

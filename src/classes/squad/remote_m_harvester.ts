@@ -88,7 +88,7 @@ export class RemoteMineralHarvesterSquad extends Squad {
       return SpawnPriority.NONE
     }
 
-    if (this.mineral.room && (this.mineral.room.name == 'W49S6') && this.mineral.room.controller && (this.mineral.room.controller.level < 6)) {
+    if (this.mineral.room && (['W49S6', 'W47S8'].indexOf(this.mineral.room.name) >= 0) && this.mineral.room.controller && (this.mineral.room.controller.level < 6)) {
       return SpawnPriority.NONE
     }
 

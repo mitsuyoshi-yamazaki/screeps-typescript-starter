@@ -62,10 +62,6 @@ export class ChargerSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
-    if (this.owner_room_name == 'W49S6') {
-      return SpawnPriority.NONE
-    }
-
     return ChargerSquad.priority(this.creeps.size)
   }
 

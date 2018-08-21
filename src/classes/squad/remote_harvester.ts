@@ -91,7 +91,7 @@ export class RemoteHarvesterSquad extends Squad {
       ]
     }
 
-    if (room && (room.name == 'W49S6') && room.storage && room.controller && room.controller.my && (room.controller.level >= 4)) {
+    if (room && (['W49S6', 'W47S8'].indexOf(room.name) >= 0) && room.storage && room.controller && room.controller.my && (room.controller.level >= 4)) {
       this.destination = room.storage
     }
     else if (squad_memory.destination_id) {
@@ -779,6 +779,19 @@ export class RemoteHarvesterSquad extends Squad {
 
             if (tombstone) {
               creep.withdraw(tombstone, RESOURCE_ENERGY)
+            }
+            else {
+              const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (structure: AnyStructure) => {
+                  return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+                }
+              })
+
+              if (container) {
+                if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(container, {maxRooms: 1})
+                }
+              }
             }
           }
         }
