@@ -573,7 +573,7 @@ export function tick(): void {
         }
 
         const spawning = creep.spawning ? ' (spawning)' : ''
-        console.log(`Creep ${creep.name} at ${creep.pos} ${room_link(creep.pos.roomName)}${spawning}`)
+        console.log(`Creep ${creep.name} ${creep.memory.type} at ${creep.pos} ${room_link(creep.pos.roomName)}${spawning}`)
       }
     }, `Game.creep_positions`)()
   }

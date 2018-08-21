@@ -35,7 +35,10 @@ export class FarmerSquad extends Squad {
     {x: 45, y: 25},
     {x: 45, y: 24},
   ]
-  private charger_position: {x:number, y:number} = {x:30, y:3}
+
+  // private charger_position: {x:number, y:number} = {x:30, y:3}  // W49S6
+  // private charger_position: {x:number, y:number} = {x:, y:} // W47S8
+  private charger_position: {x:number, y:number} = {x:47, y:24} // W46S9
 
   private next_creep: CreepType | undefined
 
@@ -45,7 +48,7 @@ export class FarmerSquad extends Squad {
   // private spawn = Game.getObjectById('dummy') as StructureSpawn | undefined // W47S8
   // private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W47S8 container
   // private lab = Game.getObjectById('dummy') as StructureLab | undefined // W47S8
-  private spawn = Game.getObjectById('dummy') as StructureSpawn | undefined // W46S9
+  private spawn = Game.getObjectById('5b7ba61df86f4e0754ceb5a5') as StructureSpawn | undefined // W46S9
   private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W46S9 container
   private lab = Game.getObjectById('dummy') as StructureLab | undefined // W46S9
   private towers: StructureTower[] = []
@@ -116,7 +119,7 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
-    const upgrader_max = (rcl < 6) ? 2 : this.positions.length
+    const upgrader_max = (rcl < 6) ? 3 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
       if ((rcl < 6) && (this.carriers.length == 0)) {
@@ -148,7 +151,7 @@ export class FarmerSquad extends Squad {
       return undefined
     }
 
-    const carrier_max = ((rcl >= 4) && (rcl <= 5)) ? 12 : 8
+    const carrier_max = (rcl >= 4) ? 14 : 12
     if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
       if (debug) {
         console.log(`FarmerSquad.nextCreep carrier ${this.name}`)
@@ -422,7 +425,7 @@ export class FarmerSquad extends Squad {
       if (!creep.boosted()) {
         const construction_site = creep.pos.findInRange(FIND_CONSTRUCTION_SITES, 3)[0]
         if (construction_site) {
-          creep.build(construction_site)
+          creep.build(construction_site)  // @fixme: when build storage
           return
         }
       }
@@ -440,7 +443,7 @@ export class FarmerSquad extends Squad {
 
                 // const pos = new RoomPosition(30, 4, this.room_name) // W49S6
             // const pos = new RoomPosition(, , this.room_name) // W47S8
-    const pos = new RoomPosition(46, 25, this.room_name) // W46S9
+    const pos = new RoomPosition(45, 26, this.room_name) // W46S9
 
     this.carriers.forEach((creep) => {
       if (creep.carry.energy == 0) {
@@ -535,6 +538,7 @@ export class FarmerSquad extends Squad {
         if (((Game.time % 229) == 3) && room.terminal && room.storage) {
           if ((_.sum(room.storage.store) - room.storage.store.energy) > 0) {
             creep.withdrawResources(room.storage, {exclude: ['energy']})
+            return
           }
         }
 
@@ -545,6 +549,17 @@ export class FarmerSquad extends Squad {
 
         if (room.storage && (room.storage.store.energy > 0)) {
           creep.withdraw(room.storage, RESOURCE_ENERGY)
+          return
+        }
+
+        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+          filter: (resource: Resource) => {
+            return resource.resourceType == RESOURCE_ENERGY
+          }
+        })[0]
+
+        if (drop) {
+          creep.pickup(drop)
           return
         }
 
@@ -614,7 +629,9 @@ export class FarmerSquad extends Squad {
           }
           // console.log(`tgt none`)
 
-          creep.say(`NO CHG`)
+          if (room.controller && (room.controller.level >= 4)) {
+            creep.say(`NO CHG`)
+          }
         }
       }
     })
