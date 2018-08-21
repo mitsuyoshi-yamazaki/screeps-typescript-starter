@@ -158,13 +158,10 @@ export function runTowers(towers: StructureTower[], room: Room): void {
 
     if ((tower.energy > (tower.energyCapacity * 0.66))) {
       const structure = damaged_structures[0]
-        if (structure) {
-          tower.repair(structure)
-          return
-        }
-    }
-
-    if ((tower.energy > (tower.energyCapacity * 0.80))) {
+      if (structure) {
+        tower.repair(structure)
+        return
+      }
       if (damaged_wall) {
         tower.repair(damaged_wall)
         return
