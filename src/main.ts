@@ -238,14 +238,14 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.160,
+    price: 0.150,
     rooms,
   })
 
   // if (lemergium_seller_rooms.length > 0) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.08,
+      price: 0.07,
       rooms,
     })
   // }

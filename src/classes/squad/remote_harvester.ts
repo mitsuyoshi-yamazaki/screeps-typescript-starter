@@ -669,7 +669,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if (((Game.time % 19) == 3) && (this.scout.room.name != this.base_room.name) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
+    if (((Game.time % 19) == 3) && (this.scout.room.name != this.base_room.name) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0) && (!this.scout.room.memory.is_gcl_farm)) {
       let has_construction_site = this.scout.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: construction_site_filter
       }).length > 0
@@ -713,7 +713,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     const squad_memory = Memory.squads[this.name] as RemoteHarvesterSquadMemory
 
-    if (((Game.time % 19) == 5) && (!creep.room.controller || !creep.room.controller.my) && (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0)) {
+    if (((Game.time % 19) == 5) && (!creep.room.controller || !creep.room.controller.my) && (squad_memory.room_contains_construction_sites.indexOf(creep.room.name) < 0) && !creep.room.memory.is_gcl_farm) {
       const has_construction_site = creep.room.find(FIND_MY_CONSTRUCTION_SITES, {
         filter: construction_site_filter
       }).length > 0
@@ -1350,20 +1350,3 @@ const construction_site_filter = (site: ConstructionSite): boolean => {
   }
   return false
 }
-
-// function check_construction_site() {
-//   if (((Game.time % 19) == 3) && (squad_memory.room_contains_construction_sites.indexOf(this.scout.room.name) < 0)) {
-//     let has_construction_site = this.scout.room.find(FIND_MY_CONSTRUCTION_SITES, {
-//       filter: construction_site_filter
-//     }).length > 0
-
-//     if (!has_construction_site) {
-//       has_construction_site = this.scout.room.find(FIND_FLAGS).length > 0
-//       // @todo: flag -> construction_site
-//     }
-
-//     if (has_construction_site) {
-//       (Memory.squads[this.name] as RemoteHarvesterSquadMemory).room_contains_construction_sites.push(this.scout.room.name)
-//     }
-//   }
-// }

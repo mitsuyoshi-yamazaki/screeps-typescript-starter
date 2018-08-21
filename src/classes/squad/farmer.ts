@@ -119,7 +119,7 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
-    const upgrader_max = (rcl < 6) ? 3 : this.positions.length
+    const upgrader_max = (rcl < 6) ? 4 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
       if ((rcl < 6) && (this.carriers.length == 0)) {

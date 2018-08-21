@@ -69,13 +69,13 @@ export class HarvesterSquad extends Squad {
         this.destination = room.storage
       }
     }
-    else if ((this.source_info.id == '59f1c0ce7d0b3d79de5f01bc')) { // W49S6 Oxygen
-      const w49s6 = Game.rooms['W49S6']
-      if (w49s6 && w49s6.storage) {
-        this.destination = w49s6.storage
-        this.destination_storage = this.destination
-      }
-    }
+    // else if ((this.source_info.id == '59f1c0ce7d0b3d79de5f01bc')) { // W49S6 Oxygen
+    //   const w49s6 = Game.rooms['W49S6']
+    //   if (w49s6 && w49s6.storage) {
+    //     this.destination = w49s6.storage
+    //     this.destination_storage = this.destination
+    //   }
+    // }
 
     const is_alive = (this.energy_capacity > 300)
 
@@ -158,9 +158,9 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0294') { // W47S6 Lemergium
       this.resource_type = RESOURCE_LEMERGIUM
     }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01bc') { // W49S6 Oxygen
-      this.resource_type = RESOURCE_OXYGEN
-    }
+    // else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01bc') { // W49S6 Oxygen
+    //   this.resource_type = RESOURCE_OXYGEN
+    // }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0297') { // W47S9 Catalyst
       this.resource_type = RESOURCE_CATALYST
     }

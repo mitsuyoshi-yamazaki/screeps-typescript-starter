@@ -1449,7 +1449,7 @@ export class Region {
           if (resource_type != RESOURCE_ENERGY) {
             // Game.notify(message)
           }
-          continue
+          break
         }
 
         if (to_room && (!to_room.storage || ((_.sum(to_room.storage.store) > (to_room.storage.storeCapacity - (capacity * 3)))))) {
@@ -1459,7 +1459,7 @@ export class Region {
           if (resource_type != RESOURCE_ENERGY) {
             // Game.notify(message)
           }
-          continue
+          break
         }
 
         const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
