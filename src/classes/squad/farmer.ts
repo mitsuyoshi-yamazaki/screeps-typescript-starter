@@ -289,6 +289,10 @@ export class FarmerSquad extends Squad {
 
     if (room) {
       runTowers(this.towers, room)
+
+      if ((Game.time % 401) == 0) {
+        room.place_construction_sites()
+      }
     }
   }
 
@@ -431,6 +435,7 @@ export class FarmerSquad extends Squad {
       }
 
       creep.upgradeController(room.controller)
+      // creep.repair(Game.getObjectById('5b7bd895e11abe3f9e43e116') as StructureRampart)
     })
   }
 
