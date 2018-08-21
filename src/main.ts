@@ -238,14 +238,14 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.150,
+    price: 0.140,
     rooms,
   })
 
   // if (lemergium_seller_rooms.length > 0) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.07,
+      price: 0.065,
       rooms,
     })
   // }
@@ -276,7 +276,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_UTRIUM,
-    price: 0.01,
+    price: 0.07,
     rooms,
   }, credit_amount)
 
@@ -300,7 +300,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.01,
+    price: 0.05,
     rooms,
   }, credit_amount)
 
