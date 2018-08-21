@@ -482,6 +482,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
+        this.temp_squad_opt = {
+          target_room_name: 'W46S9',
+          forced: false,
+        }
         break
 
       case 'W49S6':
@@ -523,7 +527,7 @@ export class Region {
         break
 
       default:
-        console.log(`Spawn.initialize unexpected region name, ${this.name}`)
+        console.log(`Region.initialize unexpected region name, ${this.name}`)
         break
     }
 

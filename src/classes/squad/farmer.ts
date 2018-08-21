@@ -17,19 +17,37 @@ export class FarmerSquad extends Squad {
   private builders: Creep[] = []
   private chargers: Creep[] = []
 
-  private positions: {x:number, y:number}[] = [
-    {x: 28, y: 3},
-    {x: 28, y: 4},
-    {x: 29, y: 5},
-    {x: 30, y: 5},
+  // private positions: {x:number, y:number}[] = [  // W49S6
+  //   {x: 28, y: 3},
+  //   {x: 28, y: 4},
+  //   {x: 29, y: 5},
+  //   {x: 30, y: 5},
+  // ]
+  // private positions: {x:number, y:number}[] = [ // W47S8
+  //   {x: 14, y: 17},
+  //   {x: 15, y: 17},
+  //   {x: 16, y: 18},
+  //   {x: 16, y: 19},
+  // ]
+  private positions: {x:number, y:number}[] = [ // W46S9
+    {x: 47, y: 26},
+    {x: 46, y: 26},
+    {x: 45, y: 25},
+    {x: 45, y: 24},
   ]
   private charger_position: {x:number, y:number} = {x:30, y:3}
 
   private next_creep: CreepType | undefined
 
-  private spawn = Game.getObjectById('5b797615b49d6316d39b47dc') as StructureSpawn | undefined // W49S6
-  private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W49S6 container
-  private lab = Game.getObjectById('5b79755fa9d4ad408a00d953') as StructureLab | undefined // W49S6
+  // private spawn = Game.getObjectById('5b797615b49d6316d39b47dc') as StructureSpawn | undefined // W49S6
+  // private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W49S6 container
+  // private lab = Game.getObjectById('5b79755fa9d4ad408a00d953') as StructureLab | undefined // W49S6
+  // private spawn = Game.getObjectById('dummy') as StructureSpawn | undefined // W47S8
+  // private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W47S8 container
+  // private lab = Game.getObjectById('dummy') as StructureLab | undefined // W47S8
+  private spawn = Game.getObjectById('dummy') as StructureSpawn | undefined // W46S9
+  private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W46S9 container
+  private lab = Game.getObjectById('dummy') as StructureLab | undefined // W46S9
   private towers: StructureTower[] = []
 
   private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
@@ -98,7 +116,7 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
-    const upgrader_max = (rcl < 6) ? 1 : this.positions.length
+    const upgrader_max = (rcl < 6) ? 2 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
       if ((rcl < 6) && (this.carriers.length == 0)) {
@@ -108,12 +126,12 @@ export class FarmerSquad extends Squad {
         return CreepType.CARRIER
       }
 
-      if (destination_room && ((destination_room.storage && (destination_room.storage.store.energy > 5000)) || (this.container && (this.container.store.energy > 1500)))) {
+      // if (destination_room && ((destination_room.storage && (destination_room.storage.store.energy > 5000)) || (this.container && (this.container.store.energy > 1500)))) {
         if (debug) {
           console.log(`FarmerSquad.nextCreep upgrader ${this.name}`)
         }
         return CreepType.UPGRADER
-      }
+      // }
     }
 
     // Carrier
@@ -260,7 +278,7 @@ export class FarmerSquad extends Squad {
 
   public run(): void {
     const room = Game.rooms[this.room_name] as Room | undefined
-    this.towers = (!room || !room.owned_structures) ? [] : room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]
+    this.towers = (!room || !room.owned_structures) ? [] : (room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]) || []
 
     this.runUpgrader()
     this.runCarrier()
@@ -343,8 +361,12 @@ export class FarmerSquad extends Squad {
         else if (this.spawn && !this.spawn.spawning) {
           creep.memory.status = CreepStatus.WAITING_FOR_RENEW
 
-          const x = 30
-          const y = 4
+          // const x = 30 // W49S6
+          // const y = 4
+          // const x = 15  // W47S8
+          // const y = 19
+          const x = 47  // W46S9
+          const y = 25
           if ((creep.pos.x != x) || (creep.pos.y != y)) {
             creep.moveTo(x, y)
             creep.upgradeController(room.controller)
@@ -416,16 +438,22 @@ export class FarmerSquad extends Squad {
     }
     const storage = this.base_room.storage
 
+                // const pos = new RoomPosition(30, 4, this.room_name) // W49S6
+            // const pos = new RoomPosition(, , this.room_name) // W47S8
+    const pos = new RoomPosition(46, 25, this.room_name) // W46S9
+
     this.carriers.forEach((creep) => {
       if (creep.carry.energy == 0) {
-        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
-          filter: (resource: Resource) => {
-            return resource.resourceType == RESOURCE_ENERGY
-          }
-        })[0]
+        if (creep.pos.getRangeTo(pos) > 2) {
+          const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+            filter: (resource: Resource) => {
+              return resource.resourceType == RESOURCE_ENERGY
+            }
+          })[0]
 
-        if (drop) {
-          creep.pickup(drop)
+          if (drop) {
+            creep.pickup(drop)
+          }
         }
 
         if (creep.room.is_keeperroom) {
@@ -458,7 +486,6 @@ export class FarmerSquad extends Squad {
           }
           else {
             // creep.say(`2`)
-            const pos = new RoomPosition(30, 4, this.room_name)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
               creep.moveTo(pos)
             }

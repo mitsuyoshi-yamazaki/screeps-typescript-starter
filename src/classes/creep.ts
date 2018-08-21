@@ -2293,7 +2293,7 @@ export function init() {
       }
     }
     else if (should_claim) {
-      if (target.reservation && (target.reservation.ticksToEnd > 0)) {
+      if (target.reservation && (target.reservation.ticksToEnd > 0) && (target.reservation.username != 'Mitsuyoshi')) {
         action = 'attackController'
         result = this.attackController(target)
 
