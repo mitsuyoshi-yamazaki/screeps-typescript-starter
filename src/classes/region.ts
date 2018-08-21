@@ -1628,7 +1628,7 @@ export class Region {
       if (this.room.name == 'W49S6') {
         return
       }
-      if (this.room.name == 'W47S8') {
+      if (this.room.name == 'W46S9') {
         return
       }
     }
@@ -1869,7 +1869,7 @@ export class Region {
       if (this.room.name == 'W49S6') {
         return
       }
-      if (this.room.name == 'W47S8') {
+      if (this.room.name == 'W46S9') {
         return
       }
       if (!this.room.controller || (this.room.controller.level < 5)) {

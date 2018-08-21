@@ -91,7 +91,7 @@ export class RemoteHarvesterSquad extends Squad {
       ]
     }
 
-    if (room && (['W49S6', 'W47S8'].indexOf(room.name) >= 0) && room.storage && room.controller && room.controller.my && (room.controller.level >= 4)) {
+    if (room && (['W49S6', 'W46S9'].indexOf(room.name) >= 0) && room.storage && room.controller && room.controller.my && (room.controller.level >= 4)) {
       this.destination = room.storage
     }
     else if (squad_memory.destination_id) {
