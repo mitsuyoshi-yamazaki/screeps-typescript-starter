@@ -179,16 +179,16 @@ export class AttackerSquad extends Squad {
 
       const is_safemode_active = (attacker.room.controller) ? ((attacker.room.controller!.safeMode || 0) > 0) : false
 
-      if (attacker.room.name == 'W43N7') {
+      // if (attacker.room.name == 'W43N7') {
 
-      }
-      else {
+      // }
+      // else {
         const target = attacker.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
         if (target) {
           attacker.destroy(target)
           return
         }
-      }
+      // }
 
       if (!this.destination_room_name) {
         if (attacker.moveToRoom(this.base_room.name) == ActionResult.DONE) {

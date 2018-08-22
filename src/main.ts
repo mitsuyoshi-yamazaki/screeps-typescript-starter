@@ -238,7 +238,7 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.140,
+    price: 0.160,
     rooms,
   })
 
@@ -252,7 +252,7 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_CATALYST,
-    price: 0.2,
+    price: 0.195,
     rooms,
   })
 
@@ -270,7 +270,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_ZYNTHIUM,
-    price: 0.01,
+    price: 0.05,
     rooms,
   }, credit_amount)
 

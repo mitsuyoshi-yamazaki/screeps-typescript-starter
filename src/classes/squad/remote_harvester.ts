@@ -914,7 +914,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        if (creep.room.name == this.room_name) {
+        if ((creep.room.name == this.room_name) && (this.room_name != 'W49S6')) {
           if ((this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS)) {
             if (creep.carry.energy > 0) {
               creep.drop(RESOURCE_ENERGY)
@@ -936,7 +936,7 @@ export class RemoteHarvesterSquad extends Squad {
         return
       }
 
-      if (creep.room.name == this.room_name) {
+      if ((creep.room.name == this.room_name) && (this.room_name != 'W49S6')) {
         if ((this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS)) {
           return
         }
@@ -1023,7 +1023,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
       }
 
-      const should_escape = (creep.room.attacked && !creep.room.is_keeperroom) || (this.is_room_attacked)
+      const should_escape = ((creep.room.attacked && !creep.room.is_keeperroom) || (this.is_room_attacked)) && (this.room_name != 'W49S6')
       if (should_escape) {
         creep.memory.status = CreepStatus.CHARGE
 

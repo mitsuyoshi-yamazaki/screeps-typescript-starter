@@ -50,7 +50,7 @@ export class FarmerSquad extends Squad {
   // private lab = Game.getObjectById('dummy') as StructureLab | undefined // W47S8
   private spawn = Game.getObjectById('5b7ba61df86f4e0754ceb5a5') as StructureSpawn | undefined // W46S9
   private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W46S9 container
-  private lab = Game.getObjectById('dummy') as StructureLab | undefined // W46S9
+  private lab = Game.getObjectById('5b7c955cc866f7408b99398d') as StructureLab | undefined // W46S9
   private towers: StructureTower[] = []
 
   private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
@@ -350,16 +350,16 @@ export class FarmerSquad extends Squad {
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {
-          if (!creep.boosted() && this.lab) {
+          if (!creep.boosted() && this.lab && room.storage) {
             console.log(`FarmerSquad.runUpgrader boostCreep ${this.room_name}, ${creep.name}, ${this.name}`)
-            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30)) {
+            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 200000)) {
               const result = this.lab.boostCreep(creep)
               if (result != OK) {
                 console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
               }
             }
             else {
-              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${this.lab}`)
+              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${this.lab}, energy: ${room.storage.store.energy}`)
             }
           }
           creep.say(`RENEWED`)

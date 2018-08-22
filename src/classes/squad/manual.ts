@@ -129,7 +129,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        return SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       case 'W43S2': {
@@ -248,7 +248,7 @@ export class ManualSquad extends Squad {
         return this.hasEnoughEnergyForLightWeightHarvester(energy_available, capacity)
 
       case 'W48S6':
-        return false
+        return energy_available > 2020
 
       case 'W43S2':
         const energy = (capacity >= 1200) ? 1200 : 800
@@ -344,6 +344,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
+        const body: BodyPartConstant[] = [
+          TOUGH, TOUGH,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          MOVE, MOVE, MOVE, MOVE, MOVE,
+          RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
+          HEAL, HEAL, HEAL,
+        ]
+
+        this.addGeneralCreep(spawn_func, body, CreepType.RANGED_ATTACKER)
         return
       }
 
@@ -637,7 +646,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
-        const target_room_name = 'W49S7'
+        const target_room_name = 'W49S6'
 
         this.creeps.forEach((creep) => {
           creep.searchAndDestroyTo(target_room_name, true)
