@@ -204,6 +204,9 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
       if (creep.room.name == this.room_name) {
         if (this.escapeFromHostileIfNeeded(creep, this.room_name, keeper_lairs) == ActionResult.IN_PROGRESS) {
+          if (_.sum(creep.carry) > 0) {
+            creep.memory.status = CreepStatus.CHARGE
+          }
           return
         }
       }

@@ -938,6 +938,9 @@ export class RemoteHarvesterSquad extends Squad {
 
       if ((creep.room.name == this.room_name) && (this.room_name != 'W49S6')) {
         if ((this.escapeFromHostileIfNeeded(creep, this.room_name, this.keeper_lairs) == ActionResult.IN_PROGRESS)) {
+          if (_.sum(creep.carry) > 0) {
+            creep.memory.status = CreepStatus.CHARGE
+          }
           return
         }
       }
