@@ -101,7 +101,9 @@ export function runTowers(towers: StructureTower[], room: Room): void {
       return -1
     })
 
-    damaged_wall = walls[0]
+    if (!region_memory || !region_memory.wall_max_hits || (walls[0] && (walls[0].hits < region_memory.wall_max_hits))) {
+      damaged_wall = walls[0]
+    }
 
     if (damaged_wall && region_memory) {
       region_memory.repairing_wall_id = damaged_wall.id

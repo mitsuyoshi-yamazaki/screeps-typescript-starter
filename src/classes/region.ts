@@ -41,6 +41,7 @@ export interface RegionMemory {
   observe_index: number
   excluded_walls?: string[]
   repairing_wall_id?: string | null
+  wall_max_hits?: number | null
   last_spawn_time: number
   last_heavy_attacker?: {ticks: number, body: string[], teams: string[]} | null
   ancestor: string
@@ -111,6 +112,7 @@ export class Region {
         observe_index: 0,
         excluded_walls: [],
         repairing_wall_id: null,
+        wall_max_hits: 20000000,  // 20M
         last_spawn_time: Game.time,
         last_heavy_attacker: null,
         ancestor,
