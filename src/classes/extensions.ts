@@ -469,13 +469,13 @@ export function tick(): void {
       const region_memory = Memory.regions[room.name]
       if (!region_memory || !region_memory.resource_transports) {
         // console.log(` - ${room.name}: none`)
-        if (!opts.reversed) {
+        if (opts.reversed) {
           no_transfer_rooms.push(room_name)
         }
         continue
       }
 
-      if (opts.reversed) {
+      if (!opts.reversed) {
         for (const destination_room_name in region_memory.resource_transports) {
           if (!resources[destination_room_name]) {
             resources[destination_room_name] = {}
@@ -496,7 +496,7 @@ export function tick(): void {
       }
     }
 
-    if (opts.reversed) {
+    if (!opts.reversed) {
       for (const room_name in resources) {
         if (opts.room && (opts.room != room_name)) {
           continue
