@@ -2,7 +2,7 @@ import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ErrorMapper } from "utils/ErrorMapper";
 import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
-import { UID, room_history_link, room_link, colored_resource_type, profile_link } from "./utils";
+import { UID, room_history_link, room_link, colored_resource_type, profile_link, colored_body_part } from "./utils";
 import { RoomLayout, RoomLayoutOpts } from "./room_layout";
 
 export interface AttackerInfo  {
@@ -38,6 +38,8 @@ declare global {
 
     show_excluded_walls(room_name: string): void
     add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
+
+    test(energy: number): void
   }
 
   interface Memory {
@@ -691,6 +693,32 @@ export function tick(): void {
         console.log(`No walls added`)
       }
     }
+  }
+
+  Game.test = function(energy: number): void {
+    const move: BodyPartConstant[] = [MOVE]
+    const work: BodyPartConstant[] = [WORK, WORK, WORK, WORK]
+    const energy_unit = 500
+
+    let body: BodyPartConstant[] = []
+
+    let number_of_units = 0
+
+    while (energy >= energy_unit) {
+      body = move.concat(body)
+      body = body.concat(work)
+
+      energy -= energy_unit
+      number_of_units += 1
+    }
+
+    const number_of_carries = Math.ceil((number_of_units * 4.0) / 9.0)
+
+    for (let i = 0; i < number_of_carries; i++) {
+      body.push(CARRY)
+    }
+
+    console.log(`TEST:\n${body.map(b=>colored_body_part(b))}`)
   }
 
   // --- Room

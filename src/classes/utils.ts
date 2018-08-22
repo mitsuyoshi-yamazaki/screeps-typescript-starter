@@ -103,3 +103,39 @@ export function resource_color(resource_type: ResourceConstant): string {
       return '#FFFFFF'
   }
 }
+
+export function colored_body_part(body_part: BodyPartConstant): string {
+  return `<b><span style='color:${body_part_color(body_part)}'>${body_part}</span></b>`
+}
+
+export function body_part_color(body_part: BodyPartConstant): string {
+  switch (body_part) {
+    case MOVE:
+      return '#A9B7C6'
+
+    case WORK:
+      return '#FFE56D'
+
+    case CARRY:
+      return '#777777'
+
+    case ATTACK:
+      return '#F93843'
+
+    case RANGED_ATTACK:
+      return '#5D80B2'
+
+    case HEAL:
+      return '#65FD62'
+
+    case CLAIM:
+      return '#B99CFB'
+
+    case TOUGH:
+      return '#FFFFFF'
+
+    default:
+      console.log(`body_part_color undefined body_part ${body_part}`)
+      return '#FFFFFF'
+  }
+}

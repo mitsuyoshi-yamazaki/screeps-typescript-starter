@@ -74,10 +74,10 @@ export class UpgraderSquad extends Squad {
 
     if (room && room.controller && room.controller.my) {
       if (room.controller.level == 8) {
-        this.max_energy = 2300
+        this.max_energy = 2000
       }
       else if (room.controller.level >= 7) {
-        this.max_energy = 4300
+        this.max_energy = 4500
       }
     }
   }

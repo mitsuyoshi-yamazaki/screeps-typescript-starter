@@ -252,7 +252,7 @@ export class FarmerSquad extends Squad {
           pos: this.find_non_used_position()
         }
 
-        this.addUpgrader(energy_available, spawn_func, CreepType.UPGRADER, {max_energy: 4500, huge: true, memory})
+        this.addUpgrader(energy_available, spawn_func, CreepType.UPGRADER, {max_energy: 4500, memory})
         return
       }
 

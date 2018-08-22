@@ -166,31 +166,26 @@ export abstract class Squad {
     max_energy = max_energy || 2150
 
     capacity = Math.min(capacity, max_energy)
-    capacity = Math.min(capacity, 4000)
+    capacity = Math.min(capacity, 4500)
 
-    const energy_unit = 250
-    const energyNeeded = (Math.floor((capacity - 150) / energy_unit) * energy_unit)
+    const energy_unit = 500 // actual: 472.22
+    const energyNeeded = (Math.floor(capacity / energy_unit) * energy_unit)
     return energyAvailable >= energyNeeded
   }
 
-  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, creep_type: CreepType, opts?: {max_energy?: number, huge?: boolean, memory?: CreepMemory}): void {
-    // capacity: 2150
-    // 8 units, 2C, 16W, 9M
+  public addUpgrader(energyAvailable: number, spawnFunc: SpawnFunction, creep_type: CreepType, opts?: {max_energy?: number, memory?: CreepMemory}): void {
     opts = opts || {}
 
-    const max_energy = opts.max_energy || 2300
-    const upgraded = max_energy > 2300
+    const max_energy = opts.max_energy || 2000
 
     energyAvailable = Math.min(energyAvailable, max_energy)
-    energyAvailable = Math.min(energyAvailable, 4000)
+    energyAvailable = Math.min(energyAvailable, 4500)
 
     const move: BodyPartConstant[] = [MOVE]
-    const work: BodyPartConstant[] = opts.huge ? [WORK, WORK, WORK, WORK] : [WORK, WORK]
-    const energy_unit = opts.huge ? 450 : 250
+    const work: BodyPartConstant[] = [WORK, WORK, WORK, WORK]
+    const energy_unit = 500
 
-    energyAvailable -= upgraded ? 350 : 150
-    const header: BodyPartConstant[] = upgraded ? [WORK, CARRY, CARRY, CARRY] : [CARRY, CARRY]
-    let body: BodyPartConstant[] = upgraded ? [MOVE, MOVE] : [MOVE]
+    let body: BodyPartConstant[] = []
     const name = this.generateNewName()
     const memory: CreepMemory = opts.memory || {
       squad_name: this.name,
@@ -199,15 +194,23 @@ export abstract class Squad {
       type: creep_type,
       should_notify_attack: false,
       let_thy_die: true,
-      // ...(opts.memory || {}) // @fixme:
     }
+
+    let number_of_units = 0
 
     while (energyAvailable >= energy_unit) {
       body = move.concat(body)
       body = body.concat(work)
+
       energyAvailable -= energy_unit
+      number_of_units += 1
     }
-    body = header.concat(body)
+
+    const number_of_carries = Math.ceil((number_of_units * 4.0) / 9.0)
+
+    for (let i = 0; i < number_of_carries; i++) {
+      body.push(CARRY)
+    }
 
     const result = spawnFunc(body, name, {
       memory: memory

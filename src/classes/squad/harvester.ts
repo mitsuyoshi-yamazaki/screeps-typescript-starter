@@ -17,7 +17,7 @@ export class HarvesterSquad extends Squad {
   private store: StructureContainer | StructureLink | StructureStorage | undefined // A store that the harvester stores energy
   private container: StructureContainer | StructureLink | undefined // A energy container that the carrier withdraws energy
   private destination_storage: StructureStorage | undefined
-  private mineral_harvester_energy_max = 2300
+  private mineral_harvester_energy_max = 2500
 
   private needs_harvester: boolean
 
