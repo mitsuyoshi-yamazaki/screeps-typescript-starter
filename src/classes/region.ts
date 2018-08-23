@@ -970,7 +970,7 @@ export class Region {
             break
           }
           case SquadType.NUKER_CHARGER_SQUAD: {
-            if (['W55S23', 'W56S7'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new NukerChargerSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }
