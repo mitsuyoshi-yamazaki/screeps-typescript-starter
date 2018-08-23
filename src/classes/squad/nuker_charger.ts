@@ -1,4 +1,4 @@
-import { UID } from "classes/utils"
+import { UID, room_link } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
@@ -7,24 +7,9 @@ export interface NukerChargerSquadMemory extends SquadMemory {
 }
 
 export class NukerChargerSquad extends Squad {
-  // public static needSquad(nuker: StructureNuker | undefined, terminal: StructureTerminal | undefined, storage: StructureStorage | undefined): boolean {
-  //   if (!nuker || !terminal || !storage) {
-  //     return false
-  //   }
-
-  //   if (storage.store.energy < 300000) {
-  //     return false
-  //   }
-
-  //   if ((nuker.ghodium == nuker.ghodiumCapacity) && (nuker.energy == nuker.energyCapacity)) {
-  //     return false
-  //   }
-
-  //   // @todo:
-  //   return false
-  // }
-
   private nuker: StructureNuker | undefined
+
+  private reason: string = ''
 
   constructor(readonly name: string, readonly room: Room) {
     super(name)
@@ -35,7 +20,7 @@ export class NukerChargerSquad extends Squad {
       this.nuker = Game.getObjectById(squad_memory.nuker_id) as StructureNuker | undefined
     }
     else if ((Game.time % 29) == 5) {
-      console.log(`NukerChargerSquad undefined nuker id ${this.name}, ${this.room.name}`)
+      console.log(`NukerChargerSquad undefined nuker id ${this.name}, ${room_link(this.room.name)}`)
     }
   }
 
@@ -54,14 +39,17 @@ export class NukerChargerSquad extends Squad {
   // --
   public get spawnPriority(): SpawnPriority {
     if (!this.room.terminal || !this.room.storage || !this.nuker) {
+      this.reason = `missing structures`
       return SpawnPriority.NONE
     }
 
     if (this.room.storage.store.energy < 400000) {
+      this.reason = `lack of energy`
       return SpawnPriority.NONE
     }
 
     if ((this.nuker.ghodium == this.nuker.ghodiumCapacity) && (this.nuker.energy == this.nuker.energyCapacity)) {
+      this.reason = `finished`
       return SpawnPriority.NONE
     }
 
@@ -69,7 +57,8 @@ export class NukerChargerSquad extends Squad {
     if (ghodium_needs > 0) {
       const ghodium = (this.room.terminal.store[RESOURCE_GHODIUM] || 0) + (this.room.storage.store[RESOURCE_GHODIUM] || 0)
 
-      if (ghodium_needs < ghodium) {
+      if (ghodium_needs > ghodium) {
+        this.reason = `lack of Ghodium`
         return SpawnPriority.NONE
       }
     }
@@ -95,7 +84,9 @@ export class NukerChargerSquad extends Squad {
 
   public run(): void {
     if (!this.room.terminal || !this.room.storage || !this.nuker) {
-      console.log(`NukerChargerSquad.run ${this.room.name} no storage, terminal nor nuker`)
+      if ((Game.time % 43) == 3) {
+        console.log(`NukerChargerSquad.run ${this.room.name} no storage, terminal nor nuker`)
+      }
       return
     }
 
@@ -149,5 +140,9 @@ export class NukerChargerSquad extends Squad {
         }
       }
     })
+  }
+
+  public description(): string {
+    return `${super.description()}, ${this.reason}`
   }
 }
