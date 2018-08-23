@@ -95,6 +95,7 @@ declare global {
     layout(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null
     test(from: Structure): void
     place_construction_sites(): void
+    info(): void
 
     initialize(): void
 
@@ -1231,6 +1232,26 @@ export function tick(): void {
     }
   }
 
+  Room.prototype.info = function(): void {
+    const room = this as Room
+    const room_memory = room.memory
+
+    if (!room_memory) {
+      console.log(`Room ${room_link(room.name)} has no RoomMemory`)
+      return
+    }
+
+    if (room_memory.last_attacked_time) {
+      const history_link = room_history_link(room.name, room_memory.last_attacked_time, {text: `${Game.time - room_memory.last_attacked_time} ticks ago`, color: 'red'})
+      console.log(`Room ${room_link(room.name)}: last attacked at ${history_link}`)
+    }
+    else {
+      console.log(`Room ${room_link(room.name)}: not attacked`)
+    }
+  }
+
+
+  // ---
   RoomVisual.prototype.multipleLinedText = function(text: string | string[], x: number, y: number, style?: TextStyle): void {
     const show_visuals = Memory.debug.show_visuals
     if (!show_visuals || (show_visuals != this.roomName)) {
