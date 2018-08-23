@@ -1425,7 +1425,7 @@ export class Region {
 
       for (const resource_type of resource_types) {
         if (RESOURCES_ALL.indexOf(resource_type) < 0) {
-          console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name}`)
+          console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name} to ${room_name}`)
           continue
         }
 
