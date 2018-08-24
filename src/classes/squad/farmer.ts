@@ -9,6 +9,12 @@ interface FarmerUpgraderMemory extends CreepMemory {
 
 export interface FarmerSquadMemory extends SquadMemory {
   room_name: string,
+  spawn_id: string | null,
+  lab_id: string | null,
+  storage_position: {x:number, y:number}
+  positions: {x:number, y:number}[]
+  charger_position: {x:number, y:number}
+  renew_position: {x:number, y:number}
 }
 
 export class FarmerSquad extends Squad {
@@ -29,16 +35,21 @@ export class FarmerSquad extends Squad {
   //   {x: 16, y: 18},
   //   {x: 16, y: 19},
   // ]
-  private positions: {x:number, y:number}[] = [ // W46S9
-    {x: 47, y: 26},
-    {x: 46, y: 26},
-    {x: 45, y: 25},
-    {x: 45, y: 24},
-  ]
+  // private positions: {x:number, y:number}[] = [ // W46S9
+  //   {x: 47, y: 26},
+  //   {x: 46, y: 26},
+  //   {x: 45, y: 25},
+  //   {x: 45, y: 24},
+  // ]
 
   // private charger_position: {x:number, y:number} = {x:30, y:3}  // W49S6
   // private charger_position: {x:number, y:number} = {x:, y:} // W47S8
-  private charger_position: {x:number, y:number} = {x:47, y:24} // W46S9
+  // private charger_position: {x:number, y:number} = {x:47, y:24} // W46S9
+
+  private storage_position: {x:number, y:number}
+  private positions: {x:number, y:number}[]
+  private charger_position: {x:number, y:number}
+  private renew_position: {x:number, y:number}
 
   private next_creep: CreepType | undefined
 
@@ -48,15 +59,74 @@ export class FarmerSquad extends Squad {
   // private spawn = Game.getObjectById('dummy') as StructureSpawn | undefined // W47S8
   // private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W47S8 container
   // private lab = Game.getObjectById('dummy') as StructureLab | undefined // W47S8
-  private spawn = Game.getObjectById('5b7ba61df86f4e0754ceb5a5') as StructureSpawn | undefined // W46S9
-  private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W46S9 container
-  private lab = Game.getObjectById('5b7c955cc866f7408b99398d') as StructureLab | undefined // W46S9
+  // private spawn = Game.getObjectById('5b7ba61df86f4e0754ceb5a5') as StructureSpawn | undefined // W46S9
+  // private container = Game.getObjectById('dummy') as StructureContainer | undefined  // W46S9 container
+  // private lab = Game.getObjectById('5b7c955cc866f7408b99398d') as StructureLab | undefined // W46S9
+
+  private spawn: StructureSpawn | undefined
+  private lab: StructureLab | undefined
   private towers: StructureTower[] = []
 
   private boost_resource_type: ResourceConstant = RESOURCE_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
+
+    let error_message: string | null = null
+
+    const squad_memory = Memory.squads[this.name] as FarmerSquadMemory
+    if (squad_memory) {
+      if (squad_memory.spawn_id) {
+        this.spawn = Game.getObjectById(squad_memory.spawn_id) as StructureSpawn | undefined
+      }
+      if (squad_memory.lab_id) {
+        this.lab = Game.getObjectById(squad_memory.lab_id) as StructureLab | undefined
+      }
+
+      if (squad_memory.storage_position) {
+        this.storage_position = squad_memory.storage_position
+      }
+      else {
+        this.storage_position = {x:25, y:25}
+        error_message = `[ERROR] FarmerSquad ${this.name} has no storage_position`
+      }
+
+      if (squad_memory.positions) {
+        this.positions = squad_memory.positions
+      }
+      else {
+        this.positions = []
+        error_message = `[ERROR] FarmerSquad ${this.name} has no position`
+      }
+
+      if (squad_memory.charger_position) {
+        this.charger_position = squad_memory.charger_position
+      }
+      else {
+        this.charger_position = {x:25, y:25}
+        error_message = `[ERROR] FarmerSquad ${this.name} has no charger_position`
+      }
+
+      if (squad_memory.renew_position) {
+        this.renew_position = squad_memory.renew_position
+      }
+      else {
+        this.renew_position = {x:25, y:25}
+        error_message = `[ERROR] FarmerSquad ${this.name} has no renew_position`
+      }
+    }
+    else {
+      error_message = `[ERROR] FarmerSquad ${this.name} has no memory`
+      this.storage_position = {x:25, y:25}
+      this.positions = []
+      this.charger_position = {x:25, y:25}
+      this.renew_position = {x:25, y:25}
+    }
+
+    if (error_message && ((Game.time % 43) == 5)) {
+      console.log(error_message)
+      Game.notify(error_message)
+    }
 
     this.creeps.forEach((creep) => {
       switch (creep.memory.type) {
@@ -122,7 +192,7 @@ export class FarmerSquad extends Squad {
     const upgrader_max = (rcl < 6) ? 4 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
-      if ((rcl < 6) && (this.carriers.length == 0)) {
+      if ((rcl >= 4) && (rcl < 6) && (this.carriers.length == 0)) { // @todo: if rcl < 4 && storage is empty
         if (debug) {
           console.log(`FarmerSquad.nextCreep no carriers ${this.name}`)
         }
@@ -151,7 +221,7 @@ export class FarmerSquad extends Squad {
       return undefined
     }
 
-    const carrier_max = (rcl >= 4) ? 14 : 12
+    const carrier_max = (rcl >= 4) ? 14 : 0//12  // @todo: if rcl < 4 && storage is empty
     if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
       if (debug) {
         console.log(`FarmerSquad.nextCreep carrier ${this.name}`)
@@ -372,10 +442,10 @@ export class FarmerSquad extends Squad {
           // const y = 4
           // const x = 15  // W47S8
           // const y = 19
-          const x = 47  // W46S9
-          const y = 25
-          if ((creep.pos.x != x) || (creep.pos.y != y)) {
-            creep.moveTo(x, y)
+          // const x = 47  // W46S9
+          // const y = 25
+          if ((creep.pos.x != this.renew_position.x) || (creep.pos.y != this.renew_position.y)) {
+            creep.moveTo(this.renew_position.x, this.renew_position.y)
             creep.upgradeController(room.controller)
             return
           }
@@ -411,9 +481,9 @@ export class FarmerSquad extends Squad {
       if (room.storage && (room.storage.store.energy > 0)) {
         creep.withdraw(room.storage, RESOURCE_ENERGY)
       }
-      else if (this.container && (this.container.store.energy > 0)) {
-        creep.withdraw(this.container, RESOURCE_ENERGY)
-      }
+      // else if (this.container && (this.container.store.energy > 0)) {
+      //   creep.withdraw(this.container, RESOURCE_ENERGY)
+      // }
       else {
         const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
           filter: (d: Resource) => {
@@ -448,7 +518,8 @@ export class FarmerSquad extends Squad {
 
                 // const pos = new RoomPosition(30, 4, this.room_name) // W49S6
             // const pos = new RoomPosition(, , this.room_name) // W47S8
-    const pos = new RoomPosition(45, 26, this.room_name) // W46S9
+    // const pos = new RoomPosition(45, 26, this.room_name) // W46S9
+    const pos = new RoomPosition(this.storage_position.x, this.storage_position.y, this.room_name)
 
     this.carriers.forEach((creep) => {
       if (creep.carry.energy == 0) {
@@ -487,12 +558,12 @@ export class FarmerSquad extends Squad {
           }
         }
         else {
-          if (this.container && (this.container.store.energy < this.container.storeCapacity)) {
-            if (creep.transfer(this.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(this.container)
-            }
-          }
-          else {
+          // if (this.container && (this.container.store.energy < this.container.storeCapacity)) {
+          //   if (creep.transfer(this.container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          //     creep.moveTo(this.container)
+          //   }
+          // }
+          // else {
             // creep.say(`2`)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
               creep.moveTo(pos)
@@ -500,7 +571,7 @@ export class FarmerSquad extends Squad {
             else {
               creep.drop(RESOURCE_ENERGY)
             }
-          }
+          // }
         }
       }
     })
