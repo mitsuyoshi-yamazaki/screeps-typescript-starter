@@ -965,6 +965,18 @@ export class RemoteHarvesterSquad extends Squad {
         creep.memory.status = CreepStatus.HARVEST
       }
 
+      if ((this.builders.length > 0) && (creep.carry.energy > 0)) {
+        const builder = creep.pos.findInRange(this.builders, 1, {
+          filter: (b: Creep) => {
+            return b.carry.energy < b.carryCapacity
+          }
+        })[0]
+
+        if (builder) {
+          creep.transfer(builder, RESOURCE_ENERGY)
+        }
+      }
+
       if (!this.avoid_cpu_use && (carry < (creep.carryCapacity - 50))) {
         let tombstone: Tombstone | undefined
         if (creep.memory.withdraw_resources_target) {

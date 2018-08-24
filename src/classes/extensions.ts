@@ -1216,7 +1216,9 @@ export function tick(): void {
       const result = room.createConstructionSite(flag.pos, structure_type)
 
       if (result == OK) {
-        count += 1
+        if (structure_type != STRUCTURE_ROAD) {
+          count += 1
+        }
         console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
         flag.remove()
 
