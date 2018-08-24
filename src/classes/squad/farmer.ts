@@ -263,7 +263,7 @@ export class FarmerSquad extends Squad {
         return SpawnPriority.NONE // @fixme:
 
       case CreepType.CARRIER:
-        return SpawnPriority.NORMAL
+        return SpawnPriority.LOW
 
       case CreepType.CHARGER:
         return SpawnPriority.HIGH
