@@ -365,6 +365,28 @@ export class FarmerSquad extends Squad {
         room.place_construction_sites()
       }
     }
+
+    if (((Game.time % 449) == 1) && room && (this.creeps.size > 0) && Memory.squads[this.name]) {
+      if (!this.spawn) {
+        const spawn = room.find(FIND_MY_SPAWNS)[0]
+
+        if (spawn) {
+          (Memory.squads[this.name] as FarmerSquadMemory).spawn_id = spawn.id
+        }
+      }
+
+      if (!this.lab) {
+        const lab = room.find(FIND_MY_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_LAB
+          }
+        })[0]
+
+        if (lab) {
+          (Memory.squads[this.name] as FarmerSquadMemory).lab_id = lab.id
+        }
+      }
+    }
   }
 
   public description(): string {
