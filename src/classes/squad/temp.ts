@@ -196,12 +196,6 @@ export class TempSquad extends Squad {
       arrived: false,
     }
 
-    if (this.room_name == 'W47N2') {
-      body = [
-        MOVE, CLAIM, CLAIM, MOVE,
-      ]
-    }
-
     const result = spawnFunc(body, name, {
       memory: memory
     });

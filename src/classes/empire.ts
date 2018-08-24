@@ -12,15 +12,9 @@ export class Empire {
 
   constructor(readonly name: string) {
 
-    const attacker_room_names = [
-      // 'W42N1',
-      'W47N2',
-      // 'W43S5',
-      // 'W43N5',
-      // 'W44S7',
-      // 'W48S6',
+    const attacker_room_names: string[] = [
     ]
-    const attack_to = 'W44N3'
+    const attack_to: string | null = null
 
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
@@ -114,7 +108,6 @@ export class Empire {
     const w47s6 = 'W47S6'
     const w45s27 = 'W45S27'
     // const w39s9 = 'W39S9'
-    // const w47s14 = 'W47S14'
     const w47s9 = 'W47S9'
     // const w45s3 = 'W45S3'
     const w49s6 = 'W49S6'

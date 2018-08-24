@@ -137,30 +137,15 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f037c') { // W44S7 Hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
-    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f043e') { // W42N1 Catalyst
-      this.resource_type = RESOURCE_CATALYST
-    }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0228') { // W48S6 Hydrogen
-      this.resource_type = RESOURCE_HYDROGEN
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f028d') { // W47N2 Hydrogen
       this.resource_type = RESOURCE_HYDROGEN
     }
     else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03d7') { // W43S5 Utrium
       this.resource_type = RESOURCE_UTRIUM
     }
-    else if (this.source_info.id == '59f1c0cf7d0b3d79de5f03ce') { // W43N5 Zynthium
-      this.resource_type = RESOURCE_ZYNTHIUM
-    }
-    else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0219') { // W48N11 Oxygen
-      this.resource_type = RESOURCE_OXYGEN
-    }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0294') { // W47S6 Lemergium
       this.resource_type = RESOURCE_LEMERGIUM
     }
-    // else if (this.source_info.id == '59f1c0ce7d0b3d79de5f01bc') { // W49S6 Oxygen
-    //   this.resource_type = RESOURCE_OXYGEN
-    // }
     else if (this.source_info.id == '59f1c0ce7d0b3d79de5f0297') { // W47S9 Catalyst
       this.resource_type = RESOURCE_CATALYST
     }
@@ -219,33 +204,9 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
-    else if (this.source_info.id == '59f1a05882100e1594f368a8') { // W42N1
-      const link = Game.getObjectById('5b306e8992a8bd27bf54c8ac') as StructureLink | undefined
-      if (link && (link.energy < link.energyCapacity)) {
-        this.store = link
-      }
-    }
     else if (this.source_info.id == '59f1a04682100e1594f36736') { // W43S5
       const link = Game.getObjectById('5b318a5682c736408cf8a54e') as StructureLink | undefined
       if (link && (link.energy < link.energyCapacity)) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f1a00882100e1594f35eeb') { // W47N2
-      const link = Game.getObjectById('5b334e132d6e4e7d3f58a2ea') as StructureLink | undefined
-      if (link && (link.energy < link.energyCapacity)) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f1a04482100e1594f36715') { // W43N5
-      const storage = Game.getObjectById('5b33832c9ea3e436baf9f9c1') as StructureStorage | undefined
-      if (storage) {
-        this.store = storage
-      }
-    }
-    else if (this.source_info.id == '59f1a05882100e1594f368aa') { // W42N1 bottom
-      const link = Game.getObjectById('5b34d57a244ab464e470dbe8') as StructureLink | undefined
-      if (link) {
         this.store = link
       }
     }
@@ -267,32 +228,8 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
-    else if (this.source_info.id == '59f1a04482100e1594f36714') { // W43N5 left
-      const link = Game.getObjectById('5b3d93b2ff170f5958e795cd') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f19ff882100e1594f35d48') { // W48N11 left
-      const link = Game.getObjectById('5b4a09a5931ad37d5f2cdfcd') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f19ff882100e1594f35d49') { // W48N11 right
-      const link = Game.getObjectById('5b4a05902d96195eb3bc6e4a') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
     else if (this.source_info.id == '59f1a03882100e1594f3656b') { // W44S7 bottom
       const link = Game.getObjectById('5b4886e633652d6850c4b543') as StructureLink | undefined
-      if (link) {
-        this.store = link
-      }
-    }
-    else if (this.source_info.id == '59f1a00882100e1594f35ee0') { // W47N5
-      const link = Game.getObjectById('5b4fc979e15e100251fb0311') as StructureLink | undefined
       if (link) {
         this.store = link
       }
@@ -315,18 +252,6 @@ export class HarvesterSquad extends Squad {
         this.store = link
       }
     }
-    // else if (this.source_info.id == '59f19feb82100e1594f35c03') { // W49S6 top
-    //   const link = Game.getObjectById('5b59fc284ab9a7090ab00cf5') as StructureLink | undefined
-    //   if (link) {
-    //     this.store = link
-    //   }
-    // }
-    // else if (this.source_info.id == '59f19feb82100e1594f35c05') { // W49S6 bottom
-    //   const link = Game.getObjectById('5b5912f0bdc1d11b05fe4d65') as StructureLink | undefined
-    //   if (link) {
-    //     this.store = link
-    //   }
-    // }
     else if (this.source_info.id == '59f1a01982100e1594f360dc') { // W46S3 right
       const link = Game.getObjectById('5b5a6dc7bb69253f6b6390f3') as StructureLink | undefined
       if (link) {
@@ -578,9 +503,6 @@ export class HarvesterSquad extends Squad {
     else if (this.source_info.id == '59f1a01e82100e1594f36174') { // W46S33 bottom left
       number_of_carriers = 2
     }
-    else if (this.source_info.id == '59f1a04482100e1594f36715') { // W43N5 right
-      number_of_carriers = 0
-    }
     else if (this.source_info.id == '59f1a03882100e1594f36569') { // W44S7 top
       number_of_carriers = 0
     }
@@ -766,9 +688,6 @@ export class HarvesterSquad extends Squad {
     if (this.source_info.id == '59f1a03882100e1594f3656b') { // W44S7 bottom
       max_energy = 900
     }
-    else if (this.source_info.id == '59f1a04482100e1594f36714') { // W43N5 left
-      max_energy = 900
-    }
 
     energyAvailable = Math.min(energyAvailable, max_energy)
 
@@ -930,18 +849,6 @@ export class HarvesterSquad extends Squad {
 
       // Charge
       if (creep.memory.status == CreepStatus.CHARGE) {
-        // if ((this.source_info.room_name == 'W47N2') && !this.destination) {
-        //   const x = 15
-        //   const y = 11
-        //   if ((creep.pos.x == x) && (creep.pos.y == y)) {
-        //     creep.drop(RESOURCE_ENERGY)
-        //     creep.memory.status = CreepStatus.HARVEST
-        //   }
-        //   else {
-        //     creep.moveTo(x, y)
-        //   }
-        //   return
-        // }
 
         const has_mineral = creep.carry.energy != _.sum(creep.carry)
         const destination = (has_mineral && !(!this.destination_storage)) ? this.destination_storage : this.destination

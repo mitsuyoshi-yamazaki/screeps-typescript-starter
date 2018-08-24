@@ -136,38 +136,6 @@ export class ManualSquad extends Squad {
         return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
-      case 'W42N1': {
-        return this.spawnPriorityForBoostCarrier(RESOURCE_GHODIUM_ACID)
-      }
-
-      case 'W47N2': {
-        return this.spawnPriorityForBoostCarrier(RESOURCE_CATALYZED_GHODIUM_ACID)
-      }
-
-      case 'W43N5': {
-        const room = Game.rooms[this.original_room_name]
-        if (!room || !room.storage) {
-          return SpawnPriority.NONE
-        }
-        if (room.storage.store.energy < 500000) {
-          return SpawnPriority.NONE
-        }
-
-        if (room.storage.store.energy > 700000) {
-          if (this.creeps.size < 2) {
-            return SpawnPriority.NORMAL
-          }
-        }
-
-        return this.creeps.size < 3 ? SpawnPriority.LOW : SpawnPriority.NONE
-        // return SpawnPriority.NONE
-      }
-
-      case 'W48N11': {
-        // return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
-        return SpawnPriority.NONE
-      }
-
       case 'W47N5': {
         // const base_room = Game.rooms['W47N2']
         // if (!base_room || !base_room.storage) {
@@ -253,20 +221,6 @@ export class ManualSquad extends Squad {
       case 'W43S2':
         const energy = (capacity >= 1200) ? 1200 : 800
         return energy_available >= energy
-
-      case 'W42N1':
-        return energy_available >= 150
-
-      case 'W47N2':
-        return energy_available >= 150
-
-      case 'W43N5': {
-        return this.hasEnoughEnergyForUpgrader(energy_available, capacity, 2800)
-      }
-
-      case 'W48N11': {
-        return energy_available >= 1760
-      }
 
       case 'W47N5': {
         return energy_available >= 2000
@@ -409,36 +363,6 @@ export class ManualSquad extends Squad {
           ]
         }
         this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
-        return
-      }
-
-      case 'W42N1': {
-        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
-        return
-      }
-
-      case 'W47N2': {
-        this.addGeneralCreep(spawn_func, [CARRY, CARRY, MOVE], CreepType.CARRIER)
-        return
-      }
-
-      case 'W43N5': {
-        this.addUpgrader(energy_available, spawn_func, CreepType.WORKER, {max_energy: 2800})
-        return
-      }
-
-      case 'W48N11': {
-        // 1500
-        const body: BodyPartConstant[] = [
-          ATTACK, ATTACK,
-          MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE,
-          MOVE, MOVE, MOVE, MOVE, MOVE,
-          WORK, WORK, WORK, WORK, WORK,
-          WORK, WORK, WORK, WORK, WORK,
-          MOVE,
-        ]
-        this.addGeneralCreep(spawn_func, body, CreepType.WORKER)
         return
       }
 
@@ -651,87 +575,6 @@ export class ManualSquad extends Squad {
         this.creeps.forEach((creep) => {
           creep.searchAndDestroyTo(target_room_name, true)
         })
-        return
-      }
-
-      case 'W47N2': {
-        // const room = Game.rooms[this.original_room_name]
-        // const lab = Game.getObjectById('5b430aad8f11f24a0236521a') as StructureLab | undefined
-
-        // if (!room || !room.terminal || !lab) {
-        //   this.say(`ERR`)
-        //   return
-        // }
-
-        // this.transferMineralToLab(room.terminal, lab, RESOURCE_CATALYZED_GHODIUM_ACID)
-        return
-      }
-
-      case 'W42N1': {
-        const room = Game.rooms[this.original_room_name]
-        const lab = Game.getObjectById('5b403626bf3716439f3d880a') as StructureLab | undefined
-
-        if (!room || !room.terminal || !lab) {
-          this.say(`ERR`)
-          return
-        }
-
-        this.transferMineralToLab(room.terminal, lab, RESOURCE_GHODIUM_ACID)
-        return
-      }
-
-      case 'W43N5': {
-
-        // const sender_link = Game.getObjectById('5b50b0f99ebfe7026c47f415') as StructureLink | undefined
-        // const receiver_link = Game.getObjectById('5b360f3491f023098d6515f2') as StructureLink | undefined
-
-        // if (!sender_link || !receiver_link) {
-        //   if ((Game.time % 71) == 0) {
-        //     const message = `ManualSquad.run ${this.original_room_name} link not found ${this.name}`
-        //     console.log(message)
-        //     Game.notify(message)
-        //   }
-        // }
-        // else if ((sender_link.cooldown == 0)) {
-        //   if ((sender_link.energy > (sender_link.energyCapacity * 0.5))) {
-        //     sender_link.transferEnergy(receiver_link)
-        //   }
-        // }
-
-        // this.creeps.forEach((creep) => {
-        //   if (!receiver_link || !creep.room.controller || !creep.room.controller.my) {
-        //     return
-        //   }
-
-        //   const withdraw_result = creep.withdraw(receiver_link, RESOURCE_ENERGY)
-        //   creep.upgradeController(creep.room.controller)
-
-        //   if (!creep.memory.stop) {
-        //     creep.moveTo(receiver_link)
-
-        //     if (withdraw_result == OK) {
-        //       creep.memory.stop = true
-        //     }
-        //   }
-        // })
-        return
-      }
-
-      case 'W48N11': {
-        const target_room_name = 'W49N12'
-
-        if (this.any_creep) {
-          if ((this.any_creep.room.name == target_room_name)) {
-            const hostile_worker = this.any_creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS)
-
-            if (hostile_worker) {
-              this.any_creep.destroy(hostile_worker)
-              return
-            }
-          }
-        }
-
-        this.dismantle(target_room_name)
         return
       }
 

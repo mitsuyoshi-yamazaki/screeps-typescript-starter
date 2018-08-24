@@ -290,156 +290,11 @@ export class Region {
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
         }
         // if (Game.gcl.level >= 10) {
-          this.temp_squad_opt = {
-            target_room_name: 'E16N37',
-            forced: true,
-          }
+          // this.temp_squad_opt = {
+          //   target_room_name: 'E16N37',
+          //   forced: true,
+          // }
         // }
-        break
-
-      case 'W42N1':
-        lightweight_harvester_targets = [
-          // { id: '59f1a05882100e1594f368a6', room_name: 'W42N2' }, // bottom
-          // { id: '59f1a05882100e1594f368a5', room_name: 'W42N2' }, // top
-          { id: '59f1a06782100e1594f36a36', room_name: 'W41N1' },
-          { id: '59f1a06782100e1594f36a32', room_name: 'W41N2' },
-          { id: '59f1a05882100e1594f368a2', room_name: 'W42N3' }, // bottom left
-          { id: '59f1a05882100e1594f368a1', room_name: 'W42N3' }, // bottom center
-        ]
-        harvester_targets = [
-          { id: '59f1a05882100e1594f368a8', room_name: 'W42N1' }, // top
-          { id: '59f1a05882100e1594f368aa', room_name: 'W42N1' }, // bottom
-          { id: '59f1c0cf7d0b3d79de5f043e', room_name: 'W42N1' }, // catalyst
-        ]
-        rooms_need_scout = [
-          'W42N2',
-          'W42N3',
-          'W41N2',
-          'W41N1',
-          // 'W47N2',  // fixme: temp
-        ]
-        rooms_need_to_be_defended = [
-          'W42N2',
-          'W42N3',
-          'W41N2',
-          'W41N1',
-        ]
-        this.destination_link_id = '5b306805ad2c2c3e2216de40'
-        charger_position = {x: 24, y: 29}
-        input_lab_ids = {
-          lhs: '5b3537ffee165b475d3234f2', // 18, 33
-          rhs: '5b3526e92ffd7a7b7f48ce2e', // 19, 34
-        }
-        break
-
-      case 'W47N2':
-        lightweight_harvester_targets = [
-          { id: '59f1a01882100e1594f360cd', room_name: 'W46N2' },
-          // { id: '59f1a00882100e1594f35ee7', room_name: 'W47N3' }, // bottom
-          // { id: '59f1a00882100e1594f35ee6', room_name: 'W47N3' }, // top
-          { id: '59f1a00882100e1594f35ee3', room_name: 'W47N4' },
-          { id: '59f1a02882100e1594f36304', room_name: 'W45N2' },
-          { id: '59f1a01882100e1594f360d0', room_name: 'W46N1' },
-          { id: '59f1a00882100e1594f35eee', room_name: 'W47N1' },
-        ]
-        harvester_targets = [
-          { id: '59f1a00882100e1594f35eeb', room_name: 'W47N2' }, // left
-          { id: '59f1a00882100e1594f35eec', room_name: 'W47N2' }, // right
-          { id: '59f1c0ce7d0b3d79de5f028d', room_name: 'W47N2' }, // hydrogen
-        ]
-        rooms_need_scout = [
-          'W46N2',
-          'W47N3',
-          'W47N4',
-          'W45N2',
-          'W46N1',
-          'W47N1',
-        ]
-        rooms_need_to_be_defended = [
-          'W46N2',
-          'W47N3',
-          'W47N4',
-          'W45N2',
-          'W46N1',
-          'W47N1',
-        ]
-        // this.destination_link_id = '5b33369c91f5f036a9375bda'
-        charger_position = {x: 16, y: 8}
-        input_lab_ids = {
-          lhs: '5b378bd089b8230740d3f5dd', // 7, 14
-          rhs: '5b376efd21b80f301e67dd92', // 8, 15
-        }
-        // this.temp_squad_target_room_name = 'W47N5'
-        break
-
-      case 'W43N5':
-        lightweight_harvester_targets = [
-          { id: '59f1a04482100e1594f36710', room_name: 'W43N6' },
-          { id: '59f1a05782100e1594f36898', room_name: 'W42N6' }, // left
-          { id: '59f1a05782100e1594f36896', room_name: 'W42N6' }, // right
-          { id: '59f1a05782100e1594f3689b', room_name: 'W42N5' },
-          { id: '59f1a04582100e1594f36717', room_name: 'W43N4' },
-          { id: '59f1a06782100e1594f36a28', room_name: 'W41N5' },
-        ]
-        harvester_targets = [
-          { id: '59f1a04482100e1594f36714', room_name: 'W43N5' }, // left
-          { id: '59f1a04482100e1594f36715', room_name: 'W43N5' }, // right
-          { id: '59f1c0cf7d0b3d79de5f03ce', room_name: 'W43N5' }, // zynthium
-        ]
-        rooms_need_scout = [
-          'W43N6',
-          'W42N6',
-          'W42N5',
-          'W43N4',
-          'W41N5',
-          'W44N3',
-          // 'W43N7',
-          // 'W48N11',
-        ]
-        rooms_need_to_be_defended = [
-          'W43N6',
-          'W42N6',
-          'W42N5',
-          'W43N4',
-          'W41N5',
-        ]
-        charger_position = {x: 27, y: 21}
-        input_lab_ids = {
-          lhs: '5b3be4cc58a02e70ebaa4bdd', // 37, 23
-          rhs: '5b3c0baabd00f26bbb6f9aa8', // 36, 24
-        }
-        break
-
-      case 'W48N11':
-        harvester_targets = [
-          { id: '59f19ff882100e1594f35d48', room_name: 'W48N11' },  // left
-          { id: '59f19ff882100e1594f35d49', room_name: 'W48N11' },  // right
-          { id: '59f1c0ce7d0b3d79de5f0219', room_name: 'W48N11' },  // oxygen
-        ]
-        lightweight_harvester_targets = [
-          { id: '59f19fe982100e1594f35bce', room_name: 'W49N11' },
-          { id: '59f19ff882100e1594f35d46', room_name: 'W48N12' },
-          { id: '59f1a00782100e1594f35ecd', room_name: 'W47N11' },
-          { id: '59f1a01582100e1594f3609e', room_name: 'W46N11' },
-        ]
-        rooms_need_scout = [
-          'W49N11',
-          'W48N12',
-          'W47N11',
-          'W46N11',
-        ]
-        rooms_need_to_be_defended = [
-          'W49N11',
-          'W48N12',
-          'W47N11',
-          'W46N11',
-        ]
-        charger_position = {x: 7, y: 39}
-        this.destination_link_id = '5b49eb11323c7916916f0a3d'
-        input_lab_ids = {
-          lhs: '5b49ff838087f443459c9d17', // 3, 43
-          rhs: '5b4a1b2e59c3ee4337241aab', // 4, 44
-        }
         break
 
       case 'W47S6':
@@ -471,9 +326,6 @@ export class Region {
         charger_position = {x: 19, y:35}
         break
 
-      case 'W47S14':
-        break
-
       case 'W47S9':
         harvester_targets = [
           { id: '59f1c0ce7d0b3d79de5f0297', room_name: 'W47S9' },  // Catalyst
@@ -484,10 +336,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
-        this.temp_squad_opt = {
-          target_room_name: 'W46S9',
-          forced: false,
-        }
+        // this.temp_squad_opt = {
+        //   target_room_name: 'W46S9',
+        //   forced: false,
+        // }
         break
 
       case 'W49S6':
@@ -1827,7 +1679,7 @@ export class Region {
     const message = `[ERROR] Region ${this.name} ${error}`
     console.log(message)
 
-    const excludes = ['W42N1', 'W43N5', 'W47N5', 'W47N2']
+    const excludes: string[] = []
     if (excludes.indexOf(this.room.name) < 0) {
       Game.notify(message)
     }

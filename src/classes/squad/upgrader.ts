@@ -131,7 +131,7 @@ export class UpgraderSquad extends Squad {
     const is_rcl8 = !(!room) && room.controller && room.controller.my && (room.controller.level == 8)
 
     let lab: StructureLab | undefined
-    let no_lab = ['W43N5'].indexOf(this.room_name) >= 0
+    let no_lab = ['dummy'].indexOf(this.room_name) >= 0
 
     this.creeps.forEach((creep) => {
       if (creep.spawning) {

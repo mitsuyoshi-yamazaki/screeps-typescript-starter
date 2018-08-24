@@ -516,7 +516,7 @@ export class FarmerSquad extends Squad {
     }
     const storage = this.base_room.storage
 
-                // const pos = new RoomPosition(30, 4, this.room_name) // W49S6
+                // const pos = new RoomPosition(29, 4, this.room_name) // W49S6
             // const pos = new RoomPosition(, , this.room_name) // W47S8
     // const pos = new RoomPosition(45, 26, this.room_name) // W46S9
     const pos = new RoomPosition(this.storage_position.x, this.storage_position.y, this.room_name)

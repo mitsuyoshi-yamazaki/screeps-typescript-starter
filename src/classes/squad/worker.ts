@@ -49,9 +49,6 @@ export class WorkerSquad extends Squad {
     else if (room_name == 'W43S2') {
       this.number_of_workers = 6
     }
-    else if (room_name == 'W42N1') {
-      this.number_of_workers = 4
-    }
     else if (room_name == 'W47N5') {
       this.number_of_workers = 4
     }
@@ -191,24 +188,8 @@ export class WorkerSquad extends Squad {
         room_to_escape = 'W42S5'
         break
 
-      case 'W42N1':
-        room_to_escape = 'W42N2'
-        break
-
-      case 'W47N2':
-        room_to_escape = 'W46N2'
-        break
-
-      case 'W43N5':
-        room_to_escape = 'W43N6'
-        break
-
       case 'W47N5':
         room_to_escape = 'W47N4'
-        break
-
-      case 'W47S14':
-        room_to_escape = 'W47S15'
         break
 
       case 'W39S9':
