@@ -38,7 +38,7 @@ export class ChargerSquad extends Squad {
       this.number_of_carries = 2
     }
     else if (room.controller.level == 8) {
-      this.number_of_carries = 4
+      this.number_of_carries = 6
     }
     else if (room.controller.level >= 7) {
       this.number_of_carries = 3

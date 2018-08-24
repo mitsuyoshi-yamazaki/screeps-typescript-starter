@@ -276,12 +276,12 @@ export class RemoteHarvesterSquad extends Squad {
   }
 
   private setNextCreep(): void {
-    if (this.creeps.size == 0) {
+    const room = Game.rooms[this.room_name] as Room | undefined
+
+    if ((this.creeps.size == 0) && (!room || !room.controller || !room.controller.my)) {
       this.next_creep = CreepType.SCOUT
       return
     }
-
-    const room = Game.rooms[this.room_name] as Room | undefined
 
     if ((this.creeps.size == 1) && this.scout && (this.scout.room.name != this.room_name)) {
       // Don't spawn creep before the scout arrives the room
@@ -675,7 +675,7 @@ export class RemoteHarvesterSquad extends Squad {
       }).length > 0
 
       if (!has_construction_site) {
-        has_construction_site = this.scout.room.find(FIND_FLAGS).length > 0
+        // has_construction_site = this.scout.room.find(FIND_FLAGS).length > 0
         // @todo: flag -> construction_site
       }
 

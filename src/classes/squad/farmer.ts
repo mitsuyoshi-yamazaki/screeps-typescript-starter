@@ -585,6 +585,8 @@ export class FarmerSquad extends Squad {
       return
     }
 
+    const rcl = room.controller ? room.controller.level : 0
+
     this.chargers.forEach((creep) => {
       const pos = new RoomPosition(this.charger_position.x, this.charger_position.y, this.room_name)
 
@@ -600,7 +602,7 @@ export class FarmerSquad extends Squad {
       const carry = _.sum(creep.carry)
 
       if (carry == 0) {
-        if (room.terminal && this.lab && (this.lab.mineralAmount < this.lab.mineralCapacity)) {
+        if (room.terminal && (rcl >= 6) && this.lab && (this.lab.mineralAmount < this.lab.mineralCapacity)) {
           if (this.lab.mineralType && (this.lab.mineralType != this.boost_resource_type)) {
             creep.withdraw(this.lab, this.lab.mineralType)
             return
@@ -612,7 +614,7 @@ export class FarmerSquad extends Squad {
           }
         }
 
-        if (((Game.time % 229) == 3) && room.terminal && room.storage) {
+        if (((Game.time % 229) == 3) && room.terminal && (rcl >= 6) && room.storage) {
           if ((_.sum(room.storage.store) - room.storage.store.energy) > 0) {
             creep.withdrawResources(room.storage, {exclude: ['energy']})
             return
@@ -648,7 +650,7 @@ export class FarmerSquad extends Squad {
             creep.transfer(this.lab, this.boost_resource_type)
           }
           else {
-            if (room.terminal) {
+            if (room.terminal && (rcl >= 6)) {
               creep.transferResources(room.terminal)
               return
             }
@@ -698,7 +700,7 @@ export class FarmerSquad extends Squad {
             creep.transfer(room.storage, RESOURCE_ENERGY)
             return
           }
-          else if (room.terminal) {
+          else if (room.terminal && (rcl >= 6)) {
             // console.log(`tgt terminal`)
 
             creep.transfer(room.terminal, RESOURCE_ENERGY)

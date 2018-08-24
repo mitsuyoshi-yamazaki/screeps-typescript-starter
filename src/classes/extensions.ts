@@ -309,6 +309,8 @@ export function tick(): void {
   Game.info = (opts:{sorted?: boolean}) => {
     opts = opts || {}
 
+    let gcl_farm_info: string[] = []
+
     const info = 'info'
     const warn = 'warn'
     const error = 'error'
@@ -360,6 +362,8 @@ export function tick(): void {
         return 0
       })
     }
+
+    console.log(`- Base:`)
 
     rooms.forEach((room) => {
 
@@ -447,7 +451,22 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}${teams}`
       }
 
-      console.log(`${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`)
+      const message = `  - ${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`
+
+      if (room.memory && room.memory.is_gcl_farm) {
+        gcl_farm_info.push(message)
+      }
+      else {
+        console.log(message)
+      }
+    })
+
+    if (gcl_farm_info.length > 0) {
+      console.log(`- GCL Farm:`)
+    }
+
+    gcl_farm_info.forEach(i => {
+      console.log(i)
     })
   }
 
