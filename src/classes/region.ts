@@ -253,10 +253,10 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        this.temp_squad_opt = {
-          target_room_name: 'W49S6',
-          forced: false,
-        }
+        // this.temp_squad_opt = {
+        //   target_room_name: 'W49S6',
+        //   forced: false,
+        // }
         break
 
       case 'W43S5':
@@ -334,10 +334,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W46S9',
-        //   forced: false,
-        // }
+        this.temp_squad_opt = {
+          target_room_name: 'W47S8',
+          forced: false,
+        }
         break
 
       case 'W49S6':

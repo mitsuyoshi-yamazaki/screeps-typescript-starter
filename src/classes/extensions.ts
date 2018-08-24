@@ -31,7 +31,7 @@ declare global {
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     info: (opts:{sorted?: boolean}) => void
-    resource_transfer: (opts?: {reversed?: boolean, room?: string}) => void
+    resource_transfer: (opts?: {reversed?: boolean, room?: string} | string) => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
@@ -451,12 +451,25 @@ export function tick(): void {
     })
   }
 
-  Game.resource_transfer = (opts?: {reversed?: boolean, room?: string}) => {
+  Game.resource_transfer = (opts?: {reversed?: boolean, room?: string} | string) => {
     opts = opts || {}
     let resources: {[room_name: string]: {[room_name: string]: ResourceConstant[]}} = {}
 
-    const room_info = opts.room ? ` ${opts.room}` : ''
-    const detail = opts.reversed ? ' (reversed)' : ''
+    let target_room_name: string | undefined
+    let reversed: boolean = false
+
+    if (opts) {
+      if (typeof(opts) === 'string') {
+        target_room_name = opts
+      }
+      else {
+        target_room_name = opts.room
+        reversed = opts.reversed || false
+      }
+    }
+
+    const room_info = target_room_name ? ` ${target_room_name}` : ''
+    const detail = reversed ? ' (reversed)' : ''
     console.log(`Resource transfer${room_info}${detail}:`)
 
     const no_transfer_rooms: string[] = []
@@ -470,13 +483,13 @@ export function tick(): void {
       const region_memory = Memory.regions[room.name]
       if (!region_memory || !region_memory.resource_transports) {
         // console.log(` - ${room.name}: none`)
-        if (opts.reversed) {
+        if (reversed) {
           no_transfer_rooms.push(room_name)
         }
         continue
       }
 
-      if (!opts.reversed) {
+      if (!reversed) {
         for (const destination_room_name in region_memory.resource_transports) {
           if (!resources[destination_room_name]) {
             resources[destination_room_name] = {}
@@ -484,7 +497,7 @@ export function tick(): void {
           resources[destination_room_name][room.name] = region_memory.resource_transports[destination_room_name]
         }
       }
-      else if (!opts.room || (opts.room == room.name)) {
+      else if (!target_room_name || (target_room_name == room.name)) {
         console.log(` - ${room_link(room.name)}:`)
 
         for (const destination_room_name in region_memory.resource_transports) {
@@ -497,9 +510,9 @@ export function tick(): void {
       }
     }
 
-    if (!opts.reversed) {
+    if (!reversed) {
       for (const room_name in resources) {
-        if (opts.room && (opts.room != room_name)) {
+        if (target_room_name && (target_room_name != room_name)) {
           continue
         }
 
@@ -525,7 +538,7 @@ export function tick(): void {
       }
     }
 
-    if (!opts.room) {
+    if (!target_room_name) {
       console.log(` - None: ${no_transfer_rooms}`)
     }
   }

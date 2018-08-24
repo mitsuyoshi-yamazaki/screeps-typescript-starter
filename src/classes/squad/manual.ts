@@ -129,6 +129,15 @@ export class ManualSquad extends Squad {
       }
 
       case 'W48S6': {
+        const target_room_name = 'W49S6'
+        const room = Game.rooms[target_room_name]
+        if (!room) {
+          return SpawnPriority.NONE
+        }
+        if (room.controller && room.controller.my && (room.controller.level >= 3)) {
+          return SpawnPriority.NONE
+        }
+
         return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 

@@ -189,10 +189,11 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
+    const need_carriers = (rcl < 6) && ((rcl >= 4) || (destination_room && !destination_room.storage))  // @todo: if storage is empty
     const upgrader_max = (rcl < 6) ? 4 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
-      if ((rcl >= 4) && (rcl < 6) && (this.carriers.length == 0)) { // @todo: if rcl < 4 && storage is empty
+      if (need_carriers && (this.carriers.length == 0)) { // @todo: if rcl < 4 && storage is empty
         if (debug) {
           console.log(`FarmerSquad.nextCreep no carriers ${this.name}`)
         }
@@ -221,7 +222,7 @@ export class FarmerSquad extends Squad {
       return undefined
     }
 
-    const carrier_max = (rcl >= 4) ? 14 : 0//12  // @todo: if rcl < 4 && storage is empty
+    const carrier_max = need_carriers ? 14 : 0
     if (destination_room && destination_room.controller && (destination_room.controller.level < 6) && (this.carriers.length < carrier_max)) {
       if (debug) {
         console.log(`FarmerSquad.nextCreep carrier ${this.name}`)
