@@ -731,8 +731,8 @@ export class Region {
             break
           }
           case SquadType.INVADER: {
-            const squad = new InvaderSquad(squad_memory.name, this.room.name)
-            this.squads.set(squad.name, squad)
+            // const squad = new InvaderSquad(squad_memory.name, this.room.name)
+            // this.squads.set(squad.name, squad)
             break
           }
           case SquadType.TEMP: {

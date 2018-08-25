@@ -781,15 +781,22 @@ export class RemoteHarvesterSquad extends Squad {
               creep.withdraw(tombstone, RESOURCE_ENERGY)
             }
             else {
-              const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (structure: AnyStructure) => {
-                  return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+              if (creep.room.storage && (creep.room.storage.store.energy > 0)) {
+                if (creep.withdraw(creep.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                  creep.moveTo(creep.room.storage)
                 }
-              })
+              }
+              else {
+                const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                  filter: (structure: AnyStructure) => {
+                    return (structure.structureType == STRUCTURE_CONTAINER) && (structure.store.energy > 0)
+                  }
+                })
 
-              if (container) {
-                if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                  creep.moveTo(container, {maxRooms: 1})
+                if (container) {
+                  if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(container, {maxRooms: 1})
+                  }
                 }
               }
             }
@@ -1358,6 +1365,9 @@ export class RemoteHarvesterSquad extends Squad {
 
 const construction_site_filter = (site: ConstructionSite): boolean => {
   if (site.structureType == STRUCTURE_ROAD) {
+    return true
+  }
+  if (site.structureType == STRUCTURE_EXTRACTOR) {
     return true
   }
   if (site.structureType == STRUCTURE_CONTAINER) {
