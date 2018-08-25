@@ -1273,15 +1273,22 @@ export class Region {
         continue
       }
 
+      const to_room = Game.rooms[room_name]
+      if (!to_room || !to_room.controller || !to_room.controller.my) {
+        const message = `Region.sendResources no destination room ${room_name}, ${this.room.name}`
+        console.log(message)
+        Game.notify(message)
+        continue
+      }
+
+      if (!to_room.terminal) {
+        console.log(`Region.sendResources no terminal in destination room ${room_name}, ${this.room.name}`)
+        continue
+      }
+
       for (const resource_type of resource_types) {
         if (RESOURCES_ALL.indexOf(resource_type) < 0) {
           console.log(`Region.sendResources wrong arguments ${resource_type} ${this.name} to ${room_name}`)
-          continue
-        }
-
-        const to_room = Game.rooms[room_name]
-        if (!to_room || !to_room.terminal) {
-          console.log(`Region.sendResources no destination room ${room_name}, ${this.room.name}`)
           continue
         }
 

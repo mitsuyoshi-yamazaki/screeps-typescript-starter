@@ -407,7 +407,24 @@ export function tick(): void {
         storage_amount_text = ""
       }
 
-      const storage_capacity = !room.storage ? "" : ` <b>${Math.round(room.storage.store.energy / 1000)}</b>kE`
+      const energy_amount = !room.storage ? 0 : Math.round(room.storage.store.energy / 1000)  // k energy
+      const energy_amount_text = `${energy_amount}`
+      let energy_amount_level: 'error' | 'warn' | 'info' | 'high' | 'almost' = info
+
+      if (energy_amount < 100) {
+        energy_amount_level = error
+      }
+      else if (energy_amount < 200) {
+        energy_amount_level = warn
+      }
+      else if (energy_amount > 400) {
+        energy_amount_level = high
+      }
+      else if (energy_amount > 600) {
+        energy_amount_level = almost
+      }
+
+      const storage_capacity = !room.storage ? "" : ` <b>${colored_text(energy_amount_text, energy_amount_level)}</b>kE`
 
       let spawn_busy_time = 0
       let spawn_time = 0
