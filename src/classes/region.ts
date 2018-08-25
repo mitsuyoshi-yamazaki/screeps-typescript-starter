@@ -8,7 +8,6 @@ import { CreepStatus, ActionResult, CreepType } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
-import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
 import { ChargerSquad } from './squad/charger';
@@ -154,7 +153,6 @@ export class Region {
 
     let harvester_targets: {id: string, room_name: string}[] = []
     let harvester_destination: StructureStorage | StructureTerminal | StructureContainer = (storage || terminal) as (StructureStorage | StructureTerminal) // @fixme: null check // || container
-    let lightweight_harvester_targets: {id: string, room_name: string}[] = []
     let rooms_need_scout: string[] = []
     let rooms_need_to_be_defended: string[] = []
     let research_input_targets: ResearchTarget[] = []
@@ -185,19 +183,6 @@ export class Region {
           { id: '59f1a03882100e1594f3656b', room_name: 'W44S7' } , // bottom
           { id: '59f1c0cf7d0b3d79de5f037c', room_name: 'W44S7' } , // hydrogen
         ]
-        lightweight_harvester_targets = [
-          { id: '59f1a04682100e1594f3673d', room_name: 'W43S7' }, // left
-          { id: '59f1a04682100e1594f3673e', room_name: 'W43S7' }, // bottom
-          { id: '59f1a02a82100e1594f36330', room_name: 'W45S7' },
-          { id: '59f1a04682100e1594f3673a', room_name: 'W43S6' }, // bottom left
-          { id: '59f1a04682100e1594f36739', room_name: 'W43S6' }, // center
-          { id: '59f1a02a82100e1594f36333', room_name: 'W45S8' },
-          { id: '59f1a01a82100e1594f360fa', room_name: 'W46S7' },
-          // { id: '59f1a03882100e1594f3656d', room_name: 'W44S8' }, // left
-          // { id: '59f1a03882100e1594f3656f', room_name: 'W44S8' }, // bottom
-          { id: '59f1a05a82100e1594f368c7', room_name: 'W42S7' }, // bottom
-          { id: '59f1a05a82100e1594f368c6', room_name: 'W42S7' }, // bottom right
-        ]
         rooms_need_scout = [
           'W45S7',
         ]
@@ -216,15 +201,6 @@ export class Region {
         break
 
       case 'W48S6':
-        lightweight_harvester_targets = [
-          // { id: '59f19feb82100e1594f35c05', room_name: 'W49S6' }, // bottom
-          // { id: '59f19feb82100e1594f35c03', room_name: 'W49S6' }, // top
-          // { id: '59f19ffa82100e1594f35d7e', room_name: 'W48S5' }, // bottom left
-          // { id: '59f19ffa82100e1594f35d7d', room_name: 'W48S5' }, // center
-          { id: '59f19ffa82100e1594f35d85', room_name: 'W48S7' },
-          // { id: '59f19feb82100e1594f35c00', room_name: 'W49S5' }, // top right
-          // { id: '59f19feb82100e1594f35c01', room_name: 'W49S5' }, // center
-        ]
         harvester_targets = [
           { id: '59f19ffa82100e1594f35d81', room_name: 'W48S6' }, // center
           { id: '59f19ffa82100e1594f35d82', room_name: 'W48S6' }, // bottom
@@ -257,12 +233,6 @@ export class Region {
         break
 
       case 'W43S5':
-        lightweight_harvester_targets = [
-          { id: '59f1a05982100e1594f368be', room_name: 'W42S5' },
-          // { id: '59f1a04682100e1594f36732', room_name: 'W43S4' },
-          // { id: '59f1a02982100e1594f36321', room_name: 'W45S5' }, // top right
-          { id: '59f1a05982100e1594f368bb', room_name: 'W42S4' }, // bottom
-        ]
         harvester_targets = [
           { id: '59f1a04682100e1594f36736', room_name: 'W43S5' },
           { id: '59f1c0cf7d0b3d79de5f03d7', room_name: 'W43S5' }, // utrium
@@ -734,18 +704,6 @@ export class Region {
             this.squads.set(squad.name, squad)
             break
           }
-          case SquadType.LIGHTWEIGHT_HARVESTER: {
-            // stop using lightweight harvester
-            // const harvester_squad_memory = squad_memory as HarvesterSquadMemory
-            // const source_info = {
-            //   id: harvester_squad_memory.source_id,
-            //   room_name: harvester_squad_memory.room_name,
-            // }
-
-            // const squad = new LightWeightHarvesterSquad(squad_memory.name, source_info, harvester_destination, energy_capacity, this)
-            // this.squads.set(squad.name, squad)
-            break
-          }
           case SquadType.MANUAL: {
             if (['W48S6'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
@@ -901,43 +859,6 @@ export class Region {
       break // To not create squads with the same name
     }
 
-    // --- Lightweight Harvester ---
-    for (const target of lightweight_harvester_targets) {
-      // Initialize
-      if (!Memory.rooms[target.room_name]) {
-        Memory.rooms[target.room_name] = {
-          harvesting_source_ids: []
-        }
-      }
-      if (!Memory.rooms[target.room_name].harvesting_source_ids) {
-        Memory.rooms[target.room_name].harvesting_source_ids = []
-      }
-
-      // --
-      if (Memory.rooms[target.room_name].harvesting_source_ids.indexOf(target.id) >= 0) {
-        continue
-      }
-      Memory.rooms[target.room_name].harvesting_source_ids.push(target.id)
-
-      const name = LightWeightHarvesterSquad.generateNewName()
-      const squad = new LightWeightHarvesterSquad(name, target, harvester_destination, energy_capacity, this)
-
-      this.squads.set(squad.name, squad)
-
-      const memory: HarvesterSquadMemory = {
-        name: squad.name,
-        type: squad.type,
-        owner_name: this.name,
-        source_id: target.id,
-        room_name: target.room_name,
-        number_of_creeps: 0,
-      }
-      Memory.squads[squad.name] = memory
-
-      console.log(`Create lightweight harvester for ${target.room_name} ${target.room_name}, assigned: ${squad.name}`)
-      break // To not create squads with the same name
-    }
-
     // --- Spawn ---
     const sorted = Array.from(this.squads.values()).sort(function(lhs, rhs) {
       const l_priority = lhs.spawnPriority
@@ -952,25 +873,6 @@ export class Region {
     const worker_squad_name = this.worker_squad.name
 
     this.squads_need_spawn = highest_priority == SpawnPriority.NONE ? [] : sorted.filter((squad) => {
-      const is_lightweight_harvester = squad.type == SquadType.LIGHTWEIGHT_HARVESTER
-      const worker_harvester = Array.from(this.worker_squad.creeps.values()).filter((creep) => {
-        return (creep.memory.type == CreepType.HARVESTER)
-          && (creep.memory.squad_name == worker_squad_name)
-          && ((creep.ticksToLive || 0) > 300)
-      }
-      )[0]
-      const number_of_workers = this.worker_squad.creeps.size
-
-      if (is_lightweight_harvester && worker_harvester && (number_of_workers > 4) && (squad.creeps.size == 0)) {
-        const room = Game.rooms[(squad as LightWeightHarvesterSquad).source_info.room_name]
-        if (room && !room.attacked) {
-          worker_harvester.memory.squad_name = squad.name
-          worker_harvester.memory.status = CreepStatus.CHARGE
-          // console.log(`Creep ${worker_harvester.name} is assigned to ${squad.name}, from ${this.worker_squad.name} ${this.name}`)
-          return false
-        }
-      }
-
       return (squad.spawnPriority == highest_priority)
     })
 
