@@ -124,7 +124,7 @@ export class ResearcherSquad extends Squad {
       let_thy_die: false,
     }
 
-    energy_available = Math.min(energy_available, 600)
+    energy_available = Math.min(energy_available, 800)
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
