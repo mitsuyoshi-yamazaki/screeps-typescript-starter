@@ -1293,7 +1293,7 @@ export class Region {
         }
 
         if (resource_type == RESOURCE_ENERGY) {
-          if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
+          if (!this.room.storage || (this.room.storage.store.energy < 300000)) {
             // console.log(`Region.sendResources lack of energy ${this.room.name}`)
             continue
           }

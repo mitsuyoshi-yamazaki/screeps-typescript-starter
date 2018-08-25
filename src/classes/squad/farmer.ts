@@ -189,7 +189,17 @@ export class FarmerSquad extends Squad {
     }
 
     // Upgrader
-    const need_carriers = (rcl < 6) && ((rcl >= 4) || (destination_room && !destination_room.storage))  // @todo: if storage is empty
+    let need_carriers = false  // @todo: if storage is empty
+
+    if (rcl < 6) {
+      if ((rcl >= 4) || (destination_room && !destination_room.storage)) {
+        need_carriers = true
+      }
+    }
+    else if (destination_room && !destination_room.terminal) {
+      need_carriers = true
+    }
+
     const upgrader_max = (rcl < 6) ? 4 : this.positions.length
 
     if (this.upgraders.length < upgrader_max) {
