@@ -1011,7 +1011,7 @@ export class Region {
       }
     }, `${this.name}.processPower`)()
 
-    if ((Game.time % 211) == 0) {
+    if ((Game.time % 101) == 0) {
       ErrorMapper.wrapLoop(() => {
         this.placeConstructionSite()
       }, `${this.name}.placeConstructionSite`)()

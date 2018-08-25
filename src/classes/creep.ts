@@ -1868,18 +1868,18 @@ export function init() {
       }
       else {
         this.upgradeController(room.controller!)
-        if (((Game.time % 229) == 0) && room.controller) {
-          // if (((Game.time % 13) == 0) && room.controller) {
-          if ((room.controller.level < 3) && (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0))) {
-            this.signController(room.controller, Game.version)
-          }
-          else {
-            const region_memory = Memory.regions[room.name]
-            if (region_memory && region_memory.sign && (!room.controller.sign || ((region_memory.sign != room.controller.sign.text)))) {
-              this.signController(room.controller, region_memory.sign)
-            }
-          }
-        }
+        // if (((Game.time % 229) == 0) && room.controller) {
+        //   // if (((Game.time % 13) == 0) && room.controller) {
+        //   if ((room.controller.level < 3) && (!room.controller.sign || (Memory.versions.indexOf(room.controller.sign.text) < 0))) {
+        //     this.signController(room.controller, Game.version)
+        //   }
+        //   else {
+        //     const region_memory = Memory.regions[room.name]
+        //     if (region_memory && region_memory.sign && (!room.controller.sign || ((region_memory.sign != room.controller.sign.text)))) {
+        //       this.signController(room.controller, region_memory.sign)
+        //     }
+        //   }
+        // }
 
         if (this.room.name == 'W45S27') {
           move_to_opt.range = 3

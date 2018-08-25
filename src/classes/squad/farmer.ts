@@ -371,7 +371,7 @@ export class FarmerSquad extends Squad {
     if (room) {
       runTowers(this.towers, room)
 
-      if ((Game.time % 401) == 0) {
+      if ((Game.time % 101) == 0) {
         room.place_construction_sites()
       }
     }

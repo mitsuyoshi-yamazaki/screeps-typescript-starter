@@ -1271,7 +1271,7 @@ export function tick(): void {
         console.log(`Place ${structure_type} construction site on ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
         flag.remove()
 
-        if (count > 3) {
+        if (count > 0) {
 
           break // If deal with all flags once, createConstructionSite() succeeds each call but when it actually runs (that is the end of the tick) it fails
           // so call it one by one
