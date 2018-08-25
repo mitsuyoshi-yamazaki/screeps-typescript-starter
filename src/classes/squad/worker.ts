@@ -112,19 +112,21 @@ export class WorkerSquad extends Squad {
     let max = 1000//(this.owner_room_name == 'W47S9') ? 2000 : 1000
 
     if (rcl >= 6) {
-      const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
-
-      if (((this.creeps.size > 1) && (number_of_carriers == 0)) || ((this.creeps.size > 2) && (number_of_carriers == 1))) {
-        body_unit = [CARRY, CARRY, MOVE]
-        energy_unit = 150
-        type = CreepType.CARRIER
-
-        if (rcl == 8) {
-          max = 1200
-        }
-      }
-      else if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
+      if (this.room.construction_sites && (this.room.construction_sites.length > 0)) {
         max = 2000
+      }
+      else {
+        const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
+
+        if ((rcl >= 8) || ((this.creeps.size > 1) && (number_of_carriers == 0)) || ((this.creeps.size > 2) && (number_of_carriers == 1))) {
+          body_unit = [CARRY, CARRY, MOVE]
+          energy_unit = 150
+          type = CreepType.CARRIER
+
+          if (rcl == 8) {
+            max = 1200
+          }
+        }
       }
     }
 
@@ -216,16 +218,6 @@ export class WorkerSquad extends Squad {
       if (creep.spawning) {
         continue
       }
-
-      // if ((this.room_name == 'W43N5') && (this.creeps.size > 3)) {
-      //   if ((creep.hits == creep.hitsMax) && ((creep.ticksToLive || 0) > 1400)) {
-      //     const colony_worker_memory = Memory.squads['worker771957135']
-      //     if (colony_worker_memory && (colony_worker_memory.number_of_creeps < 10)) {
-      //       creep.memory.squad_name = colony_worker_memory.name
-      //       continue
-      //     }
-      //   }
-      // }
 
       if (room_to_escape && ((this.room.attacker_info.attack + this.room.attacker_info.ranged_attack) > 0) && this.room.controller && this.room.controller.my && (this.room.controller.level <= 3)) {
         if (creep.memory.type == CreepType.WORKER) {

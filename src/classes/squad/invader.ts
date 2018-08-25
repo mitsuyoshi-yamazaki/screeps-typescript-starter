@@ -123,6 +123,12 @@ export class InvaderSquad extends Squad {
   }
 
   // --- Private ---
+  private addDismantler(energyAvailable: number, spawnFunc: SpawnFunction): void {
+    const body: BodyPartConstant[] = []
+
+    // this.addGeneralCreep()
+  }
+
   private addRangedAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
     // 4180
 
