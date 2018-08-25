@@ -13,8 +13,7 @@ import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
 import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
-import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
-import { RemoteDefenderSqauad } from "./squad/remote_defender";
+import { RemoteMineralHarvesterSquad } from "./squad/remote_m_harvester";
 import { NukerChargerSquad, NukerChargerSquadMemory } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
@@ -735,11 +734,6 @@ export class Region {
             this.squads.set(squad.name, squad)
             break
           }
-          case SquadType.REMOTE_DEFENDER: {
-            const squad = new RemoteDefenderSqauad(squad_memory.name)
-            this.squads.set(squad.name, squad)
-            break
-          }
           case SquadType.LIGHTWEIGHT_HARVESTER: {
             // stop using lightweight harvester
             // const harvester_squad_memory = squad_memory as HarvesterSquadMemory
@@ -814,6 +808,8 @@ export class Region {
             break
           }
           case SquadType.REMOTE_ATTACKER: {
+            // console.log(`REMOTE_ATTACKER ${squad_memory.name}`)
+
             if (this.region_opt.produce_attacker && this.region_opt.attack_to) {
               const squad = new RemoteAttackerSquad(squad_memory.name, this.room, this.region_opt.attack_to)
 
