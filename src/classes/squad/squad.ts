@@ -26,7 +26,6 @@ export enum SquadType {
   ATTACKER          = 'attacker',
   RAIDER            = 'raider',
   INVADER           = 'invader',
-  GUARD             = 'guard',
   TEMP              = "temp",
   NUKER_CHARGER_SQUAD = "nuker_charger",
   REMOTE_ATTACKER   = 'remote_attacker',

@@ -7,12 +7,10 @@ import { ScoutSquad } from "classes/squad/scout"
 import { CreepStatus, ActionResult, CreepType } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
-import { RaiderSquad, RaiderTarget } from "./squad/raider";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
 import { LightWeightHarvesterSquad } from "./squad/lightweight_harvester";
 import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
-import { GuardSquad } from "./squad/guard";
 import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
@@ -790,12 +788,6 @@ export class Region {
           }
           case SquadType.INVADER: {
             const squad = new InvaderSquad(squad_memory.name, this.room.name)
-            this.squads.set(squad.name, squad)
-            break
-          }
-          case SquadType.GUARD: {
-            const squad = new GuardSquad(squad_memory.name, this.room.name)
-
             this.squads.set(squad.name, squad)
             break
           }
