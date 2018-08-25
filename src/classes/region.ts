@@ -778,14 +778,6 @@ export class Region {
             this.squads.set(squad.name, squad)
             break
           }
-          case SquadType.RAIDER: {
-            console.log(`Region ${this.name} no raid target specified`)
-            // const squad = new RaiderSquad(squad_memory.name, raid_target)
-
-            // raider_squad = squad
-            // this.squads.set(squad.name, squad)
-            break
-          }
           case SquadType.INVADER: {
             const squad = new InvaderSquad(squad_memory.name, this.room.name)
             this.squads.set(squad.name, squad)
@@ -1779,45 +1771,6 @@ export class Region {
     }
     Memory.squads[nuker_charger_name] = nuker_charger_memory
     console.log(`Create nuker charger ${nuker_charger_name} for ${this.name}`)
-
-        // // --- Raider ---
-        // if (!raider_squad && (this.room.name == 'W48S47')) {
-        //   const name = RaiderSquad.generateNewName()
-        //   const squad = new RaiderSquad(name, raid_target)
-
-        //   raider_squad = squad
-        //   this.squads.set(squad.name, squad)
-
-        //   const memory: SquadMemory = {
-        //     name: squad.name,
-        //     type: squad.type,
-        //     owner_name: this.name,
-        //     number_of_creeps: 0,
-        //   }
-        //   Memory.squads[squad.name] = memory
-
-        //   console.log(`Create raider for ${raid_target}, assigned: ${squad.name}`)
-        // }
-
-            // --- Invader ---
-    // To not recreate squad when changing squad owner region
-    // if (!invader_squad && (this.room.name == 'W44S42')) {
-    //   const name = InvaderSquad.generateNewName()
-    //   const squad = new InvaderSquad(name, this.room.name, invade_target)
-
-    //   invader_squad = squad
-    //   this.squads.set(squad.name, squad)
-
-    //   const memory: SquadMemory = {
-    //     name: squad.name,
-    //     type: squad.type,
-    //     owner_name: this.name,
-    //   }
-    //   Memory.squads[squad.name] = memory
-
-    //   console.log(`Create invader for ${invade_target}, assigned: ${squad.name}`)
-    // }
-
   }
 
   private drawDebugInfo(): void { // @todo: Show debug info for each rooms
