@@ -144,8 +144,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47S9': {
-        // return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
-        return SpawnPriority.NONE
+        const target_room_name = 'W55S12'
+        const target_room = Game.rooms[target_room_name]
+        if (!target_room || !target_room.storage || (target_room.storage.store.energy < 4000)) {
+          return SpawnPriority.NONE
+        }
+
+        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       case 'E16N37': {
@@ -217,7 +222,7 @@ export class ManualSquad extends Squad {
         return energy_available > 2020
 
       case 'W47S9': {
-        return energy_available > 3750
+        return energy_available > 2500
       }
 
       case 'E16N37': {
@@ -343,13 +348,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47S9': {
-        // dismantler
+        // carrier
         const body: BodyPartConstant[] = [
-          WORK, WORK, WORK, WORK, WORK,
-          WORK, WORK, WORK, WORK, WORK,
-          WORK, WORK, WORK, WORK, WORK,
-          WORK, WORK, WORK, WORK, WORK,
-          WORK, WORK, WORK, WORK, WORK,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
           MOVE, MOVE, MOVE, MOVE, MOVE,
@@ -557,40 +562,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47S9': {
-        this.creeps.forEach((creep) => {
-          if (creep.spawning) {
-            return
-          }
-
-          const memory = creep.memory as ManualMemory
-          if (!memory || !memory.target_ids || !memory.target_room) {
-            creep.say(`ERR`)
-            console.log(`ManualSquad no target_ids or target_room ${this.original_room_name} ${creep.name}`)
-            return
-          }
-
-          if (creep.moveToRoom(memory.target_room) == ActionResult.IN_PROGRESS) {
-            return
-          }
-
-          let target: AnyStructure | undefined
-
-          for (const target_id of memory.target_ids) {
-            const t = Game.getObjectById(target_id) as AnyStructure | undefined
-            if (t && t.structureType) {
-              target = t
-            }
-          }
-
-          if (!target) {
-            creep.say(`ERR`)
-            console.log(`ManualSquad no target for ID ${memory.target_id} in ${memory.target_room}, ${this.original_room_name} ${creep.name}`)
-            return
-          }
-          if (creep.dismantle(target) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target)
-          }
-        })
+        this.stealEnergyFrom('W55S12', 28, 43)
         return
       }
 
@@ -1162,7 +1134,7 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {should_die?: boolean, ticks_to_return?:number, worker_squad_name?: string}): ActionResult {
+  private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {}): ActionResult {
     const options = opts || {}
     let result: ActionResult = ActionResult.DONE
     const steal_energy = !this.base_room.storage
@@ -1183,6 +1155,29 @@ export class ManualSquad extends Squad {
       }
 
       const carry = _.sum(creep.carry)
+
+      if (carry < creep.carryCapacity) {
+        const dropped_energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+          filter: (r: Resource) => {
+            return (r.resourceType == RESOURCE_ENERGY) && (r.amount > 0)
+          }
+        })[0]
+
+        if (dropped_energy) {
+          creep.pickup(dropped_energy)
+        }
+        else {
+          const tombstone = creep.pos.findInRange(FIND_TOMBSTONES, 1, {
+            filter: (t: Tombstone) => {
+              return t.store.energy > 0
+            }
+          })[0]
+
+          if (tombstone) {
+            creep.withdraw(tombstone, RESOURCE_ENERGY)
+          }
+        }
+      }
 
       if ((creep.memory.status != CreepStatus.HARVEST) && (creep.memory.status != CreepStatus.CHARGE)) {
         creep.memory.status = CreepStatus.HARVEST
@@ -1261,9 +1256,6 @@ export class ManualSquad extends Squad {
               creep.memory.status = CreepStatus.CHARGE
               return
             }
-            if (options.should_die) {
-              creep.memory.let_thy_die = true
-            }
             return
           }
 
@@ -1304,11 +1296,6 @@ export class ManualSquad extends Squad {
         if (carry == 0) {
           creep.memory.status = CreepStatus.HARVEST
           result = ActionResult.IN_PROGRESS
-
-          if (options.ticks_to_return && options.worker_squad_name && ((creep.ticksToLive || 1500) < options.ticks_to_return)) {
-            creep.memory.squad_name = options.worker_squad_name
-            return
-          }
           return
         }
 
