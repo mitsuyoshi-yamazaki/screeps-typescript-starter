@@ -300,7 +300,7 @@ function sellResource(opt: TradeResourceOptions): void {
       }
     }
     else {
-      message = `[NO Trader] SELL ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+      message = `[NO Trader] SELL ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
 
       const detail: any[] = opt.rooms.map((room) => {
         if (!room.terminal || !room.storage) {
@@ -401,7 +401,7 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
       }
     }
     else {
-      message = `[NO Trader] BUY ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+      message = `[NO Trader] BUY ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
     }
 
     console.log(message)

@@ -5,6 +5,7 @@ import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 interface ManualMemory extends CreepMemory {
   target_id?: string
+  target_ids?: string[]
   target_room?: string
   target_x?: number
   target_y?: number
@@ -143,7 +144,8 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47S9': {
-        return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+        // return this.creeps.size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
+        return SpawnPriority.NONE
       }
 
       case 'E16N37': {
@@ -561,9 +563,9 @@ export class ManualSquad extends Squad {
           }
 
           const memory = creep.memory as ManualMemory
-          if (!memory || !memory.target_id || !memory.target_room) {
+          if (!memory || !memory.target_ids || !memory.target_room) {
             creep.say(`ERR`)
-            console.log(`ManualSquad no target_id or target_room ${this.original_room_name} ${creep.name}`)
+            console.log(`ManualSquad no target_ids or target_room ${this.original_room_name} ${creep.name}`)
             return
           }
 
@@ -571,7 +573,15 @@ export class ManualSquad extends Squad {
             return
           }
 
-          const target = Game.getObjectById(memory.target_id) as AnyStructure | undefined
+          let target: AnyStructure | undefined
+
+          for (const target_id of memory.target_ids) {
+            const t = Game.getObjectById(target_id) as AnyStructure | undefined
+            if (t && t.structureType) {
+              target = t
+            }
+          }
+
           if (!target) {
             creep.say(`ERR`)
             console.log(`ManualSquad no target for ID ${memory.target_id} in ${memory.target_room}, ${this.original_room_name} ${creep.name}`)

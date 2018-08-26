@@ -27,6 +27,7 @@ export interface RegionMemory {
   support_link_ids?: string[]
   reaction_outputs?: string[]
   reaction_output_excludes?: string[]
+  no_reaction?: boolean
   resource_transports?: {[room_name: string]: ResourceConstant[]}
   send_resources_to?: string[]
   send_resources_to_excludes?: string[]
@@ -345,6 +346,9 @@ export class Region {
         ]
         break
 
+      case 'W55S13':
+        break
+
       default:
         console.log(`Region.initialize unexpected region name, ${this.name}`)
         break
@@ -447,6 +451,8 @@ export class Region {
                 finished = true
               }
             }
+
+            Memory.regions[this.name].no_reaction = finished
           }
 
           if (finished && (region_memory.reaction_outputs.length > 1)) {//0)) { // to continue reaction after new resource sent

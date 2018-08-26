@@ -383,10 +383,17 @@ export function tick(): void {
       const progress = (rcl >= 8) ? 'Max' : `<b>${progress_text}</b> %`
 
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
-      let reaction_output: string = (!(!region_memory) && !(!region_memory.reaction_outputs)) ? (region_memory.reaction_outputs[0] || `<span style='color:${colors[warn]}'>none</span>`) : `<span style='color:${colors[warn]}'>none</span>`
+      let reaction_output: string
 
       if (rcl < 6) {
         reaction_output = '-'
+      }
+      else if (!region_memory || !region_memory.reaction_outputs || !region_memory.reaction_outputs[0]) {
+        reaction_output = `<span style='color:${colors[warn]}'>none</span>`
+      }
+      else {
+        const color = region_memory.no_reaction ? error : info
+        reaction_output = colored_text(region_memory.reaction_outputs[0], color)
       }
 
       let storage_amount_text: string

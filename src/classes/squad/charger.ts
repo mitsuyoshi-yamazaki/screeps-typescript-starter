@@ -93,9 +93,9 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    // if ((this.room.name == 'W55S23')) {
-    //   opt.transfer_energy = true
-    // }
+    if ((this.room.name == 'W55S13')) {
+      opt.transfer_energy = true
+    }
 
     this.creeps.forEach((creep) => {
       creep.transferLinkToStorage(link, this.creep_position, opt)

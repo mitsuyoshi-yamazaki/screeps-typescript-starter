@@ -260,8 +260,6 @@ export class TempSquad extends Squad {
         if ((creep.pos.getRangeTo(creep.room.controller) > 5)) {
           creep.moveTo(creep.room.controller)
         }
-
-        creep.moveTo(creep.room.controller)
       }
       else {
       }
