@@ -1204,9 +1204,9 @@ export class Region {
         }
 
         const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
-        let amount_needed = is_raw_resource ? 4900 : 500
+        let amount_needed = is_raw_resource ? 5000 : 1000
         let resource_capacity = 3000
-        let amount_send: number = is_raw_resource ? 2000 : Math.min((this.room.terminal.store[resource_type] || 0), 2000)
+        let amount_send: number = is_raw_resource ? 5000 : Math.min((this.room.terminal.store[resource_type] || 0), 2000)
 
         if (resource_type == RESOURCE_ENERGY) {
           amount_needed = 70000
