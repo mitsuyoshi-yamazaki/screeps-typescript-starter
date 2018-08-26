@@ -1896,7 +1896,7 @@ export function init() {
         //   }
         // }
 
-        if (this.room.name == 'W45S27') {
+        if (['W45S27', 'W55S13'].indexOf(this.room.name) >= 0) {
           move_to_opt.range = 3
         }
 
