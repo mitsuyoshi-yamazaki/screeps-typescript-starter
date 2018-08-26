@@ -215,8 +215,12 @@ export class RemoteMineralHarvesterSquad extends Squad {
 
       if ((carry > (creep.carryCapacity - 30)) || no_resource) {
         if (creep.transferResources(this.destination) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(this.destination)
           creep.memory.status = CreepStatus.CHARGE
+          if (['W46S26', 'W45S26'].indexOf(creep.room.name) >= 0) {
+            creep.moveToRoom(this.destination.room.name)
+            return
+          }
+          creep.moveTo(this.destination)
         }
         return
       }

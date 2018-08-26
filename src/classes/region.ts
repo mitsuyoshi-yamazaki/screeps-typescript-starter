@@ -1018,7 +1018,7 @@ export class Region {
     }
 
     const test_send_resources = Memory.debug.test_send_resources
-    if (test_send_resources || ((Game.time % 97) == 1)) {
+    if (test_send_resources || ((Game.time % 67) == 1)) {
       ErrorMapper.wrapLoop(() => {
         this.sendResources()
       })()

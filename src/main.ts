@@ -178,14 +178,14 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_HYDROGEN,
-    price: 0.160,
+    price: 0.155,
     rooms,
   })
 
   // if (lemergium_seller_rooms.length > 0) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.065,
+      price: 0.055,
       rooms,
     })
   // }
@@ -292,6 +292,12 @@ function sellResource(opt: TradeResourceOptions): void {
       // const trade_result = "simulate"
       const trade_result = Game.market.deal(order.id, buyer_resource_amount, trader.name)
       message = `SELL ${opt.resource_type}: ${trade_result}, [${order.price} * ${buyer_resource_amount} (+${order.price * buyer_resource_amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+
+      const index = opt.rooms.indexOf(trader)
+
+      if (index >= 0) {
+        opt.rooms.splice(index, 1)
+      }
     }
     else {
       message = `[NO Trader] SELL ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
@@ -387,6 +393,12 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
       // const trade_result = "simulate"
       const trade_result = Game.market.deal(order.id, buy_amount, trader.name)
       message = `BUY ${opt.resource_type}: ${trade_result}, [${order.price} * ${buy_amount} (-${order.price * buy_amount})] ${trader.name} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+
+      const index = opt.rooms.indexOf(trader)
+
+      if (index >= 0) {
+        opt.rooms.splice(index, 1)
+      }
     }
     else {
       message = `[NO Trader] BUY ${opt.resource_type} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
