@@ -240,7 +240,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.05,
+    price: 0.04,
     rooms,
   }, credit_amount)
 

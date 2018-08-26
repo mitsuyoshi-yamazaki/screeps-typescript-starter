@@ -344,7 +344,13 @@ export class TempSquad extends Squad {
 
     if (((Game.time % 41) == 1) && (creep.room.name == target_room_name) && creep.room.controller) {
       if (!creep.room.controller.sign || (Memory.versions.indexOf(creep.room.controller.sign.text) < 0)) {
-        creep.signController(creep.room.controller, Game.version)
+
+        if (creep.room.memory && creep.room.memory.is_gcl_farm) {
+          creep.signController(creep.room.controller, `[${Game.version}] GCL Farm`)
+        }
+        else {
+          creep.signController(creep.room.controller, Game.version)
+        }
       }
     }
   }
