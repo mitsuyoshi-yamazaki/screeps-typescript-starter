@@ -272,6 +272,12 @@ export function init() {
     else if ((destination_room_name == 'W45S27') && (this.room.name == 'W46S26')) {
       this.memory.destination_room_name = 'W45S26'
     }
+    else if ((destination_room_name == 'W55S13') && (this.room.name == 'W47S9')) {
+      this.memory.destination_room_name = 'W47S10'
+    }
+    else if ((destination_room_name == 'W55S13') && (this.room.name == 'W47S10')) {
+      this.memory.destination_room_name = 'W55S10'
+    }
 
     if (this.room.name == this.memory.destination_room_name) {
       this.memory.destination_room_name = undefined

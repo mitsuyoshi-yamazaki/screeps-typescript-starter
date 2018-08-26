@@ -146,7 +146,7 @@ export abstract class Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: type,
+      type,
       should_notify_attack: false,
       let_thy_die: true,
     }

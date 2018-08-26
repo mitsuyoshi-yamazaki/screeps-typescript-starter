@@ -301,10 +301,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W47S8',
-        //   forced: false,
-        // }
+        this.temp_squad_opt = {
+          target_room_name: 'W55S13',
+          forced: true,
+        }
         break
 
       case 'W49S6':
@@ -705,7 +705,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6'].indexOf(this.room.name) >= 0) {
+            if (['W48S6', 'W47S9'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
