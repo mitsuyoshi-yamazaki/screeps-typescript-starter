@@ -396,7 +396,7 @@ export function init() {
     else if ((destination_room_name == 'W46N4') && (Number(this.room.name.slice(1,3)) < 46)) {
       destination_room_name = 'W46N5'
     }
-    else if ((this.room.name == 'W47S6') && (Number(destination_room_name.slice(1,3)) >= 49) && (Number(destination_room_name.slice(4,6)) >= 10)) {
+    else if ((this.room.name == 'W47S9') && (Number(destination_room_name.slice(1,3)) >= 49) && (Number(destination_room_name.slice(4,6)) >= 10)) {
       destination_room_name = 'W47S10'
     }
 
