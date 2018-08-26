@@ -323,17 +323,7 @@ export class FarmerSquad extends Squad {
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     switch (this.next_creep) {
       case CreepType.UPGRADER: {
-        const memory: FarmerUpgraderMemory = {
-          squad_name: this.name,
-          status: CreepStatus.NONE,
-          birth_time: Game.time,
-          type: CreepType.UPGRADER,
-          should_notify_attack: false,
-          let_thy_die: false,
-          pos: this.find_non_used_position()
-        }
-
-        this.addUpgrader(energy_available, spawn_func, CreepType.UPGRADER, {max_energy: 4500, memory})
+        this.addFarmer(energy_available, spawn_func)
         return
       }
 
@@ -352,7 +342,7 @@ export class FarmerSquad extends Squad {
           CARRY,
           MOVE
         ]
-        this.addGeneralCreep(spawn_func, body, CreepType.CHARGER, true)
+        this.addGeneralCreep(spawn_func, body, CreepType.CHARGER)
         return
 
       default:
@@ -405,6 +395,35 @@ export class FarmerSquad extends Squad {
   }
 
   // ---
+  private addFarmer(energy_available: number, spawn_func: SpawnFunction): void {
+    const body: BodyPartConstant[] = [
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK,
+      CARRY, CARRY,
+    ]
+
+    const memory: FarmerUpgraderMemory = {
+      squad_name: this.name,
+      status: CreepStatus.NONE,
+      birth_time: Game.time,
+      type: CreepType.UPGRADER,
+      should_notify_attack: false,
+      let_thy_die: false,
+      pos: this.find_non_used_position()
+    }
+
+    this.addGeneralCreep(spawn_func, body, CreepType.UPGRADER, {memory})
+  }
+
   private addCarrier(energy_available: number, spawn_func: SpawnFunction): void {
     const body_unit: BodyPartConstant[] = [
       CARRY, CARRY, MOVE

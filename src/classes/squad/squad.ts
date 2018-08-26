@@ -138,19 +138,17 @@ export abstract class Squad {
   }
 
   // --- Utility
-  public addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, should_live?: boolean): void {
-    if (!should_live) {
-      should_live = false
-    }
+  public addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, opts?: {memory?: CreepMemory}): void {
+    opts = opts || {}
 
     const name = this.generateNewName()
-    const memory: CreepMemory = {
+    const memory: CreepMemory = opts.memory || {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
       type: type,
       should_notify_attack: false,
-      let_thy_die: !should_live,
+      let_thy_die: true,
     }
 
     const result = spawn_func(body, name, {
