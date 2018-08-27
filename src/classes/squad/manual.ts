@@ -150,7 +150,7 @@ export class ManualSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        return this.creeps.size < 2 ? SpawnPriority.LOW : SpawnPriority.NONE
+        return this.creeps.size < 4 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       case 'E16N37': {
@@ -523,7 +523,7 @@ export class ManualSquad extends Squad {
         const base_room_name = this.original_room_name
         const target_room_name = 'W49S18'
 
-        this.stealEnergyFrom(target_room_name, 20, 33, {should_die: true})
+        this.stealEnergyFrom(this.original_room_name, target_room_name, 20, 33, {should_die: true})
 
         this.renewIfNeeded()
         return
@@ -562,13 +562,13 @@ export class ManualSquad extends Squad {
       }
 
       case 'W47S9': {
-        this.stealEnergyFrom('W55S12', 28, 43)
+        this.stealEnergyFrom('W55S13', 'W55S12', 18, 17)
         return
       }
 
       case 'E16N37': {
         const target_room_name = 'E15N37'
-        this.stealEnergyFrom(target_room_name, 14, 29, {ticks_to_return: 120, worker_squad_name: 'worker_e16n37'})
+        this.stealEnergyFrom(this.original_room_name, target_room_name, 14, 29, {ticks_to_return: 120, worker_squad_name: 'worker_e16n37'})
         return
       }
 
@@ -1134,10 +1134,12 @@ export class ManualSquad extends Squad {
     })
   }
 
-  private stealEnergyFrom(target_room_name: string, x: number, y: number, opts?: {}): ActionResult {
+  private stealEnergyFrom(room_name: string, target_room_name: string, x: number, y: number, opts?: {}): ActionResult {
     const options = opts || {}
     let result: ActionResult = ActionResult.DONE
-    const steal_energy = !this.base_room.storage
+    const room = Game.rooms[room_name] as Room | undefined
+
+    const steal_energy = !room ? false : !room.storage
 
     if (!Memory.debug.test) {
       Memory.debug.test = []
@@ -1156,7 +1158,7 @@ export class ManualSquad extends Squad {
 
       const carry = _.sum(creep.carry)
 
-      if (carry < creep.carryCapacity) {
+      if ((creep.room.name != room_name) && (carry < creep.carryCapacity)) {
         const dropped_energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
           filter: (r: Resource) => {
             return (r.resourceType == RESOURCE_ENERGY) && (r.amount > 0)
@@ -1299,7 +1301,7 @@ export class ManualSquad extends Squad {
           return
         }
 
-        if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
+        if (creep.moveToRoom(room_name) == ActionResult.IN_PROGRESS) {
           result = ActionResult.IN_PROGRESS
           return
         }

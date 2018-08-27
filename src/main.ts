@@ -185,7 +185,7 @@ function trade():void {
   // if (lemergium_seller_rooms.length > 0) {
     sellResource({
       resource_type: RESOURCE_LEMERGIUM,
-      price: 0.055,
+      price: 0.060,
       rooms,
     })
   // }
@@ -198,7 +198,7 @@ function trade():void {
 
   sellResource({
     resource_type: RESOURCE_UTRIUM,
-    price: 0.160,
+    price: 0.161,
     rooms,
   })
 
