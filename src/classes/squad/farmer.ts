@@ -450,69 +450,7 @@ export class FarmerSquad extends Squad {
       Game.notify(message)
       return
     }
-
     const controller = room.controller
-
-    if (this.upgraders.renew) {
-      const creep = this.upgraders.renew
-      const pos = new RoomPosition(this.renew_position.x, this.renew_position.y, this.room_name)
-
-      if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-        const result = creep.moveTo(pos)
-        if ((result != OK) && (result != ERR_TIRED)) {
-          creep.say(`E${result}`)
-        }
-      }
-
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 3))) && !(!room.storage) && (room.storage.store.energy > 10000)
-
-      if (needs_renew) {
-        if ((creep.ticksToLive || 1500) > 1490) {
-          if (!creep.boosted() && this.lab && room.storage) {
-            console.log(`FarmerSquad.runUpgrader boostCreep ${this.room_name}, ${creep.name}, ${this.name}`)
-            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 150000)) {
-              const result = this.lab.boostCreep(creep)
-              if (result != OK) {
-                console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
-              }
-            }
-            else {
-              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${this.lab}, energy: ${room.storage.store.energy}`)
-            }
-          }
-          creep.say(`RENEWED`)
-          creep.memory.status = CreepStatus.NONE
-        }
-        else {
-          creep.memory.status = CreepStatus.WAITING_FOR_RENEW
-        }
-      }
-    }
-
-    _.zip((this.upgraders.sorted as any[]), (this.positions as any[])).forEach((value) => {
-      const creep = (value as [Creep | null, {x:number, y:number} | null])[0]
-      if (!creep) {
-        return
-      }
-      if (creep.spawning) {
-        return
-      }
-
-      const position = (value as [Creep | null, {x:number, y:number} | null])[1]
-      if (!position) {
-        console.log(`FarmerSquad.run unexpectedly upgrader(${this.upgraders.sorted.length}):position(${this.positions.length}) size mismatch ${this.name}`)
-        return
-      }
-
-      const pos = new RoomPosition(position.x, position.y, this.room_name)
-
-      if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-        const result = creep.moveTo(pos)
-        if ((result != OK) && (result != ERR_TIRED)) {
-          creep.say(`E${result}`)
-        }
-      }
-    })
 
     this.upgraders.all.forEach((creep) => {
       if (creep.spawning) {
@@ -547,6 +485,69 @@ export class FarmerSquad extends Squad {
 
       creep.upgradeController(controller)
       // creep.repair(Game.getObjectById('5b7bd895e11abe3f9e43e116') as StructureRampart)
+    })
+
+    if (this.upgraders.renew) {
+      const creep = this.upgraders.renew
+      const pos = new RoomPosition(this.renew_position.x, this.renew_position.y, this.room_name)
+
+      if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
+        const result = creep.moveTo(pos)
+        if ((result != OK) && (result != ERR_TIRED)) {
+          creep.say(`E${result}`)
+        }
+      }
+
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 3))) && !(!room.storage) && (room.storage.store.energy > 10000)
+
+      if (needs_renew) {
+        if ((creep.ticksToLive || 1500) > 1490) {
+          if (!creep.boosted() && this.lab && room.storage) {
+            console.log(`FarmerSquad.runUpgrader boostCreep ${this.room_name}, ${creep.name}, ${this.name}`)
+            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 150000)) {
+              const result = this.lab.boostCreep(creep)
+              if (result != OK) {
+                console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
+              }
+            }
+            else {
+              console.log(`FarmerSquad.runUpgrader boostCreep wrong environment ${creep.boosted()}, ${this.lab}, energy: ${room.storage.store.energy}`)
+            }
+          }
+          creep.say(`RENEWED`)
+          creep.memory.status = CreepStatus.NONE
+        }
+        else if (this.spawn) {
+          creep.memory.status = CreepStatus.WAITING_FOR_RENEW
+          this.spawn.renewCreep(creep)
+          creep.transfer(this.spawn, RESOURCE_ENERGY)
+        }
+      }
+    }
+
+    _.zip((this.upgraders.sorted as any[]), (this.positions as any[])).forEach((value) => {
+      const creep = (value as [Creep | null, {x:number, y:number} | null])[0]
+      if (!creep) {
+        return
+      }
+      if (creep.spawning) {
+        return
+      }
+
+      const position = (value as [Creep | null, {x:number, y:number} | null])[1]
+      if (!position) {
+        console.log(`FarmerSquad.run unexpectedly upgrader(${this.upgraders.sorted.length}):position(${this.positions.length}) size mismatch ${this.name}`)
+        return
+      }
+
+      const pos = new RoomPosition(position.x, position.y, this.room_name)
+
+      if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
+        const result = creep.moveTo(pos)
+        if ((result != OK) && (result != ERR_TIRED)) {
+          creep.say(`E${result}`)
+        }
+      }
     })
   }
 

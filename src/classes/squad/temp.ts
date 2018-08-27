@@ -247,6 +247,11 @@ export class TempSquad extends Squad {
 
   private runAttacker(): void {
     this.attacker.forEach((creep) => {
+      if (['W46S9', 'W45S9'].indexOf(creep.room.name) >= 0) {
+        creep.searchAndDestroyTo('W45S9', true)
+        return
+      }
+
       if (creep.searchAndDestroyTo(this.target_room_name, false) == ActionResult.IN_PROGRESS) {
         return
       }
