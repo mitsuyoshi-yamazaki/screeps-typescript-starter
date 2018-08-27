@@ -360,7 +360,7 @@ function buyOrders(resource_type: ResourceConstant, price: number): Order[] {
       return false
     }
     return true
-  }).sort(function(lhs, rhs){
+  }).sort(function(lhs, rhs){ // highest to lowest
     if( lhs.price > rhs.price ) return -1
     if( lhs.price < rhs.price ) return 1
     if( lhs.amount > rhs.amount ) return -1
