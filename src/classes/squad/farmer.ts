@@ -498,7 +498,7 @@ export class FarmerSquad extends Squad {
         }
       }
 
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 3))) && !(!room.storage) && (room.storage.store.energy > 10000)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 4))) && !(!room.storage) && (room.storage.store.energy > 10000)
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {
