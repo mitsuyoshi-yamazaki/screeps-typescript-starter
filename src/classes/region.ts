@@ -303,8 +303,8 @@ export class Region {
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
         this.temp_squad_opt = {
-          target_room_name: 'W55S13',
-          forced: true,
+          target_room_name: 'W46S9',
+          forced: false,
         }
         break
 

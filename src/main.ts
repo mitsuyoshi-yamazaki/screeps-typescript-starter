@@ -67,7 +67,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     Memory.debug.test_send_resources = false
   }
 
-  if ((Game.time % 97) == 5) {
+  if ((Game.time % 197) == 5) {
     ErrorMapper.wrapLoop(() => {
       // if ((Game.time % 7) == 0) {  // @fixme:
         trade()
