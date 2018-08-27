@@ -188,7 +188,7 @@ export class FarmerSquad extends Squad {
       need_carriers = true
     }
 
-    const upgrader_max = (rcl < 6) ? 4 : this.positions.length
+    const upgrader_max = this.positions.length + 1 //(rcl < 6) ? 4 : this.positions.length
 
     if (this.upgraders.all.length < upgrader_max) {
       if (need_carriers && (this.carriers.length == 0)) { // @todo: if rcl < 4 && storage is empty
