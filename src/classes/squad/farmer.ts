@@ -36,7 +36,7 @@ export class FarmerSquad extends Squad {
   private lab: StructureLab | undefined
   private towers: StructureTower[] = []
 
-  private boost_resource_type: ResourceConstant = RESOURCE_GHODIUM_ACID
+  private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -429,7 +429,7 @@ export class FarmerSquad extends Squad {
       let_thy_die: true,
     }
 
-    energy_available = Math.min(energy_available, (energy_unit * 16))
+    energy_available = Math.min(energy_available, (energy_unit * 32))
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
