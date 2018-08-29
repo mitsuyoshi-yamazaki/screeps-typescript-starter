@@ -624,8 +624,31 @@ export function tick(): void {
       [
         'W43S5',
         'W44S7',
-        ''
-      ]
+        'W45S27',
+        'W46S3',
+        'W47S6',
+        'W48S6',
+        'W47S9',
+        'W56S7',
+      ].forEach((room_name) => {
+        if (room_name == target_room_name) {
+          return
+        }
+
+        const region_memory = Memory.regions[room_name]
+        if (!region_memory || !region_memory.resource_transports) {
+          return
+        }
+
+        const transfer = region_memory.resource_transports[target_room_name]
+        if (transfer) {
+          transfer.push(RESOURCE_ENERGY)
+        }
+        else {
+          region_memory.resource_transports[target_room_name] = [RESOURCE_ENERGY]
+        }
+        console.log(`- ${room_name}`)
+      })
     }
   }
 
