@@ -9,6 +9,7 @@ interface FarmerUpgraderMemory extends CreepMemory {
 
 export interface FarmerSquadMemory extends SquadMemory {
   room_name: string,
+  rcl: number,
   spawn_id: string | null,
   lab_id: string | null,
   storage_position: {x:number, y:number}
@@ -354,12 +355,14 @@ export class FarmerSquad extends Squad {
       }
     }
 
+    const squad_memory = Memory.squads[this.name] as FarmerSquadMemory
+
     if (((Game.time % 449) == 1) && room && (this.creeps.size > 0) && Memory.squads[this.name]) {
       if (!this.spawn) {
         const spawn = room.find(FIND_MY_SPAWNS)[0]
 
         if (spawn) {
-          (Memory.squads[this.name] as FarmerSquadMemory).spawn_id = spawn.id
+          squad_memory.spawn_id = spawn.id
         }
       }
 
@@ -371,9 +374,13 @@ export class FarmerSquad extends Squad {
         })[0]
 
         if (lab) {
-          (Memory.squads[this.name] as FarmerSquadMemory).lab_id = lab.id
+          squad_memory.lab_id = lab.id
         }
       }
+    }
+
+    if (room && room.controller) {
+      squad_memory.rcl = room.controller.level
     }
   }
 

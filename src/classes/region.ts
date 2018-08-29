@@ -302,10 +302,10 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W46S9',
-        //   forced: false,
-        // }
+        this.temp_squad_opt = {
+          target_room_name: 'W47S8',
+          forced: false,
+        }
         break
 
       case 'W49S6':
@@ -737,7 +737,7 @@ export class Region {
             break
           }
           case SquadType.INVADER: {
-            if (['W46S3'].indexOf(this.room.name) >= 0) {
+            if (['dummy'].indexOf(this.room.name) >= 0) {
               const squad = new InvaderSquad(squad_memory.name, this.room)
               this.squads.set(squad.name, squad)
             }

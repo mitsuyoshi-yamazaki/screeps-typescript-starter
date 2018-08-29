@@ -594,6 +594,11 @@ export function tick(): void {
   }
 
   Game.transfer_energy = (target_room_name: string, opts?: {stop?: boolean}) => {
+    if (!Game.rooms[target_room_name]) {
+      console.log(`Game.transfer_energy wrong room name ${target_room_name}`)
+      return
+    }
+
     opts = opts || {}
 
     const stop_text = opts.stop ? '(Stop) ' : ''
@@ -618,6 +623,10 @@ export function tick(): void {
 
         transfer.splice(index, 1)
         console.log(`- ${room_name}`)
+
+        if (transfer.length == 0) {
+          delete region_memory.resource_transports[target_room_name]
+        }
       }
     }
     else {
@@ -649,6 +658,8 @@ export function tick(): void {
         }
         console.log(`- ${room_name}`)
       })
+
+      Memory.debug.test_send_resources = true
     }
   }
 
