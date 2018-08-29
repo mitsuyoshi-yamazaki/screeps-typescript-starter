@@ -25,7 +25,7 @@ export class ResearcherSquad extends Squad {
     return controller.level >= 6
   }
 
-  constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[]) {
+  constructor(readonly name: string, readonly room_name: string, readonly input_targets: ResearchTarget[], readonly output_targets: ResearchTarget[], readonly boosts: {[id: string]: ResourceConstant}) {
     super(name)
 
     const room = Game.rooms[this.room_name]

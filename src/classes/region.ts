@@ -667,7 +667,7 @@ export class Region {
           }
           case SquadType.RESEARCHER: {
             if (ResearcherSquad.need_instantiation(squad_memory, this.controller)) {
-              const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets)
+              const squad = new ResearcherSquad(squad_memory.name, this.room.name, research_input_targets, research_output_targets, {})
               this.squads.set(squad.name, squad)
             }
             else {

@@ -191,19 +191,19 @@ export class InvaderSquad extends Squad {
     }
 
     // 7620
-    let body: BodyPartConstant[] = [
-      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-      TOUGH, TOUGH,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-      HEAL, HEAL, HEAL, HEAL, HEAL,
-      HEAL, HEAL, HEAL,
-    ]
+    // let body: BodyPartConstant[] = [
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL,
+    // ]
     let body: BodyPartConstant[] = [
       TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
       TOUGH,
