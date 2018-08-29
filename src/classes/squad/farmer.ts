@@ -168,14 +168,12 @@ export class FarmerSquad extends Squad {
       }
     }
 
-    const rcl = (destination_room && destination_room.controller) ? destination_room.controller.level : 0
-
     // Charger
-    if (rcl >= 3) {
-      if (this.chargers.length == 0) {
-        return CreepType.CHARGER
-      }
+    if (this.chargers.length == 0) {
+      return CreepType.CHARGER
     }
+
+    const rcl = (destination_room && destination_room.controller) ? destination_room.controller.level : 0
 
     // Upgrader
     let need_carriers = false  // @todo: if storage is empty
@@ -328,6 +326,8 @@ export class FarmerSquad extends Squad {
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
+          CARRY, CARRY, CARRY, CARRY, CARRY,
           CARRY,
           MOVE
         ]
@@ -436,7 +436,7 @@ export class FarmerSquad extends Squad {
       let_thy_die: true,
     }
 
-    energy_available = Math.min(energy_available, (energy_unit * 24))
+    energy_available = Math.min(energy_available, (energy_unit * 16))
 
     while (energy_available >= energy_unit) {
       body = body.concat(body_unit)
