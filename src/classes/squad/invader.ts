@@ -29,14 +29,14 @@ export class InvaderSquad extends Squad {
       this.target_room = target_room_names[0]
 
       const target_ids = squad_memory.target_ids || []
-      while (!this.target && (squad_memory.target_ids.length > 0)) {
+      // while (!this.target && (squad_memory.target_ids.length > 0)) {
         this.target = Game.getObjectById(target_ids[0] || '') as Structure | undefined
 
-        if (this.target) {
-          break
-        }
-        squad_memory.target_ids.splice(0, 1)
-      }
+        // if (this.target) {
+        //   break
+        // }
+        // squad_memory.target_ids.splice(0, 1)
+      // }
     }
 
     this.creeps.forEach((creep) => {
@@ -60,6 +60,9 @@ export class InvaderSquad extends Squad {
 
   private set_next_creep(): void {
     if (!this.leader) {
+      if (this.follower) {
+        return
+      }
       this.next_creep = CreepType.WORKER
       return
     }
@@ -96,7 +99,7 @@ export class InvaderSquad extends Squad {
 
     switch (this.next_creep) {
       case CreepType.WORKER:
-        return SpawnPriority.LOW
+        return SpawnPriority.HIGH
 
       case CreepType.HEALER:
         return SpawnPriority.URGENT
@@ -188,31 +191,31 @@ export class InvaderSquad extends Squad {
     }
 
     // 7620
-    // let body: BodyPartConstant[] = [
-    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
-    //   TOUGH, TOUGH,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   HEAL, HEAL, HEAL, HEAL, HEAL,
-    //   HEAL, HEAL, HEAL,
-    //   MOVE, MOVE, MOVE, MOVE, MOVE,
-    //   MOVE, MOVE, MOVE, MOVE, MOVE,
-    // ]
+    let body: BodyPartConstant[] = [
+      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+      TOUGH, TOUGH,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL,
+    ]
     let body: BodyPartConstant[] = [
       TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
       TOUGH,
       HEAL, HEAL, HEAL, HEAL, HEAL,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
       HEAL, HEAL, HEAL, HEAL, HEAL,
       HEAL, HEAL, HEAL, HEAL, HEAL,
       HEAL, HEAL, HEAL, HEAL,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
     ]
 
     const pair_id = (this.leader.memory as InvaderMemory).pair_id
@@ -221,7 +224,7 @@ export class InvaderSquad extends Squad {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.WORKER,
+      type: CreepType.HEALER,
       should_notify_attack: false,
       let_thy_die: true,
       pair_id,
@@ -262,18 +265,35 @@ export class InvaderSquad extends Squad {
       return
     }
 
-    if (this.target) {
-      creep.dismantle(this.target)
-    }
-    else {
-      creep.say(`DONE`)
-    }
-
     const can_move = (creep.fatigue == 0) && this.follower && (this.follower.fatigue == 0) && (creep.pos.getRangeTo(this.follower) <= 1)
     if (can_move) {
       if (creep.moveToRoom(this.target_room) == ActionResult.IN_PROGRESS) {
         return
       }
+    }
+    else {
+      if (creep.pos.x == 0) {
+        creep.move(RIGHT)
+      }
+      else if (creep.pos.x == 49) {
+        creep.move(LEFT)
+      }
+      if (creep.pos.y == 0) {
+        creep.move(BOTTOM)
+      }
+      else if (creep.pos.y == 49) {
+        creep.move(TOP)
+      }
+      return
+    }
+
+    if (this.target) {
+      if (creep.dismantle(this.target) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(this.target)
+      }
+    }
+    else {
+      creep.say(`DONE`)
     }
   }
 

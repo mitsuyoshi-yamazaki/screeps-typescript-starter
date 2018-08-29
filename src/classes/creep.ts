@@ -304,13 +304,16 @@ export function init() {
       opt = {
         costCallback: callback,
         reusePath: 5,
-        visualizePathStyle: {
+        maxRooms: 1,
+      }
+
+      if (Memory.debug.show_path) {
+        opt.visualizePathStyle = {
           fill: 'transparent',
           stroke: '#ff0000',
           lineStyle: 'dashed',
           opacity: 0.8
-        },
-        maxRooms: 1,
+        }
       }
     }
 
