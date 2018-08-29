@@ -1061,7 +1061,7 @@ export class RemoteHarvesterSquad extends Squad {
         }
         else {
           if (!this.avoid_cpu_use && (creep.carry.energy > 0)) {
-            const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+            const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 2, {
               filter: (structure: AnyStructure) => {
                 if (structure.structureType == STRUCTURE_ROAD) {
                   return structure.hits < (structure.hitsMax * 0.9)
@@ -1148,7 +1148,7 @@ export class RemoteHarvesterSquad extends Squad {
             }
           }
           else {
-            const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 3, {
+            const damaged_structure = creep.pos.findInRange(FIND_STRUCTURES, 2, {
               filter: (structure: AnyStructure) => {
                 if (structure.structureType == STRUCTURE_ROAD) {
                   return structure.hits < (structure.hitsMax * 0.9)

@@ -216,7 +216,7 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_UTRIUM,
-    price: 0.07,
+    price: 0.01,
     rooms,
   }, credit_amount)
 
