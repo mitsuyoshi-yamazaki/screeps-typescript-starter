@@ -711,7 +711,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6', 'W47S9'].indexOf(this.room.name) >= 0) {
+            if (['W48S6'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -737,8 +737,13 @@ export class Region {
             break
           }
           case SquadType.INVADER: {
-            // const squad = new InvaderSquad(squad_memory.name, this.room.name)
-            // this.squads.set(squad.name, squad)
+            if (['W46S3'].indexOf(this.room.name) >= 0) {
+              const squad = new InvaderSquad(squad_memory.name, this.room)
+              this.squads.set(squad.name, squad)
+            }
+            else {
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
+            }
             break
           }
           case SquadType.TEMP: {

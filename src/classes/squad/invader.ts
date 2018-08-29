@@ -3,36 +3,40 @@ import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./s
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 
 interface InvaderMemory extends CreepMemory {
+  pair_id: number
 }
 
 interface InvaderSquadMemory extends SquadMemory {
   target_room_names: string[]
-  current_room_index: number
-  target_id: string | null
+  target_ids: string[]
 }
 
 export class InvaderSquad extends Squad {
-  private target_room_names: string[]
-  private current_room_index: number
-  private current_target_room: string | undefined
+  private target_room: string | undefined
+  private target: Structure | undefined
 
   private leader: Creep | undefined
   private follower: Creep | undefined
 
   private next_creep: CreepType | undefined
 
-  constructor(readonly name: string, readonly base_room: Room, region_name: string) {
+  constructor(readonly name: string, readonly base_room: Room) {
     super(name)
 
     const squad_memory = (Memory.squads[this.name] as InvaderSquadMemory)
     if (squad_memory) {
-      this.target_room_names = squad_memory.target_room_names || []
-      this.current_room_index = squad_memory.current_room_index || 0
-      this.current_target_room = this.target_room_names[this.current_room_index]
-    }
-    else {
-      this.target_room_names = []
-      this.current_room_index = 0
+      const target_room_names = squad_memory.target_room_names || []
+      this.target_room = target_room_names[0]
+
+      const target_ids = squad_memory.target_ids || []
+      while (!this.target && (squad_memory.target_ids.length > 0)) {
+        this.target = Game.getObjectById(target_ids[0] || '') as Structure | undefined
+
+        if (this.target) {
+          break
+        }
+        squad_memory.target_ids.splice(0, 1)
+      }
     }
 
     this.creeps.forEach((creep) => {
@@ -81,6 +85,15 @@ export class InvaderSquad extends Squad {
 
   // --
   public get spawnPriority(): SpawnPriority {
+    const squad_memory = (Memory.squads[this.name] as InvaderSquadMemory)
+
+    if (!squad_memory || squad_memory.stop_spawming) {
+      return SpawnPriority.NONE
+    }
+    if (!squad_memory.target_room_names || (squad_memory.target_room_names.length == 0)) {
+      return SpawnPriority.NONE
+    }
+
     switch (this.next_creep) {
       case CreepType.WORKER:
         return SpawnPriority.LOW
@@ -93,13 +106,13 @@ export class InvaderSquad extends Squad {
   }
 
   public hasEnoughEnergy(energy_available: number, capacity: number): boolean {
-    // switch (this.next_creep) {
-    //   case CreepType.WORKER:
-    //     return
+    switch (this.next_creep) {
+      case CreepType.WORKER:
+        return energy_available >= 3420
 
-    //   case CreepType.HEALER:
-    //     return
-    // }
+      case CreepType.HEALER:
+        return energy_available >= 7620
+    }
 
     return false
   }
@@ -107,130 +120,114 @@ export class InvaderSquad extends Squad {
   public addCreep(energy_available: number, spawn_func: SpawnFunction): void {
     switch (this.next_creep) {
       case CreepType.WORKER:
+        this.addDismantler(energy_available, spawn_func)
         return
 
       case CreepType.HEALER:
+        this.addHealer(energy_available, spawn_func)
         return
     }
   }
 
   public run(): void {
+    this.runDismantler()
+    this.runHealer()
   }
 
   public description(): string {
-    const additions = ""//!this.leader ? "" : `, ${this.leader.pos}`
+    const additions = !this.leader ? "" : `, ${this.leader.pos}`
     return `${super.description()}${additions}`
   }
 
   // --- Private ---
-  private addDismantler(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    const body: BodyPartConstant[] = []
-
-    // this.addGeneralCreep()
-  }
-
-  private addRangedAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    // 4180
-
-    const is_leader = false//!this.leader
-
-    const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      TOUGH, TOUGH, TOUGH, TOUGH,
-      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
-      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
-      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
-      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
-      RANGED_ATTACK, MOVE, RANGED_ATTACK, MOVE,
-      HEAL, MOVE, HEAL, MOVE,
-      HEAL, MOVE, HEAL, MOVE,
-      HEAL, MOVE,
-      MOVE, MOVE, MOVE, MOVE,
-      MOVE, HEAL,
+  private addDismantler(energy_available: number, spawn_func: SpawnFunction): void {
+    // 3420
+    // const body: BodyPartConstant[] = [
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH,
+    //   WORK, WORK, WORK, WORK, WORK,
+    //   WORK, WORK, WORK, WORK, WORK,
+    //   WORK, WORK, WORK, WORK, WORK,
+    //   WORK, WORK, WORK, WORK, WORK,
+    //   WORK, WORK, WORK, WORK, WORK,
+    //   WORK, WORK, WORK,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    // ]
+    const body: BodyPartConstant[] = [  // no boost
+      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+      TOUGH,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
     ]
-    const memory: CreepMemory = {
+    const memory: InvaderMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.ATTACKER,
+      type: CreepType.WORKER,
       should_notify_attack: false,
       let_thy_die: true,
+      pair_id: Game.time,
     }
 
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
-  }
-
-  private addAttacker(energyAvailable: number, spawnFunc: SpawnFunction): void {
-    // 3250
-
-    const is_leader = false//!this.leader
-
-    const name = this.generateNewName()
-    const body: BodyPartConstant[] = [
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-      ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE,
-    ]
-    const memory: CreepMemory = {
-      squad_name: this.name,
-      status: CreepStatus.NONE,
-      birth_time: Game.time,
-      type: CreepType.ATTACKER,
-      should_notify_attack: false,
-      let_thy_die: true,
-    }
-
-    const result = spawnFunc(body, name, {
-      memory: memory
-    })
+    this.addGeneralCreep(spawn_func, body, CreepType.WORKER, {memory})
   }
 
   private addHealer(energy_available: number, spawn_func: SpawnFunction) {
-    const name = this.generateNewName()
-    let body: BodyPartConstant[] = []
-
-    if (energy_available >= 5280) {
-      body = [
-        TOUGH, TOUGH, TOUGH,
-        MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE,
-        MOVE,
-        HEAL, HEAL, HEAL, HEAL, HEAL,
-        HEAL, HEAL, HEAL, HEAL, HEAL,
-        HEAL, HEAL, HEAL, HEAL, HEAL,
-        HEAL, HEAL,
-        MOVE,
-      ]
-    }
-    else {
-      body = [
-        TOUGH, TOUGH, TOUGH,
-        MOVE, MOVE, MOVE,
-        MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-        RANGED_ATTACK,
-        HEAL, HEAL, HEAL, HEAL, HEAL, HEAL,
-        MOVE,
-      ]
+    if (!this.leader || !this.leader.spawning) {
+      console.log(`InvaderSquad.addHealer no leader ${this.leader} ${this.name}`)
+      return
     }
 
-    const memory: CreepMemory = {
+    // 7620
+    // let body: BodyPartConstant[] = [
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+    //   TOUGH, TOUGH,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL, HEAL, HEAL,
+    //   HEAL, HEAL, HEAL,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    //   MOVE, MOVE, MOVE, MOVE, MOVE,
+    // ]
+    let body: BodyPartConstant[] = [
+      TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
+      TOUGH,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL, HEAL,
+      HEAL, HEAL, HEAL, HEAL,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE,
+    ]
+
+    const pair_id = (this.leader.memory as InvaderMemory).pair_id
+
+    const memory: InvaderMemory = {
       squad_name: this.name,
       status: CreepStatus.NONE,
       birth_time: Game.time,
-      type: CreepType.HEALER,
+      type: CreepType.WORKER,
       should_notify_attack: false,
       let_thy_die: true,
+      pair_id,
     }
 
-    const result = spawn_func(body, name, {
-      memory: memory
-    })
+    this.addGeneralCreep(spawn_func, body, CreepType.WORKER, {memory})
   }
 
   private recycle(): void {
@@ -254,117 +251,50 @@ export class InvaderSquad extends Squad {
     })
   }
 
-  private moveToOutpost(): void {
-    this.creeps.forEach((creep) => {
-      creep.heal(creep)
+  private runDismantler() {
+    if (!this.leader) {
+      return
+    }
+    const creep = this.leader
 
-      if (creep.moveToRoom('W44S42') == ActionResult.IN_PROGRESS) {
+    if (!this.target_room) {
+      this.say(`NO TGT`)
+      return
+    }
+
+    if (this.target) {
+      creep.dismantle(this.target)
+    }
+    else {
+      creep.say(`DONE`)
+    }
+
+    const can_move = (creep.fatigue == 0) && this.follower && (this.follower.fatigue == 0) && (creep.pos.getRangeTo(this.follower) <= 1)
+    if (can_move) {
+      if (creep.moveToRoom(this.target_room) == ActionResult.IN_PROGRESS) {
         return
       }
-
-      if (creep.boosted()) {
-        console.log(`InvaderSquad.moveToOutpost do NOT renew boosted creep ${creep.name}, ${this.name}, at ${creep.pos}`)
-        return
-      }
-
-      if ((creep.ticksToLive || 0) > 1450) {
-        creep.memory.status = CreepStatus.NONE
-      }
-
-      if ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((creep.ticksToLive || 0) < 1400)) {
-        creep.memory.let_thy_die = false
-        creep.goToRenew(creep.room.spawns[0])
-      }
-      else {
-        creep.memory.status = CreepStatus.NONE
-
-        creep.moveTo(12, 12)
-        creep.say("😴")
-      }
-    })
+    }
   }
 
-  // private runAttacker() {
-  //   // if healer is not beside, stop
-  //   // if target, attack
-  //   // if no target, search and destroy
+  private runHealer() {
+    if (!this.follower) {
+      return
+    }
+    const creep = this.follower
 
+    if (!this.leader) {
+      creep.heal(creep)
+      return
+    }
+    creep.moveTo(this.leader)
 
-  //   if (!this.attacker) {
-  //     return
-  //   }
+    const heal_target = (this.leader.hits < creep.hits) ? this.leader : creep
 
-  //   let should_stop = false
-  //   if ((this.attacker.room.name != this.base_room_name) && this.healer && (this.healer.pos.getRangeTo(this.attacker) > 1)) {
-  //     should_stop = true
-  //   }
-
-  //   if (this.attacker.moveToRoom(this.target_room_name) == ActionResult.IN_PROGRESS) {
-  //     return
-  //   }
-
-  //   if (this.target) {
-  //     this.attacker.destroy(this.target)
-  //   }
-  //   else {
-  //     const memory = this.attacker.memory as InvaderMemory
-  //     if (memory.target_x && memory.target_y) {
-  //       this.attacker.moveTo(memory.target_x, memory.target_y)
-  //       this.attacker.heal(this.attacker)
-  //     }
-  //     else {
-  //       this.attacker.searchAndDestroy()
-  //     }
-  //   }
-  // }
-
-  // private runHealer() {
-  //   // follow attacker
-  //   // heal attacker or self
-  //   // ranged attack if enemy nearby
-
-  //   if (!this.healer) {
-  //     return
-  //   }
-  //   if (!this.attacker) {
-  //     this.healer.moveToRoom(this.base_room_name)
-  //     return
-  //   }
-
-  //   this.healer.moveTo(this.attacker)
-
-  //   const attacker_hit_lack = this.attacker.hitsMax - this.attacker.hits
-  //   const healer_hit_lack = this.healer.hitsMax - this.healer.hits
-  //   const heal_target = attacker_hit_lack < healer_hit_lack ? this.healer : this.attacker
-
-  //   const heal_result = this.healer.heal(heal_target)
-
-  //   switch (heal_result) {
-  //     case OK:
-  //       break
-
-  //     case ERR_NOT_IN_RANGE:
-  //     default:
-  //       this.healer.rangedHeal(heal_target)
-  //       console.log(`InvaderSquad.runHealer heal failed with ${heal_result}, ${this.name}, ${this.healer.pos}`)
-  //       break
-  //   }
-
-  //   if ((this.target && (this.healer.rangedAttack(this.target) == ERR_NOT_IN_RANGE)) || !this.target) {
-  //     let target: Creep | Structure | undefined = this.healer.pos.findInRange(FIND_HOSTILE_CREEPS, 3)[0]
-  //     if (!target) {
-  //       this.healer.pos.findInRange(FIND_STRUCTURES, 3, {
-  //         filter: (structure: Structure) => {
-  //           if ((structure as AnyOwnedStructure).my) {
-  //             return !(structure as AnyOwnedStructure).my
-  //           }
-  //           return true
-  //         }
-  //       })[0]
-  //     }
-  //     if (target) {
-  //       this.healer.rangedAttack(target)
-  //     }
-  //   }
-  // }
+    if (creep.heal(heal_target) == ERR_NOT_IN_RANGE) {
+      if (creep.rangedHeal(heal_target) == ERR_NOT_IN_RANGE) {
+        creep.heal(creep)
+      }
+    }
+  }
 }

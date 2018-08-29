@@ -278,6 +278,9 @@ export function init() {
     else if ((destination_room_name == 'W55S13') && (this.room.name == 'W47S10')) {
       this.memory.destination_room_name = 'W55S10'
     }
+    else if ((destination_room_name == 'W35N58') && (this.room.name == 'W46S3')) {
+      this.memory.destination_room_name = 'W45S5'
+    }
 
     if (this.room.name == this.memory.destination_room_name) {
       this.memory.destination_room_name = undefined
@@ -311,8 +314,8 @@ export function init() {
       }
     }
 
-    if ((['E15N37', 'E16N37'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W45S5')) {
-      const portal = Game.getObjectById('5b5c3c508822c27941cf1e05') as StructurePortal | undefined
+    if ((['W35N58'].indexOf(destination_room_name) >= 0) && (this.room.name == 'W45S5')) {
+      const portal = Game.getObjectById('5b782410a408af58c19fc645') as StructurePortal | undefined
 
       if (portal) {
         this.moveTo(portal, opt)
