@@ -947,7 +947,7 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
       if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
         const ignoreCreeps = ((Game.time % 5) < 2) ? false : creep.pos.getRangeTo(source) <= 2  // If the blocking creep is next to the source, ignore
 
-        if (creep.room.name == 'W45S27') {
+        if ((room_name == 'W46S26') && (creep.room.name == 'W45S27')) {
           creep.moveToRoom('W45S26')
           return
         }
@@ -1051,7 +1051,7 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
     }
     if (source) {
       if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-        if (creep.room.name == 'W45S27') {
+        if ((room_name == 'W46S26') && (creep.room.name == 'W45S27')) {
           creep.moveToRoom('W45S26')
           return
         }

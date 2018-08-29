@@ -31,10 +31,12 @@ declare global {
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
     info: (opts:{sorted?: boolean}) => void
-    resource_transfer: (opts?: {reversed?: boolean, room?: string} | string) => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
+
+    resource_transfer: (opts?: {reversed?: boolean, room?: string} | string) => void
+    transfer_energy: (target_room_name: string, opts?: {stop?: boolean}) => void
 
     show_excluded_walls(room_name: string): void
     add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
@@ -590,6 +592,43 @@ export function tick(): void {
       console.log(` - None: ${no_transfer_rooms}`)
     }
   }
+
+  Game.transfer_energy = (target_room_name: string, opts?: {stop?: boolean}) => {
+    opts = opts || {}
+
+    const stop_text = opts.stop ? '(Stop) ' : ''
+    console.log(`${stop_text}Transfer energy: ${room_link(target_room_name)}`)
+
+    if (opts.stop) {
+      for (const room_name in Game.rooms) {
+        const region_memory = Memory.regions[room_name]
+        if (!region_memory || !region_memory.resource_transports) {
+          continue
+        }
+
+        const transfer = region_memory.resource_transports[target_room_name]
+        if (!transfer) {
+          continue
+        }
+
+        const index = transfer.indexOf(RESOURCE_ENERGY)
+        if (index < 0) {
+          continue
+        }
+
+        transfer.splice(index, 1)
+        console.log(`- ${room_name}`)
+      }
+    }
+    else {
+      [
+        'W43S5',
+        'W44S7',
+        ''
+      ]
+    }
+  }
+
 
   Game.reset_costmatrix = (room_name: string) => {
     ErrorMapper.wrapLoop(() => {
