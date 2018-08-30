@@ -167,7 +167,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W56S7': {
-        return this.creeps.size < 1 ? SpawnPriority.NORMAL : SpawnPriority.NONE
+        return this.creeps.size < 1 ? SpawnPriority.LOW : SpawnPriority.NONE
       }
 
       default:
@@ -230,7 +230,7 @@ export class ManualSquad extends Squad {
       }
 
       case 'W56S7': {
-        return energy_available >= 200
+        return energy_available >= 2100
       }
 
       default:
@@ -381,7 +381,12 @@ export class ManualSquad extends Squad {
       }
 
       case 'W56S7': {
-        this.addGeneralCreep(spawn_func, [CARRY, CARRY, CARRY, MOVE], CreepType.CARRIER)
+        const body: BodyPartConstant[] = [
+          MOVE, MOVE, MOVE,
+          CLAIM, CLAIM, CLAIM,
+          MOVE, MOVE, MOVE,
+        ]
+        this.addGeneralCreep(spawn_func, body, CreepType.CLAIMER)
         return
       }
 
@@ -573,58 +578,22 @@ export class ManualSquad extends Squad {
       }
 
       case 'W56S7': {
-        const from_link = Game.getObjectById('5b642f7f1407e03f53c3f3f5') as StructureLink | undefined
-        const to_link = Game.getObjectById('5b64042a3081766dddad9352') as StructureLink | undefined
-        const container = Game.getObjectById('5b6429cb3369a7643bb60c1d') as StructureContainer | undefined // does not exist
-        if (!from_link || !to_link) {
-          console.log(`ManualSquad.run error no links for ${this.original_room_name}`)
-          return
-        }
-        if (!this.base_room.storage) {
-          console.log(`ManualSquad.run error no storage for ${this.original_room_name}`)
-          return
-        }
-        const storage = this.base_room.storage
-        const x = 16
-        const y = 4
+        const target_room_name = 'W58S4'
 
         this.creeps.forEach((creep) => {
-          if ((creep.pos.x != x) || (creep.pos.y != y)) {
-            creep.moveTo(x, y)
+          if (creep.moveToRoom(target_room_name) == ActionResult.IN_PROGRESS) {
+            return
           }
 
-          let result: ScreepsReturnCode
-
-          if (creep.carry.energy > 0) {
-            // Charge
-            if (from_link.energy < from_link.energyCapacity) {
-              result = creep.transfer(from_link, RESOURCE_ENERGY)
-            }
-            else if (container && (container.store.energy < container.storeCapacity)) {
-              result = creep.transfer(container, RESOURCE_ENERGY)
-            }
-            else {
-              result = creep.transfer(storage, RESOURCE_ENERGY)
-            }
-          }
-          else {
-            // Withdraw
-            result = creep.withdraw(storage, RESOURCE_ENERGY)
+          if (!creep.room.controller) {
+            creep.say(`ERR`)
+            return
           }
 
-          if (result != OK) {
-            creep.say(`E${result}`)
+          if (creep.reserveController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.controller)
           }
         })
-
-        // Links
-        if ((from_link.cooldown == 0) && (from_link.energy > (from_link.energyCapacity * 0.5)) && (to_link.energy < (to_link.energyCapacity * 0.5))) {
-          const transfer_result = from_link.transferEnergy(to_link)
-
-          if (transfer_result != OK) {
-            console.log(`ManualSquad.run energy transfer failed ${transfer_result}, ${this.original_room_name}`)
-          }
-        }
 
         return
       }

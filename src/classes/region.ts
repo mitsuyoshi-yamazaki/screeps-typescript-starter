@@ -349,6 +349,9 @@ export class Region {
       case 'W55S13':
         break
 
+      case 'W58S4':
+        break
+
       default:
         console.log(`Region.initialize unexpected region name, ${this.name}`)
         break
@@ -711,7 +714,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6'].indexOf(this.room.name) >= 0) {
+            if (['W48S6', 'W56S7'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
