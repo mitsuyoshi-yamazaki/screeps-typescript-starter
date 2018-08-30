@@ -348,7 +348,7 @@ export class FarmerSquad extends Squad {
     this.runCharger()
 
     if (room) {
-      runTowers(this.towers, room)
+      runTowers(this.towers, room, {wall_max_hits: 3000000})
 
       if ((Game.time % 101) == 0) {
         room.place_construction_sites()

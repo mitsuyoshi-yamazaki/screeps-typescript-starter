@@ -1,6 +1,7 @@
 import { RegionMemory } from "./region";
 
-export function runTowers(towers: StructureTower[], room: Room): void {
+export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max_hits?: number}): void {
+  opts = opts || {}
 
   const damaged_hostiles: Creep[] = room.attacker_info.hostile_creeps.filter((creep) => {
     return (creep.hits < creep.hitsMax)
@@ -101,7 +102,10 @@ export function runTowers(towers: StructureTower[], room: Room): void {
       return -1
     })
 
-    if (!region_memory || !region_memory.wall_max_hits || (walls[0] && (walls[0].hits < region_memory.wall_max_hits))) {
+    if (opts.wall_max_hits && (walls[0].hits < opts.wall_max_hits)) {
+      damaged_wall = walls[0]
+    }
+    else if (!region_memory || !region_memory.wall_max_hits || (walls[0] && (walls[0].hits < region_memory.wall_max_hits))) {
       damaged_wall = walls[0]
     }
 
