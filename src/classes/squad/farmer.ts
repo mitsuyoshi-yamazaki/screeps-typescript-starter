@@ -31,13 +31,13 @@ export class FarmerSquad extends Squad {
   private renew_position: {x:number, y:number}
 
   private next_creep: CreepType | undefined
-
+  private stop_upgrader_spawn = false
 
   private spawn: StructureSpawn | undefined
   private lab: StructureLab | undefined
   private towers: StructureTower[] = []
 
-  private boost_resource_type: ResourceConstant = RESOURCE_GHODIUM_ACID
+  private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -254,6 +254,21 @@ export class FarmerSquad extends Squad {
 
     switch (this.next_creep) {
       case CreepType.UPGRADER:
+        if (this.stop_upgrader_spawn) {
+          return SpawnPriority.NONE
+        }
+
+        const oldest_upgrader = this.upgraders.renew
+        if (oldest_upgrader && ((oldest_upgrader.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((oldest_upgrader.ticksToLive || 0) < 160))) {
+          this.stop_upgrader_spawn = true
+          return SpawnPriority.NONE
+        }
+
+        const youngest_upgrader = this.upgraders.sorted[this.upgraders.sorted.length - 1]
+        if (youngest_upgrader && ((youngest_upgrader.ticksToLive || 1500) > 1340)) {
+          this.stop_upgrader_spawn = true
+          return SpawnPriority.NONE
+        }
         return SpawnPriority.LOW
 
       case CreepType.WORKER:
@@ -391,6 +406,10 @@ export class FarmerSquad extends Squad {
 
   // ---
   private addFarmer(energy_available: number, spawn_func: SpawnFunction): void {
+    if (this.stop_upgrader_spawn) {
+      return
+    }
+
     const body: BodyPartConstant[] = [
       MOVE, MOVE, MOVE, MOVE, MOVE,
       MOVE,
@@ -413,10 +432,13 @@ export class FarmerSquad extends Squad {
       type: CreepType.UPGRADER,
       should_notify_attack: false,
       let_thy_die: false,
-      // pos: this.find_non_used_position()
     }
 
-    this.addGeneralCreep(spawn_func, body, CreepType.UPGRADER, {memory})
+    const result = this.addGeneralCreep(spawn_func, body, CreepType.UPGRADER, {memory})
+
+    if (result == OK) {
+      this.stop_upgrader_spawn = true
+    }
   }
 
   private addCarrier(energy_available: number, spawn_func: SpawnFunction): void {
