@@ -1363,6 +1363,11 @@ export class RemoteHarvesterSquad extends Squad {
 
       if (attacker) {
         // creep.say(`M2A`)
+        if (['W45S27'].indexOf(creep.room.name) >= 0) {
+          creep.moveToRoom(attacker.room.name)
+          return
+        }
+
         creep.moveTo(attacker)
       }
       else {
