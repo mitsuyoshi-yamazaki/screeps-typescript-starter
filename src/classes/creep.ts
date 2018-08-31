@@ -2307,6 +2307,9 @@ export function init() {
         if ((result != OK) && (result != ERR_NOT_IN_RANGE)) {
           this.say(`C${result}`)
         }
+        if (result = ERR_GCL_NOT_ENOUGH) {
+          this.reserveController(target)
+        }
       }
     }
     else {

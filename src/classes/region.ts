@@ -308,9 +308,6 @@ export class Region {
         // }
         break
 
-      case 'W49S6':
-        break
-
       case 'W46S3':
         harvester_targets = [
           { id: '59f1c0cf7d0b3d79de5f02eb', room_name: 'W46S3' }, // Oxygen
@@ -338,6 +335,10 @@ export class Region {
         harvester_targets = [
           { id: '59f1c0cd7d0b3d79de5eff8c', room_name: 'W56S7' }, // Catalyst
         ]
+        this.temp_squad_opt = {
+          target_room_name: 'W58S4',
+          forced: true,
+        }
         break
 
       case 'W55S23':
@@ -717,7 +718,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6', 'W56S7'].indexOf(this.room.name) >= 0) {
+            if (['W48S6'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
