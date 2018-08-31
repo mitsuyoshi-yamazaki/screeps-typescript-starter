@@ -227,10 +227,10 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W49S6',
-        //   forced: false,
-        // }
+        this.temp_squad_opt = {
+          target_room_name: 'W49S6',
+          forced: false,
+        }
         break
 
       case 'W43S5':
@@ -255,12 +255,6 @@ export class Region {
           lhs: '5b3a25ac4db5b770faec5a37', // 15, 11
           rhs: '5b3a1d976ee50a3f1cb8e34f', // 16, 10
         }
-        // if (Game.gcl.level >= 10) {
-          // this.temp_squad_opt = {
-          //   target_room_name: 'E16N37',
-          //   forced: true,
-          // }
-        // }
         break
 
       case 'W47S6':

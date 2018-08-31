@@ -16,6 +16,12 @@ export class Empire {
     ]
     const attack_to: string | null = null
 
+    const gcl_farm_rooms = [
+      'W49S6',
+      'W46S9',
+      'W47S8',
+    ]
+
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
@@ -39,8 +45,10 @@ export class Empire {
       }, `${room.name}.init`)()
     }
 
-    const set_delegate = (base_region_name: string, colony_region_name: string, excludes?: SquadType[]) => {
+    const set_delegate = (base_region_name: string, colony_region_name: string, opts?: {excludes?: SquadType[], max_rcl?: number}) => {
       ErrorMapper.wrapLoop(() => {
+        opts = opts || {}
+
         const base_region = this.regions.get(base_region_name)
         const colony_region = this.regions.get(colony_region_name)
 
@@ -53,14 +61,18 @@ export class Empire {
           return
         }
 
+        if (opts.max_rcl && (colony_region.controller.level > opts.max_rcl)) {
+          return
+        }
+
         const includes_opt = [
           SquadType.REMOET_HARVESTER,
           SquadType.REMOET_M_HARVESTER,
         ]
 
         let excludes_opt: SquadType[]
-        if (excludes) {
-          excludes_opt = excludes
+        if (opts.excludes) {
+          excludes_opt = opts.excludes
         }
         else if (colony_region.room.spawns.length > 0) {
           excludes_opt = [
@@ -120,7 +132,7 @@ export class Empire {
 
     const time = (Game.time % 3)
 
-    set_delegate(w56s7, w58s4)
+    set_delegate(w56s7, w58s4, {max_rcl: 4})
 
     if (time == 2) {
     }
