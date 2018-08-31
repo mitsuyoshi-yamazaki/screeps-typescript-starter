@@ -595,76 +595,7 @@ export function tick(): void {
   }
 
   Game.transfer_energy = (target_room_name: string, opts?: {stop?: boolean}) => {
-    if (!Game.rooms[target_room_name]) {
-      console.log(`Game.transfer_energy wrong room name ${target_room_name}`)
-      return
-    }
-
-    opts = opts || {}
-
-    const stop_text = opts.stop ? '(Stop) ' : ''
-    console.log(`${stop_text}Transfer energy: ${room_link(target_room_name)}`)
-
-    if (opts.stop) {
-      for (const room_name in Game.rooms) {
-        const region_memory = Memory.regions[room_name]
-        if (!region_memory || !region_memory.resource_transports) {
-          continue
-        }
-
-        const transfer = region_memory.resource_transports[target_room_name]
-        if (!transfer) {
-          continue
-        }
-
-        const index = transfer.indexOf(RESOURCE_ENERGY)
-        if (index < 0) {
-          continue
-        }
-
-        transfer.splice(index, 1)
-        console.log(`- ${room_name}`)
-
-        if (transfer.length == 0) {
-          delete region_memory.resource_transports[target_room_name]
-        }
-      }
-    }
-    else {
-      [
-        'W43S5',
-        'W44S7',
-        'W45S27',
-        'W46S3',
-        'W47S6',
-        'W48S6',
-        'W47S9',
-        'W56S7',
-      ].forEach((room_name) => {
-        if (room_name == target_room_name) {
-          return
-        }
-
-        const region_memory = Memory.regions[room_name]
-        if (!region_memory || !region_memory.resource_transports) {
-          return
-        }
-
-        const transfer = region_memory.resource_transports[target_room_name]
-        if (transfer) {
-          if (transfer.indexOf(RESOURCE_ENERGY) >= 0) {
-            return
-          }
-          transfer.push(RESOURCE_ENERGY)
-        }
-        else {
-          region_memory.resource_transports[target_room_name] = [RESOURCE_ENERGY]
-        }
-        console.log(`- ${room_name}`)
-      })
-
-      Memory.debug.test_send_resources = true
-    }
+    return Game.transfer_resource(RESOURCE_ENERGY, target_room_name, opts)
   }
 
   Game.transfer_resource = (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => {
