@@ -37,6 +37,7 @@ declare global {
 
     resource_transfer: (opts?: {reversed?: boolean, room?: string} | string) => void
     transfer_energy: (target_room_name: string, opts?: {stop?: boolean}) => void
+    transfer_resource: (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => void
 
     show_excluded_walls(room_name: string): void
     add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
@@ -651,6 +652,9 @@ export function tick(): void {
 
         const transfer = region_memory.resource_transports[target_room_name]
         if (transfer) {
+          if (transfer.indexOf(RESOURCE_ENERGY) >= 0) {
+            return
+          }
           transfer.push(RESOURCE_ENERGY)
         }
         else {
@@ -660,6 +664,103 @@ export function tick(): void {
       })
 
       Memory.debug.test_send_resources = true
+    }
+  }
+
+  Game.transfer_resource = (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => {
+    if (!Game.rooms[target_room_name]) {
+      console.log(`Game.transfer_resource wrong room name ${target_room_name}`)
+      return
+    }
+    if (RESOURCES_ALL.indexOf(resource_type) < 0) {
+      console.log(`Game.transfer_resource wrong resource type ${resource_type}`)
+      return
+    }
+
+    opts = opts || {}
+
+    const stop_text = opts.stop ? '(Stop) ' : ''
+    console.log(`${stop_text}Transfer ${resource_type}: ${room_link(target_room_name)}`)
+
+    if (opts.stop) {
+      for (const region_name in Memory.regions) {
+        if (region_name == target_room_name) {
+          continue
+        }
+
+        const region_memory = Memory.regions[region_name]
+        if (!region_memory || !region_memory.resource_transports) {
+          continue
+        }
+
+        const transfer = region_memory.resource_transports[target_room_name]
+        if (!transfer) {
+          continue
+        }
+
+        const index = transfer.indexOf(resource_type)
+        if (index < 0) {
+          continue
+        }
+
+        transfer.splice(index, 1)
+        console.log(`- ${region_name}`)
+
+        if (transfer.length == 0) {
+          delete region_memory.resource_transports[target_room_name]
+        }
+      }
+    }
+    else {
+      const energy_source_regions: string[] = [
+        'W43S5',
+        'W44S7',
+        'W45S27',
+        'W46S3',
+        'W47S6',
+        'W48S6',
+        'W47S9',
+        'W56S7',
+      ]
+
+      for (const region_name in Memory.regions) {
+        if (region_name == target_room_name) {
+          continue
+        }
+
+        if (resource_type == RESOURCE_ENERGY) {
+          if (energy_source_regions.indexOf(region_name) < 0) {
+            continue
+          }
+        }
+
+        const region_memory = Memory.regions[region_name]
+        const room = Game.rooms[region_name]
+        if (!region_memory || !region_memory.resource_transports || !room || !room.terminal || !room.storage) {
+          continue
+        }
+
+        const resource_amount = (room.terminal.store[resource_type] || 0) + (room.storage.store[resource_type] || 0)
+        if (resource_amount < 4000) {
+          continue
+        }
+
+        const transfer = region_memory.resource_transports[target_room_name]
+        if (transfer) {
+          if (transfer.indexOf(resource_type) >= 0) {
+            continue
+          }
+          transfer.push(resource_type)
+        }
+        else {
+          region_memory.resource_transports[target_room_name] = [resource_type]
+        }
+        console.log(`- ${region_name}`)
+      }
+
+      if (!opts.no_immediate_send) {
+        Memory.debug.test_send_resources = true
+      }
     }
   }
 

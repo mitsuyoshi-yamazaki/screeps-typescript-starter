@@ -347,6 +347,9 @@ export class Region {
         break
 
       case 'W55S13':
+        harvester_targets = [
+          { id: '59f1c0cd7d0b3d79de5effd9', room_name: 'W55S13' },  // Oxygen
+        ]
         break
 
       case 'W58S4':
