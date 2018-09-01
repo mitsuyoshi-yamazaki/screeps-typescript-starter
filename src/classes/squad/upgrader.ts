@@ -53,7 +53,7 @@ export class UpgraderSquad extends Squad {
     else if (['W46S3', 'W45S27'].indexOf(room_name) >= 0) {
       max = Math.min(max, 1)
     }
-    else if (['W55S23'].indexOf(room_name) >= 0) {
+    else if (['W55S13'].indexOf(room_name) >= 0) {
       max = Math.min(max, 2)
     }
     if (room_name == 'W56S7') {

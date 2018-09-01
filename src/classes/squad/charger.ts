@@ -4,6 +4,7 @@ import { CreepStatus, ActionResult, CreepTransferLinkToStorageOption, CreepType 
 
 export class ChargerSquad extends Squad {
   private number_of_carries: number
+  private additional_links: StructureLink[] | undefined
 
   public static need_instantiation(memory: SquadMemory, controller: StructureController): boolean {
     const squad_creeps = Game.squad_creeps[memory.name]
@@ -27,24 +28,30 @@ export class ChargerSquad extends Squad {
     return creeps_size < 1 ? SpawnPriority.HIGH : SpawnPriority.NONE
   }
 
-  constructor(readonly name: string, readonly room: Room, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}) {
+  constructor(readonly name: string, readonly room: Room, readonly link: StructureLink | undefined, readonly support_links: StructureLink[], readonly creep_position: {x: number, y: number}, opts?: {additional_links?: StructureLink[]}) {
     super(name)
+
+    opts = opts || {}
+
+    if (opts.additional_links) {
+      this.additional_links = opts.additional_links
+    }
 
     if (!room.controller || !room.controller.my) {
       const message = `ChargerSquad no controller for ${room.name} ${this.name}`
       console.log(message)
       Game.notify(message)
 
-      this.number_of_carries = 2
+      this.number_of_carries = 4
     }
     else if (room.controller.level == 8) {
-      this.number_of_carries = 6
+      this.number_of_carries = 8
     }
     else if (room.controller.level >= 7) {
-      this.number_of_carries = 3
+      this.number_of_carries = 6
     }
     else {
-      this.number_of_carries = 2
+      this.number_of_carries = 4
     }
   }
 
@@ -93,8 +100,9 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    if ((this.room.name == 'W55S13')) {
+    if (this.additional_links) {
       opt.transfer_energy = true
+      opt.additional_links = this.additional_links
     }
 
     this.creeps.forEach((creep) => {

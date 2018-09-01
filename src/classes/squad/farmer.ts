@@ -37,7 +37,7 @@ export class FarmerSquad extends Squad {
   private lab: StructureLab | undefined
   private towers: StructureTower[] = []
 
-  private boost_resource_type: ResourceConstant = RESOURCE_GHODIUM_ACID
+  private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -264,11 +264,11 @@ export class FarmerSquad extends Squad {
           return SpawnPriority.NONE
         }
 
-        const youngest_upgrader = this.upgraders.sorted[this.upgraders.sorted.length - 1]
-        if (youngest_upgrader && ((youngest_upgrader.ticksToLive || 1500) > 1340)) {
-          this.stop_upgrader_spawn = true
-          return SpawnPriority.NONE
-        }
+        // const youngest_upgrader = this.upgraders.sorted[this.upgraders.sorted.length - 1]
+        // if (youngest_upgrader && ((youngest_upgrader.ticksToLive || 1500) > 1340)) {
+        //   this.stop_upgrader_spawn = true
+        //   return SpawnPriority.NONE
+        // }
         return SpawnPriority.LOW
 
       case CreepType.WORKER:

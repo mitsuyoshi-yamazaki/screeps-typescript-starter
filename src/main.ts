@@ -298,6 +298,9 @@ function sellResource(opt: TradeResourceOptions): void {
       if (index >= 0) {
         opt.rooms.splice(index, 1)
       }
+
+      console.log(message)
+      Game.notify(message)
     }
     else {
       message = `[NO Trader] SELL ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
@@ -312,7 +315,7 @@ function sellResource(opt: TradeResourceOptions): void {
     }
 
     console.log(message)
-    Game.notify(message)
+    // Game.notify(message)
   }
   else {
     // console.log(`No ${opt.resource_type} buy orders (${opt.price})`)
@@ -399,13 +402,15 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
       if (index >= 0) {
         opt.rooms.splice(index, 1)
       }
+
+      console.log(message)
+      Game.notify(message)
     }
     else {
       message = `[NO Trader] BUY ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
+      console.log(message)
+      // Game.notify(message)
     }
-
-    console.log(message)
-    Game.notify(message)
   }
   else {
     // console.log(`No ${opt.resource_type} sell orders (${opt.price})`)

@@ -22,6 +22,7 @@ import { runTowers } from "./tower";
 export interface RegionMemory {
   destination_container_id?: string | null
   upgrader_additional_source_ids?: string[]
+  additional_source_link_ids?: string[]
   input_lab_ids?: {lhs: string | null, rhs: string | null}
   destination_link_id?: string | null
   support_link_ids?: string[]
@@ -96,13 +97,14 @@ export class Region {
       const ancestor = (!(!room_memory) && !(!room_memory.ancestor)) ? room_memory.ancestor : 'origin'
 
       Memory.regions[this.name] = {
+        reaction_outputs: [],
+        resource_transports: {},
         destination_container_id: null,
         input_lab_ids: {lhs: null, rhs: null},
         destination_link_id: null,
         support_link_ids: [],
         upgrader_additional_source_ids: [],
-        reaction_outputs: [],
-        resource_transports: {},
+        additional_source_link_ids: [],
         charger_position: null,
         room_need_scout: [],
         rooms_need_to_be_defended: [],
@@ -625,17 +627,6 @@ export class Region {
           }
           case SquadType.CHARGER: {
 
-            // if ((this.room.name == 'W49S6')) {
-            //   if (this.controller.level >= 6) {
-            //     const squad = new ChargerSquad(squad_memory.name, this.room, undefined, [], {x:31, y:4})
-            //     this.squads.set(squad.name, squad)
-            //   }
-            //   else {
-            //     this.no_instantiations.push(`    - ${squad_memory.name}`)
-            //   }
-            // }
-            // else {
-
             if (ChargerSquad.need_instantiation(squad_memory, this.controller)) {
               if (!charger_position) {
                 const message = `Region charger_position for room ${this.room.name}`
@@ -656,14 +647,23 @@ export class Region {
                 return true
               }) as StructureLink[]
 
-              const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position)
+              const opts: {additional_links?: StructureLink[]} = {}
+
+              if (region_memory && region_memory.additional_source_link_ids) {
+                opts.additional_links = region_memory.additional_source_link_ids.map((id) => {
+                  return Game.getObjectById(id) as StructureLink
+                }).filter((l) => {
+                  return !(!l)
+                })
+              }
+
+              const squad = new ChargerSquad(squad_memory.name, this.room, link, support_links, charger_position, opts)
 
               this.squads.set(squad.name, squad)
             }
             else {
               this.no_instantiations.push(`    - ${squad_memory.name}`)
             }
-            // }
             break
           }
           case SquadType.RESEARCHER: {

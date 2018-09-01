@@ -1186,7 +1186,6 @@ export function init() {
 
   Creep.prototype.transferLinkToStorage = function(link: StructureLink | undefined, pos: {x: number, y: number}, opt?: CreepTransferLinkToStorageOption): void {
     opt = opt || {}
-    const additional_link = (opt.additional_links || [])[0]
 
     if (!this.room.storage) {
       this.say(`ERR`)
@@ -1218,25 +1217,6 @@ export function init() {
 
     const carry = _.sum(this.carry)
     const storage = this.room.storage
-
-    // //
-    // if ((this.memory.squad_name == 'charger_w49s6') && ((this.ticksToLive || 0) > 2)) { // W49S6
-    //   const lab = Game.getObjectById('5b5aaa177b80103f4711729a') as StructureLab | undefined
-    //   const resource_type = RESOURCE_GHODIUM_ACID
-
-    //   if (lab && (lab.mineralAmount < lab.mineralCapacity)) {
-    //     if ((carry == 0)) {
-    //       if (lab.room.terminal && ((lab.room.terminal.store[resource_type] || 0) > 0)) {
-    //         this.withdraw(lab.room.terminal, resource_type)
-    //         return
-    //       }
-    //     }
-    //     else if ((this.carry[resource_type] || 0) > 0) {
-    //       this.transfer(lab, resource_type)
-    //       return
-    //     }
-    //   }
-    // }
 
     // withdraw
     if ((carry == 0) && ((this.ticksToLive || 0) > 2)) {
@@ -1307,28 +1287,21 @@ export function init() {
               return
             }
           }
-          // else if ((this.room.name == 'W55S23')) {
-          //   const another = Game.getObjectById('5b73fd139815df3d844efe02') as StructureLink | undefined
 
-          //   if (another) {
-          //     if (another.energy < another.energyCapacity) {
-          //       if (this.transfer(another, RESOURCE_ENERGY) == OK) {
-          //         return
-          //       }
-          //     }
-          //   }
-          // }
+          const additional_links = (opt.additional_links || [])
+
+          for (const additional_link of additional_links) {
+            if (additional_link.energy < additional_link.energyCapacity) {
+              if (this.transfer(additional_link, RESOURCE_ENERGY) == OK) {
+                return
+              }
+            }
+          }
         }
 
         const target = this.find_charge_target()
         if (target) {
           if (this.transfer(target, RESOURCE_ENERGY) == OK) {
-            return
-          }
-        }
-
-        if (additional_link) {
-          if (this.transfer(additional_link, RESOURCE_ENERGY) == OK) {
             return
           }
         }
@@ -1458,6 +1431,8 @@ export function init() {
       return ActionResult.DONE
     }
 
+    const upgrade_result = this.upgradeController(this.room.controller)
+
     if (([CreepStatus.HARVEST, CreepStatus.UPGRADE].indexOf(this.memory.status) < 0) || (this.carry.energy == 0)) {
       this.memory.status = CreepStatus.HARVEST
     }
@@ -1487,7 +1462,7 @@ export function init() {
         }
       }
     }
-    else if (!this.memory.stop) {
+    else if (!this.memory.stop && (upgrade_result != OK)) {
       const move_to_opts: MoveToOpts = {
         maxRooms: 1,
       }
@@ -1521,7 +1496,6 @@ export function init() {
       }
     }
 
-    const upgrade_result = this.upgradeController(this.room.controller)
     if (upgrade_result == OK) {
       if (is_target_for_upgrader) {
         this.memory.stop = true

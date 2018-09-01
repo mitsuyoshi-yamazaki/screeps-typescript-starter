@@ -157,12 +157,13 @@ export abstract class Squad {
   }
 
   public hasEnoughEnergyForUpgrader(energyAvailable: number, capacity: number, max_energy?: number): boolean {
-    max_energy = max_energy || 2150
+    max_energy = max_energy || 2000
 
     capacity = Math.min(capacity, max_energy)
     capacity = Math.min(capacity, 4500)
 
-    const energy_unit = 500 // actual: 472.22
+    // const energy_unit = 500 // actual: 472.22
+    const energy_unit = 300
     const energyNeeded = (Math.floor(capacity / energy_unit) * energy_unit)
     return energyAvailable >= energyNeeded
   }
@@ -176,8 +177,10 @@ export abstract class Squad {
     energyAvailable = Math.min(energyAvailable, 4500)
 
     const move: BodyPartConstant[] = [MOVE]
-    const work: BodyPartConstant[] = [WORK, WORK, WORK, WORK]
-    const energy_unit = 500
+    // const work: BodyPartConstant[] = [WORK, WORK, WORK, WORK]
+    const work: BodyPartConstant[] = [WORK, WORK]
+    // const energy_unit = 500
+    const energy_unit = 300
 
     let body: BodyPartConstant[] = []
     const name = this.generateNewName()
@@ -200,7 +203,8 @@ export abstract class Squad {
       number_of_units += 1
     }
 
-    const number_of_carries = Math.ceil((number_of_units * 4.0) / 9.0)
+    // const number_of_carries = Math.ceil((number_of_units * 4.0) / 9.0)
+    const number_of_carries = Math.ceil((number_of_units * 2.0) / 9.0)
 
     for (let i = 0; i < number_of_carries; i++) {
       body.push(CARRY)
