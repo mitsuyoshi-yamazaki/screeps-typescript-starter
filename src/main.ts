@@ -300,7 +300,7 @@ function sellResource(opt: TradeResourceOptions): void {
       }
 
       console.log(message)
-      Game.notify(message)
+      // Game.notify(message)
     }
     else {
       message = `[NO Trader] SELL ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
@@ -404,7 +404,7 @@ function buyResource(opt: TradeResourceOptions, credit_amount: number): void {
       }
 
       console.log(message)
-      Game.notify(message)
+      // Game.notify(message)
     }
     else {
       message = `[NO Trader] BUY ${opt.resource_type}, ${order.id} ${order.price} * ${order.amount} orders: ${orders.map(o=>`\n${o.price} * ${o.amount}`)}`
