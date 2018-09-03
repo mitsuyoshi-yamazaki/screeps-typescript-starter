@@ -32,6 +32,9 @@ export class Empire {
     if (claim_to.at_level && (Game.gcl.level < claim_to.at_level)) {
       claim_to = null
     }
+    if (claim_to) {
+      this.setDelegate(claim_to.base_room_name, claim_to.target_room_name)
+    }
 
     const gcl_farm_rooms = [
       'W49S6',
@@ -67,74 +70,6 @@ export class Empire {
         const region = new Region(controller, opt)
         this.regions.set(region.name, region)
       }, `${room.name}.init`)()
-    }
-
-    const set_delegate = (base_region_name: string, colony_region_name: string, opts?: {excludes?: SquadType[], max_rcl?: number}) => {
-      ErrorMapper.wrapLoop(() => {
-        opts = opts || {}
-
-        const base_region = this.regions.get(base_region_name)
-        const colony_region = this.regions.get(colony_region_name)
-
-        if (!base_region || !colony_region || !colony_region.controller.my) {
-          if ((Game.time % 29) == 13) {
-            const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
-            console.log(message)
-            // Game.notify(message)
-          }
-          return
-        }
-
-        if (opts.max_rcl && (colony_region.controller.level > opts.max_rcl)) {
-          return
-        }
-
-        const includes_opt = [
-          SquadType.REMOET_HARVESTER,
-          SquadType.REMOET_M_HARVESTER,
-        ]
-
-        let excludes_opt: SquadType[]
-        if (opts.excludes) {
-          excludes_opt = opts.excludes
-        }
-        else if (colony_region.room.spawns.length > 0) {
-          excludes_opt = [
-            SquadType.ATTACKER,
-            SquadType.SCOUT,
-            SquadType.TEMP,
-            SquadType.CHARGER,
-          ]
-
-          if ((colony_region.controller.level >= 3) && (colony_region.room.energyCapacityAvailable >= 600)) {
-            excludes_opt.push(SquadType.HARVESTER)
-          }
-          if ((colony_region.controller.level >= 4) && (colony_region.room.energyCapacityAvailable >= 1800)) {
-            excludes_opt.push(SquadType.WORKER)
-            excludes_opt.push(SquadType.MANUAL)
-            excludes_opt.push(SquadType.RESEARCHER)
-            excludes_opt.push(SquadType.UPGRADER)
-          }
-        }
-        else {
-          excludes_opt = []
-        }
-
-        if ((colony_region.controller.level <= 5)) {
-          const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
-            return excludes_opt.indexOf(squad.type) < 0
-          })
-
-          base_region.delegated_squads = squads
-        }
-        else if (colony_region.controller.level <= 6) {
-          const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
-            return includes_opt.indexOf(squad.type) >= 0
-          })
-
-          base_region.delegated_squads = squads
-        }
-      }, `${base_region_name}.set_delegate`)()
     }
 
     const w51s29 = 'W51S29'
@@ -178,5 +113,74 @@ export class Empire {
         region.run()
       }, `${region.name}.run`)()
     })
+  }
+
+  // --- Private
+  private setDelegate(base_region_name: string, colony_region_name: string, opts?: {excludes?: SquadType[], max_rcl?: number}): void {
+    ErrorMapper.wrapLoop(() => {
+      opts = opts || {}
+
+      const base_region = this.regions.get(base_region_name)
+      const colony_region = this.regions.get(colony_region_name)
+
+      if (!base_region || !colony_region || !colony_region.controller.my) {
+        if ((Game.time % 29) == 13) {
+          const message = `Empire.set_delegate ERROR ${base_region_name} or ${colony_region_name} not found`
+          console.log(message)
+          // Game.notify(message)
+        }
+        return
+      }
+
+      if (opts.max_rcl && (colony_region.controller.level > opts.max_rcl)) {
+        return
+      }
+
+      const includes_opt = [
+        SquadType.REMOET_HARVESTER,
+        SquadType.REMOET_M_HARVESTER,
+      ]
+
+      let excludes_opt: SquadType[]
+      if (opts.excludes) {
+        excludes_opt = opts.excludes
+      }
+      else if (colony_region.room.spawns.length > 0) {
+        excludes_opt = [
+          SquadType.ATTACKER,
+          SquadType.SCOUT,
+          SquadType.TEMP,
+          SquadType.CHARGER,
+        ]
+
+        if ((colony_region.controller.level >= 3) && (colony_region.room.energyCapacityAvailable >= 600)) {
+          excludes_opt.push(SquadType.HARVESTER)
+        }
+        if ((colony_region.controller.level >= 4) && (colony_region.room.energyCapacityAvailable >= 1800)) {
+          excludes_opt.push(SquadType.WORKER)
+          excludes_opt.push(SquadType.MANUAL)
+          excludes_opt.push(SquadType.RESEARCHER)
+          excludes_opt.push(SquadType.UPGRADER)
+        }
+      }
+      else {
+        excludes_opt = []
+      }
+
+      if ((colony_region.controller.level <= 5)) {
+        const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+          return excludes_opt.indexOf(squad.type) < 0
+        })
+
+        base_region.delegated_squads = squads
+      }
+      else if (colony_region.controller.level <= 6) {
+        const squads: Squad[] = colony_region.squads_need_spawn.filter((squad) => {
+          return includes_opt.indexOf(squad.type) >= 0
+        })
+
+        base_region.delegated_squads = squads
+      }
+    }, `${base_region_name}.set_delegate`)()
   }
 }
