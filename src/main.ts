@@ -159,6 +159,12 @@ function trade():void {
   const credit_amount = Game.market.credits
   const rooms: Room[] = []
 
+  const o_rooms: Room[] = ['W43S5', 'W55S23'].map((room_name) => {
+    return Game.rooms[room_name]
+  }).filter((r) => {
+    return !(!r)
+  })
+
   for (const name in Game.rooms) {
     const room = Game.rooms[name]
     if (!room || !room.controller || !room.controller.my || !room.terminal) {
@@ -238,8 +244,8 @@ function trade():void {
 
   buyResource({
     resource_type: RESOURCE_OXYGEN,
-    price: 0.01,
-    rooms,
+    price: 0.06,
+    rooms: (o_rooms.length > 0) ? o_rooms : rooms,
   }, credit_amount)
 
   buyResource({
