@@ -89,7 +89,7 @@ export class ChargerSquad extends Squad {
     }
     body = body.concat([MOVE])
 
-    this.addGeneralCreep(spawn_func, body, CreepType.CARRIER)
+    this.addGeneralCreep(spawn_func, body, CreepType.CARRIER, {let_thy_live: true})
   }
 
   public run(): void {
@@ -106,6 +106,22 @@ export class ChargerSquad extends Squad {
     }
 
     this.creeps.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
+      const ticksToLive = (creep.ticksToLive || 1500)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((ticksToLive < 1400)))
+
+      if (needs_renew) {
+        if (ticksToLive > 1400) {
+          creep.memory.status = CreepStatus.NONE
+        }
+        else {
+          creep.memory.status = CreepStatus.WAITING_FOR_RENEW
+        }
+      }
+
       creep.transferLinkToStorage(link, this.creep_position, opt)
 
       // if (creep.carry.energy) {

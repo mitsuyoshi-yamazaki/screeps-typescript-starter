@@ -1,4 +1,4 @@
-import { UID } from "classes/utils"
+import { UID, room_link } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 import { Region } from "../region";
@@ -1146,7 +1146,7 @@ export function runHarvester(creep: Creep, room_name: string, source: Source | M
           }
 
           const result = creep.room.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER)
-          console.log(`HarvesterSquad place container on ${pos.x}, ${pos.y} at ${creep.room.name}, ${room_name}`)
+          console.log(`HarvesterSquad place container on ${pos.x}, ${pos.y} at ${room_link(room_name)}`)
           creep.memory.status = CreepStatus.HARVEST // @todo: more optimized way
           return
         }

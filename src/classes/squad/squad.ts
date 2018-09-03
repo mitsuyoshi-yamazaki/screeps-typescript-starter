@@ -138,7 +138,7 @@ export abstract class Squad {
   }
 
   // --- Utility
-  public addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, opts?: {memory?: CreepMemory}): ScreepsReturnCode {
+  public addGeneralCreep(spawn_func: SpawnFunction, body: BodyPartConstant[], type: CreepType, opts?: {memory?: CreepMemory, let_thy_live?: boolean}): ScreepsReturnCode {
     opts = opts || {}
 
     const name = this.generateNewName()
@@ -148,7 +148,7 @@ export abstract class Squad {
       birth_time: Game.time,
       type,
       should_notify_attack: false,
-      let_thy_die: true,
+      let_thy_die: !opts.let_thy_live,
     }
 
     return spawn_func(body, name, {
