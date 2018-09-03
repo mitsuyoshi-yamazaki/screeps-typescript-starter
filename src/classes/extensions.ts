@@ -599,10 +599,10 @@ export function tick(): void {
   }
 
   Game.transfer_resource = (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => {
-    if (!Game.rooms[target_room_name]) {
-      console.log(`Game.transfer_resource wrong room name ${target_room_name}`)
-      return
-    }
+    // if (!Game.rooms[target_room_name]) {
+    //   console.log(`Game.transfer_resource wrong room name ${target_room_name}`)
+    //   return
+    // }
     if (RESOURCES_ALL.indexOf(resource_type) < 0) {
       console.log(`Game.transfer_resource wrong resource type ${resource_type}`)
       return

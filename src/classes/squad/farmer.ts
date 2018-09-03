@@ -1,4 +1,4 @@
-import { UID } from "classes/utils"
+import { UID, room_link } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 import { runTowers } from "../tower";
@@ -396,6 +396,16 @@ export class FarmerSquad extends Squad {
 
     if (room && room.controller) {
       squad_memory.rcl = room.controller.level
+
+      if (((Game.time % 311) == 1) && (room.controller.level == 7)) {
+        const progress_percentage = Math.round((room.controller.progress / room.controller.progressTotal) * 1000) / 10
+
+        if (progress_percentage > 95) {
+          const message = `FarmerSquad ${progress_percentage}% ${room_link(room.name)}`
+          console.log(message)
+          Game.notify(message)
+        }
+      }
     }
   }
 

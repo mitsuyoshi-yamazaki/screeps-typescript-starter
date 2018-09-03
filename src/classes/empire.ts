@@ -132,7 +132,7 @@ export class Empire {
 
     const time = (Game.time % 3)
 
-    set_delegate(w56s7, w58s4, {max_rcl: 4})
+    // set_delegate(w56s7, w58s4, {max_rcl: 4})
 
     if (time == 2) {
     }

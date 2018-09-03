@@ -472,6 +472,7 @@ function sellOrders(resource_type: ResourceConstant, price: number): Order[] {
 /**
  * @todo:
  * cancel spawning attacker if the invader is eliminated within 10 ticks
+ * E13N45
  */
 
 

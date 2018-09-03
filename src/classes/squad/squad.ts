@@ -249,17 +249,17 @@ export abstract class Squad {
   }
 
   public hasEnoughEnergyForRangedAttacker(energy_available: number, capacity: number): boolean {
-    return energy_available >= 5040
+    return energy_available >= 4040
   }
 
   public addBasicRangedAttacker(energy_available: number, spawn_func: SpawnFunction): void {
-    // 5040
+    // 4040
 
     const body: BodyPartConstant[] = [
       TOUGH, TOUGH, TOUGH, TOUGH,
       RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
-      RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
-      MOVE, MOVE, MOVE, MOVE, MOVE,
+      // RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
+      // MOVE, MOVE, MOVE, MOVE, MOVE,
       MOVE, MOVE, MOVE, MOVE, MOVE,
       MOVE, MOVE, MOVE, MOVE, MOVE,
       RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK,
