@@ -1,9 +1,10 @@
 import { SquadMemory, SquadType } from "./squad/squad";
 import { RegionMemory } from "./region"
 import { ErrorMapper } from "utils/ErrorMapper";
-import { RemoteHarvesterSquadMemory } from "./squad/remote_harvester";
+import { RemoteHarvesterSquadMemory } from './squad/remote_harvester';
 import { UID, room_history_link, room_link, colored_resource_type, profile_link, colored_body_part } from "./utils";
 import { RoomLayout, RoomLayoutOpts } from "./room_layout";
+import { EmpireMemory } from './empire';
 
 export interface AttackerInfo  {
   hostile_creeps: Creep[]
@@ -30,7 +31,7 @@ declare global {
     check_all_resources: () => void
     check_boost_resources: () => void
     collect_resources: (resource_type: ResourceConstant, room_name: string, threshold?: number) => void
-    info: (opts:{sorted?: boolean}) => void
+    info: (opts?:{sorted?: boolean}) => void
     reset_costmatrix: (room_name: string) => void
     reset_all_costmatrixes: () => void
     creep_positions: (squad_name: string) => void
@@ -47,6 +48,7 @@ declare global {
 
   interface Memory {
     last_tick: number
+    empires: {[name: string]: EmpireMemory}
     squads: {[index: string]: SquadMemory}
     temp_squads: SquadMemory[]
     debug_last_tick: any
@@ -309,7 +311,7 @@ export function tick(): void {
     console.log(`Collect resource ${resource_type} ${room_name}: ${target_room.terminal.store[resource_type] || 0} + ${sum}${details}`)
   }
 
-  Game.info = (opts:{sorted?: boolean}) => {
+  Game.info = (opts?:{sorted?: boolean}) => {
     opts = opts || {}
 
     let gcl_farm_info: string[] = []

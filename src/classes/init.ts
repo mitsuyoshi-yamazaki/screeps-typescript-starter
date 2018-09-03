@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.49.11'
+const version = '2.50.0'
 
 export function init(): void {
   Game.version = version
@@ -15,6 +15,10 @@ export function init(): void {
   if (Memory.versions.indexOf(Game.version) < 0) {
     Memory.versions.push(Game.version)
     console.log(`Updated v${Game.version}`)
+  }
+
+  if (!Memory.empires) {
+    Memory.empires = {}
   }
 
   if (Memory.squads == null) {

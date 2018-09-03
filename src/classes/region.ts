@@ -50,6 +50,7 @@ export interface RegionMemory {
 export interface RegionOpt {
   produce_attacker: boolean,
   attack_to: string | null,
+  temp_squad_opt?: {target_room_name: string, forced?: boolean}
 }
 
 export class Region {
@@ -69,7 +70,6 @@ export class Region {
   worker_squad: WorkerSquad
   private spawns = new Map<string, StructureSpawn>()
   private attacked_rooms: string[] = []
-  private temp_squad_opt: {target_room_name: string, forced?: boolean} | undefined
   private no_instantiations: string[] = []
 
   private get support_link_ids(): string[] {
@@ -174,10 +174,6 @@ export class Region {
         rooms_need_scout = []//['W51S21']
         this.destination_link_id = '5b1f028bb08a2b269fba0f6e'
         charger_position = {x: 24, y: 21}
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W55S23',
-        //   forced: true,
-        // }
         break
 
       case 'W44S7':
@@ -229,10 +225,6 @@ export class Region {
           lhs: '5b358e1d24c2d964cdd22578', // 41, 22
           rhs: '5b35ab4b2ffd7a7b7f48fb7d', // 42, 21
         }
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W49S6',
-        //   forced: false,
-        // }
         break
 
       case 'W43S5':
@@ -298,10 +290,6 @@ export class Region {
         ]
         this.destination_link_id = '5b5908afdabde472b944723d'
         charger_position = {x: 38, y: 7}
-        // this.temp_squad_opt = {
-        //   target_room_name: 'W46S9',
-        //   forced: false,
-        // }
         break
 
       case 'W46S3':
@@ -331,10 +319,6 @@ export class Region {
         harvester_targets = [
           { id: '59f1c0cd7d0b3d79de5eff8c', room_name: 'W56S7' }, // Catalyst
         ]
-        this.temp_squad_opt = {
-          target_room_name: 'W58S4',
-          forced: true,
-        }
         break
 
       case 'W55S23':
@@ -353,7 +337,7 @@ export class Region {
         break
 
       default:
-        console.log(`Region.initialize unexpected region name, ${this.name}`)
+        // console.log(`Region.initialize unexpected region name, ${this.name}`)
         break
     }
 
@@ -748,14 +732,14 @@ export class Region {
             break
           }
           case SquadType.TEMP: {
-            if (this.temp_squad_opt) {
+            if (region_opt.temp_squad_opt) {
               // Creating squad costs CPU
-              const temp_squad_target_room = Game.rooms[this.temp_squad_opt.target_room_name]
+              const temp_squad_target_room = Game.rooms[region_opt.temp_squad_opt.target_room_name]
               const not_my_room = (!temp_squad_target_room || !temp_squad_target_room.controller || !temp_squad_target_room.controller.my)
-              const owned = !(!this.temp_squad_opt.forced) && temp_squad_target_room && (temp_squad_target_room.controller && (temp_squad_target_room.controller.level >= 5))
+              const owned = !(!region_opt.temp_squad_opt.forced) && temp_squad_target_room && (temp_squad_target_room.controller && (temp_squad_target_room.controller.level >= 5))
 
               if (not_my_room || !owned) {
-                const squad = new TempSquad(squad_memory.name, this.room.name, this.temp_squad_opt.target_room_name, !(!this.temp_squad_opt.forced))
+                const squad = new TempSquad(squad_memory.name, this.room.name, region_opt.temp_squad_opt.target_room_name, !(!region_opt.temp_squad_opt.forced))
                 this.squads.set(squad.name, squad)
               }
               else {

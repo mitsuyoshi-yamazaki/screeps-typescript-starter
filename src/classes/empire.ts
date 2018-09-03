@@ -7,14 +7,31 @@ enum State {
   EXPAND = "expand"
 }
 
+export interface EmpireMemory {
+  farm?: {room_name:string, progress:number}
+}
+
 export class Empire {
   private regions = new Map<string, Region>()
 
   constructor(readonly name: string) {
+    if (!Memory.empires[this.name]) {
+      Memory.empires[this.name] = {}
+    }
 
     const attacker_room_names: string[] = [
     ]
     const attack_to: string | null = null
+    let claim_to: {target_room_name: string, base_room_name: string, forced: boolean, at_level?: number} | null = {
+      target_room_name: 'E13N45',
+      base_room_name: 'W55S23',
+      forced: true,
+      at_level: 15,
+    }
+
+    if (claim_to.at_level && (Game.gcl.level < claim_to.at_level)) {
+      claim_to = null
+    }
 
     const gcl_farm_rooms = [
       'W49S6',
@@ -37,6 +54,13 @@ export class Empire {
       const opt: RegionOpt = {
         produce_attacker: (attacker_room_names.indexOf(room.name) >= 0),
         attack_to: attack_to,
+      }
+
+      if (claim_to && (claim_to.base_room_name == room.name)) {
+        opt.temp_squad_opt = {
+          target_room_name: claim_to.target_room_name,
+          forced: claim_to.forced,
+        }
       }
 
       ErrorMapper.wrapLoop(() => {
