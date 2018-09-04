@@ -19,9 +19,12 @@ export class Empire {
       Memory.empires[this.name] = {}
     }
 
+    // --- Attack
     const attacker_room_names: string[] = [
     ]
     const attack_to: string | null = null
+
+    // --- Claim
     let claim_to: {target_room_name: string, base_room_name: string, forced: boolean, at_level?: number} | null = {
       target_room_name: 'E13N45',
       base_room_name: 'W55S23',
@@ -36,11 +39,22 @@ export class Empire {
       this.setDelegate(claim_to.base_room_name, claim_to.target_room_name)
     }
 
+    // --- GCL Farm
     const gcl_farm_rooms = [
       'W49S6',
       'W46S9',
       'W47S8',
     ]
+
+    let next_farm: {target_room_name: string, base_room_name: string} | null = {
+      target_room_name: 'W47S8',
+      base_room_name: 'W47S9',
+    }
+    const replace_farm = true
+
+    if (replace_farm) {
+      next_farm = null
+    }
 
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
@@ -59,7 +73,13 @@ export class Empire {
         attack_to: attack_to,
       }
 
-      if (claim_to && (claim_to.base_room_name == room.name)) {
+      if (next_farm && (next_farm.base_room_name == room.name)) {
+        opt.temp_squad_opt = {
+          target_room_name: next_farm.target_room_name,
+          forced: false,
+        }
+      }
+      else if (claim_to && (claim_to.base_room_name == room.name)) {
         opt.temp_squad_opt = {
           target_room_name: claim_to.target_room_name,
           forced: claim_to.forced,

@@ -4,7 +4,7 @@ import { WorkerSquad } from "classes/squad/worker"
 import { ManualSquad } from "classes/squad/manual"
 import { HarvesterSquad, HarvesterSquadMemory } from "./squad/harvester"
 import { ScoutSquad } from "classes/squad/scout"
-import { CreepStatus, ActionResult, CreepType } from "./creep"
+import { ActionResult } from "./creep"
 import { AttackerSquad } from "./squad/attacker"
 import { UpgraderSquad } from "./squad/upgrader";
 import { ResearcherSquad, ResearchTarget } from "./squad/researcher";
