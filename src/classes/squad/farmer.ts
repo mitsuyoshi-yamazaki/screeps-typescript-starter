@@ -697,13 +697,13 @@ export class FarmerSquad extends Squad {
       const carry = _.sum(creep.carry)
 
       if (carry == 0) {
-        if (room.terminal && (rcl >= 6) && this.lab && (this.lab.mineralAmount < this.lab.mineralCapacity)) {
+        if (room.terminal && (rcl >= 6) && this.lab) {
           if (this.lab.mineralType && (this.lab.mineralType != this.boost_resource_type)) {
             creep.withdraw(this.lab, this.lab.mineralType)
             return
           }
 
-          if ((room.terminal.store[this.boost_resource_type] || 0) > 0) {
+          if ((this.lab.mineralAmount < this.lab.mineralCapacity) && ((room.terminal.store[this.boost_resource_type] || 0) > 0)) {
             creep.withdraw(room.terminal, this.boost_resource_type)
             return
           }

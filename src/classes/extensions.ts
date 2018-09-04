@@ -697,6 +697,10 @@ export function tick(): void {
         Memory.debug.test_send_resources = true
       }
     }
+
+    console.log(`---`)
+
+    Game.resource_transfer(target_room_name)
   }
 
 
