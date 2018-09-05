@@ -1517,6 +1517,8 @@ export function init() {
 
   // --- Work ---
   Creep.prototype.work = function(room: Room, sources: WorkerSource[], opts?: {additional_container_ids?: string[]}): void {
+    opts = opts || {}
+
     if (!room) {
       console.log(`Creep.work room not specified ${this.name}`)
     }
@@ -1573,7 +1575,7 @@ export function init() {
           this.say('H2C')
         }
 
-        const should_split_charger_and_upgrader = (this.room.attacked == false) && (['W43N5', 'W47N5', 'W47S6'].indexOf(this.room.name) < 0)
+        const should_split_charger_and_upgrader = false//(this.room.attacked == false) && (['W43N5', 'W47N5', 'W47S6'].indexOf(this.room.name) < 0)
 
         if (should_split_charger_and_upgrader) { // @fixme: temp code
           let number = 0
