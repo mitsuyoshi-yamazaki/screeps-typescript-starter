@@ -126,6 +126,15 @@ export class Empire {
       console.log(`Empire ${this.name} no farm room`)
     }
 
+    // @todo:
+    // next_farm on memory
+    // transfer boost compounds before unclaim
+    // next_farm = {
+    //   target_room_name: 'W49S6',
+    //   base_room_name: 'W48S6',
+    // }
+
+
     // --- Regions
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
