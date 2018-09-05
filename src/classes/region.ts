@@ -51,6 +51,7 @@ export interface RegionOpt {
   produce_attacker: boolean,
   attack_to: string | null,
   temp_squad_opt?: {target_room_name: string, forced?: boolean}
+  send_to_energy_threshold: number,
 }
 
 export class Region {
@@ -1171,7 +1172,7 @@ export class Region {
         }
 
         if (resource_type == RESOURCE_ENERGY) {
-          if (!this.room.storage || (this.room.storage.store.energy < 400000)) {
+          if (!this.room.storage || (this.room.storage.store.energy < this.region_opt.send_to_energy_threshold)) {
             // console.log(`Region.sendResources lack of energy ${this.room.name}`)
             continue
           }

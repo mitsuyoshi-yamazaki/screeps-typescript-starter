@@ -37,8 +37,8 @@ declare global {
     creep_positions: (squad_name: string) => void
 
     resource_transfer: (opts?: {reversed?: boolean, room?: string} | string) => void
-    transfer_energy: (target_room_name: string, opts?: {stop?: boolean}) => void
-    transfer_resource: (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => void
+    transfer_energy: (target_room_name: string, opts?: {stop?: boolean, notify?: boolean}) => void
+    transfer_resource: (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, notify?: boolean, no_immediate_send?: boolean}) => void
 
     show_excluded_walls(room_name: string): void
     add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
@@ -596,11 +596,11 @@ export function tick(): void {
     }
   }
 
-  Game.transfer_energy = (target_room_name: string, opts?: {stop?: boolean}) => {
+  Game.transfer_energy = (target_room_name: string, opts?: {stop?: boolean, notify?: boolean}) => {
     return Game.transfer_resource(RESOURCE_ENERGY, target_room_name, opts)
   }
 
-  Game.transfer_resource = (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, no_immediate_send?: boolean}) => {
+  Game.transfer_resource = (resource_type: ResourceConstant, target_room_name: string, opts?: {stop?: boolean, notify?: boolean, no_immediate_send?: boolean}) => {
     // if (!Game.rooms[target_room_name]) {
     //   console.log(`Game.transfer_resource wrong room name ${target_room_name}`)
     //   return
@@ -701,6 +701,11 @@ export function tick(): void {
     console.log(`---`)
 
     Game.resource_transfer(target_room_name)
+
+    if (opts.notify) {
+      const stop_text: string = !(!opts.stop) ? ' stop' : ''
+      Game.notify(`Game.transfer_resource ${resource_type}, ${target_room_name}${stop_text}`)
+    }
   }
 
 

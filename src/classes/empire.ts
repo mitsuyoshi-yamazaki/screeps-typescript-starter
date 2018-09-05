@@ -8,7 +8,7 @@ enum State {
 }
 
 export interface EmpireMemory {
-  farm?: {room_name:string, progress:number}
+  farm_energy_room: string | null
 }
 
 export class Empire {
@@ -16,7 +16,9 @@ export class Empire {
 
   constructor(readonly name: string) {
     if (!Memory.empires[this.name]) {
-      Memory.empires[this.name] = {}
+      Memory.empires[this.name] = {
+        farm_energy_room: null
+      }
     }
 
     // --- Attack
@@ -40,22 +42,91 @@ export class Empire {
     }
 
     // --- GCL Farm
-    const gcl_farm_rooms = [
-      'W49S6',
-      'W46S9',
-      'W47S8',
-    ]
-
-    let next_farm: {target_room_name: string, base_room_name: string} | null = {
-      target_room_name: 'W47S8',
-      base_room_name: 'W47S9',
-    }
-    const replace_farm = true
-
-    if (replace_farm) {
-      next_farm = null
+    const gcl_farm_rooms: {[room_name: string]: {next: string, base: string}} = {
+      W49S6: {next: 'W46S9', base: 'W48S6'},
+      W46S9: {next: 'W47S8', base: 'W47S9'},
+      W47S8: {next: 'W49S6', base: 'W47S9'},
     }
 
+    let farm_room: {room: Room, controller: StructureController, next: string, base: string} | null = null
+    let next_farm: {target_room_name: string, base_room_name: string} | null = null
+    let send_to_energy_threshold = 400000
+
+    for (const room_name in gcl_farm_rooms) {
+      const room = Game.rooms[room_name]
+      if (!room || !room.controller || !room.controller.my) {
+        continue
+      }
+      farm_room = {
+        room,
+        controller: room.controller,
+        ...gcl_farm_rooms[room_name]
+      }
+      break
+    }
+
+    if (farm_room) {
+      if (farm_room.controller) {
+        switch (farm_room.controller.level) {
+          case 1: {
+            this.transfer_farm_energy(farm_room.base)
+            break
+          }
+
+          case 6: {
+            if (farm_room.room.terminal) {
+              send_to_energy_threshold = 300000
+
+              this.transfer_farm_energy(farm_room.room.name, {with_boosts: true})
+            }
+            break
+          }
+
+          case 7: {
+            send_to_energy_threshold = 300000
+
+            const remaining = farm_room.controller.progressTotal - farm_room.controller.progress
+            if (remaining < 30000) {
+              next_farm = {
+                target_room_name: farm_room.next,
+                base_room_name: farm_room.base,
+              }
+            }
+            break
+          }
+
+          case 8: {
+            this.transfer_farm_energy(farm_room.room.name, {stop: true, with_boosts: true})
+
+            if (['W49S6', 'W46S9', 'W47S8'].indexOf(farm_room.room.name) >= 0) {
+              farm_room.controller.unclaim()
+              const message = `Unclaim farm ${farm_room}`
+              console.log(message)
+              Game.notify(message)
+            }
+            else {
+              const message = `You're about to unclaim ${farm_room.room.name}!`
+              console.log(message)
+              Game.notify(message)
+            }
+
+            next_farm = {
+              target_room_name: farm_room.next,
+              base_room_name: farm_room.base,
+            }
+            break
+          }
+
+          default:
+            break
+        }
+      }
+    }
+    else {
+      console.log(`Empire ${this.name} no farm room`)
+    }
+
+    // --- Regions
     for (const room_name in Game.rooms) {
       const room = Game.rooms[room_name]
       if (!room || !room.controller || !room.controller.my) {
@@ -70,7 +141,8 @@ export class Empire {
       const controller = room.controller
       const opt: RegionOpt = {
         produce_attacker: (attacker_room_names.indexOf(room.name) >= 0),
-        attack_to: attack_to,
+        attack_to,
+        send_to_energy_threshold,
       }
 
       if (next_farm && (next_farm.base_room_name == room.name)) {
@@ -136,6 +208,45 @@ export class Empire {
   }
 
   // --- Private
+  private transfer_farm_energy(room_name: string, opts?: {stop?: boolean, with_boosts?: boolean}): void {
+    opts = opts || {}
+
+    const empire_memory = Memory.empires[this.name]
+    if (!empire_memory) {
+      console.log(`Empire.transfer_farm_energy ${room_name} no empire memory for ${this.name}`)
+      return
+    }
+
+    const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+    const notify = true
+
+    if (opts.stop) {
+      if (empire_memory.farm_energy_room && (empire_memory.farm_energy_room == room_name)) {
+        Game.transfer_energy(room_name, {stop: true, notify})
+        empire_memory.farm_energy_room = null
+
+        if (opts.with_boosts) {
+          Game.transfer_resource(resource_type, room_name, {stop: true, notify})
+        }
+      }
+    }
+    else {
+      if (empire_memory.farm_energy_room && (empire_memory.farm_energy_room != room_name)) {
+        Game.transfer_energy(empire_memory.farm_energy_room, {stop: true, notify})
+        empire_memory.farm_energy_room = null
+      }
+
+      if (!empire_memory.farm_energy_room || (empire_memory.farm_energy_room != room_name)) {
+        Game.transfer_energy(room_name, {notify})
+        empire_memory.farm_energy_room = room_name
+
+        if (opts.with_boosts) {
+          Game.transfer_resource(resource_type, room_name, {notify})
+        }
+      }
+    }
+  }
+
   private setDelegate(base_region_name: string, colony_region_name: string, opts?: {excludes?: SquadType[], max_rcl?: number}): void {
     ErrorMapper.wrapLoop(() => {
       opts = opts || {}
