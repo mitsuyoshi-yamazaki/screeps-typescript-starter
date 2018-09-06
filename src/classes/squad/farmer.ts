@@ -124,10 +124,10 @@ export class FarmerSquad extends Squad {
     })
 
     this.upgraders.all = this.upgraders.all.sort((lhs, rhs) => {
-      if (lhs.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      if ((lhs.memory.status == CreepStatus.WAITING_FOR_RENEW) || lhs.spawning) {
         return -1
       }
-      if (rhs.memory.status == CreepStatus.WAITING_FOR_RENEW) {
+      if ((rhs.memory.status == CreepStatus.WAITING_FOR_RENEW) || rhs.spawning) {
         return 1
       }
 
@@ -198,12 +198,16 @@ export class FarmerSquad extends Squad {
         return CreepType.CARRIER
       }
 
-      // if (destination_room && ((destination_room.storage && (destination_room.storage.store.energy > 5000)) || (this.container && (this.container.store.energy > 1500)))) {
+      const oldest_upgrader = this.upgraders.renew
+      if (oldest_upgrader && ((oldest_upgrader.spawning) || (oldest_upgrader.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((oldest_upgrader.ticksToLive || 0) < 160))) {
+        this.stop_upgrader_spawn = true
+      }
+      else {
         if (debug) {
           console.log(`FarmerSquad.nextCreep upgrader ${this.name}`)
         }
         return CreepType.UPGRADER
-      // }
+      }
     }
 
     // Carrier
@@ -256,12 +260,6 @@ export class FarmerSquad extends Squad {
     switch (this.next_creep) {
       case CreepType.UPGRADER:
         if (this.stop_upgrader_spawn) {
-          return SpawnPriority.NONE
-        }
-
-        const oldest_upgrader = this.upgraders.renew
-        if (oldest_upgrader && ((oldest_upgrader.memory.status == CreepStatus.WAITING_FOR_RENEW) || ((oldest_upgrader.ticksToLive || 0) < 160))) {
-          this.stop_upgrader_spawn = true
           return SpawnPriority.NONE
         }
 
@@ -617,12 +615,17 @@ export class FarmerSquad extends Squad {
     }
     const storage = this.base_room.storage
 
-                // const pos = new RoomPosition(29, 4, this.room_name) // W49S6
-            // const pos = new RoomPosition(, , this.room_name) // W47S8
-    // const pos = new RoomPosition(45, 26, this.room_name) // W46S9
     const pos = new RoomPosition(this.storage_position.x, this.storage_position.y, this.room_name)
 
     this.carriers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
+      if (['W48S5', 'W49S5'].indexOf(creep.room.name) >= 0) {
+        console.log(`ERR FarmerSquad.runCarrier ${creep.pos}`)
+      }
+
       if (creep.carry.energy == 0) {
         if (creep.pos.getRangeTo(pos) > 2) {
           const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
@@ -648,6 +651,10 @@ export class FarmerSquad extends Squad {
       }
       else {
         const destination_room = Game.rooms[this.room_name] as Room | undefined
+        if (creep.room.name != this.room_name) {
+          creep.moveToRoom(this.room_name)
+          return
+        }
         if (!destination_room) {
           creep.moveToRoom(this.room_name)
           return
@@ -667,7 +674,7 @@ export class FarmerSquad extends Squad {
           // else {
             // creep.say(`2`)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-              creep.moveTo(pos, {maxRooms:1, reusePath: 10})
+              creep.moveTo(pos, {maxRooms:2, reusePath: 10})
             }
             else {
               creep.drop(RESOURCE_ENERGY)
@@ -691,7 +698,7 @@ export class FarmerSquad extends Squad {
       const pos = new RoomPosition(this.charger_position.x, this.charger_position.y, this.room_name)
 
       if ((creep.room.name != pos.roomName) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-        creep.moveTo(pos)
+        creep.moveTo(pos, {maxRooms:2, reusePath:10})
         return
       }
 

@@ -4,7 +4,7 @@ import { Empire } from "classes/empire"
 import * as Initializer from "classes/init"
 
 Initializer.init()
-console.log(`Initializer.init() v${Game.version} at ${Game.time}`)
+console.log(`<b><span style='color:#F9E79F'>Initializer.init() v${Game.version} at ${Game.time}</span></b>`)
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
@@ -143,7 +143,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         message = '[WARNING] ' + message
 
         console.log(message)
-        Game.notify(message)
+        // Game.notify(message)
       }
     }, `Notigy credit | cpu`)()
   }
