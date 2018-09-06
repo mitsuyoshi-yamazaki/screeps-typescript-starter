@@ -335,6 +335,9 @@ export class Region {
         break
 
       case 'W58S4':
+        harvester_targets = [
+          { id: '59f1c0cc7d0b3d79de5efec6', room_name: 'W58S4' },  // Hydrogen
+        ]
         break
 
       default:

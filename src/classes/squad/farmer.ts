@@ -2,6 +2,7 @@ import { UID, room_link } from "classes/utils"
 import { Squad, SquadType, SquadMemory, SpawnPriority, SpawnFunction } from "./squad"
 import { CreepStatus, ActionResult, CreepType } from "classes/creep"
 import { runTowers } from "../tower";
+import { ErrorMapper } from '../../utils/ErrorMapper';
 
 interface FarmerUpgraderMemory extends CreepMemory {
   // pos: {x: number, y: number}
@@ -212,7 +213,7 @@ export class FarmerSquad extends Squad {
       }
       return undefined
     }
-    else if (this.base_room.storage.store.energy < 200000) {
+    else if (this.base_room.storage.store.energy < 150000) {
       if (debug) {
         console.log(`FarmerSquad.nextCreep lack of energy ${this.name}`)
       }
@@ -365,8 +366,11 @@ export class FarmerSquad extends Squad {
     this.towers = (!room || !room.owned_structures) ? [] : (room.owned_structures.get(STRUCTURE_TOWER) as StructureTower[]) || []
 
     this.runUpgrader()
-    this.runCarrier()
     this.runCharger()
+
+    ErrorMapper.wrapLoop(() => {
+      this.runCarrier()
+    }, `${this.name}.runCarrier`)()
 
     if (room) {
       runTowers(this.towers, room, {wall_max_hits: 3000000})
@@ -518,15 +522,16 @@ export class FarmerSquad extends Squad {
       //   creep.withdraw(this.container, RESOURCE_ENERGY)
       // }
       else {
-        const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
-          filter: (d: Resource) => {
-            return d.resourceType == RESOURCE_ENERGY
-          }
-        })[0]
+        // test
+        // const drop = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1, {
+        //   filter: (d: Resource) => {
+        //     return d.resourceType == RESOURCE_ENERGY
+        //   }
+        // })[0]
 
-        if (drop) {
-          creep.pickup(drop)
-        }
+        // if (drop) {
+        //   creep.pickup(drop)
+        // }
       }
 
       if (!creep.boosted()) {
@@ -546,13 +551,13 @@ export class FarmerSquad extends Squad {
       const pos = new RoomPosition(this.renew_position.x, this.renew_position.y, this.room_name)
 
       if ((creep.room.name != this.room_name) || (creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-        const result = creep.moveTo(pos)
+        const result = creep.moveTo(pos, {maxRooms:2, reusePath: 10})
         if ((result != OK) && (result != ERR_TIRED)) {
           creep.say(`E${result}`)
         }
       }
 
-      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 3))) && !(!room.storage) && (room.storage.store.energy > 10000)
+      const needs_renew = !creep.memory.let_thy_die && ((creep.memory.status == CreepStatus.WAITING_FOR_RENEW) || (((creep.ticksToLive || 1500) < 3)))
 
       if (needs_renew) {
         if ((creep.ticksToLive || 1500) > 1490) {
@@ -638,7 +643,7 @@ export class FarmerSquad extends Squad {
         }
 
         if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(storage)
+          creep.moveTo(storage, {maxRooms:2, reusePath: 10})
         }
       }
       else {
@@ -650,7 +655,7 @@ export class FarmerSquad extends Squad {
 
         if (destination_room.storage && destination_room.controller && (destination_room.controller.level >= 4)) {
           if (creep.transfer(destination_room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(destination_room.storage)
+            creep.moveTo(destination_room.storage, {maxRooms:2, reusePath: 10})
           }
         }
         else {
@@ -662,7 +667,7 @@ export class FarmerSquad extends Squad {
           // else {
             // creep.say(`2`)
             if ((creep.pos.x != pos.x) || (creep.pos.y != pos.y)) {
-              creep.moveTo(pos)
+              creep.moveTo(pos, {maxRooms:1, reusePath: 10})
             }
             else {
               creep.drop(RESOURCE_ENERGY)

@@ -1036,7 +1036,7 @@ export class RemoteHarvesterSquad extends Squad {
           creep.memory.pickup_target = drop.id
 
           if (pickup_result == ERR_NOT_IN_RANGE) {
-            creep.moveTo(drop)
+            creep.moveTo(drop, {maxRooms: 1, reusePath: 10})
           }
           else if (pickup_result == OK) {
             creep.memory.pickup_target = undefined
@@ -1171,7 +1171,7 @@ export class RemoteHarvesterSquad extends Squad {
         // }
 
         if (!this.destination) {
-          if (this.base_room.name == 'W47S6') {
+          if (this.base_room.name == 'dummy') {
             // if (creep.moveToRoom(this.base_room.name) == ActionResult.IN_PROGRESS) {
             //   return
             // }
@@ -1368,7 +1368,7 @@ export class RemoteHarvesterSquad extends Squad {
           return
         }
 
-        creep.moveTo(attacker)
+        creep.moveTo(attacker, {maxRooms: 3})
       }
       else {
         // creep.say(`NOATT`)
