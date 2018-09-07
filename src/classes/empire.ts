@@ -28,20 +28,25 @@ export class Empire {
 
     // --- Claim
     let claim_to: {target_room_name: string, base_room_name: string, forced: boolean, at_level?: number} | null = {
-      target_room_name: 'E13N45',
-      base_room_name: 'W55S23',
+      target_room_name: 'W54S7',
+      base_room_name: 'W56S7',
       forced: true,
-      at_level: 15,
+      // at_level: 15,
     }
+
+    // {
+    //   target_room_name: 'E13N45',
+    //   base_room_name: 'W55S23',
+    //   forced: true,
+    //   at_level: 15,
+    // }
 
     if (claim_to.at_level && (Game.gcl.level < claim_to.at_level)) {
       claim_to = null
     }
-    if (claim_to) {
-      this.setDelegate(claim_to.base_room_name, claim_to.target_room_name)
-    }
 
     // --- GCL Farm
+    const stop_farming = true // @fixme: bucket
     const gcl_farm_rooms: {[room_name: string]: {next: string, base: string}} = {
       W49S6: {next: 'W46S9', base: 'W48S6'},
       W46S9: {next: 'W47S8', base: 'W47S9'},
@@ -63,6 +68,10 @@ export class Empire {
         ...gcl_farm_rooms[room_name]
       }
       break
+    }
+
+    if (stop_farming) {
+      farm_room = null
     }
 
     if (farm_room) {
@@ -122,7 +131,7 @@ export class Empire {
         }
       }
     }
-    else {
+    else if (!stop_farming) {
       console.log(`Empire ${this.name} no farm room`)
     }
 
@@ -171,6 +180,10 @@ export class Empire {
         const region = new Region(controller, opt)
         this.regions.set(region.name, region)
       }, `${room.name}.init`)()
+    }
+
+    if (claim_to) {
+      this.setDelegate(claim_to.base_room_name, claim_to.target_room_name)
     }
 
     const w51s29 = 'W51S29'

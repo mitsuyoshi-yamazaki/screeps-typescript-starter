@@ -12,7 +12,7 @@ import { InvaderSquad } from "./squad/invader";
 import { TempSquad } from "./squad/temp";
 import { ChargerSquad } from './squad/charger';
 import { RemoteHarvesterSquad, RemoteHarvesterSquadMemory } from './squad/remote_harvester';
-import { RemoteMineralHarvesterSquad } from "./squad/remote_m_harvester";
+import { RemoteMineralHarvesterSquad, RemoteMineralHarvesterSquadMemory } from "./squad/remote_m_harvester";
 import { NukerChargerSquad, NukerChargerSquadMemory } from "./squad/nuker_charger";
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
@@ -339,6 +339,10 @@ export class Region {
           { id: '59f1c0cc7d0b3d79de5efec6', room_name: 'W58S4' },  // Hydrogen
         ]
         break
+
+      case 'W54S7': {
+        break
+      }
 
       default:
         // console.log(`Region.initialize unexpected region name, ${this.name}`)
@@ -682,6 +686,9 @@ export class Region {
           }
           case SquadType.REMOET_HARVESTER: {
             const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
+            if (remote_harvester_squad_memory.need_attacker || (remote_harvester_squad_memory.room_name == 'W45S5')) {
+              break // @fixme: bucket
+            }
 
             const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
             this.squads.set(squad.name, squad)
@@ -695,8 +702,9 @@ export class Region {
               break
             }
 
-            const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
-            this.squads.set(squad.name, squad)
+            // @fixme: bucket
+            // const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
+            // this.squads.set(squad.name, squad)
             break
           }
           case SquadType.MANUAL: {

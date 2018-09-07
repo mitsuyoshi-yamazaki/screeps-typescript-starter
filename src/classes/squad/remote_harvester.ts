@@ -338,11 +338,11 @@ export class RemoteHarvesterSquad extends Squad {
 
     if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
-      let builder_max = 3
+      let builder_max = 1//3  // @fixme: bucket
 
-      if (squad_memory.builder_max) {
-        builder_max = squad_memory.builder_max
-      }
+      // if (squad_memory.builder_max) {
+      //   builder_max = squad_memory.builder_max
+      // }
 
       if (this.builders.length < builder_max) {
         this.next_creep = CreepType.WORKER
