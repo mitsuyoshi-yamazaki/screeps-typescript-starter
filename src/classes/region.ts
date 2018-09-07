@@ -183,14 +183,6 @@ export class Region {
           { id: '59f1a03882100e1594f3656b', room_name: 'W44S7' } , // bottom
           { id: '59f1c0cf7d0b3d79de5f037c', room_name: 'W44S7' } , // hydrogen
         ]
-        rooms_need_scout = [
-          'W45S7',
-        ]
-        rooms_need_to_be_defended = [
-          'W43S7',
-          'W45S7',
-          'W44S8',
-        ]
         this.destination_link_id = '5b2e775359615412454b065e'
         charger_position = {x: 19, y: 42}
         input_lab_ids = {
@@ -572,7 +564,7 @@ export class Region {
         continue
       }
 
-      if (squad_memory.no_instantiation) {
+      if (squad_memory.stop_spawming || squad_memory.no_instantiation) {
         this.no_instantiations.push(`    - ${squad_memory.name}`)
         continue
       }
@@ -686,9 +678,6 @@ export class Region {
           }
           case SquadType.REMOET_HARVESTER: {
             const remote_harvester_squad_memory = squad_memory as RemoteHarvesterSquadMemory
-            if (remote_harvester_squad_memory.need_attacker || (remote_harvester_squad_memory.room_name == 'W45S5')) {
-              break // @fixme: bucket
-            }
 
             const squad = new RemoteHarvesterSquad(squad_memory.name, this.room, remote_harvester_squad_memory.room_name, Object.keys(remote_harvester_squad_memory.sources), harvester_destination, energy_capacity, this)
             this.squads.set(squad.name, squad)
@@ -699,12 +688,12 @@ export class Region {
               if ((this.controller.level > 4) && ((Game.time % 41) == 5)) {
                 console.log(`NO storage in ${this.room.name} stop remote harvester squad`)
               }
+              this.no_instantiations.push(`    - ${squad_memory.name}`)
               break
             }
 
-            // @fixme: bucket
-            // const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
-            // this.squads.set(squad.name, squad)
+            const squad = new RemoteMineralHarvesterSquad(squad_memory.name, this.room.storage)
+            this.squads.set(squad.name, squad)
             break
           }
           case SquadType.MANUAL: {

@@ -1,7 +1,7 @@
 import * as Extensions from "classes/extensions"
 import * as CreepInitializer from "classes/creep"
 import * as SpawnInitializer from "classes/spawn"
-const version = '2.51.1'
+const version = '2.52.1'
 
 export function init(): void {
   Game.version = version
@@ -159,7 +159,7 @@ export function tick(): void {
 
     const b = colored_text(`${bucket}`, bucket_level)
 
-    console.log(`CPU usage: ${usage}, ave: ${ave}, bucket: ${b}`)
+    console.log(`CPU usage: ${usage}, ave: ${ave}, bucket: ${b} at ${Game.time}`)
   }
 
   Game.reactions = {}
@@ -180,6 +180,7 @@ export function tick(): void {
 
   if ((Game.time % 89) == 1) {
     refreshMemory()
+    console.log(`Init refresh memory at ${Game.time}`)
   }
 
   for (const room_name in Game.rooms) {

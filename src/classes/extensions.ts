@@ -43,6 +43,8 @@ declare global {
     show_excluded_walls(room_name: string): void
     add_excluded_walls(room_name: string, x_min: number, x_max: number, y_min: number, y_max: number, opts?: {dry_run?: boolean, include_rampart?: boolean}): void
 
+    build_remote_roads(squad_name: string, opts?: {dry_run?: boolean}): void
+
     test(energy: number): void
   }
 
@@ -95,11 +97,13 @@ declare global {
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
-    add_remote_harvester(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null
+    add_remote_harvester(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null
     remote_layout(x: number, y: number): CostMatrix | null
     layout(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null
     test(from: Structure): void
     place_construction_sites(): void
+    source_road_positions(from_position: RoomPosition): RoomPosition[] | null
+
     info(): void
 
     initialize(): void
@@ -875,6 +879,69 @@ export function tick(): void {
     }
   }
 
+  Game.build_remote_roads = (squad_name: string, opts?: {dry_run?: boolean}) => {
+    opts = opts || {}
+    const dry_run = !(opts.dry_run == false)
+
+    const squad_memory = Memory.squads[squad_name] as RemoteHarvesterSquadMemory
+    if (!squad_memory) {
+      console.log(`Game.build_remote_roads no squad named ${squad_name}`)
+      return
+    }
+    if (squad_memory.type != SquadType.REMOET_HARVESTER) {
+      console.log(`Game.build_remote_roads not remote harvester: ${squad_name}`)
+      return
+    }
+
+    const target_room = Game.rooms[squad_memory.room_name]
+    if (!target_room) {
+      console.log(`Game.build_remote_roads no target room ${squad_memory.room_name}, ${squad_name}`)
+      return
+    }
+
+    const owner_room = Game.rooms[squad_memory.owner_name]
+    if (!owner_room || !owner_room.storage || !owner_room.storage.my) {
+      console.log(`Game.build_remote_roads no owner room or storage ${squad_memory.owner_name}, ${squad_name}`)
+      return
+    }
+
+    const road_positions = target_room.source_road_positions(owner_room.storage.pos)
+    if (!road_positions) {
+      console.log(`Game.build_remote_roads no road positions: ${squad_name}`)
+      return
+    }
+
+    // -- Dry Run
+    if (dry_run) {
+      road_positions.forEach((pos) => {
+        const r = Game.rooms[pos.roomName]
+        if (!r) {
+          return
+        }
+
+        r.visual.text(`x`, pos, {
+          color: '#ff0000',
+          align: 'center',
+          font: '12px',
+          opacity: 0.8,
+        })
+      })
+
+      return
+    }
+
+    // --- Place Construnction Sites
+    const time = Game.time
+
+    road_positions.forEach((pos) => {
+      const r = Game.rooms[pos.roomName]
+      if (!r) {
+        return
+      }
+      r.createConstructionSite(pos, STRUCTURE_ROAD)
+    })
+  }
+
   Game.test = function(energy: number): void {
     const move: BodyPartConstant[] = [MOVE]
     const work: BodyPartConstant[] = [WORK, WORK, WORK, WORK]
@@ -1060,16 +1127,21 @@ export function tick(): void {
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${room_link(this.name)}`)
   }
 
-  Room.prototype.add_remote_harvester = function(from: StructureStorage, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {
+  Room.prototype.add_remote_harvester = function(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {
     opts = opts || {}
     const dry_run = !(opts.dry_run == false)
-
     console.log(`Room.add_remote_harvester dry_run: ${dry_run}`)
 
     const room = this as Room
+    const room_name = room.name
 
-    if (!from) {
-      console.log(`Room.add_remote_harvester from cannot be null ${room.name}`)
+    const owner_room = Game.rooms[owner_room_name]
+    if (!owner_room) {
+      console.log(`Room.add_remote_harvester no destination room ${owner_room_name}, ${room.name}`)
+      return null
+    }
+    if (!owner_room.storage || !owner_room.storage.my) {
+      console.log(`Room.add_remote_harvester no storage in room ${owner_room_name}`)
       return null
     }
     if (!room.sources || (room.sources.length == 0)) {
@@ -1077,67 +1149,12 @@ export function tick(): void {
       return null
     }
 
-    const room_name = room.name
-    const owner_room_name = from.room.name
-
     if (!opts.memory_only) {
       // --- Path
-      const pathfinder_opts: FindPathOpts = {
-        maxRooms: 1,
-        maxOps: 10000,
-        range: 1,
-      }
-
-      const path = from.room.findPath(from.pos, room.sources[0].pos, pathfinder_opts)
-
-      if (!path || (path.length == 0)) {
-        console.log(`Room.add_remote_harvester cannot find path from ${from.pos} to ${room.sources[0].pos}, ${room.name}`)
+      const road_positions = room.source_road_positions(owner_room.storage.pos)
+      if (!road_positions) {
+        console.log(`Room.add_remote_harvester no road positions ${room.name}`)
         return null
-      }
-
-      const last_pos = path[path.length - 1]
-      const start_pos: {x: number, y: number} = {
-        x: last_pos.x,
-        y: last_pos.y,
-      }
-
-      if (start_pos.x == 0) {
-        start_pos.x = 49
-      }
-      else if (start_pos.x == 49) {
-        start_pos.x = 0
-      }
-
-      if (start_pos.y == 0) {
-        start_pos.y = 49
-      }
-      else if (start_pos.y == 49) {
-        start_pos.y = 0
-      }
-
-      const road_positions: RoomPosition[] = path.map((p) => {
-        return new RoomPosition(p.x, p.y, owner_room_name)
-      })
-
-      const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
-      if (!cost_matrix) {
-        console.log(`Room.add_remote_harvester cannot create cost matrix ${room_link(room.name)}, start pos: (${start_pos.x}, ${start_pos.y})`)
-        return null
-      }
-
-      const road_cost = 1
-      const room_size = 50
-
-      for (let i = 0; i < room_size; i++) {
-        for (let j = 0; j < room_size; j++) {
-          const cost = cost_matrix.get(i, j)
-
-          if (cost > road_cost) {
-            continue
-          }
-
-          road_positions.push(new RoomPosition(i, j, room_name))
-        }
       }
 
       // -- Dry Run
@@ -1191,7 +1208,7 @@ export function tick(): void {
     const squad_memory: RemoteHarvesterSquadMemory = {
       name: squad_name,
       type: SquadType.REMOET_HARVESTER,
-      owner_name: from.room.name,
+      owner_name: owner_room_name,
       number_of_creeps: 0,
       stop_spawming: true,
       room_name: room.name,
@@ -1411,6 +1428,106 @@ export function tick(): void {
         console.log(`ERROR Place ${structure_type} construction site failed E${result}: ${flag.name}, ${flag.pos}, ${flag.color}, ${room_link(flag.pos.roomName)}`)
       }
     }
+  }
+
+  Room.prototype.source_road_positions = function(from_position: RoomPosition): RoomPosition[] | null {
+    const room = this as Room
+
+    const from_room = Game.rooms[from_position.roomName]
+    if (!from_room) {
+      console.log(`Room.source_road_positions no destination room ${from_position.roomName}, ${room.name}`)
+      return null
+    }
+
+    const pathfinder_opts: FindPathOpts = {
+      maxRooms: 1,
+      maxOps: 10000,
+      range: 1,
+    }
+
+    // if (room.is_keeperroom && (room.sources.length >= 2)) {
+    //   const closest_source = from_position.findClosestByPath(room.sources)
+    //   if (!closest_source) {
+    //     console.log(`Room.source_road_positions unexpected error no closest source from ${from_position} in ${room.name}`)
+    //     return null
+    //   }
+
+    //   pathfinder_opts.maxRooms = 0
+    //   let road_positions: RoomPosition[] = []
+
+    //   room.sources.filter((source) => {
+    //     return source.id != closest_source.id
+    //   }).forEach((source) => {
+    //     const path = from_room.findPath(closest_source.pos, source.pos, pathfinder_opts)
+    //     if (!path || (path.length == 0)) {
+    //       console.log(`Room.add_remote_harvester cannot find path from ${closest_source.pos} to ${source.pos}, ${room.name}`)
+    //       return
+    //     }
+
+    //     const positions = path.map((p) => {
+    //       return new RoomPosition(p.x, p.y, from_room.name)
+    //     })
+    //     road_positions = road_positions.concat(positions)
+    //   })
+
+    //   pathfinder_opts.maxRooms = 1
+
+    // }
+    // else {
+      const path = from_room.findPath(from_position, room.sources[0].pos, pathfinder_opts)
+
+      if (!path || (path.length == 0)) {
+        console.log(`Room.add_remote_harvester cannot find path from ${from_position} to ${room.sources[0].pos}, ${room.name}`)
+        return null
+      }
+
+      const last_pos = path[path.length - 1]
+      const start_pos: {x: number, y: number} = {
+        x: last_pos.x,
+        y: last_pos.y,
+      }
+
+      if (start_pos.x == 0) {
+        start_pos.x = 49
+      }
+      else if (start_pos.x == 49) {
+        start_pos.x = 0
+      }
+
+      if (start_pos.y == 0) {
+        start_pos.y = 49
+      }
+      else if (start_pos.y == 49) {
+        start_pos.y = 0
+      }
+
+      const road_positions: RoomPosition[] = path.map((p) => {
+        return new RoomPosition(p.x, p.y, from_room.name)
+      })
+
+      const cost_matrix = room.remote_layout(start_pos.x, start_pos.y)
+      if (!cost_matrix) {
+        console.log(`Room.add_remote_harvester cannot create cost matrix ${room_link(room.name)}, start pos: (${start_pos.x}, ${start_pos.y})`)
+        return null
+      }
+
+      const road_cost = 1
+      const room_size = 50
+
+      for (let i = 0; i < room_size; i++) {
+        for (let j = 0; j < room_size; j++) {
+          const cost = cost_matrix.get(i, j)
+
+          if (cost > road_cost) {
+            continue
+          }
+
+          road_positions.push(new RoomPosition(i, j, room.name))
+        }
+      }
+
+      return road_positions
+    // }
   }
 
   Room.prototype.info = function(): void {

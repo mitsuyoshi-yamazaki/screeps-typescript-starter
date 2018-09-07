@@ -44,6 +44,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         // creep.memory.let_thy_die = true
         // creep.memory.squad_name = 'worker771957135'  // W48N11
       }
+      console.log(`Main creeps GC at ${Game.time}`)
     }, `Creeps.gc`)()
   }
 
@@ -59,6 +60,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
         delete Memory.squads[squad_name]
       }
+      console.log(`Main squads GC at ${Game.time}`)
     }, `Squads.gc`)()
   }
 
@@ -71,20 +73,21 @@ export const loop = ErrorMapper.wrapLoop(() => {
     ErrorMapper.wrapLoop(() => {
       // if ((Game.time % 7) == 0) {  // @fixme:
         trade()
+        console.log(`Main.trade at ${Game.time}`)
     }, `Trade`)()
   }
 
-  ErrorMapper.wrapLoop(() => {
-    for (const creep_name in Game.creeps) {
-      const creep = Game.creeps[creep_name]
+  // ErrorMapper.wrapLoop(() => {
+  //   for (const creep_name in Game.creeps) {
+  //     const creep = Game.creeps[creep_name]
 
-      if (!creep.memory.debug) {
-        continue
-      }
+  //     if (!creep.memory.debug) {
+  //       continue
+  //     }
 
-      creep.say(creep.memory.status)
-    }
-  }, `Creep.debug`)()
+  //     creep.say(creep.memory.status)
+  //   }
+  // }, `Creep.debug`)()
 
   if (Memory.debug.show_costmatrix) {
     const room_name: string = Memory.debug.show_costmatrix
