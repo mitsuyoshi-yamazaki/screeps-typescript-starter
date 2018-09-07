@@ -130,7 +130,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       const credit = Game.market.credits
       let message: string | undefined
 
-      if (Game.cpu.bucket < 6000) {
+      if (Game.cpu.bucket < 1000) {
         message = `CPU Bucket ${Game.cpu.bucket}`
       }
 
@@ -143,7 +143,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         message = '[WARNING] ' + message
 
         console.log(message)
-        // Game.notify(message)
+        Game.notify(message)
       }
     }, `Notigy credit | cpu`)()
   }
