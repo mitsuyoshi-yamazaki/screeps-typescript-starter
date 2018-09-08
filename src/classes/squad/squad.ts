@@ -209,6 +209,7 @@ export abstract class Squad {
     for (let i = 0; i < number_of_carries; i++) {
       body.push(CARRY)
     }
+    body.push(MOVE)
 
     const result = spawnFunc(body, name, {
       memory: memory
@@ -338,7 +339,7 @@ export abstract class Squad {
     }
     else {
       creep.say(`FLEE`)
-      creep.moveTo(25, 25)
+      creep.moveTo(25, 25, {maxRooms: 1, reusePath: 20})
     }
 
     return ActionResult.IN_PROGRESS

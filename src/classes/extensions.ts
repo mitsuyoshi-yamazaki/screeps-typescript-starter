@@ -97,7 +97,7 @@ declare global {
     construction_sites?: ConstructionSite[]  // Only checked if controller.my is true
     owned_structures?: Map<StructureConstant, AnyOwnedStructure[]>
     owned_structures_not_found_error(structure_type: StructureConstant): void
-    add_remote_harvester(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null
+    add_remote_harvester(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean, no_flags_in_base?: boolean, no_memory?: boolean}): string | null
     remote_layout(x: number, y: number): CostMatrix | null
     layout(center: {x: number, y: number}, opts?: RoomLayoutOpts): RoomLayout | null
     test(from: Structure): void
@@ -1127,9 +1127,11 @@ export function tick(): void {
     console.log(`Room.owned_structures_not_found_error ${structure_type} ${room_link(this.name)}`)
   }
 
-  Room.prototype.add_remote_harvester = function(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean}): string | null {
+  Room.prototype.add_remote_harvester = function(owner_room_name: string, carrier_max: number, opts?: {dry_run?: boolean, memory_only?: boolean, no_flags_in_base?: boolean, no_memory?: boolean}): string | null {
     opts = opts || {}
     const dry_run = !(opts.dry_run == false)
+    const no_flags_in_base = !(!opts.no_flags_in_base)
+    const no_memory = !(!opts.no_memory)
     console.log(`Room.add_remote_harvester dry_run: ${dry_run}`)
 
     const room = this as Room
@@ -1184,59 +1186,65 @@ export function tick(): void {
         if (!r) {
           return
         }
+        if (no_flags_in_base && (pos.roomName == owner_room_name)) {
+          return
+        }
 
         const name = UID(`Flag${time}`)
-        // r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
+        r.createFlag(pos, name, COLOR_BROWN, COLOR_BROWN)
 
-        r.createConstructionSite(pos, STRUCTURE_ROAD)
+        // r.createConstructionSite(pos, STRUCTURE_ROAD)
       })
     }
 
-    // --- Squad Memory
-    let squad_name = `remote_harvester_${room.name.toLowerCase()}`
+    if (!no_memory) {
+      // --- Squad Memory
+      let squad_name = `remote_harvester_${room.name.toLowerCase()}`
 
-    while (Memory.squads[squad_name]) {
-      squad_name = `${squad_name}_1`
-    }
+      while (Memory.squads[squad_name]) {
+        squad_name = `${squad_name}_1`
+      }
 
-    const sources: {[index: string]: {container_id?: string}} = {}
+      const sources: {[index: string]: {container_id?: string}} = {}
 
-    room.find(FIND_SOURCES).forEach((source) => {
-      sources[source.id] = {}
-    })
+      room.find(FIND_SOURCES).forEach((source) => {
+        sources[source.id] = {}
+      })
 
-    const squad_memory: RemoteHarvesterSquadMemory = {
-      name: squad_name,
-      type: SquadType.REMOET_HARVESTER,
-      owner_name: owner_room_name,
-      number_of_creeps: 0,
-      stop_spawming: true,
-      room_name: room.name,
-      sources,
-      room_contains_construction_sites: [],
-      carrier_max,
-      need_attacker: room.is_keeperroom,
-      builder_max: room.is_keeperroom ? 5 : 3,
-    }
+      const squad_memory: RemoteHarvesterSquadMemory = {
+        name: squad_name,
+        type: SquadType.REMOET_HARVESTER,
+        owner_name: owner_room_name,
+        number_of_creeps: 0,
+        stop_spawming: true,
+        room_name: room.name,
+        sources,
+        room_contains_construction_sites: [],
+        carrier_max,
+        need_attacker: room.is_keeperroom,
+        builder_max: room.is_keeperroom ? 5 : 3,
+      }
 
-    Memory.squads[squad_name] = squad_memory
+      Memory.squads[squad_name] = squad_memory
 
-    // Region Memory
-    const region_memory = Memory.regions[owner_room_name]
-    if (!room.is_keeperroom) {
-      if (region_memory) {
-        if (!region_memory.rooms_need_to_be_defended) {
-          Memory.regions[owner_room_name].rooms_need_to_be_defended = []
+      // Region Memory
+      const region_memory = Memory.regions[owner_room_name]
+      if (!room.is_keeperroom) {
+        if (region_memory) {
+          if (!region_memory.rooms_need_to_be_defended) {
+            Memory.regions[owner_room_name].rooms_need_to_be_defended = []
+          }
+
+          Memory.regions[owner_room_name].rooms_need_to_be_defended!.push(room_name)
         }
+        else {
+          console.log(`Room.add_remote_harvester region memory ${owner_room_name} does not exist`)
+        }
+      }
 
-        Memory.regions[owner_room_name].rooms_need_to_be_defended!.push(room_name)
-      }
-      else {
-        console.log(`Room.add_remote_harvester region memory ${owner_room_name} does not exist`)
-      }
+      return squad_name
     }
-
-    return squad_name
+    return null
   }
 
   Room.prototype.remote_layout = function(x: number, y: number): CostMatrix | null {

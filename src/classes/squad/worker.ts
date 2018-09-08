@@ -118,7 +118,7 @@ export class WorkerSquad extends Squad {
       else {
         const number_of_carriers = Array.from(this.creeps.values()).filter(c=>c.memory.type == CreepType.CARRIER).length
 
-        if ((rcl >= 8) || ((this.creeps.size > 1) && (number_of_carriers == 0)) || ((this.creeps.size > 2) && (number_of_carriers == 1))) {
+        if ((rcl >= 8) || ((rcl == 7) && (this.creeps.size > 3) && (number_of_carriers < 2))) {
           body_unit = [CARRY, CARRY, MOVE]
           energy_unit = 150
           type = CreepType.CARRIER

@@ -430,7 +430,7 @@ export function init() {
 
     const exit = this.room.findExitTo(destination_room_name) as FindConstant
     if (exit < 0) {
-      console.log(`Creep.moveToRoom from ${this.room.name} to ${destination_room_name} can't find exit ${exit}`)
+      console.log(`Creep.moveToRoom from ${this.room.name} to ${destination_room_name} can't find exit ${exit}, ${this.name}, ${this.pos}`)
       this.say('NOEXIT')
       return ActionResult.IN_PROGRESS
     }
@@ -683,6 +683,10 @@ export function init() {
     }
     else if ((destination_room_name == 'W56S7') && (this.room.name == 'W54S5') && (exit == TOP)) {
       this.moveTo(33, 8, opt)
+      return ActionResult.IN_PROGRESS
+    }
+    else if ((destination_room_name == 'W48S6') && (this.room.name == 'W47S7')) {
+      this.moveTo(0, 41, opt)
       return ActionResult.IN_PROGRESS
     }
 

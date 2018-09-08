@@ -176,6 +176,10 @@ export class RemoteMineralHarvesterSquad extends Squad {
     }
 
     const creep = this.harvester
+    if (creep.spawning) {
+      return
+    }
+
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
     if (creep.room.name == this.room_name) {
@@ -206,6 +210,10 @@ export class RemoteMineralHarvesterSquad extends Squad {
     const keeper_lairs = this.keeper_lair ? [this.keeper_lair] : []
 
     this.carriers.forEach((creep) => {
+      if (creep.spawning) {
+        return
+      }
+
       const carry = _.sum(creep.carry)
 
       if (creep.room.name == this.room_name) {

@@ -148,7 +148,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         console.log(message)
         Game.notify(message)
       }
-    }, `Notigy credit | cpu`)()
+    }, `Notify credit | cpu`)()
   }
 
 }, `Main`)

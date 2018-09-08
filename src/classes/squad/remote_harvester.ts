@@ -338,11 +338,10 @@ export class RemoteHarvesterSquad extends Squad {
 
     if ((squad_memory.room_contains_construction_sites.length > 0)) {
 
-      let builder_max = 1//3  // @fixme: bucket
-
-      // if (squad_memory.builder_max) {
-      //   builder_max = squad_memory.builder_max
-      // }
+      let builder_max = 3
+      if (squad_memory.builder_max) {
+        builder_max = squad_memory.builder_max
+      }
 
       if (this.builders.length < builder_max) {
         this.next_creep = CreepType.WORKER
@@ -738,6 +737,8 @@ export class RemoteHarvesterSquad extends Squad {
       maxRooms: 3,
     }
 
+    let flags: Flag[] | null = null
+
     this.builders.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -888,13 +889,26 @@ export class RemoteHarvesterSquad extends Squad {
         })
 
         if (!construction_site) {
-          const index = squad_memory.room_contains_construction_sites.indexOf(creep.room.name)
-
-          if (index >= 0) {
-            (Memory.squads[this.name] as RemoteHarvesterSquadMemory).room_contains_construction_sites.splice(index, 1)
+          if (!flags) {
+            flags = creep.room.find(FIND_FLAGS).filter((f) => (f.color == COLOR_BROWN))
           }
 
-          creep.memory.status = CreepStatus.HARVEST
+          if (flags.length > 0) {
+            flags.slice(0, 3).forEach((f) => {
+              if (creep.room.createConstructionSite(f.pos, STRUCTURE_ROAD) == OK) {
+                f.remove()
+              }
+            })
+          }
+          else {
+            const index = squad_memory.room_contains_construction_sites.indexOf(creep.room.name)
+
+            if (index >= 0) {
+              (Memory.squads[this.name] as RemoteHarvesterSquadMemory).room_contains_construction_sites.splice(index, 1)
+            }
+
+            creep.memory.status = CreepStatus.HARVEST
+          }
           return
         }
 
@@ -1223,7 +1237,7 @@ export class RemoteHarvesterSquad extends Squad {
           if (transfer_result == ERR_NOT_IN_RANGE) {
             // const ignore_creeps = (Game.time % 5) < 3
 
-            if (['W46S26', 'W45S26'].indexOf(creep.room.name) >= 0) {
+            if (['W46S26', 'W45S26', 'W47S7'].indexOf(creep.room.name) >= 0) {
               creep.moveToRoom(this.destination.room.name)
               return
             }
@@ -1247,7 +1261,7 @@ export class RemoteHarvesterSquad extends Squad {
         else {
           const transfer_result = creep.transferResources(this.destination.room.storage)
           if (transfer_result == ERR_NOT_IN_RANGE) {
-            if (['W46S26', 'W45S26'].indexOf(creep.room.name) >= 0) {
+            if (['W46S26', 'W45S26', 'W47S7'].indexOf(creep.room.name) >= 0) {
               creep.moveToRoom(this.destination.room.name)
               return
             }
