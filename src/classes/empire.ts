@@ -8,6 +8,7 @@ enum State {
 }
 
 export interface EmpireMemory {
+  farm_room: string | null
   farm_energy_room: string | null
 }
 
@@ -17,9 +18,11 @@ export class Empire {
   constructor(readonly name: string) {
     if (!Memory.empires[this.name]) {
       Memory.empires[this.name] = {
-        farm_energy_room: null
+        farm_room: null,
+        farm_energy_room: null,
       }
     }
+    const empire_memory = Memory.empires[this.name]
 
     // --- Attack
     const attacker_room_names: string[] = [
@@ -46,7 +49,6 @@ export class Empire {
     }
 
     // --- GCL Farm
-    const stop_farming = true // @fixme: bucket
     const gcl_farm_rooms: {[room_name: string]: {next: string, base: string}} = {
       W49S6: {next: 'W46S9', base: 'W48S6'},
       W46S9: {next: 'W47S8', base: 'W47S9'},
@@ -68,10 +70,6 @@ export class Empire {
         ...gcl_farm_rooms[room_name]
       }
       break
-    }
-
-    if (stop_farming) {
-      farm_room = null
     }
 
     if (farm_room) {
@@ -131,8 +129,15 @@ export class Empire {
         }
       }
     }
-    else if (!stop_farming) {
-      console.log(`Empire ${this.name} no farm room`)
+    else {
+      if (empire_memory && empire_memory.farm_room) {
+        const farm_info = gcl_farm_rooms[empire_memory.farm_room]
+
+        next_farm = {
+          target_room_name: empire_memory.farm_room,
+          base_room_name: farm_info.base,
+        }
+      }
     }
 
     // @todo:
