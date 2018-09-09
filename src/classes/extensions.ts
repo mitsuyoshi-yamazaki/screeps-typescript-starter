@@ -391,6 +391,18 @@ export function tick(): void {
       const progress_text = colored_text(`${progress_percentage}`, progress_label)
       const progress = (rcl >= 8) ? 'Max' : `<b>${progress_text}</b> %`
 
+      let rcl_level: 'info' | 'high' | 'almost' = info
+      if (rcl == 8) {
+      }
+      else if (rcl >= 7) {
+        rcl_level = almost
+      }
+      else {
+        rcl_level = high
+      }
+
+      const rcl_text = colored_text(`${rcl}`, rcl_level)
+
       const region_memory = Memory.regions[room_name] as RegionMemory | undefined // Assuming region.name == region.room.name
       let reaction_output: string
       let number_of_reactions = ''
@@ -489,7 +501,7 @@ export function tick(): void {
         heavyly_attacked = `heavyly attacked ${room_history_link(room_name, ticks, {text})}${teams}`
       }
 
-      const message = `  - ${room_link(room_name)}\tRCL:<b>${controller.level}</b>  <b>${progress}</b>\t${reaction_output}${number_of_reactions}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`
+      const message = `  - ${room_link(room_name)}\tRCL:<b>${rcl_text}</b>  <b>${progress}</b>\t${reaction_output}${number_of_reactions}\t${spawn}\tStorage: ${storage_amount_text}\t${storage_capacity}\t${heavyly_attacked}`
 
       if (room.memory && room.memory.is_gcl_farm) {
         gcl_farm_info.push(message)

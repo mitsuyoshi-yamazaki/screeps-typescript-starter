@@ -598,6 +598,15 @@ export class ManualSquad extends Squad {
         return
       }
 
+      case 'W54S7': {
+        this.creeps.forEach((creep) => {
+          creep.dismantleObjects('W54S8', true)
+
+        })
+        return
+      }
+
+
       default:
         if (this.creeps.size > 0) {
           this.say(`NO SCR`)

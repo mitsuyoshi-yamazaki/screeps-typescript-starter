@@ -73,60 +73,60 @@ export class Empire {
     }
 
     if (farm_room) {
-      if (farm_room.controller) {
-        switch (farm_room.controller.level) {
-          case 1: {
-            this.transfer_farm_energy(farm_room.base)
-            break
-          }
+      empire_memory.farm_room = farm_room.room.name
 
-          case 6: {
-            if (farm_room.room.terminal) {
-              send_to_energy_threshold = 300000
+      switch (farm_room.controller.level) {
+        case 1: {
+          this.transfer_farm_energy(farm_room.base)
+          break
+        }
 
-              this.transfer_farm_energy(farm_room.room.name, {with_boosts: true})
-            }
-            break
-          }
-
-          case 7: {
+        case 6: {
+          if (farm_room.room.terminal) {
             send_to_energy_threshold = 300000
 
-            const remaining = farm_room.controller.progressTotal - farm_room.controller.progress
-            if (remaining < 30000) {
-              next_farm = {
-                target_room_name: farm_room.next,
-                base_room_name: farm_room.base,
-              }
-            }
-            break
+            this.transfer_farm_energy(farm_room.room.name, {with_boosts: true})
           }
+          break
+        }
 
-          case 8: {
-            this.transfer_farm_energy(farm_room.room.name, {stop: true, with_boosts: true})
+        case 7: {
+          send_to_energy_threshold = 300000
 
-            if (['W49S6', 'W46S9', 'W47S8'].indexOf(farm_room.room.name) >= 0) {
-              farm_room.controller.unclaim()
-              const message = `Unclaim farm ${farm_room}`
-              console.log(message)
-              Game.notify(message)
-            }
-            else {
-              const message = `You're about to unclaim ${farm_room.room.name}!`
-              console.log(message)
-              Game.notify(message)
-            }
-
+          const remaining = farm_room.controller.progressTotal - farm_room.controller.progress
+          if (remaining < 30000) {
             next_farm = {
               target_room_name: farm_room.next,
               base_room_name: farm_room.base,
             }
-            break
+          }
+          break
+        }
+
+        case 8: {
+          this.transfer_farm_energy(farm_room.room.name, {stop: true, with_boosts: true})
+
+          if (['W49S6', 'W46S9', 'W47S8'].indexOf(farm_room.room.name) >= 0) {
+            farm_room.controller.unclaim()
+            const message = `Unclaim farm ${farm_room}`
+            console.log(message)
+            Game.notify(message)
+          }
+          else {
+            const message = `You're about to unclaim ${farm_room.room.name}!`
+            console.log(message)
+            Game.notify(message)
           }
 
-          default:
-            break
+          next_farm = {
+            target_room_name: farm_room.next,
+            base_room_name: farm_room.base,
+          }
+          break
         }
+
+        default:
+          break
       }
     }
     else {
@@ -148,6 +148,13 @@ export class Empire {
     //   base_room_name: 'W48S6',
     // }
 
+    // ---
+    const test_send_resources = Memory.debug.test_send_resources
+    const should_send_resources = test_send_resources || ((Game.time % 67) == 1)
+
+    if (should_send_resources) {
+      console.log(`Send resource at ${Game.time}`)
+    }
 
     // --- Regions
     for (const room_name in Game.rooms) {
@@ -166,6 +173,7 @@ export class Empire {
         produce_attacker: (attacker_room_names.indexOf(room.name) >= 0),
         attack_to,
         send_to_energy_threshold,
+        should_send_resources,
       }
 
       if (next_farm && (next_farm.base_room_name == room.name)) {

@@ -67,19 +67,7 @@ export class RemoteHarvesterSquad extends Squad {
 
     this.is_keeper_room = !(!squad_memory) && !(!squad_memory.need_attacker)
 
-    // if ((this.room_name == 'W46S9') && room) {
-    //   room.find(FIND_FLAGS).forEach((flag) => {
-    //     if (!flag || !flag.room || (flag.room.name != 'W46S9')) {
-    //       console.log(`HOGE ${flag}`)
-    //       return
-    //     }
-
-    //     // room.createConstructionSite(flag.pos, STRUCTURE_ROAD)
-    //     flag.remove()
-    //   })
-    // }
-
-    if ((['W47S6'].indexOf(this.base_room.name) >= 0) && this.base_room.controller && (this.base_room.controller.level < 6)) {
+    if ((['dummy'].indexOf(this.base_room.name) >= 0) && this.base_room.controller && (this.base_room.controller.level < 6)) {
       this.harvester_energy_unit = 1000
       this.harvester_body_unit = [
         CARRY, CARRY,
@@ -737,8 +725,6 @@ export class RemoteHarvesterSquad extends Squad {
       maxRooms: 3,
     }
 
-    let flags: Flag[] | null = null
-
     this.builders.forEach((creep) => {
       if (creep.spawning) {
         return
@@ -889,16 +875,19 @@ export class RemoteHarvesterSquad extends Squad {
         })
 
         if (!construction_site) {
-          if (!flags) {
-            flags = creep.room.find(FIND_FLAGS).filter((f) => (f.color == COLOR_BROWN))
-          }
+          const flag = creep.pos.findClosestByPath(FIND_FLAGS, {
+            filter: (f) => {
+              return f.color == COLOR_BROWN
+            }
+          })
 
-          if (flags.length > 0) {
-            flags.slice(0, 3).forEach((f) => {
-              if (creep.room.createConstructionSite(f.pos, STRUCTURE_ROAD) == OK) {
-                f.remove()
-              }
-            })
+          if (flag) {
+            if (creep.room.createConstructionSite(flag.pos, STRUCTURE_ROAD) == OK) {
+              flag.remove()
+            }
+            else {
+              console.log(`RemoteHarvesterSquad.runBuilder creating construction site failed at ${flag.pos}, ${this.name}`)
+            }
           }
           else {
             const index = squad_memory.room_contains_construction_sites.indexOf(creep.room.name)

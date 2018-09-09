@@ -52,6 +52,7 @@ export interface RegionOpt {
   attack_to: string | null,
   temp_squad_opt?: {target_room_name: string, forced?: boolean}
   send_to_energy_threshold: number,
+  should_send_resources: boolean,
 }
 
 export class Region {
@@ -697,7 +698,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6'].indexOf(this.room.name) >= 0) {
+            if (['W48S6', 'W54S7'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1014,8 +1015,7 @@ export class Region {
       }, `${this.name}.placeConstructionSite`)()
     }
 
-    const test_send_resources = Memory.debug.test_send_resources
-    if (test_send_resources || ((Game.time % 67) == 1)) {
+    if (this.region_opt.should_send_resources) {
       ErrorMapper.wrapLoop(() => {
         this.sendResources()
       })()
@@ -1187,7 +1187,7 @@ export class Region {
           if (resource_type != RESOURCE_ENERGY) {
             // Game.notify(message)
           }
-          break
+          continue  // Could be space for non-energy resources
         }
 
         if (to_room && (!to_room.storage || ((_.sum(to_room.storage.store) > (to_room.storage.storeCapacity - (capacity * 3)))))) {
@@ -1197,7 +1197,7 @@ export class Region {
           if (resource_type != RESOURCE_ENERGY) {
             // Game.notify(message)
           }
-          break
+          continue  // Could be space for non-energy resources
         }
 
         const is_raw_resource = (raw_resources.indexOf(resource_type) >= 0)
@@ -1539,7 +1539,7 @@ export class Region {
         return
       }
 
-      let duration = 400
+      let duration = 600
       if ((this.controller.level < 7)) {
         duration = 700
       }
