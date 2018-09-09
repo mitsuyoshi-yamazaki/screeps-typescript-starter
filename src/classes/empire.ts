@@ -253,7 +253,7 @@ export class Empire {
     }
 
     const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
-    const notify = true
+    const notify = false
 
     if (opts.stop) {
       if (empire_memory.farm_energy_room && (empire_memory.farm_energy_room == room_name)) {
