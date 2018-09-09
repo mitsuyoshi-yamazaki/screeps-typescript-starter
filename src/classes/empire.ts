@@ -196,7 +196,7 @@ export class Empire {
     }
 
     if (claim_to) {
-      this.setDelegate(claim_to.base_room_name, claim_to.target_room_name)
+      this.setDelegate(claim_to.base_room_name, claim_to.target_room_name, {max_rcl: 4})
     }
 
     const w51s29 = 'W51S29'
