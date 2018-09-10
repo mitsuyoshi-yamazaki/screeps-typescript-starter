@@ -83,7 +83,7 @@ export class Empire {
 
         case 6: {
           if (farm_room.room.terminal) {
-            send_to_energy_threshold = 300000
+            send_to_energy_threshold = 200000
 
             this.transfer_farm_energy(farm_room.room.name, {with_boosts: true})
           }
@@ -91,7 +91,7 @@ export class Empire {
         }
 
         case 7: {
-          send_to_energy_threshold = 300000
+          send_to_energy_threshold = 200000
 
           const remaining = farm_room.controller.progressTotal - farm_room.controller.progress
           if (remaining < 30000) {

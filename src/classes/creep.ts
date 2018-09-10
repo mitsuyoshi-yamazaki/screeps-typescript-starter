@@ -54,6 +54,7 @@ export interface CreepTransferOption {
 export interface CreepChargeTargetOption {
   should_fully_charged?: boolean
   additional_container_ids?: string[]
+  should_reload_cache?: boolean
 }
 
 export interface CreepTransferLinkToStorageOption {
@@ -80,7 +81,7 @@ declare global {
     moveToRoom(destination_room_name: string): ActionResult
     goToRenew(spawn: StructureSpawn, opts?:{ticks?: number, no_auto_finish?: boolean, withdraw?: boolean}): ActionResult
     makeShell(): ActionResult
-    find_charge_target(opt?: CreepChargeTargetOption): ChargeTarget | undefined
+    find_charge_target(opts?: CreepChargeTargetOption): ChargeTarget | undefined
     transferResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     withdrawResources(target: {store: StoreDefinition}, opt?: CreepTransferOption): ScreepsReturnCode
     dropResources(opt?: CreepTransferOption): ScreepsReturnCode
@@ -842,8 +843,8 @@ export function init() {
     // }
   }
 
-  Creep.prototype.find_charge_target = function(opt?: CreepChargeTargetOption): ChargeTarget | undefined {
-    const options = opt || {}
+  Creep.prototype.find_charge_target = function(opts?: CreepChargeTargetOption): ChargeTarget | undefined {
+    const options = opts || {}
     const additional_container_ids = options.additional_container_ids || []
     const is_attacked = this.room.attacked
     let structures_needed_to_be_charged: ChargeTarget[]
@@ -989,7 +990,9 @@ export function init() {
         }) as ChargeTarget[]
       }
 
-      this.room.structures_needed_to_be_charged = structures_needed_to_be_charged
+      if (options.should_reload_cache) {
+        this.room.structures_needed_to_be_charged = structures_needed_to_be_charged
+      }
     }
 
     // if (this.room.name == 'E16N37') {
@@ -1549,7 +1552,7 @@ export function init() {
     const carry = _.sum(this.carry)
     let debug_say = false
 
-    // if (this.room.name == 'E16N37') {
+    // if (this.room.name == 'W58S4') {
     //   debug_say = true
     // }
 
@@ -1717,7 +1720,7 @@ export function init() {
     // Charge
     if (this.memory.status == CreepStatus.CHARGE) {
 
-      const target = this.find_charge_target(opts)
+      const target = this.find_charge_target({should_reload_cache: true, ...opts})
       charge_target = target
       find_charge_target = true
 
