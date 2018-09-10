@@ -1209,7 +1209,7 @@ export function tick(): void {
       })
     }
 
-    if (!no_memory) {
+    if (!no_memory && !dry_run) {
       // --- Squad Memory
       let squad_name = `remote_harvester_${room.name.toLowerCase()}`
 

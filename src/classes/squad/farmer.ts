@@ -561,7 +561,7 @@ export class FarmerSquad extends Squad {
         if ((creep.ticksToLive || 1500) > 1490) {
           if (!creep.boosted() && this.lab && room.storage && room.controller) {
             console.log(`FarmerSquad.runUpgrader boostCreep ${this.room_name}, ${creep.name}, ${this.name}`)
-            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 150000) && (room.controller.level != 8) && !((room.controller.level == 7) && ((room.controller.progressTotal - room.controller.progress) > 800000))) {
+            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 150000) && (room.controller.level != 8) && !((room.controller.level == 7) && ((room.controller.progressTotal - room.controller.progress) > 10000000))) {
               const result = this.lab.boostCreep(creep)
               if (result != OK) {
                 console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)

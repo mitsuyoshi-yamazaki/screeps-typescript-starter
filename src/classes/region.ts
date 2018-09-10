@@ -35,7 +35,7 @@ export interface RegionMemory {
   charger_position?: {x: number, y: number} | null
   room_need_scout?: string[]
   rooms_need_to_be_defended?: string[]
-  observe_target?: string
+  observe_target?: string | null
   observe_index: number
   excluded_walls?: string[]
   repairing_wall_id?: string | null
@@ -698,7 +698,7 @@ export class Region {
             break
           }
           case SquadType.MANUAL: {
-            if (['W48S6', 'W54S7'].indexOf(this.room.name) >= 0) {
+            if (['W48S6'].indexOf(this.room.name) >= 0) {
               const squad = new ManualSquad(squad_memory.name, this.room.name, this.room)
               this.squads.set(squad.name, squad)
             }
@@ -1327,7 +1327,7 @@ export class Region {
     if (this.room.attacker_info.heal == 0) {
       return
     }
-    console.log('DETECT ', ' Healer-Attackers!!!')
+    console.log(`DETECT Healer-Attackers!!! ${room_link(this.room.name)}`)
 
     const important_structures: StructureConstant[] = [
       STRUCTURE_SPAWN,
