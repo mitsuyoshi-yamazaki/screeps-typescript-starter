@@ -31,6 +31,7 @@ export class FarmerSquad extends Squad {
   private charger_position: {x:number, y:number}
   private renew_position: {x:number, y:number}
 
+  private upgrader_max: number
   private next_creep: CreepType | undefined
   private stop_upgrader_spawn = false
 
@@ -146,13 +147,35 @@ export class FarmerSquad extends Squad {
       // console.log(`HGOE renew ${this.upgraders.renew}, sorted: ${this.upgraders.sorted.map(c=>c.name)}, all: ${this.upgraders.all.map(c=>c.name)}`)
     }
 
+    const positions_count = this.positions.length + 1
+    this.upgrader_max = positions_count
+
+    const destination_room = Game.rooms[this.room_name]
+    const rcl = (destination_room && destination_room.controller) ? destination_room.controller.level : 0
+
+    if ((rcl >= 6) && destination_room && destination_room.storage) {
+      const energy_max = Math.floor(destination_room.storage.store.energy / 100000)
+      this.upgrader_max = Math.min(positions_count, energy_max)
+    }
+
+    if ((Game.time % 193) == 1) {
+      const renew_upgraders = this.upgraders.sorted.filter((creep) => {
+        return !creep.memory.let_thy_die
+      })
+
+      console.log(`FarmerSquad upgrader_max: ${this.upgrader_max}, renew: ${renew_upgraders.length}, ${this.name}`)
+
+      if ((renew_upgraders.length > this.upgrader_max) && renew_upgraders[0]) {
+        renew_upgraders[0].memory.let_thy_die = true
+        console.log(`FarmerSquad let_thy_die: ${renew_upgraders[0].name}, ${this.name}`)
+      }
+    }
+
     this.next_creep = this.nextCreep()
 
-    const room = Game.rooms[this.room_name]
-
-    if (room) {
+    if (destination_room) {
       const index = 3
-      this.showDescription(room, index)
+      this.showDescription(destination_room, index)
     }
   }
 
@@ -188,9 +211,7 @@ export class FarmerSquad extends Squad {
       need_carriers = true
     }
 
-    const upgrader_max = this.positions.length + 1 //(rcl < 6) ? 4 : this.positions.length
-
-    if (this.upgraders.all.length < upgrader_max) {
+    if (this.upgraders.all.length < this.upgrader_max) {
       if (need_carriers && (this.carriers.length == 0)) { // @todo: if rcl < 4 && storage is empty
         if (debug) {
           console.log(`FarmerSquad.nextCreep no carriers ${this.name}`)
