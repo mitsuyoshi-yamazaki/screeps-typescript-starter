@@ -134,15 +134,14 @@ export class Empire {
         const farm_info = gcl_farm_rooms[empire_memory.farm_room]
 
         next_farm = {
-          target_room_name: empire_memory.farm_room,
+          target_room_name: farm_info.next,
           base_room_name: farm_info.base,
         }
       }
     }
 
     // @todo:
-    // next_farm on memory
-    // transfer boost compounds before unclaim
+    // transfer upgrader to next farm squad
     // next_farm = {
     //   target_room_name: 'W49S6',
     //   base_room_name: 'W48S6',
