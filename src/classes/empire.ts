@@ -31,10 +31,10 @@ export class Empire {
 
     // --- Claim
     let claim_to: {target_room_name: string, base_room_name: string, forced: boolean, at_level?: number} | null = {
-      target_room_name: 'W54S7',
-      base_room_name: 'W56S7',
+      target_room_name: 'W45S3',
+      base_room_name: 'W46S3',
       forced: true,
-      // at_level: 15,
+      at_level: 16,
     }
 
     // {

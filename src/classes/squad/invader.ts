@@ -9,6 +9,7 @@ interface InvaderMemory extends CreepMemory {
 interface InvaderSquadMemory extends SquadMemory {
   target_room_names: string[]
   target_ids: string[]
+  only_once: boolean
 }
 
 export class InvaderSquad extends Squad {
@@ -204,7 +205,7 @@ export class InvaderSquad extends Squad {
     //   HEAL, HEAL, HEAL, HEAL, HEAL,
     //   HEAL, HEAL, HEAL,
     // ]
-    let body: BodyPartConstant[] = [
+    let body: BodyPartConstant[] = [  // no boost
       TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,
       TOUGH,
       HEAL, HEAL, HEAL, HEAL, HEAL,

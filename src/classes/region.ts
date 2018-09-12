@@ -566,6 +566,9 @@ export class Region {
       }
 
       if (squad_memory.stop_spawming || squad_memory.no_instantiation) {
+        // if (squad_memory.type == SquadType.INVADER) {
+        //   console.log(`${squad_memory.name}`)
+        // }
         this.no_instantiations.push(`    - ${squad_memory.name}`)
         continue
       }
