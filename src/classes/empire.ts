@@ -57,6 +57,7 @@ export class Empire {
 
     let farm_room: {room: Room, controller: StructureController, next: string, base: string} | null = null
     let next_farm: {target_room_name: string, base_room_name: string} | null = null
+    const boost_resource = RESOURCE_CATALYZED_GHODIUM_ACID
     let send_to_energy_threshold = 400000
 
     for (const room_name in gcl_farm_rooms) {
@@ -85,7 +86,7 @@ export class Empire {
           if (farm_room.room.terminal) {
             send_to_energy_threshold = 200000
 
-            this.transfer_farm_energy(farm_room.room.name, {with_boosts: true})
+            this.transfer_farm_energy(farm_room.room.name, {with_boosts: true, boost_resource})
           }
           break
         }
@@ -104,9 +105,15 @@ export class Empire {
         }
 
         case 8: {
-          this.transfer_farm_energy(farm_room.room.name, {stop: true, with_boosts: true})
+          this.transfer_farm_energy(farm_room.room.name, {stop: true, with_boosts: true, boost_resource})
+          let avoid_unclaim = false
+          const boost_amount = (farm_room.controller.my && farm_room.room.terminal) ? (farm_room.room.terminal.store[boost_resource] || 0) : 0
 
-          if (['W49S6', 'W46S9', 'W47S8'].indexOf(farm_room.room.name) >= 0) {
+          if (farm_room.room.terminal && (boost_amount >= 100)) {
+            avoid_unclaim = farm_room.room.terminal.send(boost_resource, boost_amount, farm_room.base) == OK
+          }
+
+          if (!avoid_unclaim && (['W49S6', 'W46S9', 'W47S8'].indexOf(farm_room.room.name) >= 0)) {
             farm_room.controller.unclaim()
             const message = `Unclaim farm ${farm_room}`
             console.log(message)
@@ -242,7 +249,7 @@ export class Empire {
   }
 
   // --- Private
-  private transfer_farm_energy(room_name: string, opts?: {stop?: boolean, with_boosts?: boolean}): void {
+  private transfer_farm_energy(room_name: string, opts?: {stop?: boolean, with_boosts?: boolean, boost_resource?: ResourceConstant}): void {
     opts = opts || {}
 
     const empire_memory = Memory.empires[this.name]
@@ -251,7 +258,7 @@ export class Empire {
       return
     }
 
-    const resource_type = RESOURCE_CATALYZED_GHODIUM_ACID
+    const resource_type = opts.boost_resource || RESOURCE_CATALYZED_GHODIUM_ACID
     const notify = false
 
     if (opts.stop) {

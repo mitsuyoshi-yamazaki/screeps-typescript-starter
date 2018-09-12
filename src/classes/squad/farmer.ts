@@ -155,7 +155,7 @@ export class FarmerSquad extends Squad {
 
     if ((rcl >= 6) && destination_room && destination_room.storage) {
       const energy_max = Math.floor(destination_room.storage.store.energy / 100000)
-      this.upgrader_max = Math.min(positions_count, energy_max)
+      this.upgrader_max = Math.min(positions_count, Math.max(1, energy_max))
     }
     else if (rcl < 6) {
       this.upgrader_max = 4
