@@ -1,7 +1,13 @@
-import { RegionMemory } from "./region";
 
-export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max_hits?: number}): void {
+export interface RunTowersOpts {
+  wall_max_hits?: number
+  excluded_wall_ids?: string[]
+  repairing_wall_id?: string
+}
+
+export function runTowers(towers: StructureTower[], room: Room, opts?: RunTowersOpts): string | null { // Returns repairing wall id
   opts = opts || {}
+  const wall_max_hits = opts.wall_max_hits || 20000000  // 20M
 
   const damaged_hostiles: Creep[] = room.attacker_info.hostile_creeps.filter((creep) => {
     return (creep.hits < creep.hitsMax)
@@ -18,39 +24,25 @@ export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max
   })
 
   let hits_max = 114000
-  // @fixme:
-  // if (room.storage && (room.storage.store.energy > 900000)) {
-  //   hits_max = 1100000
-  // }
-  // else if (room.storage && (room.storage.store.energy > 800000)) {
-  //   hits_max = 900000
-  // }
-  // else if (room.storage && (room.storage.store.energy > 700000)) {
-  //   hits_max = 750000
-  // }
-  // else if (room.storage && (room.storage.store.energy > 500000)) {
-  //   hits_max = 500000
-  // }
-  if (room.storage && (room.storage.store.energy > 400000)) {
-    hits_max = 386000
-  }
 
-  if ((room.name == 'W51S29') && !room.heavyly_attacked) {
-    hits_max = 1500000
-  }
-  else if ((room.name == 'W44S7')) {
-    hits_max = 300000
-  }
-  else if ((room.name == 'W38S7')) {
-    hits_max = 100000
-  }
+  // if (room.storage && (room.storage.store.energy > 400000)) {
+  //   hits_max = 386000
+  // }
+
+  // if ((room.name == 'W51S29') && !room.heavyly_attacked) {
+  //   hits_max = 1500000
+  // }
+  // else if ((room.name == 'W44S7')) {
+  //   hits_max = 300000
+  // }
+  // else if ((room.name == 'W38S7')) {
+  //   hits_max = 100000
+  // }
 
   const has_much_energy = !(!room.storage) && (room.storage.store.energy > 500000)
 
-  const region_memory = Memory.regions[room.name] as RegionMemory | undefined
-
-  const excluded_walls = (!region_memory) ? [] : region_memory.excluded_walls || []
-  let repairing_wall: StructureWall | StructureRampart | undefined
+  const excluded_walls = !opts.excluded_wall_ids ? [] : opts.excluded_wall_ids
+  const repairing_wall = !opts.repairing_wall_id ? undefined : Game.getObjectById(opts.repairing_wall_id) as StructureWall | StructureRampart | undefined
 
   const damaged_structures: AnyStructure[] = room.find(FIND_STRUCTURES, { // To Detect non-ownable structures
     filter: (structure) => {
@@ -69,15 +61,6 @@ export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max
     if (lhs.hits > rhs.hits) return 1
     return -1
   })
-
-  if (region_memory) {
-    if ((Game.time % 5) == 2) {
-      region_memory.repairing_wall_id = undefined
-    }
-    else if (region_memory.repairing_wall_id) {
-      repairing_wall = Game.getObjectById(region_memory.repairing_wall_id) as StructureWall | StructureRampart | undefined
-    }
-  }
 
   let damaged_wall: StructureWall | StructureRampart | undefined
 
@@ -102,15 +85,8 @@ export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max
       return -1
     })
 
-    if (opts.wall_max_hits && (walls[0].hits < opts.wall_max_hits)) {
+    if (walls[0].hits < wall_max_hits) {
       damaged_wall = walls[0]
-    }
-    else if (!region_memory || !region_memory.wall_max_hits || (walls[0] && (walls[0].hits < region_memory.wall_max_hits))) {
-      damaged_wall = walls[0]
-    }
-
-    if (damaged_wall && region_memory) {
-      region_memory.repairing_wall_id = damaged_wall.id
     }
   }
 
@@ -174,4 +150,9 @@ export function runTowers(towers: StructureTower[], room: Room, opts?: {wall_max
       }
     }
   })
+
+  if (damaged_wall) {
+    return damaged_wall.id
+  }
+  return null
 }

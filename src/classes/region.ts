@@ -17,7 +17,7 @@ import { NukerChargerSquad, NukerChargerSquadMemory } from "./squad/nuker_charge
 import { RemoteAttackerSquad } from "./squad/remote_attacker";
 import { FarmerSquad, FarmerSquadMemory } from "./squad/farmer";
 import { room_link, room_history_link } from "./utils";
-import { runTowers } from "./tower";
+import { runTowers, RunTowersOpts } from "./tower";
 
 export interface RegionMemory {
   destination_container_id?: string | null
@@ -909,6 +909,8 @@ export class Region {
   }
 
   public run(): void {
+    const region_memory = Memory.regions[this.name] as RegionMemory | undefined
+
     if ((Game.time % 101) == 13) {
       ErrorMapper.wrapLoop(() => {
         this.watchDog()
@@ -938,8 +940,30 @@ export class Region {
         }) as StructureTower[]
       }
 
-      runTowers(towers, this.room)
+      const opts: RunTowersOpts = {}
 
+      if (region_memory) {
+        if ((Game.time % 5) == 2) {
+          region_memory.repairing_wall_id = undefined
+        }
+        else if (region_memory.repairing_wall_id) {
+          opts.repairing_wall_id = region_memory.repairing_wall_id
+        }
+
+        if (region_memory.wall_max_hits) {
+          opts.wall_max_hits = region_memory.wall_max_hits
+        }
+
+        if (region_memory.excluded_walls) {
+          opts.excluded_wall_ids = region_memory.excluded_walls
+        }
+      }
+
+      const repairing_wall_id = runTowers(towers, this.room, opts)
+
+      if (region_memory) {
+        region_memory.repairing_wall_id = repairing_wall_id
+      }
     }, `${this.name}.runTowers`)()
 
     this.squads.forEach((squad, _) => {

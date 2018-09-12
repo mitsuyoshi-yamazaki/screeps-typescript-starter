@@ -39,7 +39,7 @@ export class FarmerSquad extends Squad {
   private lab: StructureLab | undefined
   private towers: StructureTower[] = []
 
-  private boost_resource_type: ResourceConstant = RESOURCE_CATALYZED_GHODIUM_ACID
+  private boost_resource_type: ResourceConstant = RESOURCE_GHODIUM_ACID
 
   constructor(readonly name: string, readonly base_room: Room, readonly room_name: string) {
     super(name)
@@ -585,7 +585,23 @@ export class FarmerSquad extends Squad {
         if ((creep.ticksToLive || 1500) > 1490) {
           if (!creep.boosted() && this.lab && room.storage && room.controller) {
             console.log(`FarmerSquad.runUpgrader boostCreep ${this.room_name}, ${creep.name}, ${this.name}`)
-            if ((this.lab.mineralType == this.boost_resource_type) && (this.lab.mineralAmount >= 30) && (room.storage.store.energy > 150000) && (room.controller.level != 8) && !((room.controller.level == 7) && ((room.controller.progressTotal - room.controller.progress) < 800000))) {
+
+            let should_boost = true
+
+            if ((this.lab.mineralType != this.boost_resource_type) || (this.lab.mineralAmount < 30)) {
+              should_boost = false
+            }
+            else if (room.storage.store.energy < 150000) {
+              should_boost = false
+            }
+            else if (room.controller.level == 8) {
+              should_boost = false
+            }
+            else if ((room.controller.level == 7) && ((room.controller.progressTotal - room.controller.progress) < 800000)) {
+              should_boost = false
+            }
+
+            if (should_boost) {
               const result = this.lab.boostCreep(creep)
               if (result != OK) {
                 console.log(`FarmerSquad.runUpgrader boostCreep failed with ${result}, ${this.base_room.name}, ${creep.name}, ${this.name}`)
