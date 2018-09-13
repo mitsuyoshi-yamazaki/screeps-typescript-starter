@@ -58,7 +58,7 @@ export class Empire {
     let farm_room: {room: Room, controller: StructureController, next: string, base: string} | null = null
     let next_farm: {target_room_name: string, base_room_name: string} | null = null
     const boost_resource = RESOURCE_GHODIUM_ACID
-    let send_to_energy_threshold = 400000
+    let send_to_energy_threshold = 200000
 
     for (const room_name in gcl_farm_rooms) {
       const room = Game.rooms[room_name]
@@ -205,33 +205,33 @@ export class Empire {
       this.setDelegate(claim_to.base_room_name, claim_to.target_room_name, {max_rcl: 4})
     }
 
-    const w51s29 = 'W51S29'
-    const w44s7 = 'W44S7'
-    const w48s6 = 'W48S6'
-    const w43s5 = 'W43S5'
-    const w47s6 = 'W47S6'
-    const w45s27 = 'W45S27'
-    // const w39s9 = 'W39S9'
-    const w47s9 = 'W47S9'
-    // const w45s3 = 'W45S3'
-    const w49s6 = 'W49S6'
-    const w46s3 = 'W46S3'
-    const e16n37 = 'E16N37'
-    const w56s7 = 'W56S7'
-    const w55s23 = 'W55S23'
-    const w55s13 = 'W55S13'
-    const w58s4 = 'W58S4'
+    // const w51s29 = 'W51S29'
+    // const w44s7 = 'W44S7'
+    // const w48s6 = 'W48S6'
+    // const w43s5 = 'W43S5'
+    // const w47s6 = 'W47S6'
+    // const w45s27 = 'W45S27'
+    // // const w39s9 = 'W39S9'
+    // const w47s9 = 'W47S9'
+    // // const w45s3 = 'W45S3'
+    // const w49s6 = 'W49S6'
+    // const w46s3 = 'W46S3'
+    // const e16n37 = 'E16N37'
+    // const w56s7 = 'W56S7'
+    // const w55s23 = 'W55S23'
+    // const w55s13 = 'W55S13'
+    // const w58s4 = 'W58S4'
 
-    const time = (Game.time % 3)
+    // const time = (Game.time % 3)
 
-    // set_delegate(w56s7, w58s4, {max_rcl: 4})
+    // // set_delegate(w56s7, w58s4, {max_rcl: 4})
 
-    if (time == 2) {
-    }
-    else if (time == 0) {
-    }
-    else {
-    }
+    // if (time == 2) {
+    // }
+    // else if (time == 0) {
+    // }
+    // else {
+    // }
   }
 
   public say(message: string): void {

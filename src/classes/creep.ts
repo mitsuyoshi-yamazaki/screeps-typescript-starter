@@ -1809,13 +1809,16 @@ export function init() {
       if (this.room.name == 'W47S9') {
         should_upgrade = false
       }
+      if (this.room.controller && (this.room.controller.level >= 8)) {
+        should_upgrade = false
+      }
 
 
       // if (this.room.name == 'W43N5') {
       //   should_upgrade = false
       // }
 
-      if (!this.room.construction_sites || (this.room.construction_sites.length == 0)) {
+      if ((!this.room.construction_sites || (this.room.construction_sites.length == 0))) {
         if (should_upgrade) {
           this.memory.status = CreepStatus.UPGRADE
           if (debug_say) {

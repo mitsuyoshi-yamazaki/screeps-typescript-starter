@@ -205,6 +205,11 @@ export class FarmerSquad extends Squad {
     // Upgrader
     let need_carriers = false  // @todo: if storage is empty
 
+    if (rcl < 4) {
+      if (destination_room && (!destination_room.storage || (destination_room.storage.store.energy < 10000))) {
+        need_carriers = true
+      }
+    }
     if (rcl < 6) {
       if ((rcl >= 4) || (destination_room && !destination_room.storage)) {
         need_carriers = true

@@ -100,7 +100,7 @@ export class ChargerSquad extends Squad {
       opt.has_support_links = true
     }
 
-    if (this.additional_links) {
+    if (this.additional_links && (this.additional_links.length > 0)) {
       opt.transfer_energy = true
       opt.additional_links = this.additional_links
     }

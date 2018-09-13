@@ -1401,7 +1401,9 @@ export class Region {
 
   private transferLinks() {
     if (!this.destination_link_id) {
-      // console.log(`NO destination_link_id ${this.room.name}`)
+      if (((Game.time % 43) == 1) && (this.controller.level >= 5)) {
+        console.log(`NO destination_link_id in ${this.room.name}`)
+      }
       return
     }
 
